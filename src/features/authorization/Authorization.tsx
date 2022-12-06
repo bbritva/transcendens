@@ -9,7 +9,7 @@ import {
 } from './authorizationSlice';
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
 import styles from '../counter/Counter.module.css';
-import { getAuthorizeHref } from '../../oauthConfig';
+import { getAuthorizeHref, getToken } from '../../oauthConfig';
 import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from '../../utils/urlUtils';
 
 const hashParams = getHashParams();
@@ -18,7 +18,7 @@ const expires_in = hashParams.expires_in;
 removeHashParamsFromUrl();
 
 const searchParams = getSearchParams();
-const access_code = searchParams.code;
+const access_code = searchParams?.code;
 const access_state = searchParams?.state;
 removeAllParamsFromUrl();
 console.log(searchParams);
@@ -31,6 +31,9 @@ export function Authorization() {
   self.crypto.getRandomValues(stateArray);/* eslint-disable-line no-restricted-globals */
 
   useEffect(() => {
+    if (access_code) {
+      console.log('Token ', getToken(access_code));
+    }
     if (access_token) {
       dispatch(setLoggedIn(true));
       dispatch(setAccessToken(access_token));
@@ -38,7 +41,7 @@ export function Authorization() {
       // dispatch(setUserProfileAsync(access_token));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [access_code]);
 
   return (
     <div>
