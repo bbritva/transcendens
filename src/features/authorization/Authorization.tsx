@@ -10,17 +10,25 @@ import {
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
 import styles from '../counter/Counter.module.css';
 import { getAuthorizeHref } from '../../oauthConfig';
-import { getHashParams, removeHashParamsFromUrl } from '../../utils/hashUtils';
+import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from '../../utils/urlUtils';
 
 const hashParams = getHashParams();
 const access_token = hashParams.access_token;
 const expires_in = hashParams.expires_in;
 removeHashParamsFromUrl();
 
+const searchParams = getSearchParams();
+const access_code = searchParams.code;
+const access_state = searchParams?.state;
+removeAllParamsFromUrl();
+console.log(searchParams);
+
 export function Authorization() {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const tokenExpiryDate = useSelector(selectTokenExpiryDate);
   const dispatch = useDispatch();
+  const stateArray = new Uint32Array(10);
+  self.crypto.getRandomValues(stateArray);/* eslint-disable-line no-restricted-globals */
 
   useEffect(() => {
     if (access_token) {
@@ -39,7 +47,7 @@ export function Authorization() {
           <button
           className={styles.button}
           aria-label="Log in using OAuth 2.0"
-          onClick={() => window.open(getAuthorizeHref(), '_self')}
+          onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
           >
           Log in with Spotify
           </button>}

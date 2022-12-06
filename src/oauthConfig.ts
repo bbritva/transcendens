@@ -1,12 +1,12 @@
-const authEndpoint = 'https://accounts.spotify.com/authorize';
+const authEndpoint = 'https://api.intra.42.fr/oauth/authorize';
 
 const scopes = [
-  'user-read-private',
+  'public',
 ];
 
-export const getAuthorizeHref = (): string => {
+export const getAuthorizeHref = (stateArray: Uint32Array): string => {
   const clientId = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
   const redirectUri = process.env.REACT_APP_REDIRECT_URI;
-  return `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join("%20")}&response_type=token`;
+  return `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join("%20")}&state=${stateArray.join('_')}&response_type=code`;
 }
 
