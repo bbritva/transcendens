@@ -1,0 +1,47 @@
+version: '3.7'
+
+services:
+  nestjs:
+    build: ./nestjs
+    container_name: nestjs_dev
+    env_file:
+      - .env
+    networks:
+      - my_net
+    ports:
+      - 3000:3000
+      - 9229:9229
+    volumes:
+      - volume_nestjs_app:/usr/src/app
+
+
+  pgsql:
+    container_name: pgsql
+    image: postgres:alpine
+    env_file:
+      - .env
+    networks:
+      - my_net
+    volumes:
+      - volume_db:/var/lib/postgresql/data
+
+volumes:
+  volume_nestjs_app:
+    name: volume_nestjs_app
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: ${HOME}/data/nestjs_app
+
+  volume_db:
+    # name: volume_db
+    # driver: local
+    # driver_opts: 
+    #   type: none
+    #   o: bind
+    #   device: ${HOME}/data/db
+
+networks:
+  my_net:
+    driver: bridge
