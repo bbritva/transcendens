@@ -7,6 +7,9 @@ import { DataSource } from 'typeorm';
 //services
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
+import { UserService } from './user.service';
+import { PostService } from './post.service';
+import { PrismaService } from './prisma.service';
 
 const confS = new ConfigService();
 
@@ -29,7 +32,7 @@ const confS = new ConfigService();
   controllers: [
     AppController
   ],
-  providers: [AppService],
+  providers: [PrismaService, AppService, UserService, PostService],
 })
 export class AppModule {
   constructor(public dataSource: DataSource) {}
