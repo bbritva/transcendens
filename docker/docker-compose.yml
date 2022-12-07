@@ -27,15 +27,13 @@ services:
 
 volumes:
   volume_nestjs_app:
-    name: volume_nestjs_app
     driver: local
     driver_opts: 
       type: none
       o: bind
-      device: ${HOME}/data/nestjs_app
+      device: ${HOME}/transcendence/backend
 
   volume_db:
-    # name: volume_db
     # driver: local
     # driver_opts: 
     #   type: none

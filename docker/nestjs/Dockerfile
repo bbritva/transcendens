@@ -1,6 +1,6 @@
 FROM node:alpine
 
-WORKDIR /usr/src/app/my_proj
+WORKDIR /usr/src/app/nestjs_app/my_proj
 
 RUN npm install glob rimraf
 RUN npm install prisma --save-dev
