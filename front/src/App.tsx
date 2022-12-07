@@ -17,18 +17,18 @@ function App() {
           {/* <img className="rectangle-22" src={rectangle22} /> */}
           <div className="rectangle-21">
             <div className="rugid-trips">PONG</div>
-            {/* <ButtonVariant3
+            <ButtonVariant3
               className="button-variant-31-instance"
-              {...propsData.buttonVariant31}
-            /> */}
-            <Authorization className="button-variant-31-instance"/>
+              {...propsData.buttonVariant33}
+            />
+            <Authorization className="button-variant-3 button-variant-31-instance"/>
           </div>
         </div>
         <div className="flex-container-1">
           <span className="uk-hiking-walking-t">
-            Ultimate 42 &amp; PING_PONG
+            Ultimate 42
           </span>
-          <span className="for-the-adventurer">FOR THE peers</span>
+          <span className="for-the-adventurer">peer pong</span>
         </div>
         <div className="flex-container-2">
           <img className="exclude" src={exclude} />

@@ -44,15 +44,14 @@ export const Authorization = (props: { text?: string, className?: string }) => {
   });
 
   return (
-    <div className={`${props.className || ""}`}>
+    <div>
       {!isLoggedIn &&
-        <button
-        className={styles.button}
-        aria-label="Log in using OAuth 2.0"
+        <div
+        className={`${props.className || ""}`}
         onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
         >
-        {props.text || "Authorization"}
-        </button>}
+          {props.text || "Authorization"}
+        </div>}
       {isLoggedIn && <div className={styles.row}>Token expiry date: {tokenExpiryDate}</div>}
     </div>
   );

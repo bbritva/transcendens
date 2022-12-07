@@ -12,7 +12,7 @@
   font-weight: 600;
   line-height: 100px;
   display: flex;
-  background-image: url("/src/assets/rectangle20.png");
+  background-image: url("/src/assets/background_christmas.jpg");
   background-position: center;
   background-size: cover;
 }
@@ -105,15 +105,16 @@
 }
 
 .uk-hiking-walking-t {
-  letter-spacing: -3px;
-  z-index: 1;
+  letter-spacing: -2px;
   margin-bottom: -15px;
   font-size: 2.625rem;
   line-height: 91px;
+  text-shadow: -0.5px 0 black, 0 0.5px black, 0.5px 0 black, 0 -0.5px black;
 }
 
 .for-the-adventurer {
   letter-spacing: -4px;
+  text-shadow: -0.5px 0 black, 0 0.5px black, 0.5px 0 black, 0 -0.5px black;
 }
 
 .flex-container-2 {

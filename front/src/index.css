@@ -2,6 +2,7 @@ html, body {
   margin:0;
   display:grid;
   height:100%;
+  overflow:hidden;
 }
 
 body {

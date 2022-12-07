@@ -10,8 +10,10 @@
   font-weight: 500;
   line-height: 18px;
   display: flex;
-}
-
-.contact {
   text-transform: uppercase;
 }
+
+.button-variant-3:hover,
+.button-variant-3:focus {
+  border: 2px solid #000;}
+
