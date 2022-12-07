@@ -6,10 +6,10 @@ import {
   setTokenExpiryDate,
   selectIsLoggedIn,
   selectTokenExpiryDate,
-} from './authorizationSlice';
+} from 'src/features/authorization/authorizationSlice';
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
-import { getAuthorizeHref, getToken } from '../../oauthConfig';
-import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from '../../utils/urlUtils';
+import { getAuthorizeHref, getToken } from 'src/oauthConfig';
+import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from 'src/utils/urlUtils';
 
 const hashParams = getHashParams();
 const access_token = hashParams.access_token;

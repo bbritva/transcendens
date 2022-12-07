@@ -1,8 +1,7 @@
-import "./App.css";
-import exclude from "./assets/exclude.svg";
-import rectangle22 from "./assets/rectangle22.svg";
-import ButtonVariant3 from "./components/NavButton/ButtonVariant3";
-import { Authorization } from './features/authorization/Authorization';
+import "src/App.css";
+import exclude from "src/assets/exclude.svg";
+import ButtonVariant3 from "src/components/NavButton/ButtonVariant3";
+import Navbar from 'src/components/Navbar/Navbar';
 
 function App() {
   const propsData = {
@@ -13,15 +12,7 @@ function App() {
   return (
     <div className="landing-background">
       <div className="main-container">
-        <div className="navbar-container">
-          <div className="navbar">
-            <div className="logo-text">PONG</div>
-            <ButtonVariant3
-              {...propsData.buttonVariant33}
-            />
-            <Authorization className="button-variant-3"/>
-          </div>
-        </div>
+        <Navbar />
         <div className="text-container">
           <span className="text-up-header">
             Ultimate 42
