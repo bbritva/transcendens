@@ -1,60 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import "./App.css";
+import exclude from "./assets/exclude.svg";
+import rectangle22 from "./assets/rectangle22.svg";
+import ButtonVariant3 from "./components/NavButton/ButtonVariant3";
 import { Authorization } from './features/authorization/Authorization';
 
 function App() {
+  const propsData = {
+    buttonVariant33: {
+      contact: "Most Popular",
+    },
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Authorization />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <div className="landing-page-walking">
+      <div className="rectangle-20">
+        <div className="flex-container">
+          {/* <img className="rectangle-22" src={rectangle22} /> */}
+          <div className="rectangle-21">
+            <div className="rugid-trips">PONG</div>
+            {/* <ButtonVariant3
+              className="button-variant-31-instance"
+              {...propsData.buttonVariant31}
+            /> */}
+            <Authorization className="button-variant-31-instance"/>
+          </div>
+        </div>
+        <div className="flex-container-1">
+          <span className="uk-hiking-walking-t">
+            Ultimate 42 &amp; PING_PONG
+          </span>
+          <span className="for-the-adventurer">FOR THE peers</span>
+        </div>
+        <div className="flex-container-2">
+          <img className="exclude" src={exclude} />
+          <ButtonVariant3
+            className="button-variant-33-instance"
+            {...propsData.buttonVariant33}
+          />
+        </div>
+      </div>
+     </div>
   );
-}
+};
 
 export default App;

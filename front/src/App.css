@@ -1,39 +1,141 @@
-.App {
-  text-align: center;
-}
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-float infinite 3s ease-in-out;
-  }
-}
-
-.App-header {
-  min-height: 100vh;
+.landing-page-walking {
+  color: #fff;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: stretch;
+  font-family: Inter;
+  font-size: 5.125rem;
+  font-weight: 600;
+  line-height: 100px;
   display: flex;
+  background-image: url("/src/assets/rectangle20.png");
+  background-position: center;
+  background-size: cover;
+}
+
+.rectangle-20 {
+  height: 100%;
   flex-direction: column;
+  flex-basis: 100%;
+  justify-content: space-between;
+  align-items: stretch;
+  padding-bottom: 80px;
+  display: flex;
+}
+
+.flex-container {
+  text-align: center;
+  width: 100%;
+  flex-direction: column;
+  flex-basis: 11%;
+  justify-content: space-between;
+  align-items: stretch;
+  margin-bottom: 9px;
+  font-family: JejuHallasan;
+  font-size: 1.813rem;
+  font-weight: 400;
+  line-height: 25px;
+  display: flex;
+}
+
+.rectangle-22 {
+  width: 143px;
+  height: 134px;
+  object-fit: cover;
+  margin-bottom: -134px;
+  margin-left: 134px;
+}
+
+.rectangle-21 {
+  z-index: auto;
+  background-color: #00000082;
+  justify-content: space-evenly;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  display: flex;
 }
 
-.App-link {
-  color: rgb(112, 76, 182);
+.rugid-trips {
+  width: 143px;
+  height: 134px;
+  background-image: url("/src/assets/rectangle22.svg");
+  letter-spacing: -2px;
+  margin-bottom: -5%;
+  object-fit: cover;
+  align-items: center;
+  display: grid;
 }
 
-@keyframes App-logo-float {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
+.button-variant-3-instance-1, .button-variant-34-instance, .button-variant-35-instance {
+  height: 40%;
+  flex-basis: 8%;
+  margin-bottom: 1px;
+}
+
+.button-variant-36-instance {
+  height: 40%;
+  flex-basis: 9%;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.button-variant-31-instance {
+  height: 40%;
+  flex-basis: 8%;
+  margin-bottom: 1px;
+}
+
+.button-variant-32-instance {
+  height: 40%;
+  flex-basis: 8%;
+  margin-bottom: 1px;
+}
+
+.flex-container-1 {
+  width: 55%;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  margin-top: 4px;
+  margin-left: 134px;
+  display: flex;
+}
+
+.uk-hiking-walking-t {
+  letter-spacing: -3px;
+  z-index: 1;
+  margin-bottom: -15px;
+  font-size: 2.625rem;
+  line-height: 91px;
+}
+
+.for-the-adventurer {
+  letter-spacing: -4px;
+}
+
+.flex-container-2 {
+  width: 20%;
+  flex-direction: row;
+  flex-basis: 4%;
+  justify-content: space-between;
+  align-items: stretch;
+  margin-bottom: 345px;
+  margin-left: 134px;
+  display: flex;
+}
+
+.exclude {
+  width: 129px;
+  height: 41px;
+  object-fit: cover;
+  border: none;
+}
+
+.button-variant-33-instance {
+  height: 100%;
+  flex-basis: 49%;
+  margin-top: 1px;
 }

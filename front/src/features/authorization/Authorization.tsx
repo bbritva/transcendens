@@ -23,7 +23,7 @@ const access_state = searchParams?.state;
 removeAllParamsFromUrl();
 console.log(searchParams);
 
-export function Authorization() {
+export const Authorization = (props: { text?: string, className?: string }) => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const tokenExpiryDate = useSelector(selectTokenExpiryDate);
   const dispatch = useDispatch();
@@ -41,21 +41,20 @@ export function Authorization() {
       // dispatch(setUserProfileAsync(access_token));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [access_code]);
+  });
 
   return (
-    <div>
-      <div className={styles.row}>
-        {!isLoggedIn &&
-          <button
-          className={styles.button}
-          aria-label="Log in using OAuth 2.0"
-          onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
-          >
-          Log in with Spotify
-          </button>}
-        {isLoggedIn && <div className={styles.row}>Token expiry date: {tokenExpiryDate}</div>}
-      </div>
+    <div className={`${props.className || ""}`}>
+      {!isLoggedIn &&
+        <button
+        className={styles.button}
+        aria-label="Log in using OAuth 2.0"
+        onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
+        >
+        {props.text || "Authorization"}
+        </button>}
+      {isLoggedIn && <div className={styles.row}>Token expiry date: {tokenExpiryDate}</div>}
     </div>
   );
 }
+
