@@ -1,0 +1,19 @@
+.button-variant-3 {
+  color: #fff;
+  text-align: center;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding-left: 1px;
+  font-family: Inter;
+  font-size: .938rem;
+  font-weight: 500;
+  line-height: 18px;
+  display: flex;
+  text-transform: uppercase;
+}
+
+.button-variant-3:hover,
+.button-variant-3:focus {
+  border: 2px solid #000;}
+

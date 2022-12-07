@@ -6,11 +6,10 @@ import {
   setTokenExpiryDate,
   selectIsLoggedIn,
   selectTokenExpiryDate,
-} from './authorizationSlice';
+} from 'src/features/authorization/authorizationSlice';
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
-import styles from '../counter/Counter.module.css';
-import { getAuthorizeHref, getToken } from '../../oauthConfig';
-import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from '../../utils/urlUtils';
+import { getAuthorizeHref, getToken } from 'src/oauthConfig';
+import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from 'src/utils/urlUtils';
 
 const hashParams = getHashParams();
 const access_token = hashParams.access_token;
@@ -23,7 +22,7 @@ const access_state = searchParams?.state;
 removeAllParamsFromUrl();
 console.log(searchParams);
 
-export function Authorization() {
+export const Authorization = (props: { text?: string, className?: string }) => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const tokenExpiryDate = useSelector(selectTokenExpiryDate);
   const dispatch = useDispatch();
@@ -41,21 +40,19 @@ export function Authorization() {
       // dispatch(setUserProfileAsync(access_token));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [access_code]);
+  });
 
   return (
     <div>
-      <div className={styles.row}>
-        {!isLoggedIn &&
-          <button
-          className={styles.button}
-          aria-label="Log in using OAuth 2.0"
-          onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
-          >
-          Log in with Spotify
-          </button>}
-        {isLoggedIn && <div className={styles.row}>Token expiry date: {tokenExpiryDate}</div>}
-      </div>
+      {!isLoggedIn &&
+        <div
+        className={`${props.className || ""}`}
+        onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
+        >
+          {props.text || "Authorization"}
+        </div>}
+      {isLoggedIn && <div>Token expiry date: {tokenExpiryDate}</div>}
     </div>
   );
 }
+
