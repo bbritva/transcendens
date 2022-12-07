@@ -1,5 +1,5 @@
 
-.landing-page-walking {
+.landing-background {
   color: #fff;
   width: 100%;
   height: 100%;
@@ -17,7 +17,7 @@
   background-size: cover;
 }
 
-.rectangle-20 {
+.main-container {
   height: 100%;
   flex-direction: column;
   flex-basis: 100%;
@@ -27,7 +27,7 @@
   display: flex;
 }
 
-.flex-container {
+.navbar-container {
   text-align: center;
   width: 100%;
   flex-direction: column;
@@ -42,15 +42,7 @@
   display: flex;
 }
 
-.rectangle-22 {
-  width: 143px;
-  height: 134px;
-  object-fit: cover;
-  margin-bottom: -134px;
-  margin-left: 134px;
-}
-
-.rectangle-21 {
+.navbar {
   z-index: auto;
   background-color: #00000082;
   justify-content: space-evenly;
@@ -58,7 +50,7 @@
   display: flex;
 }
 
-.rugid-trips {
+.logo-text {
   width: 143px;
   height: 134px;
   background-image: url("/src/assets/rectangle22.svg");
@@ -69,32 +61,7 @@
   display: grid;
 }
 
-.button-variant-3-instance-1, .button-variant-34-instance, .button-variant-35-instance {
-  height: 40%;
-  flex-basis: 8%;
-  margin-bottom: 1px;
-}
-
-.button-variant-36-instance {
-  height: 40%;
-  flex-basis: 9%;
-  margin-top: 1px;
-  margin-bottom: 1px;
-}
-
-.button-variant-31-instance {
-  height: 40%;
-  flex-basis: 8%;
-  margin-bottom: 1px;
-}
-
-.button-variant-32-instance {
-  height: 40%;
-  flex-basis: 8%;
-  margin-bottom: 1px;
-}
-
-.flex-container-1 {
+.text-container {
   width: 55%;
   flex-direction: column;
   justify-content: space-between;
@@ -104,7 +71,7 @@
   display: flex;
 }
 
-.uk-hiking-walking-t {
+.text-up-header {
   letter-spacing: -2px;
   margin-bottom: -15px;
   font-size: 2.625rem;
@@ -112,12 +79,12 @@
   text-shadow: -0.5px 0 black, 0 0.5px black, 0.5px 0 black, 0 -0.5px black;
 }
 
-.for-the-adventurer {
+.text-down-header {
   letter-spacing: -4px;
   text-shadow: -0.5px 0 black, 0 0.5px black, 0.5px 0 black, 0 -0.5px black;
 }
 
-.flex-container-2 {
+.down-buttons-container {
   width: 20%;
   flex-direction: row;
   flex-basis: 4%;
@@ -133,10 +100,4 @@
   height: 41px;
   object-fit: cover;
   border: none;
-}
-
-.button-variant-33-instance {
-  height: 100%;
-  flex-basis: 49%;
-  margin-top: 1px;
 }

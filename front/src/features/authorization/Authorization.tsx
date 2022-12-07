@@ -8,7 +8,6 @@ import {
   selectTokenExpiryDate,
 } from './authorizationSlice';
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
-import styles from '../counter/Counter.module.css';
 import { getAuthorizeHref, getToken } from '../../oauthConfig';
 import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from '../../utils/urlUtils';
 
@@ -52,7 +51,7 @@ export const Authorization = (props: { text?: string, className?: string }) => {
         >
           {props.text || "Authorization"}
         </div>}
-      {isLoggedIn && <div className={styles.row}>Token expiry date: {tokenExpiryDate}</div>}
+      {isLoggedIn && <div>Token expiry date: {tokenExpiryDate}</div>}
     </div>
   );
 }
