@@ -18,8 +18,8 @@ services:
     build: ../front
     container_name: front_dev
     volumes:
-      - '../front'
-      - '../front/node_modules'
+      - '${HOME}/transcendence/front'
+      - '${HOME}/transcendence/front/node_modules'
     networks:
       - my_net
     ports:
