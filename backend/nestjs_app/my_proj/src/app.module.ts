@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserService } from './user.service';
 import { PostService } from './post.service';
 import { PrismaService } from './prisma.service';
+import { AuthController } from './auth/auth.controller';
 
 const confS = new ConfigService();
 
@@ -30,7 +31,8 @@ const confS = new ConfigService();
     }),
   ],
   controllers: [
-    AppController
+    AppController,
+    AuthController
   ],
   providers: [PrismaService, AppService, UserService, PostService],
 })
