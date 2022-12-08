@@ -1,12 +1,12 @@
 FROM node:alpine
 
-WORKDIR /front
 
+WORKDIR /front
 ENV PATH /front/node_modules/.bin:$PATH
 
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm install
+COPY package.json ./front
+COPY package-lock.json ./front
+#RUN npm --prefix ./front install ./front 
 # npm install react-scripts@3.4.1 -g 
 
-CMD ["npm", "start"]
+CMD npm install && npm start
