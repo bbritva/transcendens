@@ -18,8 +18,7 @@ services:
     build: ../front
     container_name: front_dev
     volumes:
-      - '${HOME}/transcendence/front'
-      - '${HOME}/transcendence/front/node_modules'
+      - volume_react_app:/front
     networks:
       - my_net
     ports:
@@ -44,6 +43,12 @@ volumes:
       type: none
       o: bind
       device: ${HOME}/transcendence/backend
+  volume_react_app:
+    driver: local
+    driver_opts: 
+      type: none
+      o: bind
+      device: ${HOME}/transcendence/front
 
   volume_db:
     # driver: local
