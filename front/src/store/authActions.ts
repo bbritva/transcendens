@@ -1,13 +1,6 @@
-
-export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
-export const REGISTER_FAIL = "REGISTER_FAIL";
-export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
-export const LOGIN_FAIL = "LOGIN_FAIL";
-export const LOGOUT = "LOGOUT";
-
 import { Dispatch } from "@reduxjs/toolkit";
 import AuthService from "src/services/auth.service";
-import { setMessage } from "src/store/message";
+import { setMessage } from "src/store/messageSlice";
 import { createAction } from '@reduxjs/toolkit';
 
 export const registerFail = createAction('REGISTER_FAIL')
