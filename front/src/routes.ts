@@ -18,30 +18,30 @@ interface Route {
 export const routes: Array<Route> = [
     {
         key: 'home-route',
-        title: 'HomePage',
+        title: 'Home',
         path: '/',
         enabled: true,
         component: HomePage
     },
     {
         key: 'game-route',
-        title: 'GamePage',
+        title: 'Game',
         path: '/game',
         enabled: true,
         component: GamePage
     },
     {
-        key: 'account-route',
-        title: 'AccountPage',
-        path: '/account',
-        enabled: true,
-        component: AccountPage
-    },
-    {
         key: 'chat-route',
-        title: 'ChatPage',
+        title: 'Chat',
         path: '/chat',
         enabled: true,
         component: ChatPage
+    },
+    {
+        key: 'account-route',
+        title: 'Account',
+        path: '/account',
+        enabled: true,
+        component: AccountPage
     },
 ]
