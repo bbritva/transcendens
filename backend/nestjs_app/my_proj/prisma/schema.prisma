@@ -24,7 +24,7 @@ model Game {
   id        Int     @default(autoincrement()) @id
   winnerId  Int
   loserId   Int
-
+  result    String
 }
 
 enum e_status {
