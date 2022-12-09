@@ -8,8 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { GameService } from './game.service';
-import { User as UserModel, Game as GameModel} from '@prisma/client';
+import { User as UserModel} from '@prisma/client';
 import { AppService } from './app.service';
 
 @Controller()
@@ -17,7 +16,6 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly userService: UserService,
-    private readonly gameService: GameService,
   ) {}
 
   @Get()
@@ -36,12 +34,4 @@ export class AppController {
       return this.userService.createUser({name : userName});
     return user
   }
-
-  @Post('endGame')
-  async addGameResult(
-    @Body() gameData : {winnerId: number; loserId: number; result: string},
-  ): Promise<GameModel> {
-      return this.gameService.addGameResult(gameData);
-  }
-
 }

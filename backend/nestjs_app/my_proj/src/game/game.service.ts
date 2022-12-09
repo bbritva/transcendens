@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { PrismaService } from '../prisma.service';
 import { Game, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -32,6 +32,7 @@ export class GameService {
   }
 
   async addGameResult(data: Prisma.GameCreateInput): Promise<Game> {
+    
     return this.prisma.game.create({
       data,
     });
