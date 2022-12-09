@@ -4,7 +4,6 @@ import { AppController } from './app.controller';
 //services
 import { AppService } from './app.service';
 import { UserService } from './user.service';
-import { PostService } from './post.service';
 import { PrismaService } from './prisma.service';
 
 
@@ -13,6 +12,6 @@ import { PrismaService } from './prisma.service';
   controllers: [
     AppController
   ],
-  providers: [PrismaService, AppService, UserService, PostService],
+  providers: [PrismaService, AppService, UserService],
 })
 export class AppModule {}
