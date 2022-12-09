@@ -13,6 +13,8 @@ services:
       - 9229:9229
     volumes:
       - volume_nestjs_app:/usr/src/app
+    depends_on:
+      - pgsql
 
   front:
     build: ../front
@@ -22,7 +24,7 @@ services:
     networks:
       - my_net
     ports:
-      - 3001:3000
+      - 3001:3001
     environment:
       - CHOKIDAR_USEPOLLING=true
 
