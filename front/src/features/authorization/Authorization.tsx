@@ -10,6 +10,14 @@ import {
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
 import { getAuthorizeHref, getToken } from 'src/oauthConfig';
 import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from 'src/utils/urlUtils';
+import "src/components/NavButton/ButtonVariant3.css";
+import { login } from 'src/store/authActions';
+
+
+interface AuthorizationProps {
+  text: string;
+  setCode: (code: string) => void;
+}
 
 const hashParams = getHashParams();
 const access_token = hashParams.access_token;
@@ -22,7 +30,7 @@ const access_state = searchParams?.state;
 removeAllParamsFromUrl();
 console.log(searchParams);
 
-export const Authorization = (props: { text?: string, className?: string }) => {
+export const Authorization = ({text, setCode}: AuthorizationProps) => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const tokenExpiryDate = useSelector(selectTokenExpiryDate);
   const dispatch = useDispatch();
@@ -31,25 +39,26 @@ export const Authorization = (props: { text?: string, className?: string }) => {
 
   useEffect(() => {
     if (access_code) {
-      console.log('Token ', getToken(access_code));
+      console.log('Authorization!', access_code);
+      setCode(access_code);
+      // console.log('Token ', getToken(access_code));
     }
-    if (access_token) {
-      dispatch(setLoggedIn(true));
-      dispatch(setAccessToken(access_token));
-      dispatch(setTokenExpiryDate(Number(expires_in)));
-      // dispatch(setUserProfileAsync(access_token));
-    }
+    // if (access_token) {
+    //   dispatch(setLoggedIn(true));
+    //   dispatch(setAccessToken(access_token));
+    //   dispatch(setTokenExpiryDate(Number(expires_in)));
+    //   dispatch(setUserProfileAsync(access_token));
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  });
+  }, [access_code]);
 
   return (
     <div>
       {!isLoggedIn &&
         <div
-        className={`${props.className || ""}`}
         onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
         >
-          {props.text || "Authorization"}
+          {text || "Authorization"}
         </div>}
       {isLoggedIn && <div>Token expiry date: {tokenExpiryDate}</div>}
     </div>

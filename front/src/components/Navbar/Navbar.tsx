@@ -1,8 +1,11 @@
 import { Authorization } from 'src/features/authorization/Authorization';
 import { useState } from 'react';
-import { Box, Link, } from '@mui/material';
+import { Box, Link,  } from '@mui/material';
 import { routes } from 'src/routes';
 import { NavLink } from 'react-router-dom';
+import styled from '@emotion/styled';
+
+
 
 function Navbar() {
   const [anchorNav, setAnchorNav] = useState(null);
@@ -27,7 +30,7 @@ function Navbar() {
                   component={NavLink}
                   to={page.path}
                   color="white"
-                  underline="none"
+                  underline="hover"
                   variant="button"
                   sx={{ fontSize: "large", marginLeft: "2rem" }}
                 >
