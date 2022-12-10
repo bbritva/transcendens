@@ -17,8 +17,8 @@ import { ReqService } from './req/req.service';
   imports: [HttpModule],
   controllers: [
     GameController,
-    UserController
-    AuthController
+    UserController,
+    AuthController,
     AppController,
   ],
   providers: [PrismaService, AppService, UserService, GameService, ReqService],
