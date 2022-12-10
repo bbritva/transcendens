@@ -6,12 +6,13 @@ import { login } from 'src/store/authActions'
 
 const AccountPage: FC<any> = (): ReactElement => {
     const [accessCode, setAccessCode] = useState('');
+    const [accessState, setAccessState] = useState('');
     const dispatch = useDispatch();
     useEffect(() => {
         if (accessCode){
             console.log('Account Page!', accessCode);
             // @ts-ignore
-            dispatch(login(accessCode));
+            dispatch(login(accessCode, accessState));
         }
     }, [accessCode]);
 
@@ -22,7 +23,7 @@ const AccountPage: FC<any> = (): ReactElement => {
             alignItems: 'center',
             // display: {sm: 'flex'}
         }}>
-            <Authorization text='Click to login' setCode={setAccessCode}/>
+            <Authorization text='Click to login' setCode={setAccessCode} setState={setAccessState}/>
         </Box>
     );
 };

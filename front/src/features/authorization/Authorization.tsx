@@ -17,6 +17,7 @@ import { login } from 'src/store/authActions';
 interface AuthorizationProps {
   text: string;
   setCode: (code: string) => void;
+  setState: (state: string) => void;
 }
 
 const hashParams = getHashParams();
@@ -25,12 +26,12 @@ const expires_in = hashParams.expires_in;
 removeHashParamsFromUrl();
 
 const searchParams = getSearchParams();
-const access_code = searchParams?.code;
-const access_state = searchParams?.state;
+const accessCode = searchParams?.code;
+const accessState = searchParams?.state;
 removeAllParamsFromUrl();
 console.log(searchParams);
 
-export const Authorization = ({text, setCode}: AuthorizationProps) => {
+export const Authorization = ({text, setCode, setState}: AuthorizationProps) => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const tokenExpiryDate = useSelector(selectTokenExpiryDate);
   const dispatch = useDispatch();
@@ -38,10 +39,11 @@ export const Authorization = ({text, setCode}: AuthorizationProps) => {
   self.crypto.getRandomValues(stateArray);/* eslint-disable-line no-restricted-globals */
 
   useEffect(() => {
-    if (access_code) {
-      console.log('Authorization!', access_code);
-      setCode(access_code);
-      // console.log('Token ', getToken(access_code));
+    if (accessCode) {
+      console.log('Authorization!', accessCode);
+      setCode(accessCode);
+      setState(accessState)
+      // console.log('Token ', getToken(accessCode));
     }
     // if (access_token) {
     //   dispatch(setLoggedIn(true));
@@ -50,7 +52,7 @@ export const Authorization = ({text, setCode}: AuthorizationProps) => {
     //   dispatch(setUserProfileAsync(access_token));
     // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [access_code]);
+  }, [accessCode]);
 
   return (
     <div>

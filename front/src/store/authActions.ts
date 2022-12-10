@@ -35,8 +35,8 @@ export const register = (username:string, email:string, password:string) => (dis
 export const loginSuccess = createAction<{user: {}, accessToken: string}>('LOGIN_SUCCESS');
 export const loginFail = createAction('LOGIN_FAIL');
 
-export const login = (accessCode: string) => (dispatch: Dispatch) => {
-  return AuthService.login(accessCode)
+export const login = (accessCode: string, accessState: string) => (dispatch: Dispatch) => {
+  return AuthService.login(accessCode, accessState)
     .then(
       (data) => {
         console.log('loginAction', data);

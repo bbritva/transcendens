@@ -3,9 +3,11 @@ import axios from "axios"
 const API_URL = process.env.REACT_APP_AUTH_URL;
 
 class AuthService {
-  login(accessCode: string) {
+  login(accessCode: string, accessState: string) {
+    let urlAuth = API_URL + "/auth";
+    console.log('print urlAuth ', urlAuth);
     const response = axios
-      .post(API_URL + "signin", {accessCode})
+      .get(urlAuth, { params: {accessCode, accessState}})
       .then((response) => {
         if (response.data.accessToken){
             localStorage.setItem("user", JSON.stringify(response.data));
@@ -15,7 +17,10 @@ class AuthService {
         }
         return response.data;
       })
-    console.log('AuthService!', response);
+    const promise = Promise.resolve(response);
+    promise.then((response) => {
+      console.log('AuthService!', promise);
+    })
     return response;
   }
 
