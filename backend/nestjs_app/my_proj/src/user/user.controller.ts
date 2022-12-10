@@ -6,9 +6,9 @@ import {
     Body,
     Put,
     Delete,
-  } from '@nestjs/common';
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { User as UserModel} from '@prisma/client';
+import { User as UserModel } from '@prisma/client';
 
 
 
@@ -16,16 +16,26 @@ import { User as UserModel} from '@prisma/client';
 export class UserController {
     constructor(
         private readonly userService: UserService,
-      ) {}
+    ) { }
 
-    
-  @Post('add')
-  async signupUser(
-    @Body('name') userName: string,
-  ): Promise<UserModel> {
-    let user = await this.userService.getUser(userName)
-    if (user === null)
-      return this.userService.createUser({name : userName});
-    return user
-  }
+
+    @Post('add')
+    async signupUser(
+        @Body('name') userName: string,
+    ): Promise<UserModel> {
+        let user = await this.userService.getUserByName(userName)
+        if (user === null)
+            return this.userService.createUser({ name: userName });
+        return user
+    }
+
+    @Post('show')
+    async showUser(
+        @Body('id') userId: number,
+    ): Promise<UserModel> {
+        let user = await this.userService.getUser(userId);
+        console.log(user);
+        return user;
+        
+    }
 }

@@ -13,21 +13,23 @@ datasource db {
 model User {
   id        Int     @default(autoincrement()) @id
   name      String? @unique
-  status    e_status @default(OFFLINE)
+  status    eStatus @default(OFFLINE)
   friendIds Int[]
-  winIds    Int[]
-  loseIds   Int[]
+  wins      Game[]  @relation("win")
+  loses     Game[]  @relation("lose")
   autorization Autorization?
 }
 
 model Game {
   id        Int     @default(autoincrement()) @id
+  winner    User    @relation("win", fields: [winnerId], references: [id])
   winnerId  Int
-  loserId   Int
+  loser     User    @relation("lose",fields: [loserId], references: [id])
+  loserId   Int     
   result    String
 }
 
-enum e_status {
+enum eStatus {
   OFFLINE
   ONLINE
   ONGAME

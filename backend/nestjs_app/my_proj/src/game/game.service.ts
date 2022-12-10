@@ -31,8 +31,7 @@ export class GameService {
     });
   }
 
-  async addGameResult(data: Prisma.GameCreateInput): Promise<Game> {
-    
+  async addGame(data: Prisma.GameCreateInput): Promise<Game> {
     return this.prisma.game.create({
       data,
     });
