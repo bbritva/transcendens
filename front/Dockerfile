@@ -1,9 +1,10 @@
 FROM node:alpine
 
-WORKDIR /front
 
+WORKDIR /front
 ENV PATH /front/node_modules/.bin:$PATH
 
+# RUN npm --prefix /front install  
 COPY package.json ./
 COPY package-lock.json ./
 # RUN npm install

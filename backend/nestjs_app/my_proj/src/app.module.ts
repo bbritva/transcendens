@@ -8,15 +8,19 @@ import { GameService } from './game/game.service';
 import { PrismaService } from './prisma.service';
 import { GameController } from './game/game.controller';
 import { UserController } from './user/user.controller';
+import { AuthController } from './auth/auth.controller';
+import { HttpModule } from '@nestjs/axios';
+import { ReqService } from './req/req.service';
 
 
 @Module({
-  imports: [],
+  imports: [HttpModule],
   controllers: [
-    AppController,
     GameController,
     UserController
+    AuthController
+    AppController,
   ],
-  providers: [PrismaService, AppService, UserService, GameService],
+  providers: [PrismaService, AppService, UserService, GameService, ReqService],
 })
 export class AppModule {}
