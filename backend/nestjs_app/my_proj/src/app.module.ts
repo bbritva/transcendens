@@ -8,6 +8,8 @@ import { HttpModule } from '@nestjs/axios';
 import { ReqService } from './req/req.service';
 import { GameModule } from './game/game.module';
 import { UserModule } from './user/user.module';
+import { PrismaService } from './prisma.service';
+import { UserService } from './user/user.service';
 
 
 @Module({
@@ -16,6 +18,6 @@ import { UserModule } from './user/user.module';
     AuthController,
     AppController,
   ],
-  providers: [AppService, ReqService],
+  providers: [AppService, ReqService, PrismaService, UserService],
 })
 export class AppModule {}

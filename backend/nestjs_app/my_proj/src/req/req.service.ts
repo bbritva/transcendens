@@ -3,10 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
 import { response } from 'express';
 import { env } from 'process';
+import { PrismaService } from '../prisma.service';
+import { Token, Prisma } from '@prisma/client';
 
 @Injectable()
 export class ReqService {
-    constructor(private readonly httpService: HttpService) { }
+    constructor(private readonly httpService: HttpService,
+        private prisma: PrismaService) { }
 
     getToken = async (accessCode: string, accessState: string): Promise<AxiosResponse> => {
         const data = {
