@@ -29,13 +29,10 @@ export class UserController {
         return user
     }
 
-    @Post('show')
+    @Get('show')
     async showUser(
         @Body('id') userId: number,
     ): Promise<UserModel> {
-        let user = await this.userService.getUser(userId);
-        console.log(user);
-        return user;
-        
+        return this.userService.getUser(userId);
     }
 }

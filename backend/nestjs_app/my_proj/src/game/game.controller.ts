@@ -6,6 +6,7 @@ import {
   } from '@nestjs/common';
 import { GameService } from './game.service';
 import { Game as GameModel} from '@prisma/client';
+import { GameDto } from './game.dto';
 
 @Controller('game')
 export class GameController {
@@ -15,9 +16,7 @@ export class GameController {
 
 
   @Post('add')
-  async addGameResult(
-    @Body() gameData : {winnerId: number; loserId: number; result: string},
-  ): Promise<GameModel> {
+  async addGameResult( @Body() gameData : GameDto): Promise<GameModel> {
     const { winnerId, loserId, result } = gameData;
 
     return await this.gameService.addGame({
@@ -29,6 +28,13 @@ export class GameController {
         },
         result
       });
+  }
+
+  @Get('show')
+  async showGame(
+      @Body('id') gameId: number,
+  ): Promise<GameModel> {
+      return this.gameService.getGame(gameId);
   }
 
 
