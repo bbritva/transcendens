@@ -10,13 +10,11 @@ function App() {
     <div className="landing-background">
       <div className="main-container">
         <Router>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item xs={12} justifyContent="center">
               <Navbar />
             </Grid>
-            <Grid item xs={4}>
-              <Allerts />
-            </Grid>
+            <Allerts />
             <Grid item xs={8}>
               <Routes>
                 {appRoutes.map((route) => (
