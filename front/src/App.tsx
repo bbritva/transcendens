@@ -2,22 +2,33 @@ import "src/App.css";
 import Navbar from 'src/components/Navbar/Navbar';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { routes as appRoutes } from "src/routes";
+import Allerts from "src/components/Allerts/Allerts";
+import { Grid } from "@mui/material";
 
 function App() {
   return (
     <div className="landing-background">
       <div className="main-container">
         <Router>
-          <Navbar />
-          <Routes>
-            {appRoutes.map((route) => (
-                <Route
-                  key={route.key}
-                  path={route.path}
-                  element={<route.component />}
-                />
-              ))}
-          </Routes>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Navbar />
+            </Grid>
+            <Grid item xs={4}>
+              <Allerts />
+            </Grid>
+            <Grid item xs={8}>
+              <Routes>
+                {appRoutes.map((route) => (
+                    <Route
+                      key={route.key}
+                      path={route.path}
+                      element={<route.component />}
+                    />
+                  ))}
+              </Routes>
+            </Grid>
+          </Grid>
         </Router>
       </div>
      </div>

@@ -39,7 +39,7 @@ export const login = (accessCode: string, accessState: string) => (dispatch: Dis
   return AuthService.login(accessCode, accessState)
     .then(
       (data) => {
-        console.log('loginAction', data);
+        console.log('loginSuccess', data);
         dispatch(loginSuccess(data));
 
         return Promise.resolve();
@@ -51,7 +51,7 @@ export const login = (accessCode: string, accessState: string) => (dispatch: Dis
             error.response.data.message) ||
           error.message ||
           error.toString();
-
+        console.log('loginFail', error);
         dispatch(loginFail());
 
         dispatch(setMessage(message));
@@ -59,9 +59,6 @@ export const login = (accessCode: string, accessState: string) => (dispatch: Dis
         return Promise.reject();
       }
     )
-    .catch(
-      err => alert(err)
-    );
 };
 
 export const logout = createAction('LOGOUT', function prepare() {
