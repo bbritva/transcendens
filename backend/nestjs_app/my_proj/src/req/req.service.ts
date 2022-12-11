@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
+import { response } from 'express';
 import { env } from 'process';
 
 @Injectable()
@@ -16,12 +17,19 @@ export class ReqService {
             redirect_uri: env.REDIRECT_URI,
             state: accessState
         }
-        console.log('getToken_data', JSON.stringify(
-            data
-        ));
-        const response = this.httpService.axiosRef.post(env.TOKENENDPOINT, {...data})
-
+        const response = this.httpService.axiosRef.post(env.TOKENENDPOINT, data);
         return response;
+    }
+
+    getMe = async (accessToken: string) : Promise<AxiosResponse> => {
+        const response = this.httpService.axiosRef.get("https://api.intra.42.fr/v2/me", {headers:{Authorization: `Bearer ${accessToken}`}});
+        const res = response
+            .then(data => data)
+            .catch(error => {
+                console.log("Error", error);
+                return error;
+            });
+        return res;
     }
 }
 
