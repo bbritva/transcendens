@@ -14,25 +14,32 @@ export class AuthController {
         async getAuth(
           @Query('accessCode') accessCode: string,
           @Query('accessState') accessState: string,
-          ) : Promise<string> {
-        // let accessToken = await getToken(accessCode, accessState);
-        // let accessToken = await this.httpService.getToken(accessCode, accessState)
-        let accessToken = 'f78f7d723908b46919b67bc4503c8918b446bcfda14e77d287cb46e6f8bd79f0';
-        // console.log('OurToken!', accessToken.data);
-        let user = await this.httpService.getMe(accessToken);
-        // const tokenData = {id:token_type, expires_in ,refresh_token,scope ,created_at }
-        const userData = {id: user.data.id, name: user.data.login}
+          ) : Promise<{}> {
+        let tokenResponse = await this.httpService.getToken(accessCode, accessState)
+        let newUser = false;
+        console.log('OurToken!', tokenResponse.data);
+        let userResponse = await this.httpService.getMe(tokenResponse.data.access_token);
+        const tokenData = {
+          access_token: tokenResponse.data.access_token,
+          token_type: tokenResponse.data.token_type,
+          expires_in: tokenResponse.data.expires_in,
+          refresh_token: tokenResponse.data.refresh_token,
+          scope: tokenResponse.data.scope,
+          created_at: tokenResponse.data.created_at
+        }
+        const userData = {id: userResponse.data.id, name: userResponse.data.login}
         let res = await this.userService.getUser(userData.id);
         if (!res)
         {
-          // console.log('usiki');
-          res = await this.userService.createUser(userData); // return if user or not for front => to add tomorrow
+          res = await this.userService.createUser(userData);
+          newUser = true;
         }
         // this.createToken(accessToken);
-        console.log('res', res);
-        console.log('User ', user.data.id);
+        console.log('res', newUser, res);
+        console.log('User ', userResponse.data.id);
         // console.log('User ', user.data.email);
         // console.log('User ', user.data.login);
-        return accessToken;
+        return {tokenData, userData, newUser};
     }
 }
+

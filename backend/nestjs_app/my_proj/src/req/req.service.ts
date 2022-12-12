@@ -12,7 +12,7 @@ export class ReqService {
         private prisma: PrismaService) { }
 
     getToken = async (accessCode: string, accessState: string): Promise<AxiosResponse> => {
-        const data = {
+        const body = {
             grant_type: 'authorization_code',
             client_id: env.CLIENT_ID,
             client_secret: env.SECRET,
@@ -20,7 +20,7 @@ export class ReqService {
             redirect_uri: env.REDIRECT_URI,
             state: accessState
         }
-        const response = this.httpService.axiosRef.post(env.TOKENENDPOINT, data);
+        const response = this.httpService.axiosRef.post(env.TOKENENDPOINT, body);
         return response;
     }
 
