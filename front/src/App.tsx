@@ -10,9 +10,7 @@ function App() {
     <div className="landing-background">
         <Router>
           <Grid container spacing={2} justifyContent="center">
-            <Grid item xs={12} justifyContent="center">
               <Navbar />
-            </Grid>
             <Allerts />
             <Grid item xs={8}>
               <Routes>
