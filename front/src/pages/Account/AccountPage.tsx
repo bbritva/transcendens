@@ -1,36 +1,37 @@
-import React, {ReactElement, FC, useEffect, useState} from "react";
-import {Box, Typography} from "@mui/material";
-import { Authorization } from "src/features/authorization/Authorization";
+import {ReactElement, FC, useEffect, useState} from "react";
+import {Box} from "@mui/material";
+import { AuthorizationButton } from "src/features/authorization/Authorization";
 import { useDispatch } from "react-redux";
 import { login } from 'src/store/authActions'
 import SignUp from "src/components/Signup/Signup";
 
 const AccountPage: FC<any> = (): ReactElement => {
-    const [accessCode, setAccessCode] = useState('');
-    const [accessState, setAccessState] = useState('');
-    const dispatch = useDispatch();
-    useEffect(() => {
-        if (accessCode){
-            console.log('Account Page!', accessCode);
-            // @ts-ignore
-            dispatch(login(accessCode, accessState));
-        }
-    }, [accessCode]);
+  const [accessCode, setAccessCode] = useState('');
+  const [accessState, setAccessState] = useState('');
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (accessCode){
+      console.log('Account Page!', accessCode);
+      // @ts-ignore
+      dispatch(login(accessCode, accessState));
+    }
+  }, [accessCode]);
 
-    return (
-        <Box sx={{
-            flexGrow: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            // display: {sm: 'flex'}
-        }}>
-            {
-                accessCode
-                ? <SignUp></SignUp>
-                : <Authorization text='Click to login' setCode={setAccessCode} setState={setAccessState}/>
-            }
-        </Box>
-    );
+  return (
+    <Box sx={{
+      flexGrow: 1,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      // display: {sm: 'flex'}
+    }}>
+      {
+        accessCode
+        ? <SignUp />
+        : <></>
+      }
+    </Box>
+  );
 };
 
 export default AccountPage;
