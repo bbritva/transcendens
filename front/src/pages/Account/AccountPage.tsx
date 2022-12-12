@@ -31,9 +31,16 @@ const AccountPage: FC<any> = (): ReactElement => {
       {
         isLoggedIn
         ? <>
-            <Typography>
+            <Typography variant="h4" margin={5}>
               {user.name}
             </Typography>
+            <Box 
+              width={400}
+              height={400}
+              sx={{
+                backgroundImage: user.image
+              }}
+            />
           </>
         : <SignUp />
       }
