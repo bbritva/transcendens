@@ -1,13 +1,16 @@
 import {ReactElement, FC, useEffect, useState} from "react";
-import {Box} from "@mui/material";
-import { AuthorizationButton } from "src/features/authorization/Authorization";
-import { useDispatch } from "react-redux";
+import {Box, Typography} from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from 'src/store/authActions'
 import SignUp from "src/components/Signup/Signup";
+import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
 
 const AccountPage: FC<any> = (): ReactElement => {
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
+  const user = useSelector(selectUser);
+  const token = useSelector(selectToken);
+  const isLoggedIn = useSelector(selectLoggedIn);
   const dispatch = useDispatch();
   useEffect(() => {
     if (accessCode){
@@ -26,9 +29,13 @@ const AccountPage: FC<any> = (): ReactElement => {
       // display: {sm: 'flex'}
     }}>
       {
-        accessCode
-        ? <SignUp />
-        : <></>
+        isLoggedIn
+        ? <>
+            <Typography>
+              {user.name}
+            </Typography>
+          </>
+        : <SignUp />
       }
     </Box>
   );

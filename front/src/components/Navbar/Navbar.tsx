@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Box, Grid, Link, Button, makeStyles} from '@mui/material';
+import { Box, Grid, Link, Button, makeStyles, Typography} from '@mui/material';
 import { routes } from 'src/routes';
 import { NavLink } from 'react-router-dom';
 import { GridLogo } from '../Logo/GridLogo';
 import { AuthorizationButton } from "src/features/authorization/Authorization";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from 'src/store/authActions'
+import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
 
 export const navButtonStyle = {
   fontSize: "large", marginLeft: "2rem", color: 'white', 
@@ -17,9 +18,12 @@ export const navButtonStyle = {
 
 
 function Navbar() {
-  const [anchorNav, setAnchorNav] = useState(null);
+  // const [anchorNav, setAnchorNav] = useState(null);
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
+  const user = useSelector(selectUser);
+  const token = useSelector(selectToken);
+  const isLoggedIn = useSelector(selectLoggedIn);
   const dispatch = useDispatch();
   useEffect(() => {
     if (accessCode){
@@ -61,14 +65,18 @@ function Navbar() {
         alignItems={'center'}
         sx={{ display: { xs: "none", sm: "flex" } }}
       >{
-        !accessCode
+        !isLoggedIn
         ? <AuthorizationButton 
             text='Click to login' 
             setCode={setAccessCode} 
             setState={setAccessState} 
             styleProp={navButtonStyle}
           />
-        : <></>
+        : <>
+            <Typography fontSize={'large'}>
+              {user.name}
+            </Typography>
+          </>
       }
       </Grid>
   </Grid>
