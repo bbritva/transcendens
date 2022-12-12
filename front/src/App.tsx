@@ -8,7 +8,6 @@ import { Grid } from "@mui/material";
 function App() {
   return (
     <div className="landing-background">
-      <div className="main-container">
         <Router>
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} justifyContent="center">
@@ -28,7 +27,6 @@ function App() {
             </Grid>
           </Grid>
         </Router>
-      </div>
      </div>
   );
 };

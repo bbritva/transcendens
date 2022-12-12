@@ -3,6 +3,7 @@ import {Box, Typography} from "@mui/material";
 import { Authorization } from "src/features/authorization/Authorization";
 import { useDispatch } from "react-redux";
 import { login } from 'src/store/authActions'
+import SignUp from "src/components/Signup/Signup";
 
 const AccountPage: FC<any> = (): ReactElement => {
     const [accessCode, setAccessCode] = useState('');
@@ -23,7 +24,11 @@ const AccountPage: FC<any> = (): ReactElement => {
             alignItems: 'center',
             // display: {sm: 'flex'}
         }}>
-            <Authorization text='Click to login' setCode={setAccessCode} setState={setAccessState}/>
+            {
+                accessCode
+                ? <SignUp></SignUp>
+                : <Authorization text='Click to login' setCode={setAccessCode} setState={setAccessState}/>
+            }
         </Box>
     );
 };

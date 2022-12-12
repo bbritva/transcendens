@@ -1,4 +1,3 @@
-import exclude from "src/assets/exclude.svg";
 import ButtonVariant3 from "src/components/NavButton/ButtonVariant3";
 
 function HomePage() {
@@ -16,7 +15,6 @@ function HomePage() {
         <span className="text-down-header">peer pong</span>
       </div>
       <div className="down-buttons-container">
-        <img className="exclude" src={exclude} />
         <ButtonVariant3
           {...propsData.buttonVariant33}
         />

@@ -10,8 +10,6 @@ import {
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
 import { getAuthorizeHref, getToken } from 'src/oauthConfig';
 import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from 'src/utils/urlUtils';
-import "src/components/NavButton/ButtonVariant3.css";
-import { login } from 'src/store/authActions';
 
 
 interface AuthorizationProps {
