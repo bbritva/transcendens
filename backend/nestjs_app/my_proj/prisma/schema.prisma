@@ -14,6 +14,7 @@ model User {
   id        Int     @default(autoincrement()) @id
   name      String? @unique
   status    eStatus @default(OFFLINE)
+  image     String?
   friendIds Int[]
   wins      Game[]  @relation("win")
   loses     Game[]  @relation("lose")
@@ -29,6 +30,13 @@ model Game {
   result    String
 }
 
+// model Image {
+
+//   id        Int     @default(autoincrement()) @id
+//   link      String? 
+
+
+// }
 // model Autorization {
 //   tokenId   Int       @default(autoincrement()) @id
 //   token     String

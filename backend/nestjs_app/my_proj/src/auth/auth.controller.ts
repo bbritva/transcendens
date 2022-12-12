@@ -27,7 +27,7 @@ export class AuthController {
           scope: tokenResponse.data.scope,
           created_at: tokenResponse.data.created_at
         }
-        const userData = {id: userResponse.data.id, name: userResponse.data.login}
+        const userData = {id: userResponse.data.id, name: userResponse.data.login, image: userResponse.data.image.link}
         let res = await this.userService.getUser(userData.id);
         if (!res)
         {
@@ -36,7 +36,8 @@ export class AuthController {
         }
         // this.createToken(accessToken);
         console.log('res', newUser, res);
-        console.log('User ', userResponse.data.id);
+        console.log('image', userResponse.data.image.link);
+        // console.log('User ', userResponse.data.id);
         // console.log('User ', user.data.email);
         // console.log('User ', user.data.login);
         return {tokenData, userData, newUser};
