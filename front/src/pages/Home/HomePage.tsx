@@ -1,27 +1,21 @@
-import exclude from "src/assets/exclude.svg";
 import ButtonVariant3 from "src/components/NavButton/ButtonVariant3";
+import {Box, Typography} from '@mui/material'
 
 function HomePage() {
-  const propsData = {
-    buttonVariant33: {
-      contact: "Most Popular",
-    },
-  };
   return (
-    <>
-      <div className="text-container">
-        <span className="text-up-header">
+    <Box sx={{
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        verticalAlign: 'center'
+    }}>
+        <Typography variant="h4" color={'lightsalmon'}>
           Ultimate 42
-        </span>
-        <span className="text-down-header">peer pong</span>
-      </div>
-      <div className="down-buttons-container">
-        <img className="exclude" src={exclude} />
-        <ButtonVariant3
-          {...propsData.buttonVariant33}
-        />
-      </div> 
-    </>
+        </Typography>
+        <Typography variant="h2" color={'lightgoldenrodyellow'}>
+          Most Popular
+        </Typography>
+    </Box>
   );
 }
 

@@ -2,6 +2,7 @@ import { Dispatch } from "@reduxjs/toolkit";
 import AuthService from "src/services/auth.service";
 import { setMessage } from "src/store/messageSlice";
 import { createAction } from '@reduxjs/toolkit';
+import { userI } from "./authReducer";
 
 export const registerFail = createAction('REGISTER_FAIL')
 export const registerSuccess = createAction('REGISTER_SUCCESS')
@@ -32,15 +33,16 @@ export const register = (username:string, email:string, password:string) => (dis
   );
 };
 
-export const loginSuccess = createAction<{user: {}, accessToken: string}>('LOGIN_SUCCESS');
+export const loginSuccess = createAction<{user: userI, accessToken: {}}>('LOGIN_SUCCESS');
 export const loginFail = createAction('LOGIN_FAIL');
 
 export const login = (accessCode: string, accessState: string) => (dispatch: Dispatch) => {
   return AuthService.login(accessCode, accessState)
     .then(
       (data) => {
-        console.log('loginAction', data);
-        dispatch(loginSuccess(data));
+        console.log('loginSuccess', data);
+        const myPayload = { user: data.userData, accessToken: data.tokenData };
+        dispatch(loginSuccess(myPayload));
 
         return Promise.resolve();
       },
@@ -51,7 +53,7 @@ export const login = (accessCode: string, accessState: string) => (dispatch: Dis
             error.response.data.message) ||
           error.message ||
           error.toString();
-
+        console.log('loginFail', error);
         dispatch(loginFail());
 
         dispatch(setMessage(message));
@@ -59,9 +61,6 @@ export const login = (accessCode: string, accessState: string) => (dispatch: Dis
         return Promise.reject();
       }
     )
-    .catch(
-      err => alert(err)
-    );
 };
 
 export const logout = createAction('LOGOUT', function prepare() {

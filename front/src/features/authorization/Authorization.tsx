@@ -1,23 +1,20 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  setLoggedIn,
-  setAccessToken,
-  setTokenExpiryDate,
   selectIsLoggedIn,
   selectTokenExpiryDate,
 } from 'src/store/authorizationSlice';
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
 import { getAuthorizeHref, getToken } from 'src/oauthConfig';
 import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from 'src/utils/urlUtils';
-import "src/components/NavButton/ButtonVariant3.css";
-import { login } from 'src/store/authActions';
+import {Box, Typography, Button} from "@mui/material";
 
 
 interface AuthorizationProps {
   text: string;
   setCode: (code: string) => void;
   setState: (state: string) => void;
+  styleProp: {}
 }
 
 const hashParams = getHashParams();
@@ -31,7 +28,7 @@ const accessState = searchParams?.state;
 removeAllParamsFromUrl();
 console.log(searchParams);
 
-export const Authorization = ({text, setCode, setState}: AuthorizationProps) => {
+export const AuthorizationButton = ({text, setCode, setState, styleProp}: AuthorizationProps) => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const tokenExpiryDate = useSelector(selectTokenExpiryDate);
   const dispatch = useDispatch();
@@ -55,15 +52,18 @@ export const Authorization = ({text, setCode, setState}: AuthorizationProps) => 
   }, [accessCode]);
 
   return (
-    <div>
-      {!isLoggedIn &&
-        <div
-        onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
+    <>
+      {
+        !isLoggedIn &&
+        <Button
+          variant='outlined'
+          onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
+          sx={styleProp}
         >
           {text || "Authorization"}
-        </div>}
-      {isLoggedIn && <div>Token expiry date: {tokenExpiryDate}</div>}
-    </div>
+        </Button>
+      }
+    </>
   );
 }
 

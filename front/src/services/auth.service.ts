@@ -5,22 +5,24 @@ const API_URL = process.env.REACT_APP_AUTH_URL;
 class AuthService {
   login(accessCode: string, accessState: string) {
     let urlAuth = API_URL + "/auth";
-    console.log('print urlAuth ', urlAuth);
+    // console.log('print urlAuth ', urlAuth);
     const response = axios
       .get(urlAuth, { params: {accessCode, accessState}})
       .then((response) => {
-        if (response.data.accessToken){
-            localStorage.setItem("user", JSON.stringify(response.data));
+        if (response.status == 200){
+            localStorage.setItem("user", JSON.stringify(response.data.userData));
+            localStorage.setItem("token", JSON.stringify(response.data.tokenData));
+            localStorage.setItem("newUser", JSON.stringify(response.data.newUser));
         }
         else {
           alert('Not authorized!')
         }
         return response.data;
       })
-    const promise = Promise.resolve(response);
-    promise.then((response) => {
-      console.log('AuthService!', promise);
-    })
+    // const promise = Promise.resolve(response);
+    // promise.then((response) => {
+    //   console.log('AuthService!', response);
+    // })
     return response;
   }
 
