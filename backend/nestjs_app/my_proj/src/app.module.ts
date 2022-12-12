@@ -3,15 +3,16 @@ import { AppController } from './app.controller';
 
 //services
 import { AppService } from './app.service';
-import { UserService } from './user.service';
-import { PrismaService } from './prisma.service';
+import { HttpModule } from '@nestjs/axios';
+import { GameModule } from './game/game.module';
+import { UserModule } from './user/user.module';
 
 
 @Module({
-  imports: [],
+  imports: [HttpModule, GameModule, UserModule],
   controllers: [
-    AppController
+    AppController,
   ],
-  providers: [PrismaService, AppService, UserService],
+  providers: [AppService],
 })
 export class AppModule {}
