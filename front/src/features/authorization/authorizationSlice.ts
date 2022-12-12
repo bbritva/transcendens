@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from 'src/store/store';
+import { RootState } from 'src/app/store';
 
 interface AuthorizationState {
   loggedIn: boolean;

@@ -6,19 +6,10 @@ import {
   setTokenExpiryDate,
   selectIsLoggedIn,
   selectTokenExpiryDate,
-} from 'src/store/authorizationSlice';
+} from 'src/features/authorization/authorizationSlice';
 // import { setUserProfileAsync } from '../spotifyExample/spotifyExampleSlice';
 import { getAuthorizeHref, getToken } from 'src/oauthConfig';
 import { getHashParams, getSearchParams, removeHashParamsFromUrl , removeAllParamsFromUrl} from 'src/utils/urlUtils';
-import "src/components/NavButton/ButtonVariant3.css";
-import { login } from 'src/store/authActions';
-
-
-interface AuthorizationProps {
-  text: string;
-  setCode: (code: string) => void;
-  setState: (state: string) => void;
-}
 
 const hashParams = getHashParams();
 const access_token = hashParams.access_token;
@@ -26,12 +17,12 @@ const expires_in = hashParams.expires_in;
 removeHashParamsFromUrl();
 
 const searchParams = getSearchParams();
-const accessCode = searchParams?.code;
-const accessState = searchParams?.state;
+const access_code = searchParams?.code;
+const access_state = searchParams?.state;
 removeAllParamsFromUrl();
 console.log(searchParams);
 
-export const Authorization = ({text, setCode, setState}: AuthorizationProps) => {
+export const Authorization = (props: { text?: string, className?: string }) => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const tokenExpiryDate = useSelector(selectTokenExpiryDate);
   const dispatch = useDispatch();
@@ -39,28 +30,26 @@ export const Authorization = ({text, setCode, setState}: AuthorizationProps) => 
   self.crypto.getRandomValues(stateArray);/* eslint-disable-line no-restricted-globals */
 
   useEffect(() => {
-    if (accessCode) {
-      console.log('Authorization!', accessCode);
-      setCode(accessCode);
-      setState(accessState)
-      // console.log('Token ', getToken(accessCode));
+    if (access_code) {
+      console.log('Token ', getToken(access_code));
     }
-    // if (access_token) {
-    //   dispatch(setLoggedIn(true));
-    //   dispatch(setAccessToken(access_token));
-    //   dispatch(setTokenExpiryDate(Number(expires_in)));
-    //   dispatch(setUserProfileAsync(access_token));
-    // }
+    if (access_token) {
+      dispatch(setLoggedIn(true));
+      dispatch(setAccessToken(access_token));
+      dispatch(setTokenExpiryDate(Number(expires_in)));
+      // dispatch(setUserProfileAsync(access_token));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessCode]);
+  });
 
   return (
     <div>
       {!isLoggedIn &&
         <div
+        className={`${props.className || ""}`}
         onClick={() => window.open(getAuthorizeHref(stateArray), '_self')}
         >
-          {text || "Authorization"}
+          {props.text || "Authorization"}
         </div>}
       {isLoggedIn && <div>Token expiry date: {tokenExpiryDate}</div>}
     </div>
