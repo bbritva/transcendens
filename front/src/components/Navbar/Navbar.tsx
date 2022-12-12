@@ -27,7 +27,6 @@ function Navbar() {
   const dispatch = useDispatch();
   useEffect(() => {
     if (accessCode){
-      console.log('Account Page!', accessCode);
       // @ts-ignore
       dispatch(login(accessCode, accessState));
     }
@@ -42,7 +41,8 @@ function Navbar() {
       <Grid item xs={2}/>{/* OFFSET */}
       <GridLogo size={ myHeight }></GridLogo>
       {routes.map((page) => (
-        <Grid item spacing={4}
+        <Grid item
+          key={page.key + 1}
           display={'flex'}
           alignItems={'center'}
           sx={{ display: { xs: "none", sm: "flex" } }}
@@ -60,7 +60,7 @@ function Navbar() {
           </Button>
         </Grid>
       ))}
-      <Grid item spacing={4}
+      <Grid item 
         display={'flex'}
         alignItems={'center'}
         sx={{ display: { xs: "none", sm: "flex" } }}

@@ -8,6 +8,7 @@ import { RootState } from './store'
 export interface userI {
   id: string,
   name: string
+  image: string
 }
 
 interface authState {
@@ -19,7 +20,7 @@ interface authState {
 
 const initialState: authState = {
   isLoggedIn: false,
-  user: {id: '', name: ''},
+  user: {id: '', name: '', image: ''},
   accessCode: '',
   accessToken: {}
 }
@@ -37,17 +38,17 @@ const authReducer = createReducer(initialState, (builder) => {
     })
     .addCase(loginSuccess, (state, action) => {
       state.isLoggedIn = true;
-      state.user = {id: action.payload.user.id, name: action.payload.user.name};
+      state.user = {id: action.payload.user.id, name: action.payload.user.name, image: action.payload.user.image};
       state.accessToken = action.payload.accessToken;
     })
     .addCase(loginFail, (state, action) => {
       state.isLoggedIn = false;
-      state.user = {id: '', name: ''};
+      state.user = {id: '', name: '', image: ''};
       state.accessToken = {}
     })
     .addCase(logout, (state, action) => {
       state.isLoggedIn = false;
-      state.user = {id: '', name: ''};
+      state.user = {id: '', name: '', image: ''};
       state.accessToken = {}
     })
 });

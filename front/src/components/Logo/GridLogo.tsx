@@ -8,7 +8,7 @@ interface GridLogoProps {
 
 export const GridLogo = ({size}: GridLogoProps) => {
   return (
-  <Grid item spacing={4}>
+  <Grid item>
     <Box 
       display={'flex'}
       alignItems={'center'}

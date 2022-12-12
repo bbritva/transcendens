@@ -28,6 +28,8 @@ class AuthService {
 
   logout() {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("newUser");
   }
 
   register(username:string, email:string, password:string) {
