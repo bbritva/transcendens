@@ -42,3 +42,11 @@ model Autorization {
   owner     User?     @relation(fields: [ownerId], references: [id])
   ownerId   Int?      @unique
 }
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  userName  String
+  text      String
+  createdAt DateTime @default(now())
+}

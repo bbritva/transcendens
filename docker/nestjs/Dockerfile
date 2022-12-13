@@ -11,6 +11,7 @@ npm i -g @nestjs/cli
 # RUN npx prisma migrate dev --name init && \
 RUN npm install @prisma/client
 RUN npm install @nestjs/axios
+RUN npm i --save @nestjs/websockets @nestjs/platform-socket.io
 ENTRYPOINT [ "tail", "-f" ]
 # ENTRYPOINT [ "npm", "run", "start:dev" ]
 

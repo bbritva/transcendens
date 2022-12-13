@@ -2,6 +2,7 @@
 backend/nestjs_app/my_proj/dist
 backend/nestjs_app/node_modules
 backend/node_modules
+node_modules
 backend/nestjs_app/my_proj/node_modules
 
 # Logs
