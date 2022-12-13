@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:19.2.0-alpine3.15
 
 
 WORKDIR /front

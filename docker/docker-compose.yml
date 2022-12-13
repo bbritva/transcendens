@@ -30,7 +30,7 @@ services:
 
   pgsql:
     container_name: pgsql
-    image: postgres:alpine
+    image: postgres:alpine3.15
     env_file:
       - .env
     networks:
