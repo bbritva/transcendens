@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@nestjs/websockets": "^9.2.1"
-  }
-}
