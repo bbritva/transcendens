@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:19.2.0-alpine3.15
 
 WORKDIR /usr/src/app/nestjs_app/my_proj
 
@@ -10,6 +10,7 @@ npm i --save @nestjs/config && \
 npm i -g @nestjs/cli
 # RUN npx prisma migrate dev --name init && \
 RUN npm install @prisma/client
+RUN npm install @nestjs/axios
 ENTRYPOINT [ "tail", "-f" ]
 # ENTRYPOINT [ "npm", "run", "start:dev" ]
 
