@@ -34,12 +34,16 @@ const AccountPage: FC<any> = (): ReactElement => {
             <Typography variant="h4" margin={5}>
               {user.name}
             </Typography>
-            <Box 
-              width={400}
-              height={400}
+            <Box
+              component="img"
+              src={user.image}
               sx={{
-                backgroundImage: user.image
+                height: 233,
+                width: 350,
+                maxHeight: { xs: 433},
+                maxWidth: { xs: 650},
               }}
+              alt="The house from the offer."
             />
           </>
         : <SignUp />
