@@ -1,4 +1,4 @@
-import { Box, Grid, Link,  } from '@mui/material';
+import { Box, Grid, Link, useTheme,  } from '@mui/material';
 import { color } from '@mui/system';
 import Typography from '@mui/material/Typography';
 
@@ -7,6 +7,7 @@ interface GridLogoProps {
 }
 
 export const GridLogo = ({size}: GridLogoProps) => {
+  const theme=useTheme()
   return (
   <Grid item>
     <Box 
@@ -15,7 +16,7 @@ export const GridLogo = ({size}: GridLogoProps) => {
       sx={{
         width: size*1.5,
         height: '170%',
-        backgroundColor: 'black',
+        backgroundColor: theme.palette.primary.dark
       }}
     >
       <Typography variant='h3'>

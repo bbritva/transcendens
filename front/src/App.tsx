@@ -4,11 +4,23 @@ import {useEffect, useState} from "react";
 import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
-import { Grid } from "@mui/material";
+import { createTheme, ThemeProvider,Grid } from "@mui/material";
 import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { userI } from "src/store/authReducer";
 import { loginSuccess } from "./store/authActions";
+
+
+const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#283593',
+      },
+      secondary: {
+        main: '#e91e63',
+      },
+    },
+});
 
 function App() {
   let storageUser: userI;
@@ -26,6 +38,7 @@ function App() {
     }
   }, [isLoggedIn, storageUser?.id]);
   return (
+    <ThemeProvider theme={theme}>
     <div className="landing-background">
       <Router>
         <Grid container spacing={2} justifyContent="center">
@@ -46,6 +59,7 @@ function App() {
         </Grid>
       </Router>
      </div>
+    </ThemeProvider>
   );
 };
 

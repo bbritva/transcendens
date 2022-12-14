@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Grid, Link, Button, makeStyles, Typography} from '@mui/material';
+import { Box, Grid, Link, Button, makeStyles, Typography, alpha, useTheme} from '@mui/material';
 import { routes } from 'src/routes';
 import { NavLink } from 'react-router-dom';
 import { GridLogo } from '../Logo/GridLogo';
@@ -25,6 +25,7 @@ function Navbar() {
   const token = useSelector(selectToken);
   const isLoggedIn = useSelector(selectLoggedIn);
   const dispatch = useDispatch();
+  const theme = useTheme();
   useEffect(() => {
     if (accessCode){
       // @ts-ignore
@@ -35,7 +36,8 @@ function Navbar() {
   return (
     <Grid container item xs={12} justifyContent={'flex-start'} 
       sx={{
-      background:  'rgba(0, 0, 0, 0.4)',
+      // background:  'rgba(0, 0, 0, 0.4)',
+      background:  alpha(theme.palette.secondary.light , 0.45),
       height: myHeight
     }}>
       <Grid item xs={2}/>{/* OFFSET */}
