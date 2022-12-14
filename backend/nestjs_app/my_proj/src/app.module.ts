@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-
-//services
-import { AppService } from './app.service';
 import { HttpModule } from '@nestjs/axios';
+
+import { AppController } from './app.controller';
 import { GameModule } from './game/game.module';
 import { UserModule } from './user/user.module';
+import { AppService } from './app.service';
+import { ChatGateway } from './chat/chat.gateway';
 
 
 @Module({
@@ -13,6 +13,6 @@ import { UserModule } from './user/user.module';
   controllers: [
     AppController,
   ],
-  providers: [AppService],
+  providers: [AppService, ChatGateway],
 })
 export class AppModule {}
