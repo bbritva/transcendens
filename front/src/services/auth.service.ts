@@ -9,7 +9,7 @@ class AuthService {
     const response = axios
       .get(urlAuth, { params: {accessCode, accessState}})
       .then((response) => {
-        if (response.status == 200){
+        if (response.status === 200){
             localStorage.setItem("user", JSON.stringify(response.data.userData));
             localStorage.setItem("token", JSON.stringify(response.data.tokenData));
             localStorage.setItem("newUser", JSON.stringify(response.data.newUser));

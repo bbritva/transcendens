@@ -32,9 +32,9 @@ function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     if (!isLoggedIn && storageUser?.id){
-      console.log('APP ! setUser', storageUser);
+      console.log('APP ! setUser', storageUser, storageToken);
       // @ts-ignore
-      dispatch(loginSuccess({storageUser, storageToken}));
+      dispatch(loginSuccess({user: storageUser, accessToken: storageToken}));
     }
   }, [isLoggedIn, storageUser?.id]);
   return (

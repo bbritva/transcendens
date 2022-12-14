@@ -37,6 +37,7 @@ const authReducer = createReducer(initialState, (builder) => {
       state.isLoggedIn = false;
     })
     .addCase(loginSuccess, (state, action) => {
+      console.log('Reducer ', action.payload, action.payload);
       state.isLoggedIn = true;
       state.user = {id: action.payload.user.id, name: action.payload.user.name, image: action.payload.user.image};
       state.accessToken = action.payload.accessToken;

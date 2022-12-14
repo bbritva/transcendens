@@ -1,4 +1,3 @@
-import ButtonVariant3 from "src/components/NavButton/ButtonVariant3";
 import {Box, Typography} from '@mui/material'
 
 function HomePage() {

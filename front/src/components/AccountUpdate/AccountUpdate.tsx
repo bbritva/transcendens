@@ -35,9 +35,8 @@ export default function SignUp() {
   React.useEffect(() => {
     if (file?.name){
       setImageUrl(URL.createObjectURL(file));
-      console.log(imageUrl);
     }
-  }, [file, file?.name, imageUrl])
+  }, [file, file?.name])
 
   React.useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -111,7 +110,7 @@ export default function SignUp() {
               <Grid item xs={6}>
                 <Avatar
                   alt={user.name}
-                  src={user.image || imageUrl}
+                  src={imageUrl || user.image}
                   sx={{
                     width: 100,
                     height: 100,
