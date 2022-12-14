@@ -10,10 +10,11 @@ import { GameModule } from './game/game.module';
 import { UserModule } from './user/user.module';
 import { PrismaService } from './prisma.service';
 import { UserService } from './user/user.service';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
-  imports: [HttpModule, GameModule, UserModule],
+  imports: [HttpModule, GameModule, UserModule, AuthModule],
   controllers: [
     AuthController,
     AppController,
