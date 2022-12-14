@@ -8,10 +8,9 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { useTheme } from '@emotion/react';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'src/store/authReducer';
-import axios from 'axios';
+
 
 function Copyright(props: any) {
   return (
@@ -26,8 +25,6 @@ function Copyright(props: any) {
   );
 }
 
-
-
 export default function SignUp() {
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
@@ -40,11 +37,17 @@ export default function SignUp() {
       setImageUrl(URL.createObjectURL(file));
       console.log(imageUrl);
     }
-  }, [file?.name])
+  }, [file, file?.name, imageUrl])
 
   React.useEffect(() => {
     const timeOutId = setTimeout(() => {
       console.log(inputValue);
+        if (inputValue !== user.name){
+          setInputError(true);
+        }
+        else {
+          setInputError(false);
+        }
       // const upload = await axios({
       //     url:"http://localhost:3000/checkNickname",
       //     method:"get",
@@ -55,7 +58,7 @@ export default function SignUp() {
       // }).then(r => r);
     }, 500);
     return () => clearTimeout(timeOutId);
-  }, [inputValue]);
+  }, [inputValue, user?.name]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

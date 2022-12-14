@@ -1,9 +1,8 @@
-import {ReactElement, FC, useEffect, useState} from "react";
+import {ReactElement, FC} from "react";
 import {Box, Typography} from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
-import { login } from 'src/store/authActions'
+import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
-import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
+import { selectLoggedIn } from "src/store/authReducer";
 
 const AccountPage: FC<any> = (): ReactElement => {
   const isLoggedIn = useSelector(selectLoggedIn);
