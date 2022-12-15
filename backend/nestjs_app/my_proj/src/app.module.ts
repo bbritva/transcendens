@@ -14,6 +14,7 @@ import { ChatModule } from './chat2/chat2.module';
 import { PrismaService } from './prisma.service';
 import { UserService } from './user/user.service';
 
+// puts warnings to console
 process.on('warning', (warning) => {
   console.log(warning.stack);
 });
