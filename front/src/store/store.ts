@@ -1,12 +1,12 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
-import authorizationReducer from 'src/store/authorizationSlice';
+// import authorizationReducer from 'src/store/authorizationSlice';
 import messageReducer from 'src/store/messageSlice';
 import authReducer from 'src/store/authReducer';
 
 //configureStore includes thunk middleware by default
 export const store = configureStore({
   reducer: {
-    authorization: authorizationReducer,
+    // authorization: authorizationReducer,
     message: messageReducer,
     auth: authReducer,
   },
