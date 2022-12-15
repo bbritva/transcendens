@@ -31,15 +31,6 @@ model Game {
   result    String
 }
 
-// model Image {
-
-//   id        Int     @default(autoincrement()) @id
-//   link      String? 
-
-
-// }
-
-
 model Token {
   id        Int     @default(autoincrement()) @id
   access_token  String @unique
@@ -50,6 +41,14 @@ model Token {
   created_at    Int
   owner         User?   @relation("token")
 }
+
+// model Image {
+
+//   id        Int     @default(autoincrement()) @id
+//   link      String? 
+
+
+// }
 
 enum eStatus {
   OFFLINE

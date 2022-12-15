@@ -5,14 +5,15 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
     constructor(private userService: UserService) {}
 
-    async validateUser(username: string, pass: string): Promise<any> {
+    async validateUser(username: string, token: string): Promise<any> {
         const user = await this.userService.getUserByName(username);
-        console.log(user);
+        // console.log(user);
         
-        // if (user && user.token === pass) {
+        // if (user && this.tokenService.getToken === pass) {
         //   const { password, ...result } = user;
         //   return result;
         // }
-        return null;
+        // return null;
       }
-}
+} // toekn instead of pass in this function and make a request to api intra with this token - check if threre is token or not = > empty string or not  
+
