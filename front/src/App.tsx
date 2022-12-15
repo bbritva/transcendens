@@ -1,32 +1,65 @@
 import "src/App.css";
-import exclude from "src/assets/exclude.svg";
-import ButtonVariant3 from "src/components/NavButton/ButtonVariant3";
 import Navbar from 'src/components/Navbar/Navbar';
+import {useEffect, useState} from "react";
+import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
+import { routes as appRoutes } from "src/routes";
+import Allerts from "src/components/Allerts/Allerts";
+import { createTheme, ThemeProvider,Grid } from "@mui/material";
+import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
+import { useDispatch, useSelector } from "react-redux";
+import { userI } from "src/store/authReducer";
+import { loginSuccess } from "./store/authActions";
+
+
+const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#283593',
+      },
+      secondary: {
+        main: '#e91e63',
+      },
+    },
+});
 
 function App() {
-  const propsData = {
-    buttonVariant33: {
-      contact: "Most Popular",
-    },
-  };
+  let storageUser: userI;
+  storageUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const storageToken = JSON.parse(localStorage.getItem('token') || '{}');
+  const user = useSelector(selectUser);
+  const token = useSelector(selectToken);
+  const isLoggedIn = useSelector(selectLoggedIn);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!isLoggedIn && storageUser?.id){
+      console.log('APP ! setUser', storageUser, storageToken);
+      // @ts-ignore
+      dispatch(loginSuccess({user: storageUser, accessToken: storageToken}));
+    }
+  }, [isLoggedIn, storageUser?.id]);
   return (
+    <ThemeProvider theme={theme}>
     <div className="landing-background">
-      <div className="main-container">
-        <Navbar />
-        <div className="text-container">
-          <span className="text-up-header">
-            Ultimate 42
-          </span>
-          <span className="text-down-header">peer pong</span>
-        </div>
-        <div className="down-buttons-container">
-          <img className="exclude" src={exclude} />
-          <ButtonVariant3
-            {...propsData.buttonVariant33}
-          />
-        </div>
-      </div>
+      <Router>
+        <Grid container spacing={2} justifyContent="center">
+          <Navbar />
+          <Allerts />
+          <Grid item xs={8} margin={10} sx={{
+          }}>
+            <Routes>
+              {appRoutes.map((route) => (
+                  <Route
+                    key={route.key}
+                    path={route.path}
+                    element={<route.component />}
+                  />
+                ))}
+            </Routes>
+          </Grid>
+        </Grid>
+      </Router>
      </div>
+    </ThemeProvider>
   );
 };
 

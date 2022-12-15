@@ -8,12 +8,11 @@ const scopes = [
 export const getAuthorizeHref = (stateArray: Uint32Array): string => {
   const clientId = process.env.REACT_APP_42_CLIENT_ID;
   const redirectUri = process.env.REACT_APP_REDIRECT_URI;
+  console.log(stateArray);
   return `${authEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scopes.join("%20")}&state=${stateArray.join('_')}&response_type=code`;
 }
 
 export const getToken = async (accessCode: string): Promise<string> => {
-  const clientId = process.env.REACT_APP_42_CLIENT_ID;
-  const redirectUri = process.env.REACT_APP_REDIRECT_URI;
   const data = {
     grant_type: 'authorization_code',
     client_id: process.env.REACT_APP_42_CLIENT_ID,

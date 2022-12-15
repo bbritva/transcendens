@@ -4,100 +4,26 @@
   width: 100%;
   height: 100%;
   background-color: #fff;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: stretch;
+  /* flex-direction: row; */
+  /* justify-content: flex-start; */
+  /* align-items: stretch; */
   font-family: Inter;
-  font-size: 5.125rem;
-  font-weight: 600;
-  line-height: 100px;
-  display: flex;
+  /* font-size: 5.125rem; */
+  /* font-weight: 600; */
+  /* line-height: 100px; */
+  /* display: flex; */
   background-image: url("/src/assets/background_christmas.jpg");
   background-position: center;
   background-size: cover;
 }
 
-.main-container {
-  height: 100%;
-  flex-direction: column;
-  flex-basis: 100%;
-  justify-content: space-between;
-  align-items: stretch;
-  padding-bottom: 80px;
-  display: flex;
-}
-
-.navbar-container {
-  text-align: center;
-  width: 100%;
-  flex-direction: column;
-  flex-basis: 11%;
-  justify-content: space-between;
-  align-items: stretch;
-  margin-bottom: 9px;
-  font-family: JejuHallasan;
-  font-size: 1.813rem;
-  font-weight: 400;
-  line-height: 25px;
-  display: flex;
-}
-
-.navbar {
-  z-index: auto;
-  background-color: #00000082;
-  justify-content: space-evenly;
-  align-items: center;
-  display: flex;
-}
-
 .logo-text {
   width: 143px;
   height: 134px;
-  background-image: url("/src/assets/rectangle22.svg");
+  background-color: black;
   letter-spacing: -2px;
   margin-bottom: -5%;
   object-fit: cover;
   align-items: center;
-  display: grid;
-}
-
-.text-container {
-  width: 55%;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-  margin-top: 4px;
-  margin-left: 134px;
-  display: flex;
-}
-
-.text-up-header {
-  letter-spacing: -2px;
-  margin-bottom: -15px;
-  font-size: 2.625rem;
-  line-height: 91px;
-  text-shadow: -0.5px 0 black, 0 0.5px black, 0.5px 0 black, 0 -0.5px black;
-}
-
-.text-down-header {
-  letter-spacing: -4px;
-  text-shadow: -0.5px 0 black, 0 0.5px black, 0.5px 0 black, 0 -0.5px black;
-}
-
-.down-buttons-container {
-  width: 20%;
-  flex-direction: row;
-  flex-basis: 4%;
-  justify-content: space-between;
-  align-items: stretch;
-  margin-bottom: 345px;
-  margin-left: 134px;
-  display: flex;
-}
-
-.exclude {
-  width: 129px;
-  height: 41px;
-  object-fit: cover;
-  border: none;
+  /* display: grid; */
 }
