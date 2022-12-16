@@ -56,4 +56,12 @@ export class UserController {
     ): Promise<UserModel> {
         return this.userService.getUser(userId);
     }
+
+    @Get('isNameFree')
+    async isNameFree(
+        @Body('name') userName: string,
+    ): Promise<boolean> {
+        const user =  await this.userService.getUserByName(userName)
+        return (user == null)
+    }
 }
