@@ -13,6 +13,7 @@ import { ChatGateway } from './chat/chat.gateway';
 import { ChatModule } from './chat2/chat2.module';
 import { PrismaService } from './prisma.service';
 import { UserService } from './user/user.service';
+import { ChannelModule } from './channel/channel.module';
 
 // puts warnings to console
 process.on('warning', (warning) => {
@@ -20,7 +21,7 @@ process.on('warning', (warning) => {
 });
 
 @Module({
-  imports: [HttpModule, GameModule, UserModule, ChatModule],
+  imports: [HttpModule, GameModule, UserModule, ChatModule, ChannelModule],
   controllers: [
     AuthController,
     AppController,

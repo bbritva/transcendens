@@ -18,7 +18,11 @@ model User {
   friendIds Int[]
   wins      Game[]  @relation("win")
   loses     Game[]  @relation("lose")
-  // token     Token? 
+}
+enum eStatus {
+  OFFLINE
+  ONLINE
+  ONGAME
 }
 
 model Game {
@@ -29,20 +33,6 @@ model Game {
   loserId   Int     
   result    String
 }
-
-// model Image {
-
-//   id        Int     @default(autoincrement()) @id
-//   link      String? 
-
-
-// }
-// model Autorization {
-//   tokenId   Int       @default(autoincrement()) @id
-//   token     String
-//   owner     User?     @relation(fields: [ownerId], references: [id])
-//   ownerId   Int?      @unique
-// }
 
 model Token {
   id        Int     @default(autoincrement()) @id
@@ -56,16 +46,20 @@ model Token {
   // ownerId  Int     @unique
 }
 
-enum eStatus {
-  OFFLINE
-  ONLINE
-  ONGAME
+model Channel {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique
+  history   Json        @default("{}")
+  ownerId   Int
+  guestIds  Int[]
+  admIds    Int[]
+  mutedIds  Int[]
+  bannedIds Int[]
 }
 
-model Message {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  userName  String
-  text      String
-  createdAt DateTime @default(now())
-}
+// model PrivateChannel {
+//   id        Int      @id @default(autoincrement())
+//   history   Json
+//   ownerId   Int
+//   guestId   Int
+// }
