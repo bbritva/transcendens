@@ -1,15 +1,25 @@
 
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Request, Param, Query, UseGuards } from '@nestjs/common';
 import { ReqService } from 'src/req/req.service';
 import { UserService } from 'src/user/user.service';
+import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly httpService: ReqService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly authService: AuthService
+    
   ) {}
 
+    @UseGuards(AuthGuard('local'))
+    @Post('/login')
+    async login(@Request() req) {
+      return this.authService.login(req.user);
+    }
+    // @UseGuards(AuthGuard('local'))
     @Get('/')
         async getAuth(
           @Query('accessCode') accessCode: string,
@@ -43,4 +53,5 @@ export class AuthController {
         return {tokenData, userData, newUser};
     }
 }
+
 
