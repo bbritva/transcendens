@@ -1,7 +1,7 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-const API_URL = process.env.REACT_APP_AUTH_URL + '/user';
+const API_URL = process.env.REACT_APP_USERS_URL;
 
 class UserService {
   getMe() {
@@ -9,6 +9,10 @@ class UserService {
     const token = JSON.parse(storageData);
     return axios.get(API_URL + '/getMe')
   }
+  getUsers() {
+    return axios.get(API_URL + '/starships');
+  }
+
   getPublicContent() {
     return axios.get(API_URL + 'all');
   }
