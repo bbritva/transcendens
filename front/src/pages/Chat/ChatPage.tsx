@@ -29,7 +29,7 @@ const ChatPage: FC<any> = (): ReactElement => {
           flex-direction={'row'}
           align-items={'center'}
         >
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <OneColumnTable
               name={'Channels'}
               loading={loading}
@@ -37,7 +37,7 @@ const ChatPage: FC<any> = (): ReactElement => {
               getName={false}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <OneColumnTable
               name={'Users'}
               loading={loading}
@@ -45,7 +45,7 @@ const ChatPage: FC<any> = (): ReactElement => {
               getName={true}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={8}>
             <OneColumnTable
               name={'Chat'}
               loading={loading}
