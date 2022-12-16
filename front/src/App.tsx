@@ -37,6 +37,9 @@ function App() {
       dispatch(loginSuccess({user: storageUser, accessToken: storageToken}));
     }
   }, [isLoggedIn, storageUser?.id]);
+
+  console.log(process.env);
+
   return (
     <ThemeProvider theme={theme}>
     <div className="landing-background">
