@@ -19,7 +19,6 @@ const searchParams = getSearchParams();
 const accessCode = searchParams?.code;
 const accessState = searchParams?.state;
 removeAllParamsFromUrl();
-console.log(searchParams);
 
 export const AuthorizationButton = ({text, setCode, setState, styleProp}: AuthorizationProps) => {
   const isLoggedIn = useSelector(selectLoggedIn);
@@ -28,10 +27,8 @@ export const AuthorizationButton = ({text, setCode, setState, styleProp}: Author
 
   useEffect(() => {
     if (accessCode) {
-      console.log('Authorization!', accessCode);
       setCode(accessCode);
       setState(accessState)
-      // console.log('Token ', getToken(accessCode));
     }
     // if (access_token) {
     //   dispatch(setLoggedIn(true));

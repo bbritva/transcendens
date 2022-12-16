@@ -32,11 +32,10 @@ function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     if (!isLoggedIn && storageUser?.id){
-      console.log('APP ! setUser', storageUser, storageToken);
       // @ts-ignore
       dispatch(loginSuccess({user: storageUser, accessToken: storageToken}));
     }
-  }, [isLoggedIn, storageUser?.id]);
+  }, [isLoggedIn]);
   return (
     <ThemeProvider theme={theme}>
     <div className="landing-background">
