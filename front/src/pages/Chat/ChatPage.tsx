@@ -24,7 +24,11 @@ const ChatPage: FC<any> = (): ReactElement => {
       justifyContent: 'center',
       alignItems: 'center'
     }}>
-        <Grid container spacing={2}>
+        <Grid container spacing={2}
+          display={'flex'}
+          flex-direction={'row'}
+          align-items={'center'}
+        >
           <Grid item xs={3}>
             <OneColumnTable
               name={'Channels'}
@@ -42,13 +46,12 @@ const ChatPage: FC<any> = (): ReactElement => {
             />
           </Grid>
           <Grid item xs={4}>
-            <Table>
-              <TableHead>Chat</TableHead>
-              <TableBody>
-
-              </TableBody>
-            </Table>
-
+            <OneColumnTable
+              name={'Chat'}
+              loading={loading}
+              elements={users}
+              getName={false}
+            />
           </Grid>
         </Grid>
     </Box>
