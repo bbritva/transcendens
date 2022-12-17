@@ -7,7 +7,7 @@ import { MessageBody,
 import { Server } from "socket.io";
 
 @WebSocketGateway()
-export class MyChat2 implements  OnModuleInit {
+export class Gateway implements  OnModuleInit {
 
     @WebSocketServer()
     server : Server;

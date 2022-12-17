@@ -9,7 +9,7 @@ import { AuthController } from './auth/auth.controller';
 import { ReqService } from './req/req.service';
 
 import { AppService } from './app.service';
-import { ChatModule } from './chat2/chat2.module';
+import { GatewayModule } from './websocket/gateway.module';
 import { PrismaService } from './prisma.service';
 import { UserService } from './user/user.service';
 import { ChannelModule } from './channel/channel.module';
@@ -27,7 +27,7 @@ process.on('warning', (warning) => {
     GameModule, 
     UserModule, 
     AuthModule,
-    ChatModule,
+    GatewayModule,
     ChannelModule,
   ],
   controllers: [
