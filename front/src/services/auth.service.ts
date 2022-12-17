@@ -1,11 +1,11 @@
 import axios from "axios"
+import authHeader from "./authHeader";
 
 const API_URL = process.env.REACT_APP_AUTH_URL;
 
 class AuthService {
   login(accessCode: string, accessState: string) {
     let urlAuth = API_URL + "/auth";
-    // console.log('print urlAuth ', urlAuth);
     const response = axios
       .get(urlAuth, { params: {accessCode, accessState}})
       .then((response) => {
@@ -19,17 +19,16 @@ class AuthService {
         }
         return response.data;
       })
-    // const promise = Promise.resolve(response);
-    // promise.then((response) => {
-    //   console.log('AuthService!', response);
-    // })
     return response;
   }
 
   logout() {
+    const inter = localStorage.getItem("interceptor");
+    axios.interceptors.request.eject(parseInt(inter || ''));
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("newUser");
+    localStorage.removeItem("interceptor");
   }
 
   register(username:string, email:string, password:string) {

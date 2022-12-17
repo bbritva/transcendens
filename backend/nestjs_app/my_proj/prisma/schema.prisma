@@ -18,6 +18,8 @@ model User {
   friendIds Int[]
   wins      Game[]  @relation("win")
   loses     Game[]  @relation("lose")
+  token     Token?  @relation("token", fields: [tokenId], references: [id])
+  tokenId   Int?   @unique
 }
 enum eStatus {
   OFFLINE
@@ -42,8 +44,7 @@ model Token {
   refresh_token String
   scope         String
   created_at    Int
-  // owner    User    @relation(fields: [ownerId], references: [id])
-  // ownerId  Int     @unique
+  owner         User?   @relation("token")
 }
 
 model Channel {

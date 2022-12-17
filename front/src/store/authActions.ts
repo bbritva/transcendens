@@ -33,14 +33,18 @@ export const register = (username:string, email:string, password:string) => (dis
   );
 };
 
-export const loginSuccess = createAction<{user: userI, accessToken: {}}>('LOGIN_SUCCESS');
+export const loginSuccess = createAction('LOGIN_SUCCESS', ({user, accessToken}) => {
+  return {payload: {
+    user,
+    accessToken
+  }};
+})
 export const loginFail = createAction('LOGIN_FAIL');
 
 export const login = (accessCode: string, accessState: string) => (dispatch: Dispatch) => {
   return AuthService.login(accessCode, accessState)
     .then(
       (data) => {
-        console.log('loginSuccess', data);
         const myPayload = { user: data.userData, accessToken: data.tokenData };
         dispatch(loginSuccess(myPayload));
 

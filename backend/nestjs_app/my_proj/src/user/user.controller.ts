@@ -7,9 +7,11 @@ import {
     Put,
     Delete,
     BadRequestException,
+    UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 
 
@@ -26,7 +28,12 @@ export class UserController {
     ): Promise<UserModel> {
         const user = await this.userService.getUser(data.id)
         if (user === null) {
-            return this.userService.createUser(data);
+            return this.userService.createUser(data)
+                .then(ret => ret)
+                .catch(error => {
+                    console.log("catch");
+                    throw new BadRequestException(error.code);
+                });
         }
         return user
     }
@@ -34,14 +41,14 @@ export class UserController {
     @Post('setName')
     async setUserName(
         @Body() data: { id: number; name: string },
-        ): Promise<UserModel> {
+    ): Promise<UserModel> {
         return this.userService.updateUser({
             where: { id: Number(data.id) },
             data: { name: data.name },
         })
             .then(ret => {
                 console.log("then");
-                
+
                 return ret;
             })
             .catch(error => {
@@ -50,6 +57,7 @@ export class UserController {
             });
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get('show')
     async showUser(
         @Body('id') userId: number,

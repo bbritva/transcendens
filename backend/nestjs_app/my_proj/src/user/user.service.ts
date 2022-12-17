@@ -34,6 +34,17 @@ export class UserService {
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({
       data,
+    })
+    .then(ret => ret)
+    .catch(e => {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') {
+          console.log(
+            'There is a unique constraint violation, a user cannot be updated'
+          )
+        }
+      }
+      throw e;
     });
   }
 
