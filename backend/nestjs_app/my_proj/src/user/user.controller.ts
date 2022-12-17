@@ -6,6 +6,7 @@ import {
     Body,
     Put,
     Delete,
+    BadRequestException,
     UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -23,12 +24,37 @@ export class UserController {
 
     @Post('add')
     async signupUser(
-        @Body('name') userName: string,
+        @Body() data: { id: number; name: string },
     ): Promise<UserModel> {
-        let user = await this.userService.getUserByName(userName)
-        if (user === null)
-            return this.userService.createUser({ name: userName });
+        const user = await this.userService.getUser(data.id)
+        if (user === null) {
+            return this.userService.createUser(data)
+                .then(ret => ret)
+                .catch(error => {
+                    console.log("catch");
+                    throw new BadRequestException(error.code);
+                });
+        }
         return user
+    }
+
+    @Post('setName')
+    async setUserName(
+        @Body() data: { id: number; name: string },
+    ): Promise<UserModel> {
+        return this.userService.updateUser({
+            where: { id: Number(data.id) },
+            data: { name: data.name },
+        })
+            .then(ret => {
+                console.log("then");
+
+                return ret;
+            })
+            .catch(error => {
+                console.log("catch");
+                throw new BadRequestException(error.code);
+            });
     }
 
     @UseGuards(JwtAuthGuard)

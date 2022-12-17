@@ -4,7 +4,7 @@ import { User, Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async user(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
@@ -34,6 +34,17 @@ export class UserService {
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     return this.prisma.user.create({
       data,
+    })
+    .then(ret => ret)
+    .catch(e => {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === 'P2002') {
+          console.log(
+            'There is a unique constraint violation, a user cannot be updated'
+          )
+        }
+      }
+      throw e;
     });
   }
 
@@ -51,8 +62,8 @@ export class UserService {
         id: userId,
       },
       include: {
-        wins : true,
-        loses : true
+        wins: true,
+        loses: true
       }
     });
   }
@@ -63,10 +74,21 @@ export class UserService {
   }): Promise<User> {
     const { where, data } = params;
     return this.prisma.user.update({
-      data,
-      where,
-    });
-  }
+        data,
+        where,
+      })
+        .then(ret => ret)
+        .catch(e => {
+          if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            if (e.code === 'P2002') {
+              console.log(
+                'There is a unique constraint violation, a user cannot be updated'
+              )
+            }
+          }
+          throw e;
+        });
+    }
 
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
     return this.prisma.user.delete({
