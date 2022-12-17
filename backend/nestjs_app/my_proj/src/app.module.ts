@@ -12,14 +12,35 @@ import { PrismaService } from './prisma.service';
 import { UserService } from './user/user.service';
 import { AuthModule } from './auth/auth.module';
 import { TokenService } from './token/token.service';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from './auth/constants';
+import { JwtStrategy } from './auth/jwt.strategy';
 
 
 @Module({
-  imports: [HttpModule, GameModule, UserModule, AuthModule],
+  imports: [
+    HttpModule, 
+    GameModule, 
+    UserModule, 
+    AuthModule, 
+    // PassportModule, 
+    // JwtModule.register({
+    //   secret: jwtConstants.secret,
+    //   signOptions: { expiresIn: '60s' },
+    // })
+  ],
   controllers: [
     AuthController,
     AppController,
   ],
-  providers: [AppService, ReqService, PrismaService, UserService, TokenService],
+  providers: [
+    AppService, 
+    ReqService, 
+    PrismaService, 
+    UserService, 
+    TokenService,
+    // JwtStrategy
+  ],
 })
 export class AppModule {}

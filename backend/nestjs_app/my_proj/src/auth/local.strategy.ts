@@ -13,13 +13,11 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     private readonly userService: UserService,
 ) {
     super({usernameField: 'accessCode', passwordField: 'accessState'});
-    // super();
   }
 
   async validate(accessCode: string, accessState: string): Promise<any> {
     console.log('Strategy accessCode', accessCode, accessState);
     let tokenResponse = await this.httpService.getToken(accessCode, accessState)
-    //let tokenResponse = await this.httpService.getToken()
 
     const user = await this.authService.validateUser(tokenResponse.data.access_token);
     if (!user) {
@@ -28,5 +26,3 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     return user;
   }
 }
-
-// super({ usernameField: 'email' })

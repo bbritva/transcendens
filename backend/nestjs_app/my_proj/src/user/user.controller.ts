@@ -6,9 +6,11 @@ import {
     Body,
     Put,
     Delete,
+    UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 
 
@@ -29,6 +31,7 @@ export class UserController {
         return user
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get('show')
     async showUser(
         @Body('id') userId: number,
