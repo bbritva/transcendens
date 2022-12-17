@@ -7,7 +7,6 @@ import { clearMessage, selectMessage } from "src/store/messageSlice";
 const Allerts: FC<any> = (): ReactElement => {
   const message = useSelector(selectMessage);
   const dispath = useDispatch();
-  console.log(message)
   return (
     <>
       {

@@ -40,7 +40,6 @@ export default function SignUp() {
 
   React.useEffect(() => {
     const timeOutId = setTimeout(() => {
-      console.log(inputValue);
         if (inputValue !== user.name){
           setInputError(true);
         }
@@ -62,10 +61,6 @@ export default function SignUp() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      nickname: data.get('nickname'),
-      file: file
-    });
     // const upload = await axios({
     //     url:"http://localhost:3000/upload",
     //     method:"post",
@@ -79,17 +74,14 @@ export default function SignUp() {
   const onFileChange = async (iFile: React.ChangeEvent) => {
       iFile.preventDefault();
       const target = iFile.target as HTMLInputElement;
-      console.log(target.files);
       if (target.files && target.files.length !== 0) {
         setFile(target.files[0]);
-        console.log(target.files);
       }
   }
 
   function nickChange (this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
-    // console.log(inputValue);
   }
 
   return (
