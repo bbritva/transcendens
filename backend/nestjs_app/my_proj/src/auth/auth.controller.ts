@@ -15,12 +15,12 @@ export class AuthController {
   ) {}
 
     @UseGuards(AuthGuard('local'))
-    @Post('/login')
+    @Post('/')
     async login(@Request() req) {
       return this.authService.login(req.user);
     }
     // @UseGuards(AuthGuard('local'))
-    @Get('/')
+    @Get('/login')
         async getAuth(
           @Query('accessCode') accessCode: string,
           @Query('accessState') accessState: string,

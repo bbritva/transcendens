@@ -2,18 +2,19 @@ import { Module } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserModule } from 'src/user/user.module';
 import { UserService } from 'src/user/user.service';
-import { AuthService } from './auth.service';
+import { AuthService } from 'src/auth/auth.service';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './local.strategy';
+import { LocalStrategy } from 'src/auth/local.strategy';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
 import { ReqService } from 'src/req/req.service';
 import { HttpModule, HttpService } from '@nestjs/axios';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from 'src/auth/jwt.strategy';
+import { JwtRefreshStrategy } from 'src/auth/jwt-refresh.strategy';
+import { env } from 'process';
 
 @Module({
   imports:[UserModule, PassportModule, HttpModule, JwtModule.register({
-    secret: jwtConstants.secret, 
+    secret: env.JWT_ACCESS_SECRET, 
     //will be reactivated when the fresh token method is implemented
     // signOptions: { expiresIn: '60s' },
   })],
@@ -23,7 +24,8 @@ import { JwtStrategy } from './jwt.strategy';
     PrismaService, 
     LocalStrategy, 
     ReqService, 
-    JwtStrategy
+    JwtStrategy,
+    JwtRefreshStrategy
   ],
   exports: [AuthService],
 })
