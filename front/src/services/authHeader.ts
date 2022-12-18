@@ -4,7 +4,7 @@ export default function authHeader() {
   const headers = {'x-access-token': '', 'authorization': ''};
   const interceptor = axios.interceptors.request.use(
     config => {
-      const storageData = localStorage.getItem('token') || '{}';
+      const storageData = localStorage.getItem('access_token') || '{}';
       const token = JSON.parse(storageData);
       if (storageData){
         // for Node.js Express back-end

@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 import authHeader from 'src/services/authHeader';
-import { loginFail, loginSuccess, logout, registerFail, registerSuccess } from 'src/store/authActions';
+import { loginFail, loginSuccess, logout, registerFail, registerSuccess, userSuccess} from 'src/store/authActions';
 import { RootState } from './store'
 
 // const storageData = localStorage.getItem("user") || '{}';
@@ -23,7 +23,7 @@ const initialState: authState = {
   isLoggedIn: false,
   user: {id: '', name: '', image: ''},
   accessCode: '',
-  accessToken: {}
+  accessToken: {access_token: '', refreshToken: ''}
 }
 
 const authReducer = createReducer(initialState, (builder) => {
@@ -36,8 +36,11 @@ const authReducer = createReducer(initialState, (builder) => {
     })
     .addCase(loginSuccess, (state, action) => {
       state.isLoggedIn = true;
+      state.accessToken = action.payload;
+    })
+    .addCase(userSuccess, (state, action) => {
+      state.isLoggedIn = true;
       state.user = {id: action.payload.user.id, name: action.payload.user.name, image: action.payload.user.image};
-      state.accessToken = action.payload.accessToken;
       authHeader();
     })
     .addCase(loginFail, (state, action) => {

@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 import { GridLogo } from '../Logo/GridLogo';
 import { AuthorizationButton } from "src/features/authorization/Authorization";
 import { useDispatch, useSelector } from "react-redux";
-import { login, logout } from 'src/store/authActions'
+import { getUser, login, logout } from 'src/store/authActions'
 import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
 
 export const navButtonStyle = {
@@ -30,6 +30,8 @@ function Navbar() {
     if (accessCode){
       // @ts-ignore
       dispatch(login(accessCode, accessState));
+      // @ts-ignore
+      dispatch(getUser());
     }
   }, [accessCode]);
   const myHeight = 100;
