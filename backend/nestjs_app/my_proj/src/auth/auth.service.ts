@@ -2,6 +2,8 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { env } from 'process';
 import { ReqService } from 'src/req/req.service';
+import { intraTokenDto } from 'src/token/intraToken.dto';
+import { TokenService } from 'src/token/token.service';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -10,16 +12,28 @@ export class AuthService {
     private userService: UserService,
     private readonly httpService: ReqService,
     private jwtService: JwtService,
+    private tokenService: TokenService
   ) {}
 
-  async validateUser(accessToken: string): Promise<any> {
-    let userResponse = await this.httpService.getMe(accessToken);
+  async validateUser(accessTokenData: intraTokenDto): Promise<any> {
+    let userResponse = await this.httpService.getMe(accessTokenData.access_token);
     if (userResponse?.data) {
       const userData = {
         id: parseInt(userResponse.data.id),
         name: userResponse.data.login,
         image: userResponse.data.link,
       };
+      let userBd = await this.userService.getUser(userData.id);
+      if (!userBd) {
+        userBd = await this.userService.createUser(userData);
+        const tokenBd = await this.tokenService.createToken({
+          owner: {
+            connect: {id: userBd.id}
+          },
+          ...accessTokenData
+        });
+        console.log("Token BD", tokenBd);
+      }
       return userData;
     }
     return null;
@@ -36,7 +50,7 @@ export class AuthService {
     return res;
   }
 
-  async logout(user: {id: number, username: string}) {
+  async logout(user: { id: number; username: string }) {
     const res = await this.userService.updateUser({
       where: { name: user.username },
       data: { refreshToken: null },
@@ -44,7 +58,7 @@ export class AuthService {
     return res;
   }
 
-  getTokens(payload: { id: number; username: string}) {
+  getTokens(payload: { id: number; username: string }) {
     const tokens = {
       access_token: this.jwtService.sign(payload),
       refreshToken: this.jwtService.sign(payload, {
@@ -68,8 +82,7 @@ export class AuthService {
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access Denied');
     const refreshTokenMatches = refreshToken === user.refreshToken;
-    if (!refreshTokenMatches) 
-      throw new ForbiddenException('Access Denied');
+    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const payload = { id: user.id, username: user.name, sub: user.image };
     const tokens = this.getTokens(payload);
     await this.updateRefreshTokenDb(user.name, tokens.refreshToken);

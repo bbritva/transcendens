@@ -11,6 +11,7 @@ import { HttpModule, HttpService } from '@nestjs/axios';
 import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { JwtRefreshStrategy } from 'src/auth/jwt-refresh.strategy';
 import { env } from 'process';
+import { TokenService } from 'src/token/token.service';
 
 @Module({
   imports:[UserModule, PassportModule, HttpModule, JwtModule.register({
@@ -25,7 +26,8 @@ import { env } from 'process';
     LocalStrategy, 
     ReqService, 
     JwtStrategy,
-    JwtRefreshStrategy
+    JwtRefreshStrategy,
+    TokenService
   ],
   exports: [AuthService],
 })
