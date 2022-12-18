@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from 'src/prisma.service';
 import { Channel, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -31,14 +31,14 @@ export class ChannelService {
     });
   }
 
-  async createChannel(data: Prisma.ChannelCreateInput): Promise<Channel> {
-    return this.prisma.channel.create({
-      data,
-    });
-  }
+  // async createChannel(data: Prisma.ChannelCreateInput): Promise<Channel> {
+  //   return this.prisma.channel.create({
+  //     data,
+  //   });
+  // }
   
   async connectToChannel(data: Prisma.ChannelCreateInput): Promise<Channel> {
-    const channel = await this.getChannelByName(data.name);
+    const channel = await this.getChannel(data.name);
     if (null === channel) {
       const params = {data:{ name : data.name ,  ownerId : data.ownerId, guestIds : [data.ownerId]}}
 
@@ -58,7 +58,7 @@ export class ChannelService {
     if (channel.guestIds.includes(data.ownerId))
       return channel;
     return this.prisma.channel.update({
-      where: { id: channel.id, },
+      where: { name: channel.name, },
       data: { guestIds: { push: data.ownerId, },
       },
     })
@@ -76,7 +76,7 @@ export class ChannelService {
 
   }
 
-  async getChannelByName(channelName: string): Promise<Channel> {
+  async getChannel(channelName: string): Promise<Channel> {
     return this.prisma.channel.findUnique({
       where: {
         name: channelName,
@@ -84,12 +84,10 @@ export class ChannelService {
     });
   }
 
-  async getChannel(ChannelId: number): Promise<Channel> {
-    return this.prisma.channel.findFirst({
-      where: {
-        id: ChannelId,
-      },
-    });
+  async addMessage(message:any){
+    console.log("addMessage", message);
+    const time = Date();
+
   }
 
   async updateChannel(params: {

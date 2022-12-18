@@ -48,14 +48,22 @@ model Token {
 }
 
 model Channel {
-  id        Int         @id @default(autoincrement())
-  name      String      @unique
-  history   Json        @default("{}")
+  name      String      @unique @id
   ownerId   Int
   guestIds  Int[]
   admIds    Int[]
   mutedIds  Int[]
   bannedIds Int[]
+  messages  Message[]   @relation()
+}
+
+model Message {
+  id          Int       @default(autoincrement()) @id
+  channel     Channel   @relation(fields: [channelName], references: [name])
+  channelName String    
+  sentAt      DateTime  @default(now())
+  authorName  String
+  text        String
 }
 
 // model PrivateChannel {

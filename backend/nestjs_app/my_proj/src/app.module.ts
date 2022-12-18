@@ -1,20 +1,21 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
-import { GameModule } from './game/game.module';
-import { UserModule } from './user/user.module';
-import { AppController } from './app.controller';
+import { GameModule } from 'src/game/game.module';
+import { UserModule } from 'src/user/user.module';
+import { AppController } from 'src/app.controller';
 
 //services
 import { AuthController } from './auth/auth.controller';
-import { ReqService } from './req/req.service';
+import { ReqService } from 'src/req/req.service';
 
-import { AppService } from './app.service';
-import { GatewayModule } from './websocket/gateway.module';
-import { PrismaService } from './prisma.service';
-import { UserService } from './user/user.service';
-import { ChannelModule } from './channel/channel.module';
-import { AuthModule } from './auth/auth.module';
-import { TokenService } from './token/token.service';
+import { AppService } from 'src/app.service';
+import { GatewayModule } from 'src/websocket/gateway.module';
+import { PrismaService } from 'src/prisma.service';
+import { UserService } from 'src/user/user.service';
+import { ChannelModule } from 'src/channel/channel.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { TokenService } from 'src/token/token.service';
+import { MessageService } from 'src/channel/message/message.service';
 
 // puts warnings to console
 process.on('warning', (warning) => {
@@ -39,7 +40,7 @@ process.on('warning', (warning) => {
     ReqService, 
     PrismaService, 
     UserService, 
-    TokenService,
+    TokenService, MessageService,
   ],
 })
 export class AppModule {}

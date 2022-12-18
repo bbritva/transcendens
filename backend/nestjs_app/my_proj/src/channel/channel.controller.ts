@@ -29,11 +29,11 @@ export class ChannelController {
 
     @Post('setName')
     async setChannelName(
-        @Body() data: { id: number; name: string },
+        @Body() data: { oldName: string; newName: string },
         ): Promise<ChannelModel> {
         return this.channelService.updateChannel({
-            where: { id: Number(data.id) },
-            data: { name: data.name },
+            where: { name: data.oldName },
+            data: { name: data.newName },
         })
             .then(ret => {
                 console.log("then");
@@ -47,8 +47,8 @@ export class ChannelController {
 
     @Get('show')
     async showChannel(
-        @Body('id') ChannelId: number,
+        @Body('name') name: string,
     ): Promise<ChannelModel> {
-        return this.channelService.getChannel(ChannelId);
+        return this.channelService.getChannel(name);
     }
 }
