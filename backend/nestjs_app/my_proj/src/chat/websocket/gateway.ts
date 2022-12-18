@@ -6,7 +6,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { MessageService } from 'src/channel/message/message.service';
+import { MessageDto } from 'src/chat/message/message.dto';
+import { MessageService } from 'src/chat/message/message.service';
 
 @WebSocketGateway()
 export class Gateway implements OnModuleInit {
@@ -24,33 +25,23 @@ export class Gateway implements OnModuleInit {
     else this.server.close();
   }
 
-  // {
-  //     header : {
-  //       user,
-  //       channel(or direction)
-  //     },
-  //     body: {
-  //       message
-  //     }
-  // }
-
   @SubscribeMessage('newMessage')
-  async onNewMessage(@MessageBody() body: any) {
-    console.log(body);
-    const msg = await this.messageService.createMessage({
+  async onNewMessage(@MessageBody() messageIn: MessageDto) {
+    console.log(messageIn);
+    const messageOut = await this.messageService.createMessage({
       channel: {
-        connect: { name: body.header.channel },
+        connect: { name: messageIn.header.channel },
       },
-      authorName: body.header.user,
-      text: body.message,
+      authorName: messageIn.header.JWTtoken,
+      text: messageIn.text,
     });
     this.server.emit('onMessage', {
       header: {
-        user: msg.authorName,
-        channel: msg.channelName,
-        sentAt: msg.sentAt,
+        user: messageOut.authorName,
+        channel: messageOut.channelName,
+        sentAt: messageOut.sentAt,
       },
-      body: msg.text,
+      body: messageOut.text,
     });
   }
 }

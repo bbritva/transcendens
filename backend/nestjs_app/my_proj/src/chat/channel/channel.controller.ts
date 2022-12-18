@@ -49,6 +49,12 @@ export class ChannelController {
     async showChannel(
         @Body('name') name: string,
     ): Promise<ChannelModel> {
-        return this.channelService.getChannel(name);
+        return this.channelService.getChannel(name)
+        .then(ret => ret)
+        .catch(error => {
+            console.log("catch");
+            throw new BadRequestException(error.code);
+        }
+        )
     }
 }

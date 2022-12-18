@@ -81,6 +81,9 @@ export class ChannelService {
       where: {
         name: channelName,
       },
+      include: {
+        messages : true
+      }
     });
   }
 
