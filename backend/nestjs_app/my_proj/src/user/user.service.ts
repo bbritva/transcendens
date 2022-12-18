@@ -28,7 +28,7 @@ export class UserService {
       cursor,
       where,
       orderBy,
-    });  
+    });    
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
@@ -73,7 +73,6 @@ export class UserService {
     data: Prisma.UserUpdateInput;
   }): Promise<User> {
     const { where, data } = params;
-    console.log('PARAMS', params)
     return this.prisma.user.update({
         data,
         where,

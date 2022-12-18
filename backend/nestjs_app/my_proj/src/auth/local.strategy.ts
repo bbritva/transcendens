@@ -10,13 +10,11 @@ import { access } from 'fs';
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService,
     private readonly httpService: ReqService,
-    private readonly userService: UserService,
 ) {
     super({usernameField: 'accessCode', passwordField: 'accessState'});
   }
 
   async validate(accessCode: string, accessState: string): Promise<any> {
-    console.log('Strategy accessCode', accessCode, accessState);
     let tokenResponse = await this.httpService.getToken(accessCode, accessState)
 
     const user = await this.authService.validateUser(tokenResponse.data.access_token);
@@ -25,4 +23,4 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     }
     return user;
   }
-}
+} 
