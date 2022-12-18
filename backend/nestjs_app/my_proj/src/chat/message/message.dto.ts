@@ -1,7 +1,7 @@
 export class MessageDto {
   readonly header: {
     readonly JWTtoken: string;
-    readonly username: string;
+    readonly userName: string;
     readonly sentAt: Date;
     readonly channel: string;
   };

@@ -28,20 +28,28 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage('newMessage')
   async onNewMessage(@MessageBody() messageIn: MessageDto) {
     console.log(messageIn);
-    const messageOut = await this.messageService.createMessage({
-      channel: {
-        connect: { name: messageIn.header.channel },
-      },
-      authorName: messageIn.header.JWTtoken,
-      text: messageIn.text,
-    });
-    this.server.emit('onMessage', {
-      header: {
-        user: messageOut.authorName,
-        channel: messageOut.channelName,
-        sentAt: messageOut.sentAt,
-      },
-      body: messageOut.text,
-    });
+    try {
+      const messageOut = await this.messageService.createMessage({
+        channel: {
+          connect: { name: messageIn.header.channel },
+        },
+        authorName: this.getUserNameFromJWT(messageIn.header.JWTtoken),
+        text: messageIn.text,
+      });
+      this.server.emit('onMessage', {
+        header: {
+          userName: messageOut.authorName,
+          channel: messageOut.channelName,
+          sentAt: messageOut.sentAt,
+        },
+        body: messageOut.text,
+      });
+    } catch (e) {
+      console.log("err", e.meta.cause);
+    }
+  }
+
+  private getUserNameFromJWT(JWTtoken : string) : string {
+    return JWTtoken;
   }
 }
