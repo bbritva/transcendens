@@ -28,12 +28,16 @@ function Navbar() {
   const theme = useTheme();
   useEffect(() => {
     if (accessCode){
+      if (!isLoggedIn){
       // @ts-ignore
-      dispatch(login(accessCode, accessState));
+        dispatch(login(accessCode, accessState));
+      }
+      else {
       // @ts-ignore
       dispatch(getUser());
+      }
     }
-  }, [accessCode]);
+  }, [accessCode, isLoggedIn]);
   const myHeight = 100;
   return (
     <Grid container item xs={12} justifyContent={'flex-start'} 
