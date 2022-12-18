@@ -6,11 +6,12 @@ export default function authHeader() {
     config => {
       const storageData = localStorage.getItem('access_token') || '{}';
       const token = JSON.parse(storageData);
+      console.log('INTERCEPTOR HEADER', token)
       if (storageData){
         // for Node.js Express back-end
-        config.headers = {... config.headers, 'x-access-token': `${token?.access_token}`} ;
+        config.headers = {... config.headers, 'x-access-token': `${token}`} ;
         // another types
-        config.headers = {... config.headers, 'Authorization': `Bearer ${token?.access_token}`};
+        config.headers = {... config.headers, 'Authorization': `Bearer ${token}`};
       }
       return config;
     },
