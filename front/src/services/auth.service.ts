@@ -6,29 +6,31 @@ const API_URL = process.env.REACT_APP_AUTH_URL;
 class AuthService {
   login(accessCode: string, accessState: string) {
     let urlAuth = API_URL + "/auth";
-    const response = axios
-      .post(urlAuth, { accessCode, accessState})
+    const responseData = axios
+      .post(urlAuth, {accessCode, accessState})
       .then((response) => {
         if (response.status === 201){
-            console.log(response);
-            localStorage.setItem("user", JSON.stringify(response.data.userData));
-            localStorage.setItem("token", JSON.stringify(response.data.tokenData));
-            localStorage.setItem("newUser", JSON.stringify(response.data.newUser));
+            localStorage.setItem("access_token", JSON.stringify(response.data.access_token));
+            localStorage.setItem("refreshToken", JSON.stringify(response.data.refreshToken));
+            // localStorage.setItem("user", JSON.stringify(response.data.userData));
+            // localStorage.setItem("token", JSON.stringify(response.data.tokenData));
+            // localStorage.setItem("newUser", JSON.stringify(response.data.newUser));
         }
         else {
           alert('Not authorized!')
         }
         return response.data;
       })
-    return response;
+    return responseData;
   }
 
   logout() {
     const inter = localStorage.getItem("interceptor");
     axios.interceptors.request.eject(parseInt(inter || ''));
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("newUser");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refreshToken");
+    // localStorage.removeItem("user");
+    // localStorage.removeItem("newUser");
     localStorage.removeItem("interceptor");
   }
 
