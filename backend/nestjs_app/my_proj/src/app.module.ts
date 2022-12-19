@@ -15,6 +15,8 @@ import { TokenService } from './token/token.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 
 @Module({
@@ -39,7 +41,10 @@ import { JwtStrategy } from './auth/jwt.strategy';
     PrismaService, 
     UserService, 
     TokenService,
-    // JwtStrategy
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}

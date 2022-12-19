@@ -13,6 +13,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RefreshTokenGuard } from './jwt-auth.refresh.guard';
+import { Public } from './constants';
 
 @Controller('auth')
 export class AuthController {
@@ -22,18 +23,19 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
+  @Public()
   @UseGuards(AuthGuard('local'))
   @Post('/')
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('logout')
   logout(@Request() req) {
     return this.authService.logout(req.user);
   }
 
+  @Public()
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   refreshTokens(@Request() req) {
@@ -42,7 +44,6 @@ export class AuthController {
 
 
 
-  
   // @UseGuards(AuthGuard('local'))
   @Get('/login')
   async getAuth(

@@ -13,6 +13,7 @@ import {
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Public } from 'src/auth/constants';
 
 
 
@@ -58,15 +59,12 @@ export class UserController {
             });
     }
 
-    @UseGuards(JwtAuthGuard)
     @Get('getMe')
     async getMe(@Request() req) {
-        const pupa = await this.userService.getUser(req.user.id);
-        console.log('pupa ', pupa);
-        return pupa;
+        console.log('REquest', req);
+       return await this.userService.getUser(req.user.id);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Get('show')
     async showUser(
         @Body('id') userId: number,

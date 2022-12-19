@@ -12,6 +12,8 @@ import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { JwtRefreshStrategy } from 'src/auth/jwt-refresh.strategy';
 import { env } from 'process';
 import { TokenService } from 'src/token/token.service';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
   imports:[UserModule, PassportModule, HttpModule, JwtModule.register({
@@ -27,7 +29,11 @@ import { TokenService } from 'src/token/token.service';
     ReqService, 
     JwtStrategy,
     JwtRefreshStrategy,
-    TokenService
+    TokenService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
   ],
   exports: [AuthService],
 })
