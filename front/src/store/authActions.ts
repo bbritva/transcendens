@@ -38,7 +38,7 @@ export const getUser = ( ) => (dispatch: Dispatch) => {
   return userService.getMe()
     .then(
       (response) => {
-        const myPayload = { user: response.data.user };
+        const myPayload = { user: response.data };
         dispatch(userSuccess(myPayload));
 
         return Promise.resolve();

@@ -21,7 +21,7 @@ export class AuthService {
       const userData = {
         id: parseInt(userResponse.data.id),
         name: userResponse.data.login,
-        image: userResponse.data.link,
+        image: userResponse.data.image.link,
       };
       let userBd = await this.userService.getUser(userData.id);
       if (!userBd) {
@@ -32,7 +32,6 @@ export class AuthService {
           },
           ...accessTokenData
         });
-        console.log("Token BD", tokenBd);
       }
       return userData;
     }

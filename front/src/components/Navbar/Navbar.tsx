@@ -33,8 +33,8 @@ function Navbar() {
         dispatch(login(accessCode, accessState));
       }
       else {
-      // @ts-ignore
-      dispatch(getUser());
+        // @ts-ignore
+        dispatch(getUser());
       }
     }
   }, [accessCode, isLoggedIn]);
