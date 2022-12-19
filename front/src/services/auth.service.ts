@@ -27,10 +27,10 @@ class AuthService {
   logout() {
     const inter = localStorage.getItem("interceptor");
     axios.interceptors.request.eject(parseInt(inter || ''));
-    localStorage.removeItem("user");
     localStorage.removeItem("access_token");
     localStorage.removeItem("refreshToken");
-    localStorage.removeItem("newUser");
+    // localStorage.removeItem("user");
+    // localStorage.removeItem("newUser");
     localStorage.removeItem("interceptor");
   }
 

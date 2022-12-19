@@ -7,11 +7,7 @@ class UserService {
   getMe() {
     const storageData = localStorage.getItem('access_token') || '{}';
     const token = JSON.parse(storageData);
-    console.log('INTERCEPTOR HEADER', token)
-      //config.headers = {... config.headers, 'x-access-token': `${token?.access_token}`} ;
-      // another types
-    const headers = {'Authorization': `Bearer ${token}`};
-    return axios.get(API_URL + '/getMe', {headers: headers})
+    return axios.get(API_URL + '/getMe')
   }
   getPublicContent() {
     return axios.get(API_URL + 'all');
