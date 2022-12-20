@@ -8,13 +8,12 @@ import { HttpModule } from '@nestjs/axios';
 import { ReqService } from 'src/req/req.service';
 import { GameModule } from 'src/game/game.module';
 import { UserModule } from 'src/user/user.module';
-import { PrismaService } from './prisma.service';
-import { UserService } from './user/user.service';
 import { AuthModule } from './auth/auth.module';
 import { TokenService } from './token/token.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { PrismaModule } from './prisma/prisma.module';
 
 
 @Module({
@@ -22,7 +21,8 @@ import { JwtStrategy } from './auth/jwt.strategy';
     HttpModule, 
     GameModule, 
     UserModule, 
-    AuthModule, 
+    AuthModule,
+    PrismaModule, 
     // PassportModule, 
     // JwtModule.register({
     //   secret: jwtConstants.secret,
@@ -36,8 +36,6 @@ import { JwtStrategy } from './auth/jwt.strategy';
   providers: [
     AppService, 
     ReqService, 
-    PrismaService, 
-    UserService, 
     TokenService,
     // JwtStrategy
   ],

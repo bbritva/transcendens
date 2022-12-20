@@ -7,7 +7,8 @@ RUN npm install prisma --save-dev
 
 RUN npm install --only=development && \
 npm i --save @nestjs/config && \
-npm i -g @nestjs/cli
+npm i -g @nestjs/cli && \
+npm install --save @nestjs/swagger swagger-ui-express
 # RUN npx prisma migrate dev --name init && \
 RUN npm install @prisma/client
 RUN npm install @nestjs/axios
