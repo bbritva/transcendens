@@ -28,9 +28,6 @@ export class UserController {
   @ApiOkResponse({ type: UserEntity })
   async addUser(@Body() data: CreateUserDto): Promise<UserModel> {
     const user = await this.userService.getUser(data.id);
-    console.log("data", data);
-    console.log("user", user);
-    
     if (user === null) {
       return await this.userService
         .createUser(data)

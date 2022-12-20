@@ -1,41 +1,35 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-  } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { GameService } from './game.service';
-import { Game as GameModel} from '@prisma/client';
-import { GameDto } from './game.dto';
+import { Game as GameModel } from '@prisma/client';
+import { CreateGameDto } from './dto/create-game.dto';
+// import { UpdateGameDto } from './dto/update-game.dto';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { GameEntity } from './entities/game.entity';
 
 @Controller('game')
+@ApiTags('game')
 export class GameController {
-    constructor(
-        private readonly gameService: GameService,
-    ) {}
-
+  constructor(private readonly gameService: GameService) {}
 
   @Post('add')
-  async addGameResult( @Body() gameData : GameDto): Promise<GameModel> {
+  @ApiOkResponse({ type: GameEntity })
+  async addGameResult(@Body() gameData: CreateGameDto): Promise<GameModel> {
     const { winnerId, loserId, result } = gameData;
 
     return await this.gameService.addGame({
-        winner: { 
-          connect: { id : winnerId }
-        },
-        loser: { 
-          connect: { id : loserId }
-        },
-        result
-      });
+      winner: {
+        connect: { id: winnerId },
+      },
+      loser: {
+        connect: { id: loserId },
+      },
+      result,
+    });
   }
 
-  @Get('show')
-  async showGame(
-      @Body('id') gameId: number,
-  ): Promise<GameModel> {
-      return this.gameService.getGame(gameId);
+  @Get(':id')
+  @ApiOkResponse({ type: GameEntity })
+  async showGame(@Param('id') id: number): Promise<GameModel> {
+    return this.gameService.getGame(id);
   }
-
-
 }
