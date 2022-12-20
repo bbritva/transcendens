@@ -5,10 +5,10 @@ import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-do
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
 import { createTheme, ThemeProvider,Grid } from "@mui/material";
-import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
+import { selectLoggedIn, selectToken } from "src/store/authReducer";
 import { useDispatch, useSelector } from "react-redux";
-import { userI, accessTokenI} from "src/store/authReducer";
-import { getUser, loginSuccess } from "./store/authActions";
+import { getUser, selectUser } from "src/store/userSlice";
+import authHeader from "src/services/authHeader";
 
 
 const theme = createTheme({
@@ -23,8 +23,7 @@ const theme = createTheme({
 });
 
 function App() {
-  const storageToken: accessTokenI = {
-    access_token: localStorage.getItem('access_token') || '',
+  const storageToken = {
     refreshToken: localStorage.getItem('refreshToken') || ''
   };
   const user = useSelector(selectUser);
@@ -34,12 +33,10 @@ function App() {
   useEffect(() => {
     if (
       !isLoggedIn 
-      && storageToken.access_token !== ""
       && storageToken.refreshToken !== ""
     ){
-      // @ts-ignore
-      dispatch(loginSuccess(storageToken));
-      // @ts-ignore
+      authHeader();
+      //@ts-ignore
       dispatch(getUser());
     }
   }, [isLoggedIn]);

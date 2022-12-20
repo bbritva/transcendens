@@ -5,8 +5,9 @@ import { NavLink } from 'react-router-dom';
 import { GridLogo } from '../Logo/GridLogo';
 import { AuthorizationButton } from "src/features/authorization/Authorization";
 import { useDispatch, useSelector } from "react-redux";
-import { getUser, login, logout } from 'src/store/authActions'
-import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
+import { login, logout } from 'src/store/authActions';
+import { getUser, selectUser } from 'src/store/userSlice';
+import { selectLoggedIn, selectToken } from "src/store/authReducer";
 
 export const navButtonStyle = {
   fontSize: "large", marginLeft: "2rem", color: 'white', 
@@ -21,7 +22,7 @@ function Navbar() {
   // const [anchorNav, setAnchorNav] = useState(null);
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
-  const user = useSelector(selectUser);
+  const {user, status, error} = useSelector(selectUser);
   const token = useSelector(selectToken);
   const isLoggedIn = useSelector(selectLoggedIn);
   const dispatch = useDispatch();
@@ -30,7 +31,7 @@ function Navbar() {
     if (accessCode){
       if (!isLoggedIn){
       // @ts-ignore
-        dispatch(login(accessCode, accessState));
+        dispatch(login({accessCode, accessState}));
       }
       else {
         // @ts-ignore
@@ -64,7 +65,7 @@ function Navbar() {
             // variant="button"
             sx={navButtonStyle}
           >
-            {page.title == "Account" && isLoggedIn ? user.name : page.title }
+            {page.title == "Account" && user? user.name : page.title }
           </Button>
         </Grid>
       ))}
@@ -73,25 +74,23 @@ function Navbar() {
         alignItems={'center'}
         sx={{ display: { xs: "none", sm: "flex" } }}
       >{
-        !isLoggedIn
+        (!user)
         ? <AuthorizationButton 
             text='Click to login' 
             setCode={setAccessCode} 
             setState={setAccessState} 
             styleProp={navButtonStyle}
           />
-        : <>
-            <Button 
-              sx={navButtonStyle}
-              variant={'outlined'}
-              onClick={() => {
-                dispatch(logout());
-                window.location.reload();
-              }}
-            >
-              Logout
-            </Button>
-          </>
+        : <Button 
+            sx={navButtonStyle}
+            variant={'outlined'}
+            onClick={() => {
+              dispatch(logout());
+              window.location.reload();
+            }}
+          >
+            Logout
+          </Button>
       }
       </Grid>
   </Grid>
