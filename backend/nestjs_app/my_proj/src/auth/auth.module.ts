@@ -17,7 +17,7 @@ import { TokenService } from 'src/token/token.service';
   imports:[UserModule, PassportModule, HttpModule, JwtModule.register({
     secret: env.JWT_ACCESS_SECRET, 
     //will be reactivated when the fresh token method is implemented
-    // signOptions: { expiresIn: '60s' },
+    signOptions: { expiresIn: '10s' },
   })],
   providers: [
     AuthService, 
