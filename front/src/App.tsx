@@ -9,6 +9,7 @@ import { selectLoggedIn, selectToken } from "src/store/authReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser, selectUser } from "src/store/userSlice";
 import authHeader from "src/services/authHeader";
+import { authRefreshInterceptor } from "./services/authRefreshInterceptor";
 
 
 const theme = createTheme({
@@ -36,6 +37,7 @@ function App() {
       && storageToken.refreshToken !== ""
     ){
       authHeader();
+      authRefreshInterceptor();
       //@ts-ignore
       dispatch(getUser());
     }

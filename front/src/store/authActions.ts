@@ -80,6 +80,14 @@ export const login = createAsyncThunk(
   }
 )
 
+export const refresh = createAsyncThunk(
+  'refresh',
+  async(data, thunkApi) => {
+    const response = await AuthService.refresh();
+    return response.data;
+  }
+)
+
 // export const login = (accessCode: string, accessState: string) => (dispatch: Dispatch) => {
 //   return AuthService.login(accessCode, accessState)
 //     .then(

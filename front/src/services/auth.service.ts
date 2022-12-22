@@ -4,6 +4,24 @@ import authHeader from "./authHeader";
 const API_URL = process.env.REACT_APP_AUTH_URL;
 
 class AuthService {
+  refresh() {
+    const storageData = localStorage.getItem('refreshToken') || undefined;
+    if (! storageData)
+      throw "no Token!";
+    const refreshToken = JSON.parse(storageData);
+    let urlAuth = API_URL + "/auth/refresh";
+    const response = axios.get(
+      urlAuth,
+      {
+        headers: {
+          'Authorization': `Bearer ${refreshToken}`,
+          'REFRESH': `${refreshToken}`
+        }
+      }
+    );
+    return response;
+  }
+
   login(accessCode: string, accessState: string) {
     let urlAuth = API_URL + "/auth";
     const responseData = axios
