@@ -33,7 +33,6 @@ export class UserController {
         .createUser(data)
         .then((ret) => ret)
         .catch((error) => {
-          console.log('catch');
           throw new BadRequestException(error.code);
         });
     }
@@ -49,11 +48,9 @@ export class UserController {
         data: { name: data.name },
       })
       .then((ret) => {
-        console.log('then');
         return ret;
       })
       .catch((error) => {
-        console.log('catch');
         throw new BadRequestException(error.code);
       });
   }

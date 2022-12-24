@@ -5,7 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async users(params: {
     skip?: number;
@@ -21,26 +21,24 @@ export class UserService {
       cursor,
       where,
       orderBy,
-    });    
+    });
   }
 
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+  async createUser(data: CreateUserDto): Promise<User> {
     return this.prisma.user.create({
       data,
     })
-    .then(ret => ret)
-    .catch(e => {
-      console.log(e);
-      
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') {
-          console.log(
-            'There is a unique constraint violation, a user cannot be updated'
-          )
+      .then(ret => ret)
+      .catch(e => {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            console.log(
+              'There is a unique constraint violation, a user cannot be updated'
+            )
+          }
         }
-      }
-      throw e;
-    });
+        throw e;
+      });
   }
 
   async getUserByName(userName: string): Promise<User> {
@@ -69,21 +67,22 @@ export class UserService {
   }): Promise<User> {
     const { where, data } = params;
     return this.prisma.user.update({
-        data,
-        where,
-      })
-        .then(ret => ret)
-        .catch(e => {
-          if (e instanceof Prisma.PrismaClientKnownRequestError) {
-            if (e.code === 'P2002') {
-              console.log(
-                'There is a unique constraint violation, a user cannot be updated'
-              )
-            }
+      data,
+      where,
+    })
+      .then(ret => ret)
+      .catch(e => {
+        console.log(e.code);
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            console.log(
+              'There is a unique constraint violation, a user cannot be updated'
+            )
           }
-          throw e;
-        });
-    }
+        }
+        throw e;
+      });
+  }
 
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
     return this.prisma.user.delete({
