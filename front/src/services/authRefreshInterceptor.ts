@@ -3,6 +3,8 @@ import { refresh } from 'src/store/authActions';
 import { store } from 'src/store/store'
 import authService from './auth.service';
 
+const API_URL = process.env.REACT_APP_AUTH_URL;
+
 export const authRefreshInterceptor = () => {
   const { dispatch } = store;
   axios.interceptors.response.use(
@@ -11,23 +13,21 @@ export const authRefreshInterceptor = () => {
     },
     async (err) => {
       const originalConfig = err.config;
-
-      if (originalConfig.url !== "/auth/signin" && err.response) {
+      if (
+        originalConfig.url !== API_URL + "/auth/refresh"
+        && originalConfig.url !== API_URL + "/auth"
+        && err.response
+        ) {
         // Access Token was expired
         if (err.response.status === 401 && !originalConfig._retry) {
           localStorage.removeItem("access_token");
           originalConfig._retry = true;
-          // try {
-            const rs = await authService.refresh();
-            localStorage.setItem("access_token", JSON.stringify(rs.data.access_token));
-            localStorage.setItem("refreshToken", JSON.stringify(rs.data.refreshToken));
-            // console.log('refresh response', rs.data);
-            // const { accessToken } = rs.data;
-            // dispatch(refresh()).unwrap();
+          try {
+            await dispatch(refresh()).unwrap();
             return axios(originalConfig);
-          // } catch (_error) {
-          //   return Promise.reject(_error);
-          // }
+          } catch (_error) {
+            return Promise.reject(_error);
+          }
         }
       }
 

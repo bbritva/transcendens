@@ -3,8 +3,6 @@ import authHeader from 'src/services/authHeader';
 import { login, loginFail, loginSuccess, logout, refresh, registerFail, registerSuccess, userSuccess} from 'src/store/authActions';
 import { RootState } from 'src/store/store'
 
-// const storageData = localStorage.getItem("user") || '{}';
-// const user = JSON.parse(storageData);
 
 export interface userI {
   id: string,

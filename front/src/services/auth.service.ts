@@ -30,9 +30,6 @@ class AuthService {
         if (response.status === 201){
             localStorage.setItem("access_token", JSON.stringify(response.data.access_token));
             localStorage.setItem("refreshToken", JSON.stringify(response.data.refreshToken));
-            // localStorage.setItem("user", JSON.stringify(response.data.userData));
-            // localStorage.setItem("token", JSON.stringify(response.data.tokenData));
-            // localStorage.setItem("newUser", JSON.stringify(response.data.newUser));
         }
         else {
           alert('Not authorized!')
@@ -47,8 +44,6 @@ class AuthService {
     axios.interceptors.request.eject(parseInt(inter || ''));
     localStorage.removeItem("access_token");
     localStorage.removeItem("refreshToken");
-    // localStorage.removeItem("user");
-    // localStorage.removeItem("newUser");
     localStorage.removeItem("interceptor");
   }
 

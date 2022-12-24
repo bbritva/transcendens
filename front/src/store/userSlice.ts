@@ -32,7 +32,10 @@ const userSlice = createSlice({
     builder
       .addCase(getUser.pending, (state, action) => {
         console.log('getUser pending', action);
-        state.status = 'loading'
+        return {
+          ...state,
+          status: 'loading'
+        };
       })
       .addCase(getUser.fulfilled, (state, action) => {
         console.log('getUser succeeded', action);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Box, Grid, Link, Button, makeStyles, Typography, alpha, useTheme} from '@mui/material';
+import { Grid, Button, alpha, useTheme} from '@mui/material';
 import { routes } from 'src/routes';
 import { NavLink } from 'react-router-dom';
 import { GridLogo } from '../Logo/GridLogo';
@@ -7,7 +7,7 @@ import { AuthorizationButton } from "src/features/authorization/Authorization";
 import { useDispatch, useSelector } from "react-redux";
 import { login, logout } from 'src/store/authActions';
 import { getUser, selectUser } from 'src/store/userSlice';
-import { selectLoggedIn, selectToken } from "src/store/authReducer";
+import { selectLoggedIn } from "src/store/authReducer";
 
 export const navButtonStyle = {
   fontSize: "large", marginLeft: "2rem", color: 'white', 
@@ -23,17 +23,17 @@ function Navbar() {
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
   const {user, status, error} = useSelector(selectUser);
-  const token = useSelector(selectToken);
   const isLoggedIn = useSelector(selectLoggedIn);
   const dispatch = useDispatch();
   const theme = useTheme();
   useEffect(() => {
     if (accessCode){
       if (!isLoggedIn){
-      // @ts-ignore
+        // @ts-ignore
         dispatch(login({accessCode, accessState}));
       }
       else {
+        console.log('Navbar getUser');
         // @ts-ignore
         dispatch(getUser());
       }
@@ -43,7 +43,6 @@ function Navbar() {
   return (
     <Grid container item xs={12} justifyContent={'flex-start'} 
       sx={{
-      // background:  'rgba(0, 0, 0, 0.4)',
       background:  alpha(theme.palette.secondary.light , 0.45),
       height: myHeight
     }}>
