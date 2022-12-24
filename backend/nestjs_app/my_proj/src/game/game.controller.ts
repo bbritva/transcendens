@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { GameService } from './game.service';
 import { Game as GameModel } from '@prisma/client';
 import { CreateGameDto } from './dto/create-game.dto';
-// import { UpdateGameDto } from './dto/update-game.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { GameEntity } from './entities/game.entity';
 

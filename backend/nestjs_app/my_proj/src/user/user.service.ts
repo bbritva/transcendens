@@ -72,7 +72,6 @@ export class UserService {
     })
       .then(ret => ret)
       .catch(e => {
-        console.log(e.code);
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
           if (e.code === 'P2002') {
             console.log(

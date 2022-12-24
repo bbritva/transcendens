@@ -4,8 +4,6 @@ import {
   Param,
   Post,
   Body,
-  Put,
-  Delete,
   Request,
   BadRequestException,
   UseGuards,
@@ -29,7 +27,7 @@ export class UserController {
   async addUser(@Body() data: CreateUserDto): Promise<UserModel> {
     const user = await this.userService.getUser(data.id);
     if (user === null) {
-      return await this.userService
+      return this.userService
         .createUser(data)
         .then((ret) => ret)
         .catch((error) => {
