@@ -4,13 +4,13 @@ export default function authHeader() {
   const headers = {'x-access-token': '', 'authorization': ''};
   const interceptor = axios.interceptors.request.use(
     config => {
-      const storageData = localStorage.getItem('token') || '{}';
+      const storageData = localStorage.getItem('access_token') || '{}';
       const token = JSON.parse(storageData);
-      if (storageData){
+      if (token){
         // for Node.js Express back-end
-        config.headers = {... config.headers, 'x-access-token': `${token?.access_token}`} ;
+        config.headers = {... config.headers, 'x-access-token': `${token}`} ;
         // another types
-        config.headers = {... config.headers, 'Authorization': `Bearer ${token?.access_token}`};
+        config.headers = {... config.headers, 'Authorization': `Bearer ${token}`};
       }
       return config;
     },

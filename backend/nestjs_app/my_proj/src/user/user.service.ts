@@ -28,7 +28,7 @@ export class UserService {
       cursor,
       where,
       orderBy,
-    });
+    });    
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {

@@ -125,7 +125,6 @@ export default function SignUp() {
                 <TextField
                   autoComplete='nickname'
                   name="nickname"
-                  defaultValue={user?.name || "nickname"}
                   fullWidth
                   id="nickname"
                   label="nickname"

@@ -6,6 +6,7 @@ import {
     Body,
     Put,
     Delete,
+    Request,
     BadRequestException,
     UseGuards,
 } from '@nestjs/common';
@@ -55,6 +56,14 @@ export class UserController {
                 console.log("catch");
                 throw new BadRequestException(error.code);
             });
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('getMe')
+    async getMe(@Request() req) {
+        const pupa = await this.userService.getUser(req.user.id);
+        console.log('pupa ', pupa);
+        return pupa;
     }
 
     @UseGuards(JwtAuthGuard)

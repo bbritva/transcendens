@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-  id        Int     @id
-  name      String? @unique
-  status    eStatus @default(OFFLINE)
-  image     String?
-  friendIds Int[]
-  wins      Game[]  @relation("win")
-  loses     Game[]  @relation("lose")
-  token     Token?  @relation("token", fields: [tokenId], references: [id])
-  tokenId   Int?   @unique
+  id            Int     @id
+  name          String? @unique
+  status        eStatus @default(OFFLINE)
+  image         String?
+  friendIds     Int[]
+  wins          Game[]  @relation("win")
+  loses         Game[]  @relation("lose")
+  token         Token?  @relation("token", fields: [tokenId], references: [id])
+  tokenId       Int?   @unique
+  refreshToken  String?
 }
 enum eStatus {
   OFFLINE
