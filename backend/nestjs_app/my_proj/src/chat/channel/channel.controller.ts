@@ -1,11 +1,8 @@
 import {
   Controller,
   Get,
-  Param,
   Post,
   Body,
-  Put,
-  Delete,
   BadRequestException,
 } from '@nestjs/common';
 import { ChannelService } from './channel.service';

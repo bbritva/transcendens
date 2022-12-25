@@ -3,8 +3,6 @@ import { HttpModule } from '@nestjs/axios';
 import { GameModule } from 'src/game/game.module';
 import { UserModule } from 'src/user/user.module';
 import { AppController } from 'src/app.controller';
-
-//services
 import { AppService } from 'src/app.service';
 import { AuthController } from 'src/auth/auth.controller';
 import { ReqService } from 'src/req/req.service';
