@@ -80,8 +80,8 @@ export class AuthService {
     const user = await this.userService.getUserByName(username);
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access Denied');
-    const refreshTokenMatches = refreshToken === user.refreshToken;
-    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    const refreshTokenMatches = refreshToken.localeCompare(user.refreshToken);
+    if (refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const payload = { id: user.id, username: user.name, sub: user.image };
     const tokens = this.getTokens(payload);
     await this.updateRefreshTokenDb(user.name, tokens.refreshToken);
