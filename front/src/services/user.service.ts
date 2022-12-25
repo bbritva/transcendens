@@ -1,10 +1,16 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-// const API_URL = process.env.REACT_APP_USERS_URL;
-const API_URL = "https://swapi.dev/api"
+const API_URL = process.env.REACT_APP_USERS_URL;
 
 class UserService {
+<<<<<<< HEAD
+=======
+  getUsers() {
+    return axios.get("https://swapi.dev/api" + '/starships');
+  }
+
+>>>>>>> 0ef4b54 (littl bugs)
   getMe() {
     const storageData = localStorage.getItem('access_token') || '{}';
     const token = JSON.parse(storageData);
