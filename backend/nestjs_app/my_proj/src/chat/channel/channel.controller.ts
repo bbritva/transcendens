@@ -24,26 +24,6 @@ export class ChannelController {
     return this.channelService.connectToChannel(data);
   }
 
-  @Post('connectpm')
-  @ApiOkResponse({ type: ChannelEntity })
-  async addChannelPM(
-    @Body() body: { guestId: number; ownerId: number },
-  ): Promise<ChannelModel> {
-    let channelName = '';
-    let owner : number;
-    if (body.guestId > body.ownerId) {
-      channelName = channelName + body.guestId + body.ownerId;
-      owner = body.guestId;
-    } else {
-      channelName = channelName + body.ownerId + body.guestId;
-      owner = body.ownerId
-    }
-    console.log(channelName);
-    const data = {name : channelName, ownerId : owner}
-    //// invite user to channel
-    return this.channelService.connectToChannel(data);
-  }
-
   @Post('setName')
   @ApiOkResponse({ type: ChannelEntity })
   async setChannelName(

@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { MessageDto } from 'src/chat/message/message.dto';
+import { CreateMessageDto } from 'src/chat/message/dto/create-message.dto';
 import { MessageService } from 'src/chat/message/message.service';
 
 @WebSocketGateway()
@@ -26,7 +26,7 @@ export class Gateway implements OnModuleInit {
   }
 
   @SubscribeMessage('newMessage')
-  async onNewMessage(@MessageBody() messageIn: MessageDto) {
+  async onNewMessage(@MessageBody() messageIn: CreateMessageDto) {
     console.log(messageIn);
     try {
       const messageOut = await this.messageService.createMessage({
