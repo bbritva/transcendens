@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { refresh } from 'src/store/authActions';
+import { logout, refresh } from 'src/store/authActions';
 import { store } from 'src/store/store'
-import authService from './auth.service';
 
 const API_URL = process.env.REACT_APP_AUTH_URL;
 
@@ -30,7 +29,7 @@ export const authRefreshInterceptor = () => {
           }
         }
       }
-
+      else  dispatch(logout);
       return Promise.reject(err);
     }
   );
