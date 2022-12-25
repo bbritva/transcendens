@@ -1,12 +1,11 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-// const API_URL = process.env.REACT_APP_USERS_URL;
-const API_URL = "https://swapi.dev/api"
+const API_URL = process.env.REACT_APP_USERS_URL;
 
 class UserService {
   getUsers() {
-    return axios.get(API_URL + '/starships');
+    return axios.get("https://swapi.dev/api" + '/starships');
   }
 
   getMe() {
