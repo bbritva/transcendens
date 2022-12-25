@@ -1,13 +1,24 @@
-export default function authHeader() {
-  const storageData = localStorage.getItem('user') || '{}';
-  const user = JSON.parse(storageData);
+import axios from "axios";
 
-  if (user && user.accessToken) {
-    // for Node.js Express back-end
-    return { 'x-access-token': user.accessToken };
-    // another types
-    // return { Authorization: 'Bearer ' + user.accessToken };
-  } else {
-    return {};
-  }
+export default function authHeader() {
+  const headers = {'x-access-token': '', 'authorization': ''};
+  const interceptor = axios.interceptors.request.use(
+    config => {
+      const storageData = localStorage.getItem('access_token') || '{}';
+      const token = JSON.parse(storageData);
+      if (token){
+        // for Node.js Express back-end
+        config.headers = {... config.headers, 'x-access-token': `${token}`} ;
+        // another types
+        config.headers = {... config.headers, 'Authorization': `Bearer ${token}`};
+      }
+      return config;
+    },
+    error => {
+      console.log('HEADERS ERROR ', error);
+      return Promise.reject(error);
+    }
+  );
+  localStorage.setItem("interceptor", interceptor.toString());
+  return headers;
 }

@@ -11,14 +11,16 @@ datasource db {
 }
 
 model User {
-  id        Int     @default(autoincrement()) @id
-  name      String? @unique
-  status    eStatus @default(OFFLINE)
-  image     String?
-  friendIds Int[]
-  wins      Game[]  @relation("win")
-  loses     Game[]  @relation("lose")
-  // token     Token? 
+  id            Int     @id
+  name          String? @unique
+  status        eStatus @default(OFFLINE)
+  image         String?
+  friendIds     Int[]
+  wins          Game[]  @relation("win")
+  loses         Game[]  @relation("lose")
+  token         Token?  @relation("token", fields: [tokenId], references: [id])
+  tokenId       Int?   @unique
+  refreshToken  String?
 }
 
 model Game {
@@ -30,20 +32,6 @@ model Game {
   result    String
 }
 
-// model Image {
-
-//   id        Int     @default(autoincrement()) @id
-//   link      String? 
-
-
-// }
-// model Autorization {
-//   tokenId   Int       @default(autoincrement()) @id
-//   token     String
-//   owner     User?     @relation(fields: [ownerId], references: [id])
-//   ownerId   Int?      @unique
-// }
-
 model Token {
   id        Int     @default(autoincrement()) @id
   access_token  String @unique
@@ -52,9 +40,16 @@ model Token {
   refresh_token String
   scope         String
   created_at    Int
-  // owner    User    @relation(fields: [ownerId], references: [id])
-  // ownerId  Int     @unique
+  owner         User?   @relation("token")
 }
+
+// model Image {
+
+//   id        Int     @default(autoincrement()) @id
+//   link      String? 
+
+
+// }
 
 enum eStatus {
   OFFLINE

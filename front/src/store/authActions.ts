@@ -3,6 +3,7 @@ import AuthService from "src/services/auth.service";
 import { setMessage } from "src/store/messageSlice";
 import { createAction } from '@reduxjs/toolkit';
 import { userI } from "./authReducer";
+import userService from "src/services/user.service";
 
 export const registerFail = createAction('REGISTER_FAIL')
 export const registerSuccess = createAction('REGISTER_SUCCESS')
@@ -33,15 +34,51 @@ export const register = (username:string, email:string, password:string) => (dis
   );
 };
 
-export const loginSuccess = createAction<{user: userI, accessToken: {}}>('LOGIN_SUCCESS');
+export const getUser = ( ) => (dispatch: Dispatch) => {
+  return userService.getMe()
+    .then(
+      (response) => {
+        const myPayload = { user: response.data };
+        dispatch(userSuccess(myPayload));
+
+        return Promise.resolve();
+      },
+      (error) => {
+        const message =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+        console.log('getUserFail', error);
+        dispatch(loginFail());
+
+        dispatch(setMessage(message));
+
+        return Promise.reject();
+      }
+    )
+}
+
+export const userSuccess = createAction('USER_SUCCESS', ({user}) => {
+  return {payload: {
+    user
+  }};
+})
+
+export const loginSuccess = createAction('LOGIN_SUCCESS', ({access_token, refreshToken}) => {
+  return {payload: {
+    access_token,
+    refreshToken
+  }};
+})
 export const loginFail = createAction('LOGIN_FAIL');
 
 export const login = (accessCode: string, accessState: string) => (dispatch: Dispatch) => {
   return AuthService.login(accessCode, accessState)
     .then(
       (data) => {
-        console.log('loginSuccess', data);
-        const myPayload = { user: data.userData, accessToken: data.tokenData };
+        const myPayload = { access_token: data.access_token, refreshToken: data.refreshToken};
         dispatch(loginSuccess(myPayload));
 
         return Promise.resolve();

@@ -1,38 +1,71 @@
 import {
-    Controller,
-    Get,
-    Param,
-    Post,
-    Body,
-    Put,
-    Delete,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  Request,
+  BadRequestException,
+  UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
-
-
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from './entities/user.entity';
 
 @Controller('user')
+@ApiTags('user')
 export class UserController {
-    constructor(
-        private readonly userService: UserService,
-    ) { }
+  constructor(private readonly userService: UserService) {}
 
-
-    @Post('add')
-    async signupUser(
-        @Body('name') userName: string,
-    ): Promise<UserModel> {
-        let user = await this.userService.getUserByName(userName)
-        if (user === null)
-            return this.userService.createUser({ name: userName });
-        return user
+  @Post('add')
+  @ApiOkResponse({ type: UserEntity })
+  async addUser(@Body() data: CreateUserDto): Promise<UserModel> {
+    const user = await this.userService.getUser(data.id);
+    if (user === null) {
+      return this.userService
+        .createUser(data)
+        .then((ret) => ret)
+        .catch((error) => {
+          throw new BadRequestException(error.code);
+        });
     }
+    return user;
+  }
 
-    @Get('show')
-    async showUser(
-        @Body('id') userId: number,
-    ): Promise<UserModel> {
-        return this.userService.getUser(userId);
-    }
+  @Patch('setName')
+  @ApiOkResponse({ type: UserEntity })
+  async setUserName(@Body() data: UpdateUserDto): Promise<UserModel> {
+    return this.userService
+      .updateUser({
+        where: { id: Number(data.id) },
+        data: { name: data.name },
+      })
+      .then((ret) => {
+        return ret;
+      })
+      .catch((error) => {
+        throw new BadRequestException(error.code);
+      });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: UserEntity })
+  @Get('getMe')
+  async getMe(@Request() req) {
+    const pupa = await this.userService.getUser(req.user.id);
+    console.log('pupa ', pupa);
+    return pupa;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: UserEntity })
+  @Get(':id')
+  async showUser(@Param('id') id: number): Promise<UserModel> {
+    return this.userService.getUser(id);
+  }
 }

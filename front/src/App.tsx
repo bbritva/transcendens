@@ -7,8 +7,8 @@ import Allerts from "src/components/Allerts/Allerts";
 import { createTheme, ThemeProvider,Grid } from "@mui/material";
 import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
 import { useDispatch, useSelector } from "react-redux";
-import { userI } from "src/store/authReducer";
-import { loginSuccess } from "./store/authActions";
+import { userI, accessTokenI} from "src/store/authReducer";
+import { getUser, loginSuccess } from "./store/authActions";
 
 
 const theme = createTheme({
@@ -23,23 +23,26 @@ const theme = createTheme({
 });
 
 function App() {
-  let storageUser: userI;
-  storageUser = JSON.parse(localStorage.getItem('user') || '{}');
-  const storageToken = JSON.parse(localStorage.getItem('token') || '{}');
+  const storageToken: accessTokenI = {
+    access_token: localStorage.getItem('access_token') || '',
+    refreshToken: localStorage.getItem('refreshToken') || ''
+  };
   const user = useSelector(selectUser);
   const token = useSelector(selectToken);
   const isLoggedIn = useSelector(selectLoggedIn);
   const dispatch = useDispatch();
   useEffect(() => {
-    if (!isLoggedIn && storageUser?.id){
-      console.log('APP ! setUser', storageUser, storageToken);
+    if (
+      !isLoggedIn 
+      && storageToken.access_token !== ""
+      && storageToken.refreshToken !== ""
+    ){
       // @ts-ignore
-      dispatch(loginSuccess({user: storageUser, accessToken: storageToken}));
+      dispatch(loginSuccess(storageToken));
+      // @ts-ignore
+      dispatch(getUser());
     }
-  }, [isLoggedIn, storageUser?.id]);
-
-  console.log(process.env);
-
+  }, [isLoggedIn]);
   return (
     <ThemeProvider theme={theme}>
     <div className="landing-background">

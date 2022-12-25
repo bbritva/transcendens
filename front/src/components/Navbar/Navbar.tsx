@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 import { GridLogo } from '../Logo/GridLogo';
 import { AuthorizationButton } from "src/features/authorization/Authorization";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from 'src/store/authActions'
+import { getUser, login, logout } from 'src/store/authActions'
 import { selectLoggedIn, selectToken, selectUser } from "src/store/authReducer";
 
 export const navButtonStyle = {
@@ -28,10 +28,16 @@ function Navbar() {
   const theme = useTheme();
   useEffect(() => {
     if (accessCode){
+      if (!isLoggedIn){
       // @ts-ignore
-      dispatch(login(accessCode, accessState));
+        dispatch(login(accessCode, accessState));
+      }
+      else {
+        // @ts-ignore
+        dispatch(getUser());
+      }
     }
-  }, [accessCode]);
+  }, [accessCode, isLoggedIn]);
   const myHeight = 100;
   return (
     <Grid container item xs={12} justifyContent={'flex-start'} 
@@ -58,7 +64,7 @@ function Navbar() {
             // variant="button"
             sx={navButtonStyle}
           >
-            {page.title}
+            {page.title == "Account" && isLoggedIn ? user.name : page.title }
           </Button>
         </Grid>
       ))}
@@ -75,9 +81,16 @@ function Navbar() {
             styleProp={navButtonStyle}
           />
         : <>
-            <Typography fontSize={'large'}>
-              {user.name}
-            </Typography>
+            <Button 
+              sx={navButtonStyle}
+              variant={'outlined'}
+              onClick={() => {
+                dispatch(logout());
+                window.location.reload();
+              }}
+            >
+              Logout
+            </Button>
           </>
       }
       </Grid>

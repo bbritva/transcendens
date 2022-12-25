@@ -1,18 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
-
-  async user(
-    userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: userWhereUniqueInput,
-    });
-  }
+  constructor(private prisma: PrismaService) { }
 
   async users(params: {
     skip?: number;
@@ -31,10 +24,21 @@ export class UserService {
     });
   }
 
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+  async createUser(data: CreateUserDto): Promise<User> {
     return this.prisma.user.create({
       data,
-    });
+    })
+      .then(ret => ret)
+      .catch(e => {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            console.log(
+              'There is a unique constraint violation, a user cannot be updated'
+            )
+          }
+        }
+        throw e;
+      });
   }
 
   async getUserByName(userName: string): Promise<User> {
@@ -51,8 +55,8 @@ export class UserService {
         id: userId,
       },
       include: {
-        wins : true,
-        loses : true
+        wins: true,
+        loses: true
       }
     });
   }
@@ -65,7 +69,18 @@ export class UserService {
     return this.prisma.user.update({
       data,
       where,
-    });
+    })
+      .then(ret => ret)
+      .catch(e => {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === 'P2002') {
+            console.log(
+              'There is a unique constraint violation, a user cannot be updated'
+            )
+          }
+        }
+        throw e;
+      });
   }
 
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {

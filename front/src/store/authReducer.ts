@@ -1,6 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { loginFail, loginSuccess, logout, registerFail, registerSuccess } from 'src/store/authActions';
-import { RootState } from './store'
+import authHeader from 'src/services/authHeader';
+import { loginFail, loginSuccess, logout, registerFail, registerSuccess, userSuccess} from 'src/store/authActions';
+import { RootState } from 'src/store/store'
 
 // const storageData = localStorage.getItem("user") || '{}';
 // const user = JSON.parse(storageData);
@@ -11,7 +12,12 @@ export interface userI {
   image: string
 }
 
-interface authState {
+export interface accessTokenI {
+  access_token: string,
+  refreshToken: string
+}
+
+export interface authState {
   isLoggedIn: boolean,
   user: userI,
   accessCode: string,
@@ -22,11 +28,8 @@ const initialState: authState = {
   isLoggedIn: false,
   user: {id: '', name: '', image: ''},
   accessCode: '',
-  accessToken: {}
+  accessToken: {access_token: '', refreshToken: ''}
 }
-// const initialState: authState = user
-//   ? { isLoggedIn: true, user }
-//   : { isLoggedIn: false, user: '' };
 
 const authReducer = createReducer(initialState, (builder) => {
   builder
@@ -37,10 +40,13 @@ const authReducer = createReducer(initialState, (builder) => {
       state.isLoggedIn = false;
     })
     .addCase(loginSuccess, (state, action) => {
-      console.log('Reducer ', action.payload, action.payload);
+      state.isLoggedIn = true;
+      state.accessToken = action.payload;
+      authHeader();
+    })
+    .addCase(userSuccess, (state, action) => {
       state.isLoggedIn = true;
       state.user = {id: action.payload.user.id, name: action.payload.user.name, image: action.payload.user.image};
-      state.accessToken = action.payload.accessToken;
     })
     .addCase(loginFail, (state, action) => {
       state.isLoggedIn = false;
