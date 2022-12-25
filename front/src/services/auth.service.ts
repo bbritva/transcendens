@@ -1,5 +1,4 @@
 import axios from "axios"
-import authHeader from "./authHeader";
 
 const API_URL = process.env.REACT_APP_AUTH_URL;
 
@@ -32,7 +31,7 @@ class AuthService {
             localStorage.setItem("refreshToken", JSON.stringify(response.data.refreshToken));
         }
         else {
-          alert('Not authorized!')
+          throw "Not authorized!";
         }
         return response.data;
       })

@@ -1,7 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "src/services/user.service";
-import { userI } from "./authReducer";
-import { RootState } from "./store";
+import { RootState } from "src/store/store";
+
+
+export interface userI {
+  id: string,
+  name: string
+  image: string
+}
 
 interface userStateI {
   // Multiple possible status enum values
@@ -31,19 +37,16 @@ const userSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(getUser.pending, (state, action) => {
-        console.log('getUser pending', action);
         return {
           ...state,
           status: 'loading'
         };
       })
       .addCase(getUser.fulfilled, (state, action) => {
-        console.log('getUser succeeded', action);
         state.status = 'succeeded'
         state.user = action.payload;
       })
       .addCase(getUser.rejected, (state, action) => {
-        console.log('getUser pending', action);
         state.status = 'failed';
         state.error = action.error.message
       })

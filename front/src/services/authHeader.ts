@@ -15,7 +15,6 @@ export default function authHeader() {
       return config;
     },
     error => {
-      console.log('HEADERS ERROR ', error);
       return Promise.reject(error);
     }
   );

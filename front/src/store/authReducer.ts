@@ -1,50 +1,52 @@
 import { createReducer } from '@reduxjs/toolkit';
 import authHeader from 'src/services/authHeader';
-import { login, loginFail, loginSuccess, logout, refresh, registerFail, registerSuccess, userSuccess} from 'src/store/authActions';
+import { login, loginFail, loginSuccess, logout, refresh, registerFail, registerSuccess, userSuccess } from 'src/store/authActions';
 import { RootState } from 'src/store/store'
-
-
-export interface userI {
-  id: string,
-  name: string
-  image: string
-}
 
 
 export interface authState {
   isLoggedIn: boolean,
+  status: 'idle' | 'loading' | 'succeeded' | 'failed',
   accessToken: {}
 }
 
 const initialState: authState = {
   isLoggedIn: false,
+  status: 'idle',
   accessToken: {access_token: '', refreshToken: ''}
 }
 
 const authReducer = createReducer(initialState, (builder) => {
   builder
     .addCase(refresh.pending, (state, action) => {
-      console.log('REFRESH pending', action);
+      return {
+        ...state,
+        status: 'loading'
+      };
     })
     .addCase(refresh.fulfilled, (state, action) => {
-      console.log('REFRESH succeeded', action);
       localStorage.setItem("access_token", JSON.stringify(action.payload.access_token));
       localStorage.setItem("refreshToken", JSON.stringify(action.payload.refreshToken));
       state.accessToken = action.payload;
+      return {
+        ...state,
+        accessToken: action.payload,
+        status: 'succeeded'
+      };
     })
     .addCase(refresh.rejected, (state, action) => {
-      console.log('REFRESH pending', action);
+      return {
+        ...state,
+        status: 'failed'
+      };
     })
     .addCase(login.fulfilled, (state, action) => {
-      console.log('newLogin OK',action);
       state.isLoggedIn = true;
       state.accessToken = action.payload;
-      console.log(state.accessToken);
       authHeader();
     })
     .addCase(login.rejected, (state, action) => {
       state.isLoggedIn = false;
-      console.log('newLogin FAILED', action);
     })
     .addCase(registerSuccess, (state, action) => {
       state.isLoggedIn = false;

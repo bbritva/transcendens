@@ -3,6 +3,7 @@ import messageReducer from 'src/store/messageSlice';
 import authReducer from 'src/store/authReducer';
 import userReducer from 'src/store/userSlice'
 
+
 //configureStore includes thunk middleware by default
 export const store = configureStore({
   reducer: {
