@@ -2,6 +2,7 @@ import React, { ReactElement, FC, useState, useEffect } from "react";
 import { Box, Container, CssBaseline, Grid, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import userService from "src/services/user.service";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
+import ChatTable from "src/components/OneColumnTable/ChatTable";
 
 const ChatPage: FC<any> = (): ReactElement => {
   const [users, setUsers] = useState<[{name: string, model: string}]>([{name: '', model: ''}]);
@@ -11,7 +12,7 @@ const ChatPage: FC<any> = (): ReactElement => {
   useEffect(() => {
     userService.getUsers()
       .then(res => {
-        setUsers(res.data);
+        setUsers(res.data.results);
         setLoading(false);
       })
       .catch(err => console.log(err));
@@ -46,7 +47,7 @@ const ChatPage: FC<any> = (): ReactElement => {
             />
           </Grid>
           <Grid item xs={8}>
-            <OneColumnTable
+            <ChatTable
               name={'Chat'}
               loading={loading}
               elements={users}
