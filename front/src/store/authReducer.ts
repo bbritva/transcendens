@@ -7,7 +7,10 @@ import { RootState } from 'src/store/store'
 export interface authState {
   isLoggedIn: boolean,
   status: 'idle' | 'loading' | 'succeeded' | 'failed',
-  accessToken: {}
+  accessToken: {
+    access_token: string,
+    refreshToken: string
+  }
 }
 
 const initialState: authState = {
@@ -64,11 +67,17 @@ const authReducer = createReducer(initialState, (builder) => {
     })
     .addCase(loginFail, (state, action) => {
       state.isLoggedIn = false;
-      state.accessToken = {}
+      state.accessToken = {
+        access_token: '',
+        refreshToken: ''
+      }
     })
     .addCase(logout, (state, action) => {
       state.isLoggedIn = false;
-      state.accessToken = {}
+      state.accessToken = {
+        access_token: '',
+        refreshToken: ''
+      }
     })
 });
 
