@@ -52,7 +52,9 @@ const OneColumnTable: FC<{
                 ? 'LOADING'
                 : elements.map((data) => {
                   return (
-                    <TableRow>
+                    <TableRow
+                      key={crypto.randomUUID()}
+                    >
                       <TableCell>
                         {
                           getName

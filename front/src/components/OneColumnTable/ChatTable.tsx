@@ -107,7 +107,7 @@ const ChatTable: FC<{
               : messages.map((data) => {
                 return (
                   <TableRow
-                    key={ crypto.randomUUID() }
+                    key={crypto.randomUUID()}
                     sx={{
                     }}
                   >
