@@ -31,12 +31,6 @@ export class ChannelService {
     });
   }
 
-  // async createChannel(data: Prisma.ChannelCreateInput): Promise<Channel> {
-  //   return this.prisma.channel.create({
-  //     data,
-  //   });
-  // }
-  
   async connectToChannel(data: Prisma.ChannelCreateInput): Promise<Channel> {
     const channel = await this.getChannel(data.name);
     if (null === channel) {
@@ -85,12 +79,6 @@ export class ChannelService {
         messages : true
       }
     });
-  }
-
-  async addMessage(message:any){
-    console.log("addMessage", message);
-    const time = Date();
-
   }
 
   async updateChannel(params: {

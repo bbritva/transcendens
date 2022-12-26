@@ -6,16 +6,12 @@ import { AppController } from 'src/app.controller';
 import { AppService } from 'src/app.service';
 import { AuthController } from 'src/auth/auth.controller';
 import { ReqService } from 'src/req/req.service';
-import { AuthModule } from './auth/auth.module';
-import { TokenService } from './token/token.service';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './auth/jwt.strategy';
-import { PrismaModule } from './prisma/prisma.module';
-import { GatewayModule } from './chat/websocket/gateway.module';
-import { ChannelModule } from './chat/channel/channel.module';
-import { PrismaService } from './prisma/prisma.service';
-import { MessageService } from './chat/message/message.service';
+import { AuthModule } from 'src/auth/auth.module';
+import { TokenService } from 'src/token/token.service';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { GatewayModule } from 'src/chat/websocket/gateway.module';
+import { ChannelModule } from 'src/chat/channel/channel.module';
+import { MessageService } from 'src/chat/message/message.service';
 
 // puts warnings to console
 process.on('warning', (warning) => {

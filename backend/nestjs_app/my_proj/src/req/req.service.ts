@@ -1,10 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { AxiosResponse } from 'axios';
-// import { response } from 'express';
 import { env } from 'process';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Token, Prisma } from '@prisma/client';
 
 @Injectable()
 export class ReqService {
