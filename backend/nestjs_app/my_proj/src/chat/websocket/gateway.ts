@@ -1,4 +1,4 @@
-import { OnModuleInit, UnauthorizedException } from '@nestjs/common';
+import { OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   MessageBody,
@@ -9,13 +9,14 @@ import {
 import { Server } from 'socket.io';
 import { CreateMessageDto } from 'src/chat/message/dto/create-message.dto';
 import { MessageService } from 'src/chat/message/message.service';
+import { DecodedTokenDTO } from './decodedToken.dto';
 
 @WebSocketGateway()
 export class Gateway implements OnModuleInit {
   constructor(
     private messageService: MessageService,
     private jwtService: JwtService
-    ) {}
+  ) { }
 
   @WebSocketServer()
   server: Server;
@@ -53,10 +54,9 @@ export class Gateway implements OnModuleInit {
     }
   }
 
-  private getUserNameFromJWT(JWTtoken : string) : string {
-    const user = this.jwtService.decode(JWTtoken);
-    console.log(user);
-    
-    return JWTtoken;
+  private getUserNameFromJWT(JWTtoken: string): string {
+    const decodedToken = this.jwtService.decode(JWTtoken) as DecodedTokenDTO;
+    return decodedToken.username;
+
   }
 }
