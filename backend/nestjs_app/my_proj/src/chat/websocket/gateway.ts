@@ -1,4 +1,5 @@
 import { OnModuleInit, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
   MessageBody,
   SubscribeMessage,
@@ -11,7 +12,10 @@ import { MessageService } from 'src/chat/message/message.service';
 
 @WebSocketGateway()
 export class Gateway implements OnModuleInit {
-  constructor(private messageService: MessageService) {}
+  constructor(
+    private messageService: MessageService,
+    private jwtService: JwtService
+    ) {}
 
   @WebSocketServer()
   server: Server;
@@ -50,6 +54,9 @@ export class Gateway implements OnModuleInit {
   }
 
   private getUserNameFromJWT(JWTtoken : string) : string {
+    const user = this.jwtService.decode(JWTtoken);
+    console.log(user);
+    
     return JWTtoken;
   }
 }
