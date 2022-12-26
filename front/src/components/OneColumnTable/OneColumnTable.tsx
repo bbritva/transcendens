@@ -1,8 +1,11 @@
-import { ScoreOutlined } from "@mui/icons-material";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from "@mui/material";
-import { ReactElement, FC, useState, useEffect, useReducer, useRef } from "react";
+import { ReactElement, FC, useRef, CSSProperties } from "react";
 
 
+const anchorStyle = {
+  overflowAnchor:'auto',
+  height:'1px'
+};
 
 const OneColumnTable: FC<{
     name: string,
@@ -62,13 +65,12 @@ const OneColumnTable: FC<{
                     </TableRow>);
                 })
             }
-            <div style={{overflowAnchor: 'auto', height: '1px'}}></div>
+            <div style={anchorStyle as CSSProperties}></div>
           </TableBody>
         </Table>
       </TableContainer>
   );
 }
-// const myStyle = { overflow-anchor:'auto', height='1px'};
 
 
 export default OneColumnTable;
