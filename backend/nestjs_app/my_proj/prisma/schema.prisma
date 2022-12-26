@@ -22,6 +22,11 @@ model User {
   tokenId       Int?   @unique
   refreshToken  String?
 }
+enum eStatus {
+  OFFLINE
+  ONLINE
+  ONGAME
+}
 
 model Game {
   id        Int     @default(autoincrement()) @id
@@ -43,16 +48,28 @@ model Token {
   owner         User?   @relation("token")
 }
 
-// model Image {
-
-//   id        Int     @default(autoincrement()) @id
-//   link      String? 
-
-
-// }
-
-enum eStatus {
-  OFFLINE
-  ONLINE
-  ONGAME
+model Channel {
+  name      String      @unique @id
+  ownerId   Int
+  guestIds  Int[]
+  admIds    Int[]
+  mutedIds  Int[]
+  bannedIds Int[]
+  messages  Message[]   @relation()
 }
+
+model Message {
+  id          Int       @default(autoincrement()) @id
+  channel     Channel   @relation(fields: [channelName], references: [name])
+  channelName String    
+  sentAt      DateTime  @default(now())
+  authorName  String
+  text        String
+}
+
+// model PrivateChannel {
+//   id        Int      @id @default(autoincrement())
+//   history   Json
+//   ownerId   Int
+//   guestId   Int
+// }
