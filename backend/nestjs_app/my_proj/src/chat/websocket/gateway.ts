@@ -11,7 +11,11 @@ import { CreateMessageDto } from 'src/chat/message/dto/create-message.dto';
 import { MessageService } from 'src/chat/message/message.service';
 import { DecodedTokenDTO } from './decodedToken.dto';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors:{
+    origin: ["http://localhost:3001"],
+  }
+})
 export class Gateway implements OnModuleInit {
   constructor(
     private messageService: MessageService,
