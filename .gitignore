@@ -35,7 +35,7 @@ backend/nestjs_app/my_proj/prisma/migrations/*/*.sql
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
-!.vscode/launch.json
+.vscode/launch.json
 !.vscode/extensions.json
 
 #env

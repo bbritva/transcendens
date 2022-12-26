@@ -9,7 +9,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { useSelector } from 'react-redux';
-import { selectUser } from 'src/store/authReducer';
+import { selectUser } from 'src/store/userSlice';
 
 
 function Copyright(props: any) {
@@ -30,7 +30,7 @@ export default function SignUp() {
   const [imageUrl, setImageUrl] = React.useState<any>();
   const [inputError, setInputError] = React.useState<boolean>(false);
   const [inputValue, setInputValue] = React.useState<string>();
-  const user = useSelector(selectUser);
+  const {user, status, error} = useSelector(selectUser);
 
   React.useEffect(() => {
     if (file?.name){
@@ -40,7 +40,7 @@ export default function SignUp() {
 
   React.useEffect(() => {
     const timeOutId = setTimeout(() => {
-        if (inputValue !== user.name){
+        if (inputValue !== user?.name){
           setInputError(true);
         }
         else {
@@ -101,8 +101,8 @@ export default function SignUp() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <Avatar
-                  alt={user.name}
-                  src={imageUrl || user.image}
+                  alt={user?.name}
+                  src={imageUrl || user?.image}
                   sx={{
                     width: 100,
                     height: 100,
