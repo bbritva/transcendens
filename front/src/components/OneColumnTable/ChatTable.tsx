@@ -1,13 +1,9 @@
-import { IconButton, InputAdornment, OutlinedInput, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from "@mui/material";
 import { ReactElement, FC, useState, useRef, useEffect } from "react";
-import { createContext } from 'react';
 import { useStore } from "react-redux";
-import { io, Socket } from 'socket.io-client';
+import { Socket } from "socket.io-client";
 import { RootState } from 'src/store/store'
 
-
-export const socket = io('http://localhost:3000');
-export const WebsocketContext = createContext<Socket>(socket);
 
 interface messageI {
   header: {
@@ -24,7 +20,8 @@ const ChatTable: FC<{
   loading: boolean,
   elements: [{ name: string, model: string }],
   getName: boolean,
-}> = ({ name, loading, elements, getName = true }): ReactElement => {
+  socket: Socket
+}> = ({ name, loading, elements, getName = true, socket }): ReactElement => {
   const [value, setValue] = useState('');
   const [messages, setMessages] = useState<messageI[]>([]);
   const theme = useTheme();
@@ -58,8 +55,8 @@ const ChatTable: FC<{
       {
         header: {
           // @ts-ignore
-          // JWTtoken: auth.accessToken.access_token,
-          JWTtoken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzM3MjUsInVzZXJuYW1lIjoidHBodW5nIiwiaWF0IjoxNjcyMDYwMDY2LCJleHAiOjE2NzIwNjAwNzZ9.Oc3ZGIdZutyOyIo1h2t0cMZZ5MbBnOuAhg23_z1OVjA',
+          JWTtoken: auth.accessToken.access_token,
+          // JWTtoken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzM3MjUsInVzZXJuYW1lIjoidHBodW5nIiwiaWF0IjoxNjcyMDYwMDY2LCJleHAiOjE2NzIwNjAwNzZ9.Oc3ZGIdZutyOyIo1h2t0cMZZ5MbBnOuAhg23_z1OVjA',
           userName: user.user?.name,
           sentAt: new Date(),
           channel: '',
@@ -75,9 +72,9 @@ const ChatTable: FC<{
       ref={tableRef}
       component={Paper}
       sx={{
-        border: "4px solid rgba(0,0,0,0.2)",
-        height: '40vh',
-        // width: '1',
+        border: "2px solid rgba(0,0,0,0.2)",
+        minHeight: '75%',
+        maxHeight: '85%',
         "&::-webkit-scrollbar": {
           width: 3
         },
@@ -87,6 +84,7 @@ const ChatTable: FC<{
           backgroundColor: theme.palette.primary.light,
           borderRadius: 2
         },
+        marginBottom: "5px",
         overflow: 'scroll',
         overflowAnchor: 'none',
         overflowX: "hidden",
@@ -97,7 +95,6 @@ const ChatTable: FC<{
         <TableHead>{name}</TableHead>
         <TableBody
           sx={{
-            height: "100.001vh",
             display: "-ms-inline-grid",
           }}
         >
@@ -122,36 +119,11 @@ const ChatTable: FC<{
                   </TableRow>);
               })
           }
-          <OutlinedInput
-            id="outlined-adornment-enter"
-            onChange={(e) => setValue(e.target.value)}
-            onKeyUp={(e) => {
-              if (e.key === 'Enter')
-                onSubmit();
-            }}
-            value={value}
-            type={'text'}
-            multiline
-            fullWidth
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={onSubmit}
-                  edge="end"
-                >
-                  Enter
-                </IconButton>
-              </InputAdornment>
-            }
-            label="input"
-          />
         </TableBody>
       </Table>
     </TableContainer>
   );
 }
-// const myStyle = { overflow-anchor:'auto', height='1px'};
 
 
 export default ChatTable;
