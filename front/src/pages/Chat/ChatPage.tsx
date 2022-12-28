@@ -101,21 +101,14 @@ const ChatPage: FC<any> = (): ReactElement => {
           value={value}
           type={'text'}
           fullWidth
+          multiline
+          maxRows={'3'}
           sx={{
             ".MuiOutlinedInput-notchedOutline": {
               border: "2px solid rgba(0,0,0,0.2)",
             },
             ".MuiInputBase-input" :{
-              overflow: 'scroll',
-              "&::-webkit-scrollbar": {
-                width: 3
-              },
-              "&::-webkit-scrollbar-track": {
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: theme.palette.primary.light,
-                borderRadius: 2,
-              },
+              overflow: 'hidden',
             },
           }}
           endAdornment={

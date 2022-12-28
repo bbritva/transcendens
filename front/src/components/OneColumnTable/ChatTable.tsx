@@ -2,7 +2,6 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import { ReactElement, FC, useState, useRef, useEffect } from "react";
 import { useStore } from "react-redux";
 import { Socket } from "socket.io-client";
-import { RootState } from 'src/store/store'
 
 
 interface messageI {
@@ -22,11 +21,9 @@ const ChatTable: FC<{
   getName: boolean,
   socket: Socket
 }> = ({ name, loading, elements, getName = true, socket }): ReactElement => {
-  const [value, setValue] = useState('');
   const [messages, setMessages] = useState<messageI[]>([]);
   const theme = useTheme();
   const tableRef = useRef(null);
-  const { getState } = useStore();
   useEffect(() => {
     socket.on('connect', () => {
       console.log('Connected!');
@@ -47,26 +44,6 @@ const ChatTable: FC<{
     // @ts-ignore
     scroll.scrollTop = scroll.scrollHeight;
   }
-  const onSubmit = () => {
-    const { user, auth } = getState() as RootState;
-    console.log(auth);
-    socket.emit(
-      'newMessage',
-      {
-        header: {
-          // @ts-ignore
-          JWTtoken: auth.accessToken.access_token,
-          // JWTtoken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzM3MjUsInVzZXJuYW1lIjoidHBodW5nIiwiaWF0IjoxNjcyMDYwMDY2LCJleHAiOjE2NzIwNjAwNzZ9.Oc3ZGIdZutyOyIo1h2t0cMZZ5MbBnOuAhg23_z1OVjA',
-          userName: user.user?.name,
-          sentAt: new Date(),
-          channel: '',
-        },
-        text: value
-      }
-    );
-    console.log('newMessage', value);
-    setValue('');
-  };
   return (
     <TableContainer
       ref={tableRef}
