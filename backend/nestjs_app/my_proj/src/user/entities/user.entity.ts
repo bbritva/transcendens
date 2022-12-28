@@ -14,7 +14,7 @@ export class UserEntity implements User {
   @ApiProperty()
   image: string;
 
-  @ApiProperty()
+  @ApiProperty({isArray: true, type : "number"})
   friendIds: number[];
 
   @ApiProperty()
