@@ -1,26 +1,62 @@
-import React, { ReactElement, FC, useState, useEffect } from "react";
-import { Box, Container, CssBaseline, Divider, Grid, IconButton, InputAdornment, OutlinedInput, Paper, Table, TableBody, TableCell, TableHead, TableRow, Typography,useTheme  } from "@mui/material";
+import { ReactElement, FC, useState, useEffect } from "react";
+import { Divider, Grid, Paper, useTheme  } from "@mui/material";
 import userService from "src/services/user.service";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import ChatTable from "src/components/OneColumnTable/ChatTable";
 import { RootState } from 'src/store/store'
 import { useStore } from "react-redux";
 import { io, Socket } from 'socket.io-client';
-import SendIcon from '@mui/icons-material/Send';
+import ChatInput from "src/components/ChatInput/ChatInput";
 
 
 export const socket = io('http://localhost:3000');
 // export const WebsocketContext = createContext<Socket>(socket);
 
-const chatStyles = {
-  commonSection: {
-    width: '100%',
-    height: '100vh'
+export interface chatStylesI{
+  borderStyle: {
+    border: string,
+  },
+  scrollStyle: {
+    overflow: string,
+    "&::-webkit-scrollbar": {
+      width: number
+    },
+    "&::-webkit-scrollbar-track": {
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: string
+      borderRadius: number
+    },
+    overflowAnchor: string,
+    overflowX: string,
+  }
+
+}
+
+const chatStyles:chatStylesI = {
+  borderStyle: {
+    border: "2px solid rgba(0,0,0,0.2)",
+  },
+  scrollStyle: {
+    overflow: 'scroll',
+    "&::-webkit-scrollbar": {
+      width: 3
+    },
+    "&::-webkit-scrollbar-track": {
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: '',
+      borderRadius: 2
+    },
+    overflowAnchor: 'none',
+    overflowX: "hidden",
   }
 }
 
 const ChatPage: FC<any> = (): ReactElement => {
-  const [users, setUsers] = useState<[{ name: string, model: string }]>([{ name: '', model: '' }]);
+  const [users, setUsers] = useState<[{
+    name: string, model: string
+  }]>([{ name: '', model: '' }]);
   const [page, setPage] = useState(0);
   const [value, setValue] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -36,6 +72,9 @@ const ChatPage: FC<any> = (): ReactElement => {
       .catch(err => console.log(err));
   }, [loading]
   );
+  chatStyles
+    .scrollStyle["&::-webkit-scrollbar-thumb"]
+    .backgroundColor = theme.palette.primary.light;
   const onSubmit = () => {
     const { user, auth } = getState() as RootState;
     console.log(auth);
@@ -67,6 +106,7 @@ const ChatPage: FC<any> = (): ReactElement => {
           loading={loading}
           elements={users}
           getName={false}
+          chatStyles={chatStyles}
         />
       </Grid>
       <Grid item xs={2} height={'100%'}>
@@ -75,6 +115,7 @@ const ChatPage: FC<any> = (): ReactElement => {
           loading={loading}
           elements={users}
           getName={true}
+          chatStyles={chatStyles}
         />
       </Grid>
       <Grid container item xs={8} height={'100%'} >
@@ -84,48 +125,22 @@ const ChatPage: FC<any> = (): ReactElement => {
           elements={users}
           getName={false}
           socket={socket}
+          chatStyles={chatStyles}
+
         />
         <Divider />
         <Grid item xs={12} component={Paper} display='flex' 
             minHeight='5%'
             maxHeight='25%'
-            borderColor= {theme.palette.secondary.light}
-        >
-        <OutlinedInput
-          id="outlined-adornment-enter"
-          onChange={(e) => setValue(e.target.value)}
-          onKeyUp={(e) => {
-            if (e.key === 'Enter')
-              onSubmit();
-          }}
+            borderColor= {theme.palette.secondary.light
+        }>
+        <ChatInput
+          chatStyles={chatStyles}
           value={value}
-          type={'text'}
-          fullWidth
-          multiline
-          maxRows={'3'}
-          sx={{
-            ".MuiOutlinedInput-notchedOutline": {
-              border: "2px solid rgba(0,0,0,0.2)",
-            },
-            ".MuiInputBase-input" :{
-              overflow: 'hidden',
-            },
-          }}
-          endAdornment={
-            <InputAdornment position="end" sx={{
-            }}>
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={onSubmit}
-                edge="end"
-              >
-                <SendIcon sx={{
-                  color:theme.palette.primary.light,
-                  }}/>
-              </IconButton>
-            </InputAdornment>
-          }
-        /></Grid>
+          setValue={setValue}
+          onSubmit={onSubmit}
+        />
+        </Grid>
       </Grid>
     </Grid>
   );
