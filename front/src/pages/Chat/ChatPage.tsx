@@ -29,6 +29,13 @@ export interface chatStylesI{
     },
     overflowAnchor: string,
     overflowX: string,
+  },
+  textElipsis: {
+    overflow: string,
+    textOverflow: string,
+    display: string,
+    WebkitLineClamp: number,
+    WebkitBoxOrient: string
   }
 
 }
@@ -50,6 +57,13 @@ const chatStyles:chatStylesI = {
     },
     overflowAnchor: 'none',
     overflowX: "hidden",
+  },
+  textElipsis: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    WebkitLineClamp: 1,
+    WebkitBoxOrient: "vertical"
   }
 }
 
@@ -59,6 +73,8 @@ const ChatPage: FC<any> = (): ReactElement => {
   }]>([{ name: '', model: '' }]);
   const [page, setPage] = useState(0);
   const [value, setValue] = useState('');
+  const [user, setUser] = useState({});
+  const [channel, setChannel] = useState({});
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [loading, setLoading] = useState(true);
   const { getState } = useStore();
@@ -105,8 +121,9 @@ const ChatPage: FC<any> = (): ReactElement => {
           name={'Channels'}
           loading={loading}
           elements={users}
-          getName={false}
           chatStyles={chatStyles}
+          selectedElement={channel}
+          setElement={setChannel}
         />
       </Grid>
       <Grid item xs={2} height={'100%'}>
@@ -114,8 +131,9 @@ const ChatPage: FC<any> = (): ReactElement => {
           name={'Users'}
           loading={loading}
           elements={users}
-          getName={true}
           chatStyles={chatStyles}
+          selectedElement={user}
+          setElement={setUser}
         />
       </Grid>
       <Grid container item xs={8} height={'100%'} >
