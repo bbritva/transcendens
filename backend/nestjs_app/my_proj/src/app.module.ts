@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
+import { AppController } from 'src/app.controller';
 
 //services
 import { AppService } from 'src/app.service';
@@ -8,15 +8,12 @@ import { HttpModule } from '@nestjs/axios';
 import { ReqService } from 'src/req/req.service';
 import { GameModule } from 'src/game/game.module';
 import { UserModule } from 'src/user/user.module';
-import { PrismaService } from './prisma.service';
-import { UserService } from './user/user.service';
-import { AuthModule } from './auth/auth.module';
-import { TokenService } from './token/token.service';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './auth/jwt.strategy';
+import { PrismaService } from 'src/prisma.service';
+import { UserService } from 'src/user/user.service';
+import { AuthModule } from 'src/auth/auth.module';
+import { TokenService } from 'src/token/token.service';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 
 @Module({
@@ -24,12 +21,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     HttpModule, 
     GameModule, 
     UserModule, 
-    AuthModule, 
-    // PassportModule, 
-    // JwtModule.register({
-    //   secret: jwtConstants.secret,
-    //   signOptions: { expiresIn: '60s' },
-    // })
+    AuthModule,
   ],
   controllers: [
     AuthController,

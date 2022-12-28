@@ -12,14 +12,10 @@ import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { JwtRefreshStrategy } from 'src/auth/jwt-refresh.strategy';
 import { env } from 'process';
 import { TokenService } from 'src/token/token.service';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
   imports:[UserModule, PassportModule, HttpModule, JwtModule.register({
-    secret: env.JWT_ACCESS_SECRET, 
-    //will be reactivated when the fresh token method is implemented
-    // signOptions: { expiresIn: '60s' },
+    secret: env.JWT_ACCESS_SECRET, signOptions: { expiresIn: '60s' },
   })],
   providers: [
     AuthService, 
@@ -30,10 +26,6 @@ import { JwtAuthGuard } from './jwt-auth.guard';
     JwtStrategy,
     JwtRefreshStrategy,
     TokenService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
   ],
   exports: [AuthService],
 })

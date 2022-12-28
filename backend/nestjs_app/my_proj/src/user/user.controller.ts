@@ -12,10 +12,6 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Public } from 'src/auth/constants';
-
-
 
 @Controller('user')
 export class UserController {
@@ -61,7 +57,6 @@ export class UserController {
 
     @Get('getMe')
     async getMe(@Request() req) {
-        console.log('REquest', req);
        return await this.userService.getUser(req.user.id);
     }
 

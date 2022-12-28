@@ -45,7 +45,6 @@ export class AuthService {
       user.name,
       res.refreshToken,
     );
-    console.log('Response DB', dbResponse);
     return res;
   }
 
