@@ -15,14 +15,13 @@ const OneColumnTable: FC<{
   }> = ({name, loading, elements, getName = true}): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
-  const scroll = tableRef?.current;
   return (
     <TableContainer
         ref={tableRef}
         component={Paper}
         sx={{
-          border: "4px solid rgba(0,0,0,0.2)",
-          height: '40vh',
+          border: "2px solid rgba(0,0,0,0.2)",
+          height: '99.3%',
           width: '1',
           "&::-webkit-scrollbar": {
             width: 3
@@ -35,7 +34,7 @@ const OneColumnTable: FC<{
           },
           overflowAnchor: 'none',
           overflowX: "hidden",
-          position: "relative"
+          position: "relative",
         }}
       >
         <Table
