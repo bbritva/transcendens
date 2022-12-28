@@ -1,5 +1,6 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from "@mui/material";
 import { ReactElement, FC, useRef, CSSProperties } from "react";
+import { chatStylesI } from "src/pages/Chat/ChatPage";
 
 
 const anchorStyle = {
@@ -12,7 +13,8 @@ const OneColumnTable: FC<{
     loading: boolean,
     elements: [{name: string, model: string}],
     getName: boolean,
-  }> = ({name, loading, elements, getName = true}): ReactElement => {
+    chatStyles: chatStylesI
+  }> = ({name, loading, elements, getName = true, chatStyles}): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
   return (
@@ -20,21 +22,9 @@ const OneColumnTable: FC<{
         ref={tableRef}
         component={Paper}
         sx={{
-          border: "2px solid rgba(0,0,0,0.2)",
           height: '99.3%',
-          width: '1',
-          "&::-webkit-scrollbar": {
-            width: 3
-          },
-          "&::-webkit-scrollbar-track": {
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: theme.palette.primary.light,
-            borderRadius: 2
-          },
-          overflowAnchor: 'none',
-          overflowX: "hidden",
-          position: "relative",
+          ...chatStyles.borderStyle,
+          ...chatStyles.scrollStyle
         }}
       >
         <Table

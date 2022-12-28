@@ -1,7 +1,7 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from "@mui/material";
 import { ReactElement, FC, useState, useRef, useEffect } from "react";
-import { useStore } from "react-redux";
 import { Socket } from "socket.io-client";
+import { chatStylesI } from "src/pages/Chat/ChatPage";
 
 
 interface messageI {
@@ -19,8 +19,9 @@ const ChatTable: FC<{
   loading: boolean,
   elements: [{ name: string, model: string }],
   getName: boolean,
-  socket: Socket
-}> = ({ name, loading, elements, getName = true, socket }): ReactElement => {
+  socket: Socket,
+  chatStyles: chatStylesI
+}> = ({ name, loading, elements, getName = true, socket, chatStyles}): ReactElement => {
   const [messages, setMessages] = useState<messageI[]>([]);
   const theme = useTheme();
   const tableRef = useRef(null);
@@ -49,23 +50,11 @@ const ChatTable: FC<{
       ref={tableRef}
       component={Paper}
       sx={{
-        border: "2px solid rgba(0,0,0,0.2)",
         minHeight: '75%',
         maxHeight: '85%',
-        "&::-webkit-scrollbar": {
-          width: 3
-        },
-        "&::-webkit-scrollbar-track": {
-        },
-        "&::-webkit-scrollbar-thumb": {
-          backgroundColor: theme.palette.primary.light,
-          borderRadius: 2
-        },
         marginBottom: "5px",
-        overflow: 'scroll',
-        overflowAnchor: 'none',
-        overflowX: "hidden",
-        position: "relative",
+        ...chatStyles.borderStyle,
+        ...chatStyles.scrollStyle
       }}
     >
       <Table>
