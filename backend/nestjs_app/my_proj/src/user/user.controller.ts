@@ -11,10 +11,8 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import { GetMeUserDto } from './dto/getMeUser.dto';
 
@@ -54,6 +52,11 @@ export class UserController {
       });
   }
 
+  @ApiBody({
+    description: 'Request body',
+    required: true,
+    type: GetMeUserDto,
+  })
   @ApiOkResponse({ type: UserEntity })
   @Get('getMe')
     async getMe( @Request() req : GetMeUserDto) {
