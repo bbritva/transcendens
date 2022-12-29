@@ -144,7 +144,6 @@ const ChatPage: FC<any> = (): ReactElement => {
           getName={false}
           socket={socket}
           chatStyles={chatStyles}
-
         />
         <Divider />
         <Grid item xs={12} component={Paper} display='flex' 

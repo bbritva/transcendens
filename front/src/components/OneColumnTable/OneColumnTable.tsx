@@ -1,6 +1,7 @@
-import { Button, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useTheme } from "@mui/material";
-import { ReactElement, FC, useRef, CSSProperties } from "react";
+import { Button, Grid, Paper, Typography, useTheme } from "@mui/material";
+import { ReactElement, FC, useRef, CSSProperties, useState } from "react";
 import { chatStylesI } from "src/pages/Chat/ChatPage";
+import DialogSelect from "../DialogSelect/DialogSelect";
 
 
 const anchorStyle = {
@@ -25,6 +26,7 @@ const OneColumnTable: FC<{
 }): ReactElement => {
     const theme = useTheme();
     const tableRef = useRef(null);
+    const [openDialog, setOpenDialog] = useState(false);
     return (
       <Grid container
         component={Paper}
@@ -55,7 +57,10 @@ const OneColumnTable: FC<{
                   <Button
                     key={data.name}
                     variant={selectedElement == data ? 'contained' : 'text'}
-                    onClick={() => { setElement(data) }}
+                    onClick={() => {
+                      setElement(data);
+                      setOpenDialog(true);
+                    }}
                     size='small'
                     sx={{
                       textAlign: 'left',
@@ -70,6 +75,11 @@ const OneColumnTable: FC<{
           }
           <div style={anchorStyle as CSSProperties} />
         </Grid>
+        <DialogSelect 
+          options={selectedElement}
+          open={openDialog}
+          setOpen={setOpenDialog}
+        />
       </Grid>
     );
   }
