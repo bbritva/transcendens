@@ -54,17 +54,14 @@ export class UserController {
       });
   }
 
-  // @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: UserEntity })
   @Get('getMe')
-  async getMe( @Request() req : GetMeUserDto) {
+    async getMe( @Request() req : GetMeUserDto) {
     // async getMe( @Body() req : GetMeUserDto) {
-    const pupa = await this.userService.getUser(req.user.id);
-    console.log('pupa ', pupa);
-    return pupa;
-  }
+       return await this.userService.getUser(req.user.id);
+    }
 
-  @UseGuards(JwtAuthGuard)
+
   @ApiOkResponse({ type: UserEntity })
   @Get(':id')
   async showUser(@Param('id') id: number): Promise<UserModel> {
