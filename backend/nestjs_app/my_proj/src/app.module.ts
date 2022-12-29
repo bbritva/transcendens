@@ -4,17 +4,23 @@ import { AppController } from 'src/app.controller';
 //services
 import { AppService } from 'src/app.service';
 import { AuthController } from 'src/auth/auth.controller';
-import { HttpModule } from '@nestjs/axios';
 import { ReqService } from 'src/req/req.service';
 import { GameModule } from 'src/game/game.module';
 import { UserModule } from 'src/user/user.module';
 import { PrismaService } from 'src/prisma.service';
-import { UserService } from 'src/user/user.service';
-import { AuthModule } from 'src/auth/auth.module';
-import { TokenService } from 'src/token/token.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthModule } from 'src/auth/auth.module';
+import { TokenService } from 'src/token/token.service';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { GatewayModule } from 'src/chat/websocket/gateway.module';
+import { ChannelModule } from 'src/chat/channel/channel.module';
+import { MessageService } from 'src/chat/message/message.service';
 
+// puts warnings to console
+process.on('warning', (warning) => {
+  console.log(warning.stack);
+});
 
 @Module({
   imports: [
@@ -22,6 +28,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
     GameModule, 
     UserModule, 
     AuthModule,
+    PrismaModule, 
+    AuthModule,
+    GatewayModule,
+    ChannelModule,
   ],
   controllers: [
     AuthController,
@@ -30,9 +40,8 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
   providers: [
     AppService, 
     ReqService, 
-    PrismaService, 
-    UserService, 
     TokenService,
+    MessageService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

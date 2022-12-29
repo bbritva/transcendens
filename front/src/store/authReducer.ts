@@ -1,38 +1,53 @@
 import { createReducer } from '@reduxjs/toolkit';
 import authHeader from 'src/services/authHeader';
-import { loginFail, loginSuccess, logout, registerFail, registerSuccess, userSuccess} from 'src/store/authActions';
+import { login, loginFail, loginSuccess, logout, refresh, registerFail, registerSuccess, userSuccess } from 'src/store/authActions';
 import { RootState } from 'src/store/store'
 
-// const storageData = localStorage.getItem("user") || '{}';
-// const user = JSON.parse(storageData);
-
-export interface userI {
-  id: string,
-  name: string
-  image: string
-}
-
-export interface accessTokenI {
-  access_token: string,
-  refreshToken: string
-}
 
 export interface authState {
   isLoggedIn: boolean,
-  user: userI,
-  accessCode: string,
+  status: 'idle' | 'loading' | 'succeeded' | 'failed',
   accessToken: {}
 }
 
 const initialState: authState = {
   isLoggedIn: false,
-  user: {id: '', name: '', image: ''},
-  accessCode: '',
+  status: 'idle',
   accessToken: {access_token: '', refreshToken: ''}
 }
 
 const authReducer = createReducer(initialState, (builder) => {
   builder
+    .addCase(refresh.pending, (state, action) => {
+      return {
+        ...state,
+        status: 'loading'
+      };
+    })
+    .addCase(refresh.fulfilled, (state, action) => {
+      localStorage.setItem("access_token", JSON.stringify(action.payload.access_token));
+      localStorage.setItem("refreshToken", JSON.stringify(action.payload.refreshToken));
+      state.accessToken = action.payload;
+      return {
+        ...state,
+        accessToken: action.payload,
+        status: 'succeeded'
+      };
+    })
+    .addCase(refresh.rejected, (state, action) => {
+      return {
+        ...state,
+        status: 'failed'
+      };
+    })
+    .addCase(login.fulfilled, (state, action) => {
+      state.isLoggedIn = true;
+      state.accessToken = action.payload;
+      authHeader();
+    })
+    .addCase(login.rejected, (state, action) => {
+      state.isLoggedIn = false;
+    })
     .addCase(registerSuccess, (state, action) => {
       state.isLoggedIn = false;
     })
@@ -46,21 +61,17 @@ const authReducer = createReducer(initialState, (builder) => {
     })
     .addCase(userSuccess, (state, action) => {
       state.isLoggedIn = true;
-      state.user = {id: action.payload.user.id, name: action.payload.user.name, image: action.payload.user.image};
     })
     .addCase(loginFail, (state, action) => {
       state.isLoggedIn = false;
-      state.user = {id: '', name: '', image: ''};
       state.accessToken = {}
     })
     .addCase(logout, (state, action) => {
       state.isLoggedIn = false;
-      state.user = {id: '', name: '', image: ''};
       state.accessToken = {}
     })
 });
 
-export const selectUser = (state: RootState) => state.auth.user;
 export const selectToken = (state: RootState) => state.auth.accessToken;
 export const selectLoggedIn = (state: RootState) => state.auth.isLoggedIn;
 

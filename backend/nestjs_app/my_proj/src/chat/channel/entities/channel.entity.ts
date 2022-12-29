@@ -1,0 +1,20 @@
+import { Channel } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class ChannelEntity implements Channel {
+  @ApiProperty({uniqueItems : true})
+  name: string;
+
+  @ApiProperty()
+  ownerId: number;
+
+  @ApiProperty()
+  guestIds: number[];
+  @ApiProperty()
+  admIds: number[];
+  @ApiProperty()
+  mutedIds: number[];
+  @ApiProperty()
+  bannedIds: number[];
+
+}

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-// import { selectIsLoggedIn } from 'src/store/authorizationSlice';
 import { getAuthorizeHref } from 'src/oauthConfig';
 import { getSearchParams, removeAllParamsFromUrl} from 'src/utils/urlUtils';
 import { Button } from "@mui/material";
@@ -13,7 +12,6 @@ interface AuthorizationProps {
   setState: (state: string) => void;
   styleProp: {}
 }
-
 
 const searchParams = getSearchParams();
 const accessCode = searchParams?.code;
@@ -30,12 +28,6 @@ export const AuthorizationButton = ({text, setCode, setState, styleProp}: Author
       setCode(accessCode);
       setState(accessState)
     }
-    // if (access_token) {
-    //   dispatch(setLoggedIn(true));
-    //   dispatch(setAccessToken(access_token));
-    //   dispatch(setTokenExpiryDate(Number(expires_in)));
-    //   dispatch(setUserProfileAsync(access_token));
-    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessCode]);
 
