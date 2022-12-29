@@ -46,11 +46,11 @@ export class ChannelController {
       });
   }
 
-  @Get(':id')
+  @Get(':name')
   @ApiOkResponse({ type: ChannelEntity })
-  async showChannel(@Param() id : string): Promise<ChannelModel> {
+  async showChannel(@Param('name') name : string): Promise<ChannelModel> {
     return this.channelService
-      .getChannel(id)
+      .getChannel(name)
       .then((ret) => ret)
       .catch((error) => {
         console.log('catch');
