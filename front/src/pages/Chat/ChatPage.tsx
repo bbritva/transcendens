@@ -7,6 +7,7 @@ import { RootState } from 'src/store/store'
 import { useStore } from "react-redux";
 import { io, Socket } from 'socket.io-client';
 import ChatInput from "src/components/ChatInput/ChatInput";
+import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
 
 
 export const socket = io('http://localhost:3000');
@@ -118,22 +119,34 @@ const ChatPage: FC<any> = (): ReactElement => {
     >
       <Grid item xs={2} height={'100%'}>
         <OneColumnTable
-          name={'Channels'}
+          name='Channels'
           loading={loading}
           elements={users}
           chatStyles={chatStyles}
           selectedElement={channel}
           setElement={setChannel}
+          dialogChildren={
+            <ChooseDialogChildren
+              name='Channels'
+              element={channel}
+            />
+          }
         />
       </Grid>
       <Grid item xs={2} height={'100%'}>
         <OneColumnTable
-          name={'Users'}
+          name='Users'
           loading={loading}
           elements={users}
           chatStyles={chatStyles}
           selectedElement={user}
           setElement={setUser}
+          dialogChildren={
+            <ChooseDialogChildren
+              name='Users'
+              element={channel}
+            />
+          }
         />
       </Grid>
       <Grid container item xs={8} height={'100%'} >
