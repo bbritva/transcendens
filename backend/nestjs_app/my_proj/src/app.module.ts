@@ -7,7 +7,6 @@ import { AuthController } from 'src/auth/auth.controller';
 import { ReqService } from 'src/req/req.service';
 import { GameModule } from 'src/game/game.module';
 import { UserModule } from 'src/user/user.module';
-import { PrismaService } from 'src/prisma.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { AuthModule } from 'src/auth/auth.module';
@@ -16,6 +15,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { GatewayModule } from 'src/chat/websocket/gateway.module';
 import { ChannelModule } from 'src/chat/channel/channel.module';
 import { MessageService } from 'src/chat/message/message.service';
+import { HttpModule } from '@nestjs/axios';
 
 // puts warnings to console
 process.on('warning', (warning) => {
