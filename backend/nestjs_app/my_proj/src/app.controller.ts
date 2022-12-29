@@ -12,6 +12,7 @@ import {
 import { AppService } from 'src/app.service';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Public } from './auth/constants';
 
 @Controller()
 export class AppController {
@@ -19,7 +20,7 @@ export class AppController {
     private readonly appService: AppService,
   ) {}
   
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get()
   getHello(): string {
     return this.appService.getHello();

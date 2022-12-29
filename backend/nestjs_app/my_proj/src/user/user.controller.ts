@@ -53,16 +53,13 @@ export class UserController {
       });
   }
 
-  @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: UserEntity })
   @Get('getMe')
-  async getMe(@Request() req) {
-    const pupa = await this.userService.getUser(req.user.id);
-    console.log('pupa ', pupa);
-    return pupa;
-  }
+    async getMe(@Request() req) {
+       return await this.userService.getUser(req.user.id);
+    }
 
-  @UseGuards(JwtAuthGuard)
+
   @ApiOkResponse({ type: UserEntity })
   @Get(':id')
   async showUser(@Param('id') id: number): Promise<UserModel> {
