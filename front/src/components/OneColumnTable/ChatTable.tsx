@@ -1,10 +1,10 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from "@mui/material";
 import { ReactElement, FC, useState, useRef, useEffect } from "react";
 import { Socket } from "socket.io-client";
-import { chatStylesI } from "src/pages/Chat/ChatPage";
+import { chatStylesI } from "src/pages/Chat/chatStyles";
 
 
-interface messageI {
+export interface messageI {
   header: {
     JWTtoken: string,
     useerName: string,
@@ -17,11 +17,11 @@ interface messageI {
 const ChatTable: FC<{
   name: string,
   loading: boolean,
-  elements: [{ name: string, model: string }],
+  messages: messageI[],
+  setMessages: Function,
   socket: Socket,
   chatStyles: chatStylesI
-}> = ({ name, loading, elements, socket, chatStyles}): ReactElement => {
-  const [messages, setMessages] = useState<messageI[]>([]);
+}> = ({ name, loading, messages, setMessages ,socket, chatStyles}): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
   useEffect(() => {
@@ -31,7 +31,7 @@ const ChatTable: FC<{
     socket.on('onMessage', (newMessage: messageI) => {
       console.log('onMessage event received!');
       console.log(newMessage);
-      setMessages((prev) => [...prev, newMessage]);
+      setMessages((prev: messageI[]) => [...prev, newMessage]);
     });
     return () => {
       console.log('Unregistering Events...');

@@ -1,7 +1,7 @@
 import { ReactElement, FC } from "react";
 import { IconButton, InputAdornment, OutlinedInput, useTheme } from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
-import { chatStylesI } from "src/pages/Chat/ChatPage";
+import { chatStylesI } from "src/pages/Chat/chatStyles";
 
 
 const ChatInput: FC<{

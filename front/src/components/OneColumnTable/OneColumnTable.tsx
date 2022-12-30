@@ -1,7 +1,7 @@
 import { Button, Grid, Paper, Typography, useTheme } from "@mui/material";
 import { ReactElement, FC, useRef, CSSProperties, useState, ReactNode } from "react";
-import { chatStylesI } from "src/pages/Chat/ChatPage";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
+import { chatStylesI } from "src/pages/Chat/chatStyles";
 
 
 const anchorStyle = {

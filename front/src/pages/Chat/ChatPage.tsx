@@ -2,77 +2,25 @@ import { ReactElement, FC, useState, useEffect } from "react";
 import { Divider, Grid, Paper, useTheme  } from "@mui/material";
 import userService from "src/services/user.service";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
-import ChatTable from "src/components/OneColumnTable/ChatTable";
+import ChatTable, { messageI } from "src/components/OneColumnTable/ChatTable";
 import { RootState } from 'src/store/store'
 import { useStore } from "react-redux";
 import { io, Socket } from 'socket.io-client';
 import ChatInput from "src/components/ChatInput/ChatInput";
 import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
+import { chatStyles } from "./chatStyles";
 
 
 export const socket = io('http://localhost:3000');
 // export const WebsocketContext = createContext<Socket>(socket);
 
-export interface chatStylesI{
-  borderStyle: {
-    border: string,
-  },
-  scrollStyle: {
-    overflow: string,
-    "&::-webkit-scrollbar": {
-      width: number
-    },
-    "&::-webkit-scrollbar-track": {
-    },
-    "&::-webkit-scrollbar-thumb": {
-      backgroundColor: string
-      borderRadius: number
-    },
-    overflowAnchor: string,
-    overflowX: string,
-  },
-  textElipsis: {
-    overflow: string,
-    textOverflow: string,
-    display: string,
-    WebkitLineClamp: number,
-    WebkitBoxOrient: string
-  }
-
-}
-
-const chatStyles:chatStylesI = {
-  borderStyle: {
-    border: "2px solid rgba(0,0,0,0.2)",
-  },
-  scrollStyle: {
-    overflow: 'scroll',
-    "&::-webkit-scrollbar": {
-      width: 3
-    },
-    "&::-webkit-scrollbar-track": {
-    },
-    "&::-webkit-scrollbar-thumb": {
-      backgroundColor: '',
-      borderRadius: 2
-    },
-    overflowAnchor: 'none',
-    overflowX: "hidden",
-  },
-  textElipsis: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    display: '-webkit-box',
-    WebkitLineClamp: 1,
-    WebkitBoxOrient: "vertical"
-  }
-}
 
 const ChatPage: FC<any> = (): ReactElement => {
   const [users, setUsers] = useState<[{
     name: string, model: string
   }]>([{ name: '', model: '' }]);
   const [page, setPage] = useState(0);
+  const [messages, setMessages] = useState<messageI[]>([]);
   const [value, setValue] = useState('');
   const [chosenUser, setChosenUser] = useState({});
   const [chosenChannel, setChosenChannel] = useState({});
@@ -94,8 +42,7 @@ const ChatPage: FC<any> = (): ReactElement => {
     .scrollStyle["&::-webkit-scrollbar-thumb"]
     .backgroundColor = theme.palette.primary.light;
   const onSubmit = () => {
-    socket.emit(
-      'newMessage',
+    const newMessage = 
       {
         header: {
           // @ts-ignore
@@ -106,7 +53,12 @@ const ChatPage: FC<any> = (): ReactElement => {
           channel: '',
         },
         text: value
-      }
+      };
+    // @ts-ignore
+    setMessages((prev: messageI[]) => [...prev, newMessage]);
+    socket.emit(
+      'newMessage',
+      newMessage
     );
     console.log('newMessage', value);
     setValue('');
@@ -138,7 +90,8 @@ const ChatPage: FC<any> = (): ReactElement => {
         <ChatTable
           name={'Chat'}
           loading={loading}
-          elements={users}
+          messages={messages}
+          setMessages={setMessages}
           socket={socket}
           chatStyles={chatStyles}
         />
