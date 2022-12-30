@@ -37,11 +37,9 @@ export class ChannelController {
         data: { name: data.newName },
       })
       .then((ret) => {
-        console.log('then');
         return ret;
       })
       .catch((error) => {
-        console.log('catch');
         throw new BadRequestException(error.code);
       });
   }
@@ -53,7 +51,6 @@ export class ChannelController {
       .getChannel(name)
       .then((ret) => ret)
       .catch((error) => {
-        console.log('catch');
         throw new BadRequestException(error.code);
       });
   }
