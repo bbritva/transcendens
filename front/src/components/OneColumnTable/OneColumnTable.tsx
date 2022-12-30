@@ -1,8 +1,7 @@
 import { Button, Grid, Paper, Typography, useTheme } from "@mui/material";
 import { ReactElement, FC, useRef, CSSProperties, useState, ReactNode } from "react";
 import { chatStylesI } from "src/pages/Chat/ChatPage";
-import DialogSelect from "../DialogSelect/DialogSelect";
-import ChooseDialogChildren from "../DialogSelect/ChooseDialogChildren";
+import DialogSelect from "src/components/DialogSelect/DialogSelect";
 
 
 const anchorStyle = {
@@ -84,7 +83,6 @@ const OneColumnTable: FC<{
           setOpen={setOpenDialog}
         >
           {dialogChildren}
-          <Typography variant="h5">Hello</Typography>
         </DialogSelect>
       </Grid>
     );

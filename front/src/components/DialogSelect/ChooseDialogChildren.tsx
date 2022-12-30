@@ -1,24 +1,28 @@
-import { DialogContent, DialogTitle, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { DialogContent  } from "@mui/material";
 import { FC} from "react";
-import UserDialog from "./UserDialog";
+import UserDialog from "src/components/DialogSelect/UserDialog";
+import { userI } from "src/store/userSlice";
+import ChannelOwnerDialog from "src/components/DialogSelect/ChannerOwnerDialog";
+import ChannelSettingsDialog from "./ChannerSettingsDialog";
 
 const ChooseDialogChildren: FC<{
-  name: string
+  dialogName: string
+  user: userI | null
   element: {}
-}> = ({name, element}) => {
+  channel: {}
+}> = ({dialogName, user, element}) => {
   return (
     <>
-      <DialogTitle>{name}</DialogTitle>
-        <DialogContent>
-          <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
-          {
-            name == "Users"
-            ? <UserDialog />
-            : <Typography>{JSON.stringify(element)}</Typography>
-          }
-          </Box>
-        </DialogContent>
+      <DialogContent>
+        {
+          dialogName == "Users"
+          ? <>
+              <UserDialog />
+              <ChannelOwnerDialog />
+            </>
+          : <ChannelSettingsDialog />
+        }
+      </DialogContent>
     </>
   );
 }

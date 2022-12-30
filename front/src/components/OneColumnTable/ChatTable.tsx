@@ -18,10 +18,9 @@ const ChatTable: FC<{
   name: string,
   loading: boolean,
   elements: [{ name: string, model: string }],
-  getName: boolean,
   socket: Socket,
   chatStyles: chatStylesI
-}> = ({ name, loading, elements, getName = true, socket, chatStyles}): ReactElement => {
+}> = ({ name, loading, elements, socket, chatStyles}): ReactElement => {
   const [messages, setMessages] = useState<messageI[]>([]);
   const theme = useTheme();
   const tableRef = useRef(null);

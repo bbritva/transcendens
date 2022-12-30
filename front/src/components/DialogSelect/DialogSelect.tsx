@@ -1,8 +1,6 @@
 import { FC} from "react";
 import * as React from 'react';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { IconButton } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
@@ -35,7 +33,6 @@ const DialogSelect: FC<props> = ({options, open, setOpen, children}) => {
   return (
     <div>
       <Dialog disableEscapeKeyDown={false} open={open} onClose={handleClose}>
-        {children}
         <IconButton
           aria-label="close"
           onClick={handleClose}
@@ -48,10 +45,7 @@ const DialogSelect: FC<props> = ({options, open, setOpen, children}) => {
         >
           <CloseIcon />
         </IconButton>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Ok</Button>
-        </DialogActions>
+        {children}
       </Dialog>
     </div>
   );

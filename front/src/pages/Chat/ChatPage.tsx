@@ -74,11 +74,12 @@ const ChatPage: FC<any> = (): ReactElement => {
   }]>([{ name: '', model: '' }]);
   const [page, setPage] = useState(0);
   const [value, setValue] = useState('');
-  const [user, setUser] = useState({});
-  const [channel, setChannel] = useState({});
+  const [chosenUser, setChosenUser] = useState({});
+  const [chosenChannel, setChosenChannel] = useState({});
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [loading, setLoading] = useState(true);
   const { getState } = useStore();
+  const { user, auth } = getState() as RootState;
   const theme = useTheme();
   useEffect(() => {
     userService.getUsers()
@@ -93,8 +94,6 @@ const ChatPage: FC<any> = (): ReactElement => {
     .scrollStyle["&::-webkit-scrollbar-thumb"]
     .backgroundColor = theme.palette.primary.light;
   const onSubmit = () => {
-    const { user, auth } = getState() as RootState;
-    console.log(auth);
     socket.emit(
       'newMessage',
       {
@@ -123,28 +122,14 @@ const ChatPage: FC<any> = (): ReactElement => {
           loading={loading}
           elements={users}
           chatStyles={chatStyles}
-          selectedElement={channel}
-          setElement={setChannel}
+          selectedElement={chosenChannel}
+          setElement={setChosenChannel}
           dialogChildren={
             <ChooseDialogChildren
-              name='Channels'
-              element={channel}
-            />
-          }
-        />
-      </Grid>
-      <Grid item xs={2} height={'100%'}>
-        <OneColumnTable
-          name='Users'
-          loading={loading}
-          elements={users}
-          chatStyles={chatStyles}
-          selectedElement={user}
-          setElement={setUser}
-          dialogChildren={
-            <ChooseDialogChildren
-              name='Users'
-              element={channel}
+              dialogName='Channels'
+              user={user.user}
+              element={chosenChannel}
+              channel={chosenChannel}
             />
           }
         />
@@ -154,7 +139,6 @@ const ChatPage: FC<any> = (): ReactElement => {
           name={'Chat'}
           loading={loading}
           elements={users}
-          getName={false}
           socket={socket}
           chatStyles={chatStyles}
         />
@@ -171,6 +155,24 @@ const ChatPage: FC<any> = (): ReactElement => {
           onSubmit={onSubmit}
         />
         </Grid>
+      </Grid>
+      <Grid item xs={2} height={'100%'}>
+        <OneColumnTable
+          name='Users'
+          loading={loading}
+          elements={users}
+          chatStyles={chatStyles}
+          selectedElement={chosenUser}
+          setElement={setChosenUser}
+          dialogChildren={
+            <ChooseDialogChildren
+              dialogName='Users'
+              user={user.user}
+              element={chosenUser}
+              channel={chosenChannel}
+            />
+          }
+        />
       </Grid>
     </Grid>
   );
