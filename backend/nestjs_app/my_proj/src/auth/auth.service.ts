@@ -48,9 +48,9 @@ export class AuthService {
     return res;
   }
 
-  async logout(user: { id: number; username: string }) {
+  async logout(user: { id: number; name: string }) {
     const res = await this.userService.updateUser({
-      where: { name: user.username },
+      where: { id: user.id },
       data: { refreshToken: null },
     });
     return res;

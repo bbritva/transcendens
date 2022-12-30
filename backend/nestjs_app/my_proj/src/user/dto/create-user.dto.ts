@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { eStatus } from '@prisma/client';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -7,17 +6,4 @@ export class CreateUserDto {
 
   @ApiProperty({ required: false })
   name: string;
-
-  @ApiProperty({ required: false })
-  image?: string;
-
-  @ApiProperty({ required: false })
-  status?: eStatus;
-
-  @ApiProperty({ required: false })
-  tokenId?: number;
-
-  @ApiProperty({ required: false })
-  refreshToken?: string;
-
 }

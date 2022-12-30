@@ -6,16 +6,14 @@ import {
   Body,
   Request,
   BadRequestException,
-  UseGuards,
   Patch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
+import { GetMeUserDto } from './dto/getMeUser.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -39,7 +37,7 @@ export class UserController {
 
   @Patch('setName')
   @ApiOkResponse({ type: UserEntity })
-  async setUserName(@Body() data: UpdateUserDto): Promise<UserModel> {
+  async setUserName(@Body() data: CreateUserDto): Promise<UserModel> {
     return this.userService
       .updateUser({
         where: { id: Number(data.id) },
@@ -53,9 +51,15 @@ export class UserController {
       });
   }
 
+  @ApiBody({
+    description: 'Request body',
+    required: true,
+    type: GetMeUserDto,
+  })
   @ApiOkResponse({ type: UserEntity })
   @Get('getMe')
-    async getMe(@Request() req) {
+    async getMe( @Request() req : GetMeUserDto) {
+    // async getMe( @Body() req : GetMeUserDto) {
        return await this.userService.getUser(req.user.id);
     }
 
