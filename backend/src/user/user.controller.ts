@@ -7,6 +7,9 @@ import {
   Request,
   BadRequestException,
   Patch,
+  UseInterceptors,
+  UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as UserModel } from '@prisma/client';
@@ -14,6 +17,25 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import { GetMeUserDto } from './dto/getMeUser.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { Observable, of } from 'rxjs';
+import { randomUUID } from 'crypto';
+import { Public } from 'src/auth/constants';
+import path = require('path');
+import { join } from 'path';
+
+export const storage = {
+  storage: diskStorage({
+    destination: './uploads/avatars',
+    filename: (req, file, cb) => {
+      const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + randomUUID();
+      const extention: string = path.parse(file.originalname).ext;
+      cb(null, `${filename}${extention}`)
+    }
+  })
+}
+
 
 @Controller('user')
 @ApiTags('user')
@@ -69,4 +91,20 @@ export class UserController {
   async showUser(@Param('id') id: number): Promise<UserModel> {
     return this.userService.getUser(id);
   }
+
+  @Public()
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', storage))
+  uploadFile(@UploadedFile() file): Observable<Object> {
+    console.log(file); 
+    return of({imagePath: file.filename});
+  }
+
+  @Public()
+  @Get('avatar/:avatarname')
+  findAvatar(@Param('avatarname') avatarname, @Res() res): Observable<Object> {
+    return of(res.sendFile(join(process.cwd(), 'uploads/avatars/' + avatarname)));
+  }
+
 }
+ 

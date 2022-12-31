@@ -16,6 +16,7 @@ import { GatewayModule } from 'src/chat/websocket/gateway.module';
 import { ChannelModule } from 'src/chat/channel/channel.module';
 import { MessageService } from 'src/chat/message/message.service';
 import { HttpModule } from '@nestjs/axios';
+import { MulterModule } from '@nestjs/platform-express';
 
 // puts warnings to console
 process.on('warning', (warning) => {
@@ -32,6 +33,9 @@ process.on('warning', (warning) => {
     AuthModule,
     GatewayModule,
     ChannelModule,
+    MulterModule.register({
+      dest: './uploads',
+    }),
   ],
   controllers: [
     AuthController,
