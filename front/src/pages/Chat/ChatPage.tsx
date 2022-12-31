@@ -47,7 +47,6 @@ const ChatPage: FC<any> = (): ReactElement => {
         header: {
           // @ts-ignore
           JWTtoken: auth.accessToken.access_token,
-          // JWTtoken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzM3MjUsInVzZXJuYW1lIjoidHBodW5nIiwiaWF0IjoxNjcyMDYwMDY2LCJleHAiOjE2NzIwNjAwNzZ9.Oc3ZGIdZutyOyIo1h2t0cMZZ5MbBnOuAhg23_z1OVjA',
           userName: user.user?.name,
           sentAt: new Date(),
           channel: '',
@@ -94,6 +93,7 @@ const ChatPage: FC<any> = (): ReactElement => {
           setMessages={setMessages}
           socket={socket}
           chatStyles={chatStyles}
+          user={user.user}
         />
         <Divider />
         <Grid item xs={12} component={Paper} display='flex' 

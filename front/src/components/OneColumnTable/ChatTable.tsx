@@ -1,13 +1,14 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from "@mui/material";
-import { ReactElement, FC, useState, useRef, useEffect } from "react";
+import { Grid, ListItemText, Paper, alpha, useTheme } from "@mui/material";
+import { ReactElement, FC, useRef, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
+import { userI } from "src/store/userSlice";
 
 
 export interface messageI {
   header: {
     JWTtoken: string,
-    useerName: string,
+    userName: string,
     sentAt: Date,
     channel: string,
   },
@@ -20,8 +21,9 @@ const ChatTable: FC<{
   messages: messageI[],
   setMessages: Function,
   socket: Socket,
-  chatStyles: chatStylesI
-}> = ({ name, loading, messages, setMessages ,socket, chatStyles}): ReactElement => {
+  chatStyles: chatStylesI,
+  user: userI | null
+}> = ({ name, loading, messages, setMessages ,socket, chatStyles, user}): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
   useEffect(() => {
@@ -44,8 +46,9 @@ const ChatTable: FC<{
     // @ts-ignore
     scroll.scrollTop = scroll.scrollHeight;
   }
+  const isLoggedUser = (userName: string) => userName === user?.name 
   return (
-    <TableContainer
+    <Grid container
       ref={tableRef}
       component={Paper}
       sx={{
@@ -56,37 +59,43 @@ const ChatTable: FC<{
         ...chatStyles.scrollStyle
       }}
     >
-      <Table>
-        <TableHead>{name}</TableHead>
-        <TableBody
-          sx={{
-            display: "-ms-inline-grid",
-          }}
-        >
-          {
-            loading
-              ? 'LOADING'
-              : messages.map((data) => {
-                return (
-                  <TableRow
-                    key={crypto.randomUUID()}
-                    sx={{
-                    }}
-                  >
-                    <TableCell
-                      component={'th'}
-                      scope="row"
-                      sx={{
+        {
+          loading
+            ? 'LOADING'
+            : messages.map((data) => {
+              return (
+                <Grid item xs={12}
+                  key={crypto.randomUUID()}
+                >
+                    <ListItemText
+                      primary={data.text}
+                      primaryTypographyProps={{
+                        variant: "body2",
                       }}
-                    >
-                      {data.text}
-                    </TableCell>
-                  </TableRow>);
-              })
-          }
-        </TableBody>
-      </Table>
-    </TableContainer>
+                      secondary={data.header.userName + ' at ' + data.header.sentAt.getDate()}
+                      secondaryTypographyProps={{
+                        variant: "subtitle2"
+                      }}
+                      sx={{
+                        float: isLoggedUser(data.header.userName)
+                          ? "right"
+                          : "left",
+                        padding: "2%",
+                        margin: "5px",
+                        maxWidth: "50%",
+                        ...chatStyles.scrollStyle,
+                        ...chatStyles.borderStyle,
+                        borderRadius: "1rem",
+                        backgroundColor: isLoggedUser(data.header.userName)
+                          ? alpha(theme.palette.secondary.light, 0.25)
+                          : alpha(theme.palette.primary.light, 0.25)
+                      }}
+                    />
+                </Grid>
+              );
+            })
+        }
+    </Grid>
   );
 }
 
