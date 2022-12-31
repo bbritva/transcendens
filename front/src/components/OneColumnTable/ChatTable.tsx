@@ -1,4 +1,4 @@
-import { Grid, ListItemText, Paper, alpha, useTheme } from "@mui/material";
+import { Box, Grid, Paper, Typography, alpha, useTheme } from "@mui/material";
 import { ReactElement, FC, useRef, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
@@ -23,7 +23,7 @@ const ChatTable: FC<{
   socket: Socket,
   chatStyles: chatStylesI,
   user: userI | null
-}> = ({ name, loading, messages, setMessages ,socket, chatStyles, user}): ReactElement => {
+}> = ({ name, loading, messages, setMessages, socket, chatStyles, user }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
   useEffect(() => {
@@ -46,7 +46,7 @@ const ChatTable: FC<{
     // @ts-ignore
     scroll.scrollTop = scroll.scrollHeight;
   }
-  const isLoggedUser = (userName: string) => userName === user?.name 
+  const isLoggedUser = (userName: string) => userName === user?.name
   return (
     <Grid container
       ref={tableRef}
@@ -59,42 +59,45 @@ const ChatTable: FC<{
         ...chatStyles.scrollStyle
       }}
     >
-        {
-          loading
-            ? 'LOADING'
-            : messages.map((data) => {
-              return (
-                <Grid item xs={12}
-                  key={crypto.randomUUID()}
+      {
+        loading
+          ? 'LOADING'
+          : messages.map((data) => {
+            return (
+              <Grid item xs={12}
+                key={crypto.randomUUID()}
+              >
+                <Box
+                  sx={{
+                    float: isLoggedUser(data.header.userName)
+                      ? "right"
+                      : "left",
+                    padding: "2%",
+                    margin: "5px",
+                    maxWidth: "75%",
+                    ...chatStyles.borderStyle,
+                    borderRadius: "1rem",
+                    backgroundColor: isLoggedUser(data.header.userName)
+                      ? alpha(theme.palette.secondary.light, 0.25)
+                      : alpha(theme.palette.primary.light, 0.25)
+                  }}
                 >
-                    <ListItemText
-                      primary={data.text}
-                      primaryTypographyProps={{
-                        variant: "body2",
-                      }}
-                      secondary={data.header.userName + ' at ' + data.header.sentAt.getDate()}
-                      secondaryTypographyProps={{
-                        variant: "subtitle2"
-                      }}
-                      sx={{
-                        float: isLoggedUser(data.header.userName)
-                          ? "right"
-                          : "left",
-                        padding: "2%",
-                        margin: "5px",
-                        maxWidth: "50%",
-                        ...chatStyles.scrollStyle,
-                        ...chatStyles.borderStyle,
-                        borderRadius: "1rem",
-                        backgroundColor: isLoggedUser(data.header.userName)
-                          ? alpha(theme.palette.secondary.light, 0.25)
-                          : alpha(theme.palette.primary.light, 0.25)
-                      }}
-                    />
-                </Grid>
-              );
-            })
-        }
+                  <Typography
+                    children={data.text}
+                    variant="body2"
+                    sx={{
+                      overflowWrap: "anywhere",
+                    }}
+                  ></Typography>
+                  <Typography
+                    children={data.header.userName + ' at ' + data.header.sentAt.getDate()}
+                    variant="subtitle2"
+                  ></Typography>
+                </Box>
+              </Grid>
+            );
+          })
+      }
     </Grid>
   );
 }
