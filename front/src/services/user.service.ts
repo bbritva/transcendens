@@ -9,6 +9,11 @@ class UserService {
     const token = JSON.parse(storageData);
     return axios.get(API_URL + '/getMe')
   }
+
+  uploadAvatar(fileData: FormData) {
+    return axios.post(API_URL + '/upload', fileData)
+  }
+
   getPublicContent() {
     return axios.get(API_URL + 'all');
   }

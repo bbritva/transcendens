@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'src/store/userSlice';
+import userService from 'src/services/user.service';
 
 
 function Copyright(props: any) {
@@ -46,29 +47,15 @@ export default function SignUp() {
         else {
           setInputError(false);
         }
-      // const upload = await axios({
-      //     url:"http://localhost:3000/checkNickname",
-      //     method:"get",
-      //     headers:{
-      //         Authorization: `Bearer your token`
-      //     },
-      //     inputValue:
-      // }).then(r => r);
     }, 500);
     return () => clearTimeout(timeOutId);
   }, [inputValue, user?.name]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // const upload = await axios({
-    //     url:"http://localhost:3000/upload",
-    //     method:"post",
-    //     headers:{
-    //         Authorization: `Bearer your token`
-    //     },
-    //     data:
-    // }).then(r => r);
+    const formData = new FormData();
+    formData.append("file", file);
+    await userService.uploadAvatar(formData);
   };
 
   const onFileChange = async (iFile: React.ChangeEvent) => {
@@ -134,12 +121,6 @@ export default function SignUp() {
                   onChange={nickChange}
                 />
               </Grid>
-              {/* <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid> */}
             </Grid>
             <Button
               type="submit"
