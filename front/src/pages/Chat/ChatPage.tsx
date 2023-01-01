@@ -4,64 +4,120 @@ import userService from "src/services/user.service";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import ChatTable, { messageI } from "src/components/OneColumnTable/ChatTable";
 import { RootState } from 'src/store/store'
-import { useStore } from "react-redux";
-import { io, Socket } from 'socket.io-client';
+import { useDispatch, useStore } from "react-redux";
 import ChatInput from "src/components/ChatInput/ChatInput";
 import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
 import { chatStyles } from "./chatStyles";
+import socket from "src/services/socket";
+import { logout } from "src/store/authActions";
 
+export interface userFromBackI {
+  username: string,
+  userID: string,
+  connected: boolean
+}
 
-export const socket = io('http://localhost:3000');
-// export const WebsocketContext = createContext<Socket>(socket);
-
+export interface newMessageI {
+  to: string,
+  from: string
+  content: string,
+  fromSelf: boolean,
+}
 
 const ChatPage: FC<any> = (): ReactElement => {
-  const [users, setUsers] = useState<[{
-    name: string, model: string
-  }]>([{ name: '', model: '' }]);
+  const [users, setUsers] = useState<userFromBackI[]>([]);
   const [page, setPage] = useState(0);
-  const [messages, setMessages] = useState<messageI[]>([]);
+  const [messages, setMessages] = useState<newMessageI[]>([]);
   const [value, setValue] = useState('');
-  const [chosenUser, setChosenUser] = useState({});
+  const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
   const [chosenChannel, setChosenChannel] = useState({});
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { getState } = useStore();
   const { user, auth } = getState() as RootState;
+  const dispatch = useDispatch();
   const theme = useTheme();
   useEffect(() => {
-    userService.getUsers()
-      .then(res => {
-        setUsers(res.data.results);
-        setLoading(false);
-      })
-      .catch(err => console.log(err));
-  }, [loading]
-  );
+    // userService.getUsers()
+    //   .then(res => {
+    //     setUsers(res.data.results);
+    //     setLoading(false);
+    //   })
+    //   .catch(err => console.log(err));
+
+  }, [loading]);
+
+  useEffect(() => {
+    if (auth.isLoggedIn) {
+      const username = user.user?.name;
+      socket.auth = { username };
+      socket.connect();
+
+      socket.on("connect_error", (err) => {
+        if (err.message === "invalid username") {
+          dispatch(logout());
+        }
+      });
+
+      socket.on("users", (users: userFromBackI[]) => {
+        setUsers(users);
+      });
+
+      socket.on("user connected", (user: userFromBackI) => {
+        setUsers((prev: userFromBackI[]) => [...prev, user]);
+      });
+
+      socket.on("private message", (message: newMessageI) => {
+        //logged user should be instead of chosenUser
+        message.fromSelf = chosenUser.userID !== message.from;
+        if (message.fromSelf)
+          setMessages((prev: newMessageI[]) => [...prev, message]);
+      });
+
+      socket.on("connect", () => {
+        users.forEach((user) => {
+          if (user.userID) {
+            user.connected = true;
+          }
+        });
+      });
+
+      socket.on("disconnect", () => {
+        users.forEach((user) => {
+          if (user.userID) {
+            user.connected = false;
+          }
+        });
+      });
+    }
+    return () => {
+      socket.disconnect()
+    };
+  }, [auth.isLoggedIn]);
+
+
   chatStyles
     .scrollStyle["&::-webkit-scrollbar-thumb"]
     .backgroundColor = theme.palette.primary.light;
   const onSubmit = () => {
-    const newMessage = 
-      {
-        header: {
-          // @ts-ignore
-          JWTtoken: auth.accessToken.access_token,
-          userName: user.user?.name,
-          sentAt: new Date(),
-          channel: '',
-        },
-        text: value
-      };
-    // @ts-ignore
-    setMessages((prev: messageI[]) => [...prev, newMessage]);
+    // if ( !chosenUser.userID )
+    //   return ;
+    const newMessage: newMessageI = {
+      to: chosenUser.userID,
+      from: '',
+      content: value,
+      fromSelf: true
+    };
     socket.emit(
       'newMessage',
       newMessage
     );
-    console.log('newMessage', value);
+    setMessages((prev: newMessageI[]) => [...prev, newMessage]);
     setValue('');
   };
+  socket.onAny((event, ...args) => {
+    console.log(event, args);
+  });
   return (
     <Grid container spacing={1}
       height={'60vh'}

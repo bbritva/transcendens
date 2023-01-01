@@ -1,6 +1,7 @@
 import { Button, Grid, Paper, Typography, useTheme } from "@mui/material";
 import { ReactElement, FC, useRef, CSSProperties, useState, ReactNode } from "react";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
+import { userFromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
 
 
@@ -12,10 +13,10 @@ const anchorStyle = {
 const OneColumnTable: FC<{
   name: string,
   loading: boolean,
-  elements: [{ name: string, model: string }],
+  elements: userFromBackI[],
   chatStyles: chatStylesI,
   selectedElement: {},
-  setElement: ({ }) => void,
+  setElement: Function,
   dialogChildren: ReactNode
 }> = ({
   name,
@@ -57,7 +58,7 @@ const OneColumnTable: FC<{
               : elements.map((data) => {
                 return (
                   <Button
-                    key={data.name}
+                    key={data.username}
                     variant={selectedElement == data ? 'contained' : 'text'}
                     onClick={() => {
                       setElement(data);
@@ -70,7 +71,7 @@ const OneColumnTable: FC<{
                       ...chatStyles.textElipsis
                     }}
                   >
-                    {data.name}
+                    {data.username}
                   </Button>
                 )
               })

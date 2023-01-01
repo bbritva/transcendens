@@ -1,6 +1,7 @@
 import { Box, Grid, Paper, Typography, alpha, useTheme } from "@mui/material";
 import { ReactElement, FC, useRef, useEffect } from "react";
 import { Socket } from "socket.io-client";
+import { newMessageI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
 import { userI } from "src/store/userSlice";
 
@@ -18,7 +19,7 @@ export interface messageI {
 const ChatTable: FC<{
   name: string,
   loading: boolean,
-  messages: messageI[],
+  messages: newMessageI[],
   setMessages: Function,
   socket: Socket,
   chatStyles: chatStylesI,
@@ -26,26 +27,26 @@ const ChatTable: FC<{
 }> = ({ name, loading, messages, setMessages, socket, chatStyles, user }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Connected!');
-    });
-    socket.on('onMessage', (newMessage: messageI) => {
-      console.log('onMessage event received!');
-      console.log(newMessage);
-      setMessages((prev: messageI[]) => [...prev, newMessage]);
-    });
-    return () => {
-      console.log('Unregistering Events...');
-      socket.off('connect');
-      socket.off('onMessage');
-    };
-  }, []);
   const scroll = tableRef?.current;
-  if (scroll && !loading) {
-    // @ts-ignore
-    scroll.scrollTop = scroll.scrollHeight;
-  }
+  useEffect(() => {
+  //   socket.on('connect', () => {
+  //     console.log('Connected!');
+  //   });
+  //   socket.on('onMessage', (newMessage: messageI) => {
+  //     console.log('onMessage event received!');
+  //     console.log(newMessage);
+  //     setMessages((prev: messageI[]) => [...prev, newMessage]);
+  //   });
+  //   return () => {
+  //     console.log('Unregistering Events...');
+  //     socket.off('connect');
+  //     socket.off('onMessage');
+  //   };
+    if (scroll && !loading) {
+      // @ts-ignore
+      scroll.scrollTop = scroll.scrollHeight;
+    }
+  }, [messages.length]);
   const isLoggedUser = (userName: string) => userName === user?.name
   return (
     <Grid container
@@ -69,7 +70,7 @@ const ChatTable: FC<{
               >
                 <Box
                   sx={{
-                    float: isLoggedUser(data.header.userName)
+                    float: data.fromSelf
                       ? "right"
                       : "left",
                     padding: "2%",
@@ -77,20 +78,21 @@ const ChatTable: FC<{
                     maxWidth: "75%",
                     ...chatStyles.borderStyle,
                     borderRadius: "1rem",
-                    backgroundColor: isLoggedUser(data.header.userName)
+                    backgroundColor: data.fromSelf
                       ? alpha(theme.palette.secondary.light, 0.25)
                       : alpha(theme.palette.primary.light, 0.25)
                   }}
                 >
                   <Typography
-                    children={data.text}
+                    children={data.content}
                     variant="body2"
                     sx={{
                       overflowWrap: "anywhere",
                     }}
                   ></Typography>
                   <Typography
-                    children={data.header.userName + ' at ' + data.header.sentAt.getDate()}
+                    // children={data.header.userName + ' at ' + data.header.sentAt.getDate()}
+                    children={'to ' + data.to}
                     variant="subtitle2"
                   ></Typography>
                 </Box>
