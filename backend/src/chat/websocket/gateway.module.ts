@@ -7,6 +7,6 @@ import { Gateway } from "./gateway";
 
 @Module({
     imports: [PrismaModule],
-    providers: [Gateway, ChannelService, MessageService, JwtService]
+    providers: [Gateway, ChannelService, MessageService, JwtService, Object]
 })
 export class GatewayModule{}
