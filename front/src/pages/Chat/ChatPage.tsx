@@ -48,7 +48,7 @@ const ChatPage: FC<any> = (): ReactElement => {
   }, [loading]);
 
   useEffect(() => {
-    if (auth.isLoggedIn) {
+    // if (auth.isLoggedIn) {
       const username = user.user?.name;
       socket.auth = { username };
       socket.connect();
@@ -89,7 +89,7 @@ const ChatPage: FC<any> = (): ReactElement => {
           }
         });
       });
-    }
+    // }
     return () => {
       socket.disconnect()
     };
@@ -115,9 +115,9 @@ const ChatPage: FC<any> = (): ReactElement => {
     setMessages((prev: newMessageI[]) => [...prev, newMessage]);
     setValue('');
   };
-  socket.onAny((event, ...args) => {
-    console.log(event, args);
-  });
+  // socket.onAny((event, ...args) => {
+  //   console.log(event, args);
+  // });
   return (
     <Grid container spacing={1}
       height={'60vh'}
