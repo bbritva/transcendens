@@ -33,7 +33,7 @@ export const storage = {
       const extention: string = path.parse(file.originalname).ext;
       cb(null, `${filename}${extention}`)
     }
-  })
+  }) //...
 }
 
 
