@@ -2,6 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import messageReducer from 'src/store/messageSlice';
 import authReducer from 'src/store/authReducer';
 import userReducer from 'src/store/userSlice'
+import chatReducer from 'src/store/chatSlice'
 
 
 //configureStore includes thunk middleware by default
@@ -9,7 +10,8 @@ export const store = configureStore({
   reducer: {
     message: messageReducer,
     auth: authReducer,
-    user: userReducer
+    user: userReducer,
+    chat: chatReducer
   },
 });
 
