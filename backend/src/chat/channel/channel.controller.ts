@@ -10,6 +10,8 @@ import { ChannelService } from './channel.service';
 import { Channel as ChannelModel } from '@prisma/client';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ChannelEntity } from './entities/channel.entity';
+import { SetChannelNameDto } from './dto/setChannelName.dto';
+import { CreateChannelDto } from './dto/create-channel.dto';
 
 @Controller('channel')
 @ApiTags('channel')
@@ -19,7 +21,7 @@ export class ChannelController {
   @Post('connect')
   @ApiOkResponse({ type: ChannelEntity })
   async addChannel(
-    @Body() data: { name: string; ownerId: number },
+    @Body() data: CreateChannelDto,
   ): Promise<ChannelModel> {
     return this.channelService.connectToChannel(data);
   }
@@ -27,7 +29,7 @@ export class ChannelController {
   @Post('setName')
   @ApiOkResponse({ type: ChannelEntity })
   async setChannelName(
-    @Body() data: { oldName: string; newName: string },
+    @Body() data: SetChannelNameDto,
   ): Promise<ChannelModel> {
     return this.channelService
       .updateChannel({
@@ -35,23 +37,20 @@ export class ChannelController {
         data: { name: data.newName },
       })
       .then((ret) => {
-        console.log('then');
         return ret;
       })
       .catch((error) => {
-        console.log('catch');
         throw new BadRequestException(error.code);
       });
   }
 
-  @Get(':id')
+  @Get(':name')
   @ApiOkResponse({ type: ChannelEntity })
-  async showChannel(@Param() id : string): Promise<ChannelModel> {
+  async showChannel(@Param('name') name : string): Promise<ChannelModel> {
     return this.channelService
-      .getChannel(id)
+      .getChannel(name)
       .then((ret) => ret)
       .catch((error) => {
-        console.log('catch');
         throw new BadRequestException(error.code);
       });
   }
