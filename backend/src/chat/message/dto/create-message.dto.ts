@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateMessageDto {
+export class CreateMessageDTO {
   @ApiProperty()
   readonly header: {
-    readonly JWTtoken: string;
     readonly userName: string;
     readonly sentAt: Date;
     readonly channel: string;
