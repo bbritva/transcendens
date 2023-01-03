@@ -12,6 +12,8 @@ import { CreateMessageDTO } from 'src/chat/message/dto/create-message.dto';
 import { MessageService } from 'src/chat/message/message.service';
 import { ClientDTO } from './client.dto';
 import { DecodedTokenDTO } from './decodedToken.dto';
+import { UserService } from 'src/user/user.service';
+import { isError } from '@jest/expect-utils';
 
 type Connections = {
   [key: string]: string;
@@ -27,6 +29,7 @@ export class Gateway implements OnModuleInit {
   constructor(
     private messageService: MessageService,
     private jwtService: JwtService,
+    private userService: UserService,
     private connections: Connections = {}
   ) { }
 
@@ -37,12 +40,25 @@ export class Gateway implements OnModuleInit {
 
   onModuleInit() {
     // have to check authorisation
-    if (true)
-      this.server.on('connection', (socket) => {
+    if (true){
+      this.server.on("connection", async (socket) => {
         console.log('connected', socket.id);
         console.log('connected', socket.handshake.auth.username);
         this.connections[socket.id] = socket.handshake.auth.username;
+        const users = await this.userService.users({});
+        console.log(users)
+        // for (let [id, socket] of this.server.om("/").sockets) {
+        let resp = [];
+        for (let user of users) {
+          resp.push({
+            username: user.name,
+            userID: user.id,
+            connected: user.status !== "OFFLINE"
+        });
+        }
+        socket.emit("users", resp);
       });
+    }
     else this.server.close();
   }
 

@@ -115,9 +115,9 @@ const ChatPage: FC<any> = (): ReactElement => {
     setMessages((prev: newMessageI[]) => [...prev, newMessage]);
     setValue('');
   };
-  // socket.onAny((event, ...args) => {
-  //   console.log(event, args);
-  // });
+  socket.onAny((event, ...args) => {
+    console.log(event, args);
+  });
   return (
     <Grid container spacing={1}
       height={'60vh'}
