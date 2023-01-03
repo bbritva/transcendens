@@ -8,16 +8,20 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { CreateMessageDto } from 'src/chat/message/dto/create-message.dto';
+import { CreateMessageDTO } from 'src/chat/message/dto/create-message.dto';
 import { MessageService } from 'src/chat/message/message.service';
 import { ClientDTO } from './client.dto';
 import { DecodedTokenDTO } from './decodedToken.dto';
 
 type Connections = {
-  [key: string]: number;
+  [key: string]: string;
 };
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors:{
+    origin: ["http://localhost:3001"],
+  }
+})
 export class Gateway implements OnModuleInit {
 
   constructor(
@@ -36,18 +40,19 @@ export class Gateway implements OnModuleInit {
     if (true)
       this.server.on('connection', (socket) => {
         console.log('connected', socket.id);
-        console.log('connected', socket.handshake.headers);
-        // this.connections[socket.id] = socket.handshake.headers.length
+        console.log('connected', socket.handshake.auth.username);
+        this.connections[socket.id] = socket.handshake.auth.username;
       });
     else this.server.close();
   }
 
   @SubscribeMessage('newMessage')
-  async onNewMessage(@ConnectedSocket() client: ClientDTO, @MessageBody() data: CreateMessageDto) {
-    console.log(client.id);
-    console.log(client.username);
+  async onNewMessage(@ConnectedSocket() client: ClientDTO, @MessageBody() data: CreateMessageDTO) {
+    console.log(this.connections[client.id]);
     console.log(data);
-    console.log(client);
+    console.log(this.connections);
+    
+    // console.log(client);
     // try {
     //   const messageOut = await this.messageService.createMessage({
     //     channel: {
