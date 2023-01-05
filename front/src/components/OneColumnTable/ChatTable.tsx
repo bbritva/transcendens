@@ -20,33 +20,19 @@ const ChatTable: FC<{
   name: string,
   loading: boolean,
   messages: newMessageI[],
-  setMessages: Function,
   socket: Socket,
   chatStyles: chatStylesI,
   user: userI | null
-}> = ({ name, loading, messages, setMessages, socket, chatStyles, user }): ReactElement => {
+}> = ({ name, loading, messages, socket, chatStyles, user }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
   const scroll = tableRef?.current;
   useEffect(() => {
-  //   socket.on('connect', () => {
-  //     console.log('Connected!');
-  //   });
-  //   socket.on('onMessage', (newMessage: messageI) => {
-  //     console.log('onMessage event received!');
-  //     console.log(newMessage);
-  //     setMessages((prev: messageI[]) => [...prev, newMessage]);
-  //   });
-  //   return () => {
-  //     console.log('Unregistering Events...');
-  //     socket.off('connect');
-  //     socket.off('onMessage');
-  //   };
     if (scroll && !loading) {
       // @ts-ignore
       scroll.scrollTop = scroll.scrollHeight;
     }
-  }, [messages.length]);
+  }, [messages?.length]);
   const isLoggedUser = (userName: string) => userName === user?.name
   return (
     <Grid container
@@ -61,9 +47,7 @@ const ChatTable: FC<{
       }}
     >
       {
-        loading
-          ? 'LOADING'
-          : messages.map((data) => {
+        messages.map((data) => {
             return (
               <Grid item xs={12}
                 key={crypto.randomUUID()}
