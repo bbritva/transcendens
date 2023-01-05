@@ -10,3 +10,10 @@ export class CreateMessageDTO {
   @ApiProperty()
   readonly text: string;
 }
+
+export class PrivateMessageDTO {
+  @ApiProperty()
+  readonly to: string;
+  @ApiProperty()
+  readonly content: string;
+}

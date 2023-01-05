@@ -4,9 +4,11 @@ import { ChannelService } from "src/chat/channel/channel.service";
 import { MessageService } from "src/chat/message/message.service";
 import { PrismaModule } from "src/prisma/prisma.module";
 import { Gateway } from "./gateway";
+import { UserModule } from "src/user/user.module";
+import { UserService } from "src/user/user.service";
 
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, UserModule],
     providers: [Gateway, ChannelService, MessageService, JwtService, Object]
 })
 export class GatewayModule{}
