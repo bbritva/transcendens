@@ -42,6 +42,7 @@ export class Gateway implements OnModuleInit {
         console.log('connected', socket.id);
         console.log('connected', socket.handshake.auth.username);
         this.connections[socket.id] = socket.handshake.auth.username;
+        this.server.to(socket.id).emit("{выамтицывдмаорыдвтсрфцлтод цларвдлуыоарвфд лоаржцлаожолкар дуыломардылуоражш ыруа}")
       });
     else this.server.close();
   }

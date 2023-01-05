@@ -49,7 +49,8 @@ const ChatPage: FC<any> = (): ReactElement => {
 
   useEffect(() => {
     // if (auth.isLoggedIn) {
-      const username = user.user?.name;
+      // const username = user.user?.name;
+      const username = "Boris";
       socket.auth = { username };
       socket.connect();
 
