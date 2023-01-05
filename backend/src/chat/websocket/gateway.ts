@@ -7,8 +7,8 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
-import { CreateMessageDTO } from 'src/chat/message/dto/create-message.dto';
+import { Server, Socket } from 'socket.io';
+import { CreateMessageDTO, PrivateMessageDTO } from 'src/chat/message/dto/create-message.dto';
 import { MessageService } from 'src/chat/message/message.service';
 import { ClientDTO } from './client.dto';
 import { DecodedTokenDTO } from './decodedToken.dto';
@@ -18,6 +18,10 @@ import { isError } from '@jest/expect-utils';
 type Connections = {
   [key: string]: string;
 };
+
+interface newSocket extends Socket{
+  username: string
+}
 
 @WebSocketGateway({
   cors:{
@@ -34,32 +38,56 @@ export class Gateway implements OnModuleInit {
   ) { }
 
 
-
   @WebSocketServer()
   server: Server;
 
   onModuleInit() {
     // have to check authorisation
+    // pseudo auth!
+    this.server.use((socket: newSocket, next) => {
+      const username = socket.handshake.auth.username;
+      if (!username) {
+        return next(new Error("invalid username"));
+      }
+      socket.username = username;
+      next();
+    });
     if (true){
       this.server.on("connection", async (socket) => {
         console.log('connected', socket.id);
         console.log('connected', socket.handshake.auth.username);
         this.connections[socket.id] = socket.handshake.auth.username;
-        const users = await this.userService.users({});
-        console.log(users)
-        // for (let [id, socket] of this.server.om("/").sockets) {
+        const users = await this.userService.users({})
         let resp = [];
-        for (let user of users) {
+        for (let [id , socket ] of this.server.of("/").sockets) {
           resp.push({
-            username: user.name,
-            userID: user.id,
-            connected: user.status !== "OFFLINE"
+            //@ts-ignore
+            username: socket.username,
+            userID: id,
+            conncected: true,
         });
+
         }
         socket.emit("users", resp);
       });
+      this.server.on("connection", (socket: newSocket) => {
+        // notify existing users
+        socket.broadcast.emit("user connected", {
+          userID: socket.id,
+          username: socket.username,
+        });
+      });
     }
     else this.server.close();
+  }
+
+  @SubscribeMessage('private message')
+  async onPrivateMessage(@ConnectedSocket() client: ClientDTO, @MessageBody() data: PrivateMessageDTO) {
+    console.log("private", data)
+    this.server.to(data.to).emit("private message", {
+      content: data.content,
+      from: client.id,
+    });
   }
 
   @SubscribeMessage('newMessage')
