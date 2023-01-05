@@ -1,17 +1,14 @@
 import { ReactElement, FC, useState, useEffect } from "react";
-import { Dialog, Divider, Grid, Paper, useTheme  } from "@mui/material";
-import userService from "src/services/user.service";
+import { Divider, Grid, Paper, useTheme  } from "@mui/material";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
-import ChatTable, { messageI } from "src/components/OneColumnTable/ChatTable";
+import ChatTable from "src/components/OneColumnTable/ChatTable";
 import { RootState } from 'src/store/store'
 import { useDispatch, useStore } from "react-redux";
 import ChatInput from "src/components/ChatInput/ChatInput";
 import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
 import { chatStyles } from "./chatStyles";
-import socket from "src/services/socket";
-import { logout } from "src/store/authActions";
+import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
-import { SettingsSuggestSharp } from "@mui/icons-material";
 
 export interface userFromBackI {
   username: string,
@@ -48,6 +45,7 @@ function setUserMessages(setUsers: Function, newMessage: newMessageI){
         user.messages = user?.messages?.length
         ? [ ...user.messages, newMessage ]
         : [ newMessage ]
+        user.hasNewMessages = user.userID === newMessage.from;
         return ;
       }
     });
@@ -75,47 +73,7 @@ const ChatPage: FC<any> = (): ReactElement => {
       const username = userName;
       socket.auth = { username };
       socket.connect();
-
-      socket.on("connect_error", (err) => {
-        if (err.message === "invalid username") {
-          dispatch(logout());
-        }
-      });
-
-      socket.on("users", (users: userFromBackI[]) => {
-        users.splice(users.findIndex(
-          (el) => {
-            return el.username == user.user?.name}
-          ));
-        setUsers(users);
-      });
-
-      socket.on("user connected", (user: userFromBackI) => {
-        setUsers((prev: userFromBackI[]) => [...prev, user]);
-      });
-
-      socket.on("private message", (message: newMessageI) => {
-        setUserMessages(setUsers, message);
-      });
-
-      socket.on("connect", () => {
-        users.forEach((user) => {
-          if (user.userID) {
-            user.connected = true;
-          }
-        });
-      });
-
-      socket.on("disconnect", () => {
-        users.forEach((user) => {
-          if (user.userID) {
-            user.connected = false;
-          }
-        });
-      });
-      socket.onAny((event, ...args) => {
-        console.log(event, args);
-      });
+      initSocket(user.user, users, setUsers, setUserMessages, dispatch);
     }
     return () => {
       socket.disconnect()
