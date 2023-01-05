@@ -61,7 +61,7 @@ const OneColumnTable: FC<{
                     key={data.username}
                     variant={selectedElement == data ? 'contained' : 'text'}
                     onClick={() => {
-                      setElement(data);
+                      setElement(elements, data.userID);
                       setOpenDialog(true);
                     }}
                     size='small'
