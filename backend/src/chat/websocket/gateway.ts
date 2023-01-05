@@ -1,36 +1,34 @@
-import { Body, OnModuleInit } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Body, OnModuleInit } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import {
   ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-} from '@nestjs/websockets';
-import { Server } from 'socket.io';
-import { CreateMessageDTO } from 'src/chat/message/dto/create-message.dto';
-import { MessageService } from 'src/chat/message/message.service';
-import { ClientDTO } from './client.dto';
-import { DecodedTokenDTO } from './decodedToken.dto';
+} from "@nestjs/websockets";
+import { Server } from "socket.io";
+import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
+import { MessageService } from "src/chat/message/message.service";
+import { ClientDTO } from "./client.dto";
+import { ConnectedClientInfo } from "./connectedClientInfo";
+import { DecodedTokenDTO } from "./decodedToken.dto";
 
 type Connections = {
-  [key: string]: string;
+  [key: string]: ConnectedClientInfo;
 };
 
 @WebSocketGateway({
-  cors:{
+  cors: {
     origin: ["http://localhost:3001"],
-  }
+  },
 })
 export class Gateway implements OnModuleInit {
-
   constructor(
     private messageService: MessageService,
     private jwtService: JwtService,
     private connections: Connections = {}
-  ) { }
-
-
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -38,21 +36,25 @@ export class Gateway implements OnModuleInit {
   onModuleInit() {
     // have to check authorisation
     if (true)
-      this.server.on('connection', (socket) => {
-        console.log('connected', socket.id);
-        console.log('connected', socket.handshake.auth.username);
-        this.connections[socket.id] = socket.handshake.auth.username;
-        this.server.to(socket.id).emit("{выамтицывдмаорыдвтсрфцлтод цларвдлуыоарвфд лоаржцлаожолкар дуыломардылуоражш ыруа}")
+      this.server.on("connection", (socket) => {
+        console.log("connected", socket.id);
+        console.log("connected", socket.handshake.auth.username);
+        this.connections[socket.id] = {
+          username: socket.handshake.auth.username,
+        };
       });
     else this.server.close();
   }
 
-  @SubscribeMessage('newMessage')
-  async onNewMessage(@ConnectedSocket() client: ClientDTO, @MessageBody() data: CreateMessageDTO) {
+  @SubscribeMessage("newMessage")
+  async onNewMessage(
+    @ConnectedSocket() client: ClientDTO,
+    @MessageBody() data: CreateMessageDTO
+  ) {
     console.log(this.connections[client.id]);
     console.log(data);
     console.log(this.connections);
-    
+
     // console.log(client);
     // try {
     //   const messageOut = await this.messageService.createMessage({
@@ -78,6 +80,5 @@ export class Gateway implements OnModuleInit {
   private getUserNameFromJWT(JWTtoken: string): string {
     const decodedToken = this.jwtService.decode(JWTtoken) as DecodedTokenDTO;
     return decodedToken.username;
-
   }
 }
