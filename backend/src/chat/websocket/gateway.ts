@@ -17,6 +17,7 @@ import { ClientDTO } from "./client.dto";
 import { ConnectedClientInfo } from "./connectedClientInfo";
 import { DecodedTokenDTO } from "./decodedToken.dto";
 import { UserService } from "src/user/user.service";
+import { ChannelService } from "../channel/channel.service";
 
 interface newSocket extends Socket {
   username: string;
@@ -32,6 +33,7 @@ export class Gateway implements OnModuleInit {
     private messageService: MessageService,
     private jwtService: JwtService,
     private userService: UserService,
+    private channelService : ChannelService
   ) {}
 
   connections: Map<string, ConnectedClientInfo> = new Map()
@@ -52,9 +54,8 @@ export class Gateway implements OnModuleInit {
     // });
     if (true) {
       this.server.on("connection", async (socket) => {
-        console.log("connected", socket.id);
-        console.log("connected", socket);
-        console.log("connected", socket.handshake.auth.username);
+        // logging
+        console.log("connected", socket.id, socket.handshake.auth.username);
         this.connections.set(socket.id, {
           username: socket.handshake.auth.username,
         });
@@ -67,24 +68,19 @@ export class Gateway implements OnModuleInit {
           console.log("disconnected", socket.id);
           this.connections.delete(socket.id)
         });
-        
-        //send to new user info about connected users
-        let resp = [];
-        this.connections.forEach((value: ConnectedClientInfo, key: string) => {
-          resp.push({
-            username: value.username,
-            userID: key,
-            conncected: true,
-          });
-          console.log(key, value);
-        });
-        socket.emit("users", resp);
 
-        //send to connected users info about new user
-        socket.broadcast.emit("user connected", {
-          userID: socket.id,
-          username: this.connections.get(socket.id),
+        //send to new user all channels
+        let channels = await this.channelService.ChannelList();
+        let channelList = [];
+        channels.forEach((value: {name : string}) => {
+          channelList.push({
+            channelName: value.name,
+          });
         });
+        socket.emit("channels", channelList);
+
+        //connect user to his channels
+
       });
     } else this.server.close();
   }

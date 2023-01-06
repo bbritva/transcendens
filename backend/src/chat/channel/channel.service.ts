@@ -31,11 +31,24 @@ export class ChannelService {
     });
   }
 
+  async ChannelList(): Promise<{name : string}[]> {
+    return this.prisma.channel.findMany({ select: { name: true } });
+  }
+
   async connectToChannel(data: Prisma.ChannelCreateInput): Promise<Channel> {
     const channel = await this.getChannel(data.name);
     if (null === channel) {
-      const params = {data:{ name : data.name ,  ownerId : data.ownerId, guestIds : [data.ownerId]}}
-
+      const params = {
+        data:{
+          name : data.name,
+          ownerId : data.ownerId,
+          guests : {
+            connect: {
+              id: data.ownerId,
+            },
+          },
+        }
+      }
       return await this.prisma.channel.create(params)
       .then((ret: any) => ret)
       .catch((e : any) => {
@@ -49,11 +62,14 @@ export class ChannelService {
         throw e;
       });
     }
-    if (channel.guestIds.includes(data.ownerId))
-      return channel;
     return this.prisma.channel.update({
       where: { name: channel.name, },
-      data: { guestIds: { push: data.ownerId, },
+      data: {
+        guests: {
+          connect: {
+            id: data.ownerId,
+          },
+        },
       },
     })
     .then((ret: any) => ret)

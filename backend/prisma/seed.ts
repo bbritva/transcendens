@@ -17,7 +17,6 @@ async function main() {
       name: "Bob",
     },
   });
-  console.log({ alice, bob });
   const mainChannel = await prisma.channel.upsert({
     where: { name: "main" },
     update: {},
@@ -25,14 +24,28 @@ async function main() {
       name: "main",
       ownerId: 0,
     },
+    include: {
+      guests: true,
+    },
   });
-  (await prisma.user.findMany({ select: { id: true } })).forEach(async (userId) => {
-    if (!mainChannel.guestIds.includes(userId.id)) {
-      const chan = await prisma.channel.update({
-        where: { name: "main" },
-        data: { guestIds: { push: userId.id } },
-      });
-    }
+  const users = await prisma.user.findMany({
+    include: { channels: true },
+  });
+  console.log(mainChannel);
+  users.forEach(async (user) => {
+    await prisma.channel.update({
+      where: { name: "main" },
+      data: {
+        guests: {
+          connect: {
+            id: user.id,
+          },
+        },
+      },
+      include: {
+        guests: true,
+      },
+    });
   });
   console.log(mainChannel);
 }

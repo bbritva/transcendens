@@ -12,12 +12,14 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ChannelEntity } from './entities/channel.entity';
 import { SetChannelNameDto } from './dto/setChannelName.dto';
 import { CreateChannelDto } from './dto/create-channel.dto';
+import { Public } from 'src/auth/constants';
 
 @Controller('channel')
 @ApiTags('channel')
 export class ChannelController {
   constructor(private readonly channelService: ChannelService) {}
 
+  @Public()
   @Post('connect')
   @ApiOkResponse({ type: ChannelEntity })
   async addChannel(
@@ -44,6 +46,7 @@ export class ChannelController {
       });
   }
 
+  @Public()
   @Get(':name')
   @ApiOkResponse({ type: ChannelEntity })
   async showChannel(@Param('name') name : string): Promise<ChannelModel> {
