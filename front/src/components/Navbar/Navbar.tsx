@@ -33,14 +33,14 @@ function Navbar({ loginButtonText, setAccessCode, setAccessState, onLogoutClick}
         background: alpha(theme.palette.secondary.light, 0.45),
         height: myHeight
       }}>
-      <Grid item xs={2} />{/* OFFSET */}
+      <Grid item sm={2} />{/* OFFSET */}
       <GridLogo size={myHeight}></GridLogo>
       {routes.map((page) => (
-        <Grid item
+        <Grid item sm={1}
           key={page.key + 1}
           display={'flex'}
           alignItems={'center'}
-          sx={{ display: { xs: "none", sm: "flex" } }}
+          // sx={{ display: { xs: "none", sm: "flex" } }}
         >
           <Button
             key={page.key}
