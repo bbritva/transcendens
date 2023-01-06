@@ -18,8 +18,6 @@ import { ConnectedClientInfo } from "./connectedClientInfo";
 import { DecodedTokenDTO } from "./decodedToken.dto";
 import { UserService } from "src/user/user.service";
 
-type Connections = Map<string, ConnectedClientInfo>;
-
 interface newSocket extends Socket {
   username: string;
 }
@@ -34,8 +32,9 @@ export class Gateway implements OnModuleInit {
     private messageService: MessageService,
     private jwtService: JwtService,
     private userService: UserService,
-    private connections: Connections = new Map()
   ) {}
+
+  connections: Map<string, ConnectedClientInfo> = new Map()
 
   @WebSocketServer()
   server: Server;
@@ -43,30 +42,32 @@ export class Gateway implements OnModuleInit {
   onModuleInit() {
     // have to check authorisation
     // pseudo auth!
-    this.server.use((socket: newSocket, next) => {
-      const username = socket.handshake.auth.username;
-      if (!username) {
-        return next(new Error("invalid username"));
-      }
-      socket.username = username;
-      next();
-    });
+    // this.server.use((socket: newSocket, next) => {
+    //   const username = socket.handshake.auth.username;
+    //   if (!username) {
+    //     return next(new Error("invalid username"));
+    //   }
+    //   socket.username = username;
+    //   next();
+    // });
     if (true) {
       this.server.on("connection", async (socket) => {
         console.log("connected", socket.id);
+        console.log("connected", socket);
         console.log("connected", socket.handshake.auth.username);
         this.connections.set(socket.id, {
           username: socket.handshake.auth.username,
         });
 
+        //discinnection handler
+        socket.on("disconnecting", async () => {
+          console.log("disconnecting", socket.id);
+        });
         socket.on("disconnect", async () => {
           console.log("disconnected", socket.id);
           this.connections.delete(socket.id)
-          socket.broadcast.emit("user connected", {
-            userID: socket.id,
-            username: this.connections.get(socket.id),
-          });
         });
+        
         //send to new user info about connected users
         let resp = [];
         this.connections.forEach((value: ConnectedClientInfo, key: string) => {
