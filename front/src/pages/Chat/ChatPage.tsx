@@ -63,13 +63,12 @@ const ChatPage: FC<any> = (): ReactElement => {
   const [loading, setLoading] = useState(false);
   const {chosenUser, selectUser} = useChosenUserState();
   const { getState } = useStore();
-  const { user, auth } = getState() as RootState;
+  const { user } = getState() as RootState;
   const dispatch = useDispatch();
   const theme = useTheme();
 
   useEffect(() => {
     if (userName) {
-      // const username = user.user?.name;
       const username = userName;
       socket.auth = { username };
       socket.connect();

@@ -1,4 +1,4 @@
-import { Body, OnModuleInit } from '@nestjs/common';
+import { OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
@@ -13,7 +13,6 @@ import { MessageService } from 'src/chat/message/message.service';
 import { ClientDTO } from './client.dto';
 import { DecodedTokenDTO } from './decodedToken.dto';
 import { UserService } from 'src/user/user.service';
-import { isError } from '@jest/expect-utils';
 
 type Connections = {
   [key: string]: string;
@@ -95,27 +94,6 @@ export class Gateway implements OnModuleInit {
     console.log(this.connections[client.id]);
     console.log(data);
     console.log(this.connections);
-    
-    // console.log(client);
-    // try {
-    //   const messageOut = await this.messageService.createMessage({
-    //     channel: {
-    //       connect: { name: messageIn.header.channel },
-    //     },
-    //     authorName: socket.username,
-    //     text: messageIn.text,
-    //   });
-    //   this.server.emit('onMessage', {
-    //     header: {
-    //       userName: messageOut.authorName,
-    //       channel: messageOut.channelName,
-    //       sentAt: messageOut.sentAt,
-    //     },
-    //     body: messageOut.text,
-    //   });
-    // } catch (e) {
-    //   console.log("err", e.meta.cause);
-    // }
   }
 
   private getUserNameFromJWT(JWTtoken: string): string {

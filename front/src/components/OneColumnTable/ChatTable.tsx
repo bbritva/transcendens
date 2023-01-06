@@ -75,7 +75,6 @@ const ChatTable: FC<{
                     }}
                   ></Typography>
                   <Typography
-                    // children={data.header.userName + ' at ' + data.header.sentAt.getDate()}
                     children={'to ' + data.to}
                     variant="subtitle2"
                   ></Typography>

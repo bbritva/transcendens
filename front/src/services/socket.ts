@@ -1,5 +1,5 @@
 import { Dispatch } from '@reduxjs/toolkit';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
 import { logout } from 'src/store/authActions';
 import { userI } from 'src/store/userSlice';
