@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Channel, Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 @Injectable()
 export class ChannelService {
@@ -49,7 +50,7 @@ export class ChannelService {
           },
         }
       }
-      return await this.prisma.channel.create(params)
+      return this.prisma.channel.create(params)
       .then((ret: any) => ret)
       .catch((e : any) => {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -59,7 +60,7 @@ export class ChannelService {
             )
           }
         }
-        throw e;
+        throw new BadRequestException(e.message);
       });
     }
     return this.prisma.channel.update({
@@ -81,7 +82,7 @@ export class ChannelService {
           )
         }
       }
-      throw e;
+      throw new BadRequestException(e.message);
     });
 
   }
