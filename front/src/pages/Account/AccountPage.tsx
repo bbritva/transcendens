@@ -8,6 +8,7 @@ import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import { userFromBackI } from "src/pages/Chat/ChatPage";
 import { chatStyles } from "../Chat/chatStyles";
 import { AppDispatch } from "src/store/store";
+import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
 
 const AccountPage: FC<any> = (): ReactElement => {
   const isLoggedIn = useSelector(selectLoggedIn);
@@ -35,7 +36,19 @@ const AccountPage: FC<any> = (): ReactElement => {
         :
         <>
           <Grid item xs={2}>
-            <OneColumnTable name="your friends" loading={friendsStatus != "succeeded"} elements={friends} chatStyles={chatStyles} selectedElement={friend} setElement={setFriend} dialogChildren={<></>} />
+            <OneColumnTable name="your friends" 
+              loading={friendsStatus != "succeeded"} 
+              elements={friends} chatStyles={chatStyles}
+              selectedElement={friend} setElement={setFriend} 
+              dialogChildren={
+                <ChooseDialogChildren
+                  dialogName='Users'
+                  user={user}
+                  element={friend}
+                  channel={friend}
+                />
+              }
+            />
           </Grid>
           <Grid item xs={10}>
             <SignUp />
