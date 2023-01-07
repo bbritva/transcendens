@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { userFromBackI } from "src/pages/Chat/ChatPage";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
 
@@ -13,19 +14,30 @@ interface userStateI {
   // Multiple possible status enum values
   status: 'idle' | 'loading' | 'succeeded' | 'failed',
   error: string | undefined,
-  user: userI | null
+  user: userI | null,
+  friends: userFromBackI[]
 }
 
 const initialState: userStateI = {
   status: 'idle',
   error: undefined,
-  user: null
+  user: null,
+  friends: [] as userFromBackI[]
 }
 
 export const getUser = createAsyncThunk(
   'getUser',
   async () => {
     const response = await userService.getMe()
+    return response.data;
+  }
+)
+
+
+export const getFriends = createAsyncThunk(
+  'getFriends',
+  async () => {
+    const response = await userService.getUsers()
     return response.data;
   }
 )
@@ -47,6 +59,20 @@ const userSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(getUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message
+      })
+      .addCase(getFriends.pending, (state, action) => {
+        return {
+          ...state,
+          status: 'loading'
+        };
+      })
+      .addCase(getFriends.fulfilled, (state, action) => {
+        state.status = 'succeeded'
+        state.user = action.payload;
+      })
+      .addCase(getFriends.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message
       })
