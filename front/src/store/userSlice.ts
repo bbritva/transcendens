@@ -72,7 +72,7 @@ const userSlice = createSlice({
       })
       .addCase(getFriends.fulfilled, (state, action) => {
         state.friendsStatus = 'succeeded'
-        state.user = action.payload;
+        state.friends = action.payload;
       })
       .addCase(getFriends.rejected, (state, action) => {
         state.friendsStatus = 'failed';
