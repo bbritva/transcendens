@@ -1,14 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Channel, Prisma } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { Channel, Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
 @Injectable()
 export class ChannelService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async Channel(
-    ChannelWhereUniqueInput: Prisma.ChannelWhereUniqueInput,
+    ChannelWhereUniqueInput: Prisma.ChannelWhereUniqueInput
   ): Promise<Channel | null> {
     return this.prisma.channel.findUnique({
       where: ChannelWhereUniqueInput,
@@ -32,59 +32,44 @@ export class ChannelService {
     });
   }
 
-  async ChannelList(): Promise<{name : string}[]> {
+  async ChannelList(): Promise<{ name: string }[]> {
     return this.prisma.channel.findMany({ select: { name: true } });
   }
 
   async connectToChannel(data: Prisma.ChannelCreateInput): Promise<Channel> {
-    const channel = await this.getChannel(data.name);
-    if (null === channel) {
-      const params = {
-        data:{
-          name : data.name,
-          ownerId : data.ownerId,
-          guests : {
+    return this.prisma.channel
+      .upsert({
+        where: { name: data.name },
+        // if channel exists
+        update: {
+          guests: {
             connect: {
               id: data.ownerId,
             },
           },
-        }
-      }
-      return this.prisma.channel.create(params)
+        },
+        // if channel doesn't exist
+        create: {
+          name: data.name,
+          ownerId: data.ownerId,
+          guests: {
+            connect: {
+              id: data.ownerId,
+            },
+          },
+        },
+      })
       .then((ret: any) => ret)
-      .catch((e : any) => {
+      .catch((e: any) => {
         if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === 'P2002') {
+          if (e.code === "P2002") {
             console.log(
-              'There is a unique constraint violation, a Channel cannot be updated'
-            )
+              "There is a unique constraint violation, a Channel cannot be updated"
+            );
           }
         }
         throw new BadRequestException(e.message);
       });
-    }
-    return this.prisma.channel.update({
-      where: { name: channel.name, },
-      data: {
-        guests: {
-          connect: {
-            id: data.ownerId,
-          },
-        },
-      },
-    })
-    .then((ret: any) => ret)
-    .catch((e : any) => {
-      if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code === 'P2002') {
-          console.log(
-            'There is a unique constraint violation, a Channel cannot be updated'
-          )
-        }
-      }
-      throw new BadRequestException(e.message);
-    });
-
   }
 
   async getChannel(channelName: string): Promise<Channel> {
@@ -93,8 +78,8 @@ export class ChannelService {
         name: channelName,
       },
       include: {
-        messages : true
-      }
+        messages: true,
+      },
     });
   }
 
@@ -103,22 +88,23 @@ export class ChannelService {
     data: Prisma.ChannelUpdateInput;
   }): Promise<Channel> {
     const { where, data } = params;
-    return this.prisma.channel.update({
+    return this.prisma.channel
+      .update({
         data,
         where,
       })
-        .then((ret: any) => ret)
-        .catch((e : any) => {
-          if (e instanceof Prisma.PrismaClientKnownRequestError) {
-            if (e.code === 'P2002') {
-              console.log(
-                'There is a unique constraint violation, a Channel cannot be updated'
-              )
-            }
+      .then((ret: any) => ret)
+      .catch((e: any) => {
+        if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          if (e.code === "P2002") {
+            console.log(
+              "There is a unique constraint violation, a Channel cannot be updated"
+            );
           }
-          throw e;
-        });
-    }
+        }
+        throw e;
+      });
+  }
 
   async deleteChannel(where: Prisma.ChannelWhereUniqueInput): Promise<Channel> {
     return this.prisma.channel.delete({
