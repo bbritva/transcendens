@@ -163,12 +163,12 @@ export class Gateway implements OnModuleInit {
       ownerId: user.id,
     });
     // notice users in channel about new client
-    this.server.to(channelName).emit("user connected", user.name);
+    this.server.to(channelName).emit("user connected", channel.name, user.name);
     console.log("emitted to channel", channelName, ": +", user.name);
 
     // send to user channel info
     let channelInfo: ChannelInfoDto = {
-      name: channelName,
+      name: channel.name,
       users: channel.guests,
       messages: channel.messages,
     };
