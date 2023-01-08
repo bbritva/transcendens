@@ -169,15 +169,9 @@ export class Gateway implements OnModuleInit {
     // send to user channel info
     let channelInfo: ChannelInfoDto = {
       name: channelName,
-      users: [],
-      history: "",
+      users: channel.guests,
+      messages: channel.messages,
     };
-    channel.guests.forEach((user) => {
-      channelInfo.users.push(user.name);
-    });
-    channel.messages.forEach((message) => {
-      channelInfo.history += message.toString;
-    });
     socket.emit("joined to channel", channelInfo);
     console.log("emitted to user", channelInfo);
 
