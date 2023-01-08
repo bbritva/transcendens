@@ -28,15 +28,25 @@ export function initSocket(
 
   socket.on("user connected", (channelName: string, userName: string) => {
     console.log("user Connected", channelName, userName);
-    //TODO user list should be updated in proper channel :(
-    //set the connected user online
-    setUsers((prev: userFromBackI[]) => [...prev, {name: userName}]);
+    setChannels((prev: channelFromBackI[]) => {
+      const channelInd = prev.findIndex((el) => el.name === channelName)
+      if (channelInd !== -1) {
+        const res = [...prev];
+        const userInd = res[channelInd].users.findIndex((el) => el.name === userName);
+        if (userInd === -1)
+          return prev;
+        res[channelInd].users[userInd].connected = true;
+        return res;
+      }
+      return prev;
+    });
   });
 
-  socket.on("joined to channel", (channel) => {
+  socket.on("joined to channel", (channel: channelFromBackI) => {
     setChannels((prev: channelFromBackI[]) => {
       const ind = prev.findIndex((el) => el.name === channel.name)
       const res = [...prev];
+      channel.connected = true;
       if (ind !== -1)
         res[ind] = channel;
       else

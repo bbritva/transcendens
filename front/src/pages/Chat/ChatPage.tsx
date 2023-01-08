@@ -22,7 +22,7 @@ export interface userFromBackI extends fromBackI{
 }
 
 export interface channelFromBackI extends fromBackI{
-  users: userFromBackI,
+  users: userFromBackI[],
 }
 
 export interface newMessageI {
