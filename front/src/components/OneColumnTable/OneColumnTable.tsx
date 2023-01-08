@@ -3,6 +3,7 @@ import { ReactElement, FC, useRef, CSSProperties, useState, ReactNode } from "re
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import { fromBackI, userFromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
+import AdjustOutlinedIcon from '@mui/icons-material/AdjustOutlined';
 
 
 const anchorStyle = {
@@ -60,15 +61,15 @@ const OneColumnTable: FC<{
                   <Button
                     key={data.name}
                     variant={selectedElement == data ? 'contained' : 'text'}
+                    startIcon={data.connected && < AdjustOutlinedIcon fontSize="small"/>}
                     onClick={() => {
-                      setElement(elements, data.id);
+                      setElement(data);
                       setOpenDialog(true);
                     }}
                     size='small'
                     sx={{
                       textAlign: 'left',
                       maxHeight: '2rem',
-                      ...chatStyles.textElipsis
                     }}
                   >
                     {data.name}

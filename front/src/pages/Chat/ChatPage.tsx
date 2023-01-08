@@ -69,7 +69,8 @@ const ChatPage: FC<any> = (): ReactElement => {
   const [value, setValue] = useState('');
   const [chosenChannel, setChosenChannel] = useState({} as channelFromBackI);
   const [loading, setLoading] = useState(false);
-  const {chosenUser, selectUser} = useChosenUserState();
+  // const {chosenUser, selectUser} = useChosenUserState();
+  const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const dispatch = useDispatch();
@@ -145,7 +146,7 @@ const ChatPage: FC<any> = (): ReactElement => {
         <ChatTable
           name={'Chat'}
           loading={loading}
-          messages={users.find((el) => el.id === chosenUser.id)?.messages || []}
+          messages={channels.find((el) => el.name === chosenChannel.name)?.messages || []}
           socket={socket}
           chatStyles={chatStyles}
           user={user.user}
@@ -168,10 +169,10 @@ const ChatPage: FC<any> = (): ReactElement => {
         <OneColumnTable
           name='Users'
           loading={loading}
-          elements={users}
+          elements={channels.find((el) => el.name === chosenChannel.name)?.users || []}
           chatStyles={chatStyles}
           selectedElement={chosenUser}
-          setElement={selectUser}
+          setElement={setChosenUser}
           dialogChildren={
             <ChooseDialogChildren
               dialogName='Users'
