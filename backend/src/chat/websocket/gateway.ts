@@ -1,5 +1,5 @@
-import { OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
+import { OnModuleInit } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
   MessageBody,
