@@ -112,19 +112,12 @@ export class Gateway implements OnModuleInit {
     try {
       const messageOut = await this.messageService.createMessage({
         channel: {
-          connect: { name: data.header.channel },
+          connect: { name: data.channelName },
         },
         authorName: client.username,
         text: data.text,
       });
-      this.server.to(data.header.channel).emit("onMessage", {
-        header: {
-          userName: messageOut.authorName,
-          channel: messageOut.channelName,
-          sentAt: messageOut.sentAt,
-        },
-        body: messageOut.text,
-      });
+      this.server.to(data.channelName).emit("onMessage", messageOut);
     } catch (e) {
       console.log("err", e.meta.cause);
     }
