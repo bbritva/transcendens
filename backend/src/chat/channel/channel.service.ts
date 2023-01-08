@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { ChannelInfoDto } from "./dto/channelInfo.dto";
 
 @Injectable()
 export class ChannelService {
@@ -36,9 +36,13 @@ export class ChannelService {
     return this.prisma.channel.findMany({ select: { name: true } });
   }
 
-  async connectToChannel(data: Prisma.ChannelCreateInput): Promise<Channel> {
+  async connectToChannel(data: Prisma.ChannelCreateInput): Promise<ChannelInfoDto> {
     return this.prisma.channel
       .upsert({
+        include: {
+          guests : true,
+          messages: true
+        },
         where: { name: data.name },
         // if channel exists
         update: {
@@ -61,13 +65,6 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2002") {
-            console.log(
-              "There is a unique constraint violation, a Channel cannot be updated"
-            );
-          }
-        }
         throw new BadRequestException(e.message);
       });
   }

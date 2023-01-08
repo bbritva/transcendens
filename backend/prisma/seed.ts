@@ -34,7 +34,7 @@ async function main() {
   console.log(mainChannel);
   users.forEach(async (user) => {
     await prisma.channel.update({
-      where: { name: "main" },
+      where: { name: mainChannel.name },
       data: {
         guests: {
           connect: {

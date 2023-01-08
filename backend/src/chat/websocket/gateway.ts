@@ -14,6 +14,7 @@ import {
 } from "src/chat/message/dto/create-message.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { ClientDTO } from "./client.dto";
+import { ChannelInfoDto } from "./channel.dto";
 import { ConnectedClientInfo } from "./connectedClientInfo";
 import { DecodedTokenDTO } from "./decodedToken.dto";
 import { UserService } from "src/user/user.service";
@@ -33,10 +34,10 @@ export class Gateway implements OnModuleInit {
     private messageService: MessageService,
     private jwtService: JwtService,
     private userService: UserService,
-    private channelService : ChannelService
+    private channelService: ChannelService
   ) {}
 
-  connections: Map<string, ConnectedClientInfo> = new Map()
+  connections: Map<string, ConnectedClientInfo> = new Map();
 
   @WebSocketServer()
   server: Server;
@@ -66,13 +67,13 @@ export class Gateway implements OnModuleInit {
         });
         socket.on("disconnect", async () => {
           console.log("disconnected", socket.id);
-          this.connections.delete(socket.id)
+          this.connections.delete(socket.id);
         });
 
         //send to new user all channels
         let channels = await this.channelService.ChannelList();
         let channelList = [];
-        channels.forEach((value: {name : string}) => {
+        channels.forEach((value: { name: string }) => {
           channelList.push({
             channelName: value.name,
           });
@@ -80,7 +81,7 @@ export class Gateway implements OnModuleInit {
         socket.emit("channels", channelList);
 
         //connect user to his channels
-
+        this.connectUserToChannels(socket);
       });
     } else this.server.close();
   }
@@ -131,5 +132,51 @@ export class Gateway implements OnModuleInit {
   private getUserNameFromJWT(JWTtoken: string): string {
     const decodedToken = this.jwtService.decode(JWTtoken) as DecodedTokenDTO;
     return decodedToken.username;
+  }
+
+  private async connectUserToChannels(socket: Socket) {
+    const channels = await this.userService.getChannels(
+      this.connections.get(socket.id).username
+      // "Bob"
+    );
+    console.log(channels);
+
+    channels.forEach((channelName) => {
+      this.connectToChannel(socket, channelName);
+    });
+  }
+
+  private async connectToChannel(socket: Socket, channelName: string) {
+    console.log(channelName);
+
+    const user = await this.userService.getUserByName(
+      this.connections.get(socket.id).username
+      // "Bob"
+    );
+    const channel = await this.channelService.connectToChannel({
+      name: channelName,
+      ownerId: user.id,
+    });
+    // notice users in channel about new client
+    this.server.to(channelName).emit("user connected", user.name);
+    console.log("emitted to channel", channelName, ":", user.name);
+
+    // send to user channel info
+    let channelInfo: ChannelInfoDto = {
+      name: channelName,
+      users: [],
+      history: "",
+    };
+    channel.guests.forEach((user) => {
+      channelInfo.users.push(user.name);
+    });
+    channel.messages.forEach((message) => {
+      channelInfo.history += message.toString;
+    });
+    socket.emit("joined to channel", channelInfo);
+    console.log("emitted to user", channelInfo);
+
+    socket.join(channelName);
+    console.log("user", user.name, "connected to", channelName, "room");
   }
 }
