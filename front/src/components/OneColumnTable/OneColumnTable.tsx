@@ -1,7 +1,7 @@
 import { Button, Grid, Paper, Typography, useTheme } from "@mui/material";
 import { ReactElement, FC, useRef, CSSProperties, useState, ReactNode } from "react";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
-import { userFromBackI } from "src/pages/Chat/ChatPage";
+import { fromBackI, userFromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
 
 
@@ -13,7 +13,7 @@ const anchorStyle = {
 const OneColumnTable: FC<{
   name: string,
   loading: boolean,
-  elements: userFromBackI[],
+  elements: fromBackI[],
   chatStyles: chatStylesI,
   selectedElement: {},
   setElement: Function,
@@ -56,12 +56,13 @@ const OneColumnTable: FC<{
             loading
               ? 'LOADING'
               : elements.map((data) => {
+                console.log("elements map", data)
                 return (
                   <Button
-                    key={data.username}
+                    key={data.name}
                     variant={selectedElement == data ? 'contained' : 'text'}
                     onClick={() => {
-                      setElement(elements, data.userID);
+                      setElement(elements, data.id);
                       setOpenDialog(true);
                     }}
                     size='small'
@@ -71,7 +72,7 @@ const OneColumnTable: FC<{
                       ...chatStyles.textElipsis
                     }}
                   >
-                    {data.username}
+                    {data.name}
                   </Button>
                 )
               })
