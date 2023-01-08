@@ -64,6 +64,7 @@ export class Gateway implements OnModuleInit {
         //discinnection handler
         socket.on("disconnecting", async () => {
           console.log("disconnecting", socket.id);
+          this.disconnectUserFromChannels(socket, this.connections.get(socket.id).username);
         });
         socket.on("disconnect", async () => {
           console.log("disconnected", socket.id);
@@ -107,26 +108,34 @@ export class Gateway implements OnModuleInit {
     console.log(data);
     console.log(this.connections);
 
-    // console.log(client);
-    // try {
-    //   const messageOut = await this.messageService.createMessage({
-    //     channel: {
-    //       connect: { name: messageIn.header.channel },
-    //     },
-    //     authorName: socket.username,
-    //     text: messageIn.text,
-    //   });
-    //   this.server.emit('onMessage', {
-    //     header: {
-    //       userName: messageOut.authorName,
-    //       channel: messageOut.channelName,
-    //       sentAt: messageOut.sentAt,
-    //     },
-    //     body: messageOut.text,
-    //   });
-    // } catch (e) {
-    //   console.log("err", e.meta.cause);
-    // }
+    console.log(client);
+    try {
+      const messageOut = await this.messageService.createMessage({
+        channel: {
+          connect: { name: data.header.channel },
+        },
+        authorName: client.username,
+        text: data.text,
+      });
+      this.server.to(data.header.channel).emit("onMessage", {
+        header: {
+          userName: messageOut.authorName,
+          channel: messageOut.channelName,
+          sentAt: messageOut.sentAt,
+        },
+        body: messageOut.text,
+      });
+    } catch (e) {
+      console.log("err", e.meta.cause);
+    }
+  }
+
+  @SubscribeMessage("connect to channel")
+  async onConnectToChannel(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: ChannelInfoDto
+  ) {
+    this.connectToChannel(socket, data.name);
   }
 
   private getUserNameFromJWT(JWTtoken: string): string {
@@ -139,16 +148,12 @@ export class Gateway implements OnModuleInit {
       this.connections.get(socket.id).username
       // "Bob"
     );
-    console.log(channels);
-
     channels.forEach((channelName) => {
       this.connectToChannel(socket, channelName);
     });
   }
 
   private async connectToChannel(socket: Socket, channelName: string) {
-    console.log(channelName);
-
     const user = await this.userService.getUserByName(
       this.connections.get(socket.id).username
       // "Bob"
@@ -159,7 +164,7 @@ export class Gateway implements OnModuleInit {
     });
     // notice users in channel about new client
     this.server.to(channelName).emit("user connected", user.name);
-    console.log("emitted to channel", channelName, ":", user.name);
+    console.log("emitted to channel", channelName, ": +", user.name);
 
     // send to user channel info
     let channelInfo: ChannelInfoDto = {
@@ -178,5 +183,22 @@ export class Gateway implements OnModuleInit {
 
     socket.join(channelName);
     console.log("user", user.name, "connected to", channelName, "room");
+  }
+
+  private async disconnectUserFromChannels(socket: Socket, userName : string) {
+    (
+      await this.userService.getChannels(
+        userName
+        // "Bob"
+      )
+    ).forEach((channelName) => {
+      this.disconnectFromChannel(socket, channelName, userName);
+    });
+  }
+
+  private async disconnectFromChannel(socket: Socket, channelName: string, userName: string) {
+    // notice users in channel about client disconnected
+    this.server.to(channelName).emit("user disconnected", userName);
+    console.log("emitted to channel", channelName, ": -", userName);
   }
 }
