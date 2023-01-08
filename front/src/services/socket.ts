@@ -22,14 +22,6 @@ export function initSocket(
     }
   });
 
-  socket.on("users", (users: userFromBackI[]) => {
-    users.splice(users.findIndex(
-      (el) => {
-        return el.name == user?.name}
-      ));
-    setUsers(users);
-  });
-
   socket.on("channels", (channels: channelFromBackI[]) => {
     setChannels(channels);
   });
@@ -41,11 +33,16 @@ export function initSocket(
     setUsers((prev: userFromBackI[]) => [...prev, {name: userName}]);
   });
 
-  socket.on("joined to channel", (channel, user) => {
-    console.log("user Connected", channel, user);
-    //TODO user list should be updated in proper channel :(
-    //set the connected user online
-    setUsers((prev: userFromBackI[]) => [...prev, {name: user}]);
+  socket.on("joined to channel", (channel) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === channel.name)
+      const res = [...prev];
+      if (ind !== -1)
+        res[ind] = channel;
+      else
+        res.push(channel);
+      return res;
+    });
   });
 
   socket.on("private message", (message: newMessageI) => {
@@ -67,9 +64,9 @@ export function initSocket(
       }
     });
   });
-  socket.onAny((event, ...args) => {
-    console.log(event, args);
-  });
+  // socket.onAny((event, ...args) => {
+  //   console.log(event, args);
+  // });
 }
 
 export default socket

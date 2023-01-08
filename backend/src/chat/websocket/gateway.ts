@@ -76,7 +76,7 @@ export class Gateway implements OnModuleInit {
         let channelList = [];
         channels.forEach((value: { name: string }) => {
           channelList.push({
-            channelName: value.name,
+            name: value.name,
           });
         });
         socket.emit("channels", channelList);

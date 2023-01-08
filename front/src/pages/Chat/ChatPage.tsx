@@ -14,11 +14,11 @@ export interface fromBackI{
   name: string,
   id: string,
   hasNewMessages: boolean,
-  messages: newMessageI[]
+  messages: newMessageI[],
+  connected: boolean,
 }
 
 export interface userFromBackI extends fromBackI{
-  connected: boolean,
 }
 
 export interface channelFromBackI extends fromBackI{
@@ -74,13 +74,15 @@ const ChatPage: FC<any> = (): ReactElement => {
   const { user } = getState() as RootState;
   const dispatch = useDispatch();
   const theme = useTheme();
+  let flag = true;
 
   useEffect(() => {
-    if (userName) {
+    if (userName && flag) {
       const username = userName;
       socket.auth = { username };
       socket.connect();
       initSocket(user.user, users, setUsers, setChannels,setUserMessages, dispatch);
+      flag = false;
     }
     return () => {
       socket.disconnect()

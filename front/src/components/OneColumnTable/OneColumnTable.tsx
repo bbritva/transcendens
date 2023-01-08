@@ -56,7 +56,6 @@ const OneColumnTable: FC<{
             loading
               ? 'LOADING'
               : elements.map((data) => {
-                console.log("elements map", data)
                 return (
                   <Button
                     key={data.name}
