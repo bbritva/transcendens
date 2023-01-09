@@ -26,10 +26,11 @@ export interface channelFromBackI extends fromBackI{
 }
 
 export interface newMessageI {
-  to: string,
-  from: string
-  content: string,
-  fromSelf: boolean,
+  id: number | null,
+  channelName: string,
+  sentAt: string | null,
+  authorName: string,
+  text: string,
 }
 
 function useChosenUserState(){
@@ -43,22 +44,22 @@ function useChosenUserState(){
   return ({chosenUser, selectUser});
 }
 
-function setUserMessages(setUsers: Function, newMessage: newMessageI){
-  setUsers((prev: userFromBackI[]) => {
-    prev.forEach((user) => {
-      console.log("wrong", user.id, newMessage.from)
-      if (user.id === newMessage?.to || user.id === newMessage.from) {
-        console.log("RIGHT from to", newMessage)
-        user.messages = user?.messages?.length
-        ? [ ...user.messages, newMessage ]
-        : [ newMessage ]
-        user.hasNewMessages = user.id === newMessage.from;
-        return ;
-      }
-    });
-    return [...prev];
-  });
-};
+// function setUserMessages(setUsers: Function, newMessage: newMessageI){
+//   setUsers((prev: userFromBackI[]) => {
+//     prev.forEach((user) => {
+//       console.log("wrong", user.id, newMessage.from)
+//       if (user.id === newMessage?.to || user.id === newMessage.from) {
+//         console.log("RIGHT from to", newMessage)
+//         user.messages = user?.messages?.length
+//         ? [ ...user.messages, newMessage ]
+//         : [ newMessage ]
+//         user.hasNewMessages = user.id === newMessage.from;
+//         return ;
+//       }
+//     });
+//     return [...prev];
+//   });
+// };
 
 
 const ChatPage: FC<any> = (): ReactElement => {
@@ -71,6 +72,7 @@ const ChatPage: FC<any> = (): ReactElement => {
   const [loading, setLoading] = useState(false);
   // const {chosenUser, selectUser} = useChosenUserState();
   const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
+  const [destination, setDestination] = useState<[string, fromBackI]>(['', {} as fromBackI]);
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const dispatch = useDispatch();
@@ -82,7 +84,7 @@ const ChatPage: FC<any> = (): ReactElement => {
       const username = userName;
       socket.auth = { username };
       socket.connect();
-      initSocket(user.user, users, setUsers, setChannels,setUserMessages, dispatch);
+      initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
       flag = false;
     }
     return () => {
@@ -90,27 +92,44 @@ const ChatPage: FC<any> = (): ReactElement => {
     };
   }, [userName]);
 
+  useEffect(() => {
+    const [destTaper, destObject] = destination;
+    if (destTaper === 'Channels')
+      setChosenChannel(destObject as channelFromBackI);
+    else if (destTaper === 'Users'){
+      const privateChannel = {} as channelFromBackI;
+      privateChannel.name = `${destObject.name} ${userName} pm`;
+      privateChannel.users = [
+        {name: destObject.name} as userFromBackI,
+        {name: userName} as userFromBackI,
+      ];
+      socket.emit('connect to channel', { name:privateChannel });
+      setChosenChannel(privateChannel)
+    }
+  }, [destination]);
+
   chatStyles
     .scrollStyle["&::-webkit-scrollbar-thumb"]
     .backgroundColor = theme.palette.primary.light;
 
   const onSubmit = () => {
-    console.log('submit', chosenUser, value);
-    if ( !chosenUser.id ){
+    const [taper, destinationChannel] = destination;
+    if ( !destinationChannel.name ){
       setValue('');
       return ;
     }
     const newMessage: newMessageI = {
-      to: chosenUser.id,
-      from: '',
-      content: value,
-      fromSelf: true
+      id: null,
+      channelName: destinationChannel.name,
+      sentAt: null,
+      authorName: userName,
+      text: value,
     };
     socket.emit(
-      'private message',
+      'newMessage',
       newMessage
     );
-    setUserMessages(setUsers, newMessage);
+    // setUserMessages(setUsers, newMessage);
     setValue('');
   };
   socket.onAny((event, ...args) => {
@@ -126,18 +145,22 @@ const ChatPage: FC<any> = (): ReactElement => {
     >
       <Grid item xs={2} height={'100%'}>
         <OneColumnTable
-          name='Channels'
+          taper='Channels'
+          user={user.user}
           loading={loading}
           elements={channels}
           chatStyles={chatStyles}
           selectedElement={chosenChannel}
-          setElement={setChosenChannel}
+          setElement={(channel: channelFromBackI) => {
+            setDestination(['Channels', channel]);
+          }}
           dialogChildren={
             <ChooseDialogChildren
               dialogName='Channels'
               user={user.user}
               element={chosenChannel}
               channel={chosenChannel}
+              setDestination={setDestination}
             />
           }
         />
@@ -167,7 +190,8 @@ const ChatPage: FC<any> = (): ReactElement => {
       </Grid>
       <Grid item xs={2} height={'100%'}>
         <OneColumnTable
-          name='Users'
+          taper='Users'
+          user={user.user}
           loading={loading}
           elements={channels.find((el) => el.name === chosenChannel.name)?.users || []}
           chatStyles={chatStyles}
@@ -179,6 +203,7 @@ const ChatPage: FC<any> = (): ReactElement => {
               user={user.user}
               element={chosenUser}
               channel={chosenChannel}
+              setDestination={setDestination}
             />
           }
         />

@@ -104,11 +104,11 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() client: ClientDTO,
     @MessageBody() data: CreateMessageDTO
   ) {
-    console.log(this.connections[client.id]);
-    console.log(data);
-    console.log(this.connections);
+    // console.log(this.connections[client.id]);
+    console.log('HELLOWORLD', data);
+    // console.log(this.connections);
 
-    console.log(client);
+    // console.log(client);
     try {
       const messageOut = await this.messageService.createMessage({
         channel: {

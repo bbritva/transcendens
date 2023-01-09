@@ -4,6 +4,7 @@ import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import { fromBackI, userFromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
 import AdjustOutlinedIcon from '@mui/icons-material/AdjustOutlined';
+import { userI } from "src/store/userSlice";
 
 
 const anchorStyle = {
@@ -12,21 +13,23 @@ const anchorStyle = {
 };
 
 const OneColumnTable: FC<{
-  name: string,
+  taper: string,
+  user: userI | null,
   loading: boolean,
   elements: fromBackI[],
   chatStyles: chatStylesI,
   selectedElement: {},
   setElement: Function,
-  dialogChildren: ReactNode
+  dialogChildren: ReactNode,
 }> = ({
-  name,
+  taper,
+  user,
   loading,
   elements,
   chatStyles,
   selectedElement,
   setElement,
-  dialogChildren
+  dialogChildren,
 }): ReactElement => {
     const theme = useTheme();
     const tableRef = useRef(null);
@@ -34,9 +37,10 @@ const OneColumnTable: FC<{
     return (
       <Grid container
         component={Paper}
+        display="flex"
+        flexDirection={'column'}
         sx={{
-          display: "flex",
-          justifyContent: "center",
+          alignContent:"center",
           height: '100%',
           ...chatStyles.borderStyle,
         }}>
@@ -45,10 +49,12 @@ const OneColumnTable: FC<{
             ...chatStyles.textElipsis
           }}
         >
-          {name}
+          {taper}
         </Typography>
         <Grid
           ref={tableRef}
+          display="flex"
+          flexDirection={'column'}
           sx={{
             height: '90%',
             ...chatStyles.scrollStyle
@@ -57,8 +63,9 @@ const OneColumnTable: FC<{
             loading
               ? 'LOADING'
               : elements.map((data) => {
-                return (
-                  <Button
+                return ( taper === 'Users' && user?.name === data.name
+                ? <></>
+                : <Button
                     key={data.name}
                     variant={selectedElement == data ? 'contained' : 'text'}
                     startIcon={data.connected && < AdjustOutlinedIcon fontSize="small"/>}
