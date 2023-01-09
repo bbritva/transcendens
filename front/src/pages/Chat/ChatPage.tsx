@@ -26,10 +26,11 @@ export interface channelFromBackI extends fromBackI{
 }
 
 export interface newMessageI {
-  to: string,
-  from: string
-  content: string,
-  fromSelf: boolean,
+  id: number | null,
+  channelName: string,
+  sentAt: Date | null,
+  authorName: string,
+  text: string,
 }
 
 function useChosenUserState(){
@@ -43,22 +44,22 @@ function useChosenUserState(){
   return ({chosenUser, selectUser});
 }
 
-function setUserMessages(setUsers: Function, newMessage: newMessageI){
-  setUsers((prev: userFromBackI[]) => {
-    prev.forEach((user) => {
-      console.log("wrong", user.id, newMessage.from)
-      if (user.id === newMessage?.to || user.id === newMessage.from) {
-        console.log("RIGHT from to", newMessage)
-        user.messages = user?.messages?.length
-        ? [ ...user.messages, newMessage ]
-        : [ newMessage ]
-        user.hasNewMessages = user.id === newMessage.from;
-        return ;
-      }
-    });
-    return [...prev];
-  });
-};
+// function setUserMessages(setUsers: Function, newMessage: newMessageI){
+//   setUsers((prev: userFromBackI[]) => {
+//     prev.forEach((user) => {
+//       console.log("wrong", user.id, newMessage.from)
+//       if (user.id === newMessage?.to || user.id === newMessage.from) {
+//         console.log("RIGHT from to", newMessage)
+//         user.messages = user?.messages?.length
+//         ? [ ...user.messages, newMessage ]
+//         : [ newMessage ]
+//         user.hasNewMessages = user.id === newMessage.from;
+//         return ;
+//       }
+//     });
+//     return [...prev];
+//   });
+// };
 
 
 const ChatPage: FC<any> = (): ReactElement => {
@@ -82,7 +83,7 @@ const ChatPage: FC<any> = (): ReactElement => {
       const username = userName;
       socket.auth = { username };
       socket.connect();
-      initSocket(user.user, users, setUsers, setChannels,setUserMessages, dispatch);
+      initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
       flag = false;
     }
     return () => {
@@ -95,22 +96,22 @@ const ChatPage: FC<any> = (): ReactElement => {
     .backgroundColor = theme.palette.primary.light;
 
   const onSubmit = () => {
-    console.log('submit', chosenUser, value);
-    if ( !chosenUser.id ){
+    if ( !chosenChannel.name ){
       setValue('');
       return ;
     }
     const newMessage: newMessageI = {
-      to: chosenUser.id,
-      from: '',
-      content: value,
-      fromSelf: true
+      id: null,
+      channelName: chosenChannel.name,
+      sentAt: null,
+      authorName: userName,
+      text: value,
     };
     socket.emit(
-      'private message',
+      'newMessage',
       newMessage
     );
-    setUserMessages(setUsers, newMessage);
+    // setUserMessages(setUsers, newMessage);
     setValue('');
   };
   socket.onAny((event, ...args) => {

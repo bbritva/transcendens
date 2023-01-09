@@ -50,11 +50,11 @@ const ChatTable: FC<{
         messages.map((data) => {
             return (
               <Grid item xs={12}
-                key={crypto.randomUUID()}
+                key={data.id}
               >
                 <Box
                   sx={{
-                    float: data.fromSelf
+                    float: data.authorName === user?.name
                       ? "right"
                       : "left",
                     padding: "2%",
@@ -62,20 +62,20 @@ const ChatTable: FC<{
                     maxWidth: "75%",
                     ...chatStyles.borderStyle,
                     borderRadius: "1rem",
-                    backgroundColor: data.fromSelf
+                    backgroundColor: data.authorName === user?.name
                       ? alpha(theme.palette.secondary.light, 0.25)
                       : alpha(theme.palette.primary.light, 0.25)
                   }}
                 >
                   <Typography
-                    children={data.content}
+                    children={data.text}
                     variant="body2"
                     sx={{
                       overflowWrap: "anywhere",
                     }}
                   ></Typography>
                   <Typography
-                    children={'to ' + data.to}
+                    children={'at ' + data.sentAt?.getDate}
                     variant="subtitle2"
                   ></Typography>
                 </Box>
