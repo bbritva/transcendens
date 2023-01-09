@@ -79,7 +79,7 @@ export class Gateway implements OnModuleInit {
             name: value.name,
           });
         });
-        socket.emit("channels", channelList);
+        this.server.to(socket.id).emit("channels", channelList);
 
         //connect user to his channels
         this.connectUserToChannels(socket);
@@ -165,7 +165,7 @@ export class Gateway implements OnModuleInit {
       users: channel.guests,
       messages: channel.messages,
     };
-    socket.emit("joined to channel", channelInfo);
+    this.server.to(socket.id).emit("joined to channel", channelInfo);
     console.log("emitted to user", channelInfo);
 
     socket.join(channelName);
