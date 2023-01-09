@@ -1,5 +1,5 @@
-import { OnModuleInit } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { OnModuleInit } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import {
   ConnectedSocket,
   MessageBody,
@@ -14,11 +14,13 @@ import {
 } from "src/chat/message/dto/create-message.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { ClientDTO } from "./client.dto";
-import { ChannelInfoDto } from "./channel.dto";
+import { ChannelInfoDtoIn, ChannelInfoDtoOut } from "./channel.dto";
 import { ConnectedClientInfo } from "./connectedClientInfo";
 import { DecodedTokenDTO } from "./decodedToken.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "../channel/channel.service";
+import { UserEntity } from "src/user/entities/user.entity";
+import { User } from "@prisma/client";
 
 interface newSocket extends Socket {
   username: string;
@@ -61,10 +63,15 @@ export class Gateway implements OnModuleInit {
           username: socket.handshake.auth.username,
         });
 
+        // user status change
+
         //discinnection handler
         socket.on("disconnecting", async () => {
           console.log("disconnecting", socket.id);
-          this.disconnectUserFromChannels(socket, this.connections.get(socket.id).username);
+          this.disconnectUserFromChannels(
+            socket,
+            this.connections.get(socket.id).username
+          );
         });
         socket.on("disconnect", async () => {
           console.log("disconnected", socket.id);
@@ -105,7 +112,7 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: CreateMessageDTO
   ) {
     // console.log(this.connections[client.id]);
-    console.log('HELLOWORLD', data);
+    console.log("HELLOWORLD", data);
     // console.log(this.connections);
 
     // console.log(client);
@@ -126,9 +133,9 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("connect to channel")
   async onConnectToChannel(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: ChannelInfoDto
+    @MessageBody() data: ChannelInfoDtoIn
   ) {
-    this.connectToChannel(socket, data.name);
+    this.connectToChannel(socket, data);
   }
 
   private getUserNameFromJWT(JWTtoken: string): string {
@@ -141,38 +148,49 @@ export class Gateway implements OnModuleInit {
       this.connections.get(socket.id).username
       // "Bob"
     );
+   
     channels.forEach((channelName) => {
-      this.connectToChannel(socket, channelName);
+      const channelInfoDtoIn : ChannelInfoDtoIn = {
+        name: channelName,
+        users : [this.connections.get(socket.id).username],
+      }
+      this.connectToChannel(socket, channelInfoDtoIn);
     });
   }
 
-  private async connectToChannel(socket: Socket, channelName: string) {
+  private async connectToChannel(socket: Socket, channelIn: ChannelInfoDtoIn) {
     const user = await this.userService.getUserByName(
       this.connections.get(socket.id).username
       // "Bob"
     );
-    const channel = await this.channelService.connectToChannel({
-      name: channelName,
-      ownerId: user.id,
+    console.log(channelIn);
+
+    channelIn.users.forEach(async (userName) => {
+      const channel = await this.channelService.connectToChannel({
+        name: channelIn.name,
+        ownerId: user.id,
+      });
+      // notice users in channel about new client
+      this.server
+        .to(channelIn.name)
+        .emit("user connected", channel.name, userName);
+      console.log("emitted to channel", channelIn.name, ": +", userName);
+
+      // send to user channel info
+      let channelInfo: ChannelInfoDtoOut = {
+        name: channel.name,
+        users: channel.guests,
+        messages: channel.messages,
+      };
+      this.server.to(socket.id).emit("joined to channel", channelInfo);
+      console.log("emitted to user", channelInfo);
+
+      socket.join(channelIn.name);
+      console.log("user", userName, "connected to", channelIn.name, "room");
     });
-    // notice users in channel about new client
-    this.server.to(channelName).emit("user connected", channel.name, user.name);
-    console.log("emitted to channel", channelName, ": +", user.name);
-
-    // send to user channel info
-    let channelInfo: ChannelInfoDto = {
-      name: channel.name,
-      users: channel.guests,
-      messages: channel.messages,
-    };
-    this.server.to(socket.id).emit("joined to channel", channelInfo);
-    console.log("emitted to user", channelInfo);
-
-    socket.join(channelName);
-    console.log("user", user.name, "connected to", channelName, "room");
   }
 
-  private async disconnectUserFromChannels(socket: Socket, userName : string) {
+  private async disconnectUserFromChannels(socket: Socket, userName: string) {
     (
       await this.userService.getChannels(
         userName
@@ -183,7 +201,11 @@ export class Gateway implements OnModuleInit {
     });
   }
 
-  private async disconnectFromChannel(socket: Socket, channelName: string, userName: string) {
+  private async disconnectFromChannel(
+    socket: Socket,
+    channelName: string,
+    userName: string
+  ) {
     // notice users in channel about client disconnected
     this.server.to(channelName).emit("user disconnected", userName);
     console.log("emitted to channel", channelName, ": -", userName);

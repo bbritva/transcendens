@@ -17,6 +17,8 @@ async function main() {
       name: "Bob",
     },
   });
+  await prisma.message.deleteMany()
+  await prisma.channel.deleteMany()
   const mainChannel = await prisma.channel.upsert({
     where: { name: "main" },
     update: {},
