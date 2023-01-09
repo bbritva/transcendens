@@ -129,7 +129,8 @@ const ChatPage: FC<any> = (): ReactElement => {
     >
       <Grid item xs={2} height={'100%'}>
         <OneColumnTable
-          name='Channels'
+          taper='Channels'
+          user={user.user}
           loading={loading}
           elements={channels}
           chatStyles={chatStyles}
@@ -173,7 +174,8 @@ const ChatPage: FC<any> = (): ReactElement => {
       </Grid>
       <Grid item xs={2} height={'100%'}>
         <OneColumnTable
-          name='Users'
+          taper='Users'
+          user={user.user}
           loading={loading}
           elements={channels.find((el) => el.name === chosenChannel.name)?.users || []}
           chatStyles={chatStyles}
