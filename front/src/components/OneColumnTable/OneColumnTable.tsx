@@ -34,9 +34,10 @@ const OneColumnTable: FC<{
     return (
       <Grid container
         component={Paper}
+        display="flex"
+        flexDirection={'column'}
         sx={{
-          display: "flex",
-          justifyContent: "center",
+          alignContent:"center",
           height: '100%',
           ...chatStyles.borderStyle,
         }}>
@@ -49,6 +50,8 @@ const OneColumnTable: FC<{
         </Typography>
         <Grid
           ref={tableRef}
+          display="flex"
+          flexDirection={'column'}
           sx={{
             height: '90%',
             ...chatStyles.scrollStyle
