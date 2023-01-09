@@ -1,12 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 async function main() {
+  await prisma.user.deleteMany()
   const alice = await prisma.user.upsert({
     where: { id: 123 },
     update: {},
     create: {
       id: 123,
       name: "Alice",
+      status: "OFFLINE"
     },
   });
   const bob = await prisma.user.upsert({
@@ -15,6 +17,7 @@ async function main() {
     create: {
       id: 321,
       name: "Bob",
+      status: "OFFLINE"
     },
   });
   await prisma.message.deleteMany()

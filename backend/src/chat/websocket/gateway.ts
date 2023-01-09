@@ -64,7 +64,7 @@ export class Gateway implements OnModuleInit {
         // user status change
         await this.userService.updateUser({
           where: {
-            name: socket.handshake.auth.username
+            name: this.connections.get(socket.id).username
           },
           data: {
             status : "ONLINE"
@@ -167,20 +167,21 @@ export class Gateway implements OnModuleInit {
     channels.forEach((channelName) => {
       const channelInfoDtoIn : ChannelInfoDtoIn = {
         name: channelName,
-        users : [this.connections.get(socket.id).username],
+        users : [{name:this.connections.get(socket.id).username}],
       }
       this.connectToChannel(socket, channelInfoDtoIn);
     });
   }
 
   private async connectToChannel(socket: Socket, channelIn: ChannelInfoDtoIn) {
-    const user = await this.userService.getUserByName(
-      this.connections.get(socket.id).username
-      // "Bob"
-    );
+
     console.log(channelIn);
 
     channelIn.users.forEach(async (userName) => {
+      const user = await this.userService.getUserByName(
+        userName.name
+        // "Bob"
+      );
       const channel = await this.channelService.connectToChannel({
         name: channelIn.name,
         ownerId: user.id,

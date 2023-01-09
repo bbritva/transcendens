@@ -11,5 +11,5 @@ export interface ChannelInfoDtoOut extends ChannelInfoDto {
 }
 
 export interface ChannelInfoDtoIn extends ChannelInfoDto {
-  users: string[];
+  users: {name: string}[];
 }
