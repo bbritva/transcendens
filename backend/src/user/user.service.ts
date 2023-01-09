@@ -47,6 +47,9 @@ export class UserService {
       where: {
         name: userName,
       },
+      include: {
+        channels : true
+      }
     });
   }
 
