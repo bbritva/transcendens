@@ -69,14 +69,13 @@ const ChatTable: FC<{
                 >
                   <Typography
                     children={data.text}
-                    variant="body2"
                     sx={{
                       overflowWrap: "anywhere",
                     }}
                   ></Typography>
                   <Typography
-                    children={'at ' + data.sentAt?.getDate}
-                    variant="subtitle2"
+                    children={`${data.authorName} at ` + new Date(data.sentAt || '').toLocaleString()}
+                    fontSize={'0.6rem'}
                   ></Typography>
                 </Box>
               </Grid>
