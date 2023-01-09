@@ -19,8 +19,6 @@ import { ConnectedClientInfo } from "./connectedClientInfo";
 import { DecodedTokenDTO } from "./decodedToken.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "../channel/channel.service";
-import { UserEntity } from "src/user/entities/user.entity";
-import { User } from "@prisma/client";
 
 interface newSocket extends Socket {
   username: string;
@@ -64,6 +62,14 @@ export class Gateway implements OnModuleInit {
         });
 
         // user status change
+        await this.userService.updateUser({
+          where: {
+            name: socket.handshake.auth.username
+          },
+          data: {
+            status : "ONLINE"
+          }
+        })
 
         //discinnection handler
         socket.on("disconnecting", async () => {
@@ -72,10 +78,19 @@ export class Gateway implements OnModuleInit {
             socket,
             this.connections.get(socket.id).username
           );
+          const user = await this.userService.updateUser({
+            where: {
+              name: socket.handshake.auth.username
+            },
+            data: {
+              status : "OFFLINE"
+            }
+          })
+          console.log("set to offline", user);
+          this.connections.delete(socket.id);
         });
         socket.on("disconnect", async () => {
           console.log("disconnected", socket.id);
-          this.connections.delete(socket.id);
         });
 
         //send to new user all channels
@@ -138,9 +153,9 @@ export class Gateway implements OnModuleInit {
     this.connectToChannel(socket, data);
   }
 
-  private getUserNameFromJWT(JWTtoken: string): string {
+  private getUserNameFromJWT(JWTtoken: string): DecodedTokenDTO {
     const decodedToken = this.jwtService.decode(JWTtoken) as DecodedTokenDTO;
-    return decodedToken.username;
+    return decodedToken;
   }
 
   private async connectUserToChannels(socket: Socket) {
