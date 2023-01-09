@@ -28,7 +28,7 @@ export interface channelFromBackI extends fromBackI{
 export interface newMessageI {
   id: number | null,
   channelName: string,
-  sentAt: Date | null,
+  sentAt: string | null,
   authorName: string,
   text: string,
 }
