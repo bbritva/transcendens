@@ -55,8 +55,15 @@ export function initSocket(
     });
   });
 
-  socket.on("private message", (message: newMessageI) => {
-    setUserMessages(setUsers, message);
+  socket.on("onMessage", (message: newMessageI) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === message.channelName)
+      const res = [...prev];
+      if (ind !== -1){
+        res[ind].messages.push(message);
+      }
+      return res;
+    });
   });
 
   socket.on("connect", () => {
