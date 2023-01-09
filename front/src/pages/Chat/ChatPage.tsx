@@ -97,9 +97,14 @@ const ChatPage: FC<any> = (): ReactElement => {
     if (destTaper === 'Channels')
       setChosenChannel(destObject as channelFromBackI);
     else if (destTaper === 'Users'){
-      const privateChannel = `${destObject.name} ${userName} pm`;
+      const privateChannel = {} as channelFromBackI;
+      privateChannel.name = `${destObject.name} ${userName} pm`;
+      privateChannel.users = [
+        {name: destObject.name} as userFromBackI,
+        {name: userName} as userFromBackI,
+      ];
       socket.emit('connect to channel', { name:privateChannel });
-      setChosenChannel({name: privateChannel} as channelFromBackI)
+      setChosenChannel(privateChannel)
     }
   }, [destination]);
 
