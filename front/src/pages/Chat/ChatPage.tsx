@@ -72,6 +72,7 @@ const ChatPage: FC<any> = (): ReactElement => {
   const [loading, setLoading] = useState(false);
   // const {chosenUser, selectUser} = useChosenUserState();
   const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
+  const [destination, setDestination] = useState<[string, fromBackI]>(['', {} as fromBackI]);
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const dispatch = useDispatch();
@@ -96,13 +97,14 @@ const ChatPage: FC<any> = (): ReactElement => {
     .backgroundColor = theme.palette.primary.light;
 
   const onSubmit = () => {
-    if ( !chosenChannel.name ){
+    const [taper, destinationChannel] = destination;
+    if ( !destinationChannel.name ){
       setValue('');
       return ;
     }
     const newMessage: newMessageI = {
       id: null,
-      channelName: chosenChannel.name,
+      channelName: destinationChannel.name,
       sentAt: null,
       authorName: userName,
       text: value,
@@ -132,7 +134,10 @@ const ChatPage: FC<any> = (): ReactElement => {
           elements={channels}
           chatStyles={chatStyles}
           selectedElement={chosenChannel}
-          setElement={setChosenChannel}
+          setElement={(channel: channelFromBackI) => {
+            setDestination(['channel', channel]);
+            setChosenChannel(channel);
+          }}
           dialogChildren={
             <ChooseDialogChildren
               dialogName='Channels'
