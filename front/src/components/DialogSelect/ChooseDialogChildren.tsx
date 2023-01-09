@@ -4,20 +4,24 @@ import UserDialog from "src/components/DialogSelect/UserDialog";
 import { userI } from "src/store/userSlice";
 import ChannelOwnerDialog from "src/components/DialogSelect/ChannerOwnerDialog";
 import ChannelSettingsDialog from "./ChannerSettingsDialog";
+import { fromBackI } from "src/pages/Chat/ChatPage";
 
-const ChooseDialogChildren: FC<{
+export interface dialogProps{
   dialogName: string
   user: userI | null
-  element: {}
+  element: fromBackI
   channel: {}
-}> = ({dialogName, user, element}) => {
+  setDestination: Function
+}
+
+const ChooseDialogChildren: FC<dialogProps> = (props: dialogProps) => {
   return (
     <>
       <DialogContent>
         {
-          dialogName == "Users"
+          props.dialogName == "Users"
           ? <>
-              <UserDialog />
+              <UserDialog {...props}/>
               <ChannelOwnerDialog />
             </>
           : <ChannelSettingsDialog />

@@ -92,6 +92,12 @@ const ChatPage: FC<any> = (): ReactElement => {
     };
   }, [userName]);
 
+  useEffect(() => {
+    const [destTaper, destObject] = destination;
+    if (destTaper === 'Channels')
+      setChosenChannel(destObject as channelFromBackI);
+  }, [destination]);
+
   chatStyles
     .scrollStyle["&::-webkit-scrollbar-thumb"]
     .backgroundColor = theme.palette.primary.light;
@@ -136,8 +142,7 @@ const ChatPage: FC<any> = (): ReactElement => {
           chatStyles={chatStyles}
           selectedElement={chosenChannel}
           setElement={(channel: channelFromBackI) => {
-            setDestination(['channel', channel]);
-            setChosenChannel(channel);
+            setDestination(['Channels', channel]);
           }}
           dialogChildren={
             <ChooseDialogChildren
@@ -145,6 +150,7 @@ const ChatPage: FC<any> = (): ReactElement => {
               user={user.user}
               element={chosenChannel}
               channel={chosenChannel}
+              setDestination={setDestination}
             />
           }
         />
@@ -187,6 +193,7 @@ const ChatPage: FC<any> = (): ReactElement => {
               user={user.user}
               element={chosenUser}
               channel={chosenChannel}
+              setDestination={setDestination}
             />
           }
         />
