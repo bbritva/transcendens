@@ -114,7 +114,7 @@ export class Gateway implements OnModuleInit {
         channel: {
           connect: { name: data.channelName },
         },
-        authorName: client.username,
+        authorName: data.authorName,
         text: data.text,
       });
       this.server.to(data.channelName).emit("onMessage", messageOut);
