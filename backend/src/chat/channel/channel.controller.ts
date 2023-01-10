@@ -19,15 +19,6 @@ import { Public } from 'src/auth/constants';
 export class ChannelController {
   constructor(private readonly channelService: ChannelService) {}
 
-  // @Public()
-  // @Post('connect')
-  // @ApiOkResponse({ type: ChannelEntity })
-  // async addChannel(
-  //   @Body() data: CreateChannelDto,
-  // ): Promise<ChannelModel> {
-  //   return this.channelService.connectToChannel(data);
-  // }
-
   @Post('setName')
   @ApiOkResponse({ type: ChannelEntity })
   async setChannelName(
