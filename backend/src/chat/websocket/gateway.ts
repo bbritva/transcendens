@@ -58,10 +58,13 @@ export class Gateway implements OnModuleInit {
     @MessageBody() channelIn: ChannelInfoDtoIn
   ) {
     console.log(channelIn);
-    await this.connectUserToChannel(socket, this.connections.get(socket.id).username, channelIn.name)
+    await this.connectUserToChannel(
+      this.connections.get(socket.id).username,
+      channelIn.name
+    );
     channelIn.users.forEach(
       async (userName) =>
-        await this.connectUserToChannel(socket, userName.name, channelIn.name)
+        await this.connectUserToChannel(userName.name, channelIn.name)
     );
   }
 
@@ -102,11 +105,7 @@ export class Gateway implements OnModuleInit {
     });
   }
 
-  private async connectUserToChannel(
-    socket: Socket,
-    userName: string,
-    channelName: string
-  ) {
+  private async connectUserToChannel(userName: string, channelName: string) {
     const user = await this.userService.getUserByName(userName);
     const channel = await this.channelService.connectToChannel({
       name: channelName,
@@ -122,11 +121,17 @@ export class Gateway implements OnModuleInit {
       users: channel.guests,
       messages: channel.messages,
     };
-    this.server.to(socket.id).emit("joined to channel", channelInfo);
-    console.log("emitted to user", channelInfo.name);
-
-    socket.join(channelName);
-    console.log("user", userName, "joined to ", channelName, "room");
+    let userSocketId = null;
+    this.connections.forEach((value: ConnectedClientInfo, key: string) => {
+      if (value.username == userName) userSocketId = key;
+    });
+    if (userSocketId) {
+      const socket: Socket = this.server.sockets.sockets.get(userSocketId);
+      this.server.to(socket.id).emit("joined to channel", channelInfo);
+      console.log("emitted to user", channelInfo.name);
+      socket.join(channelName);
+      console.log("user", userName, "joined to ", channelName, "room");
+    }
   }
 
   private async disconnectUserFromChannels(socket: Socket, userName: string) {
