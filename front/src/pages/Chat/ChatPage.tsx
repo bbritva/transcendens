@@ -165,7 +165,7 @@ const ChatPage: FC<any> = (): ReactElement => {
           }
         />
       </Grid>
-      <Grid container item xs={8} height={'100%'} >
+      <Grid container item xs={7} height={'100%'} >
         <ChatTable
           name={'Chat'}
           loading={loading}

@@ -38,19 +38,28 @@ const OneColumnTable: FC<{
       <Grid container
         component={Paper}
         display="flex"
+        justifyContent="center"
         sx={{
-          justifyContent:"center",
           height: '100%',
           ...chatStyles.borderStyle,
-        }}>
-        <Typography variant="h6" maxHeight='3rem'
-          sx={{
-            ...chatStyles.textElipsis
-          }}
-        >
-          {taper}
-        </Typography>
+        }}
+      >
         <Grid
+          item
+          xs={12}
+          display="inherit"
+          justifyContent={'inherit'}
+        >
+          <Typography variant="h6" maxHeight='3rem'
+            sx={{
+              ...chatStyles.textElipsis
+            }}
+          >
+            {taper}
+          </Typography>
+        </Grid>
+        <Grid
+          item
           ref={tableRef}
           display="flex"
           flexDirection={'column'}
@@ -62,12 +71,12 @@ const OneColumnTable: FC<{
             loading
               ? 'LOADING'
               : elements.map((data) => {
-                return ( taper === 'Users' && user?.name === data.name
-                ? <></>
-                : <Button
+                return (taper === 'Users' && user?.name === data.name
+                  ? <></>
+                  : <Button
                     key={data.name}
                     variant={selectedElement == data ? 'contained' : 'text'}
-                    startIcon={data.connected && < AdjustOutlinedIcon fontSize="small"/>}
+                    startIcon={data.connected && < AdjustOutlinedIcon fontSize="small" />}
                     onClick={() => {
                       setElement(data);
                       setOpenDialog(true);
@@ -78,14 +87,16 @@ const OneColumnTable: FC<{
                       maxHeight: '2rem',
                     }}
                   >
-                    {data.name}
+                    <Typography noWrap>
+                      {data.name}
+                    </Typography>
                   </Button>
                 )
               })
           }
           <div style={anchorStyle as CSSProperties} />
         </Grid>
-        <DialogSelect 
+        <DialogSelect
           options={selectedElement}
           open={openDialog}
           setOpen={setOpenDialog}
