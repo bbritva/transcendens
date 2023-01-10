@@ -1,5 +1,5 @@
 import { UserEntity } from "src/user/entities/user.entity";
-import { MessageEntity } from "../message/entities/message.entity";
+import { MessageEntity } from "src/chat/message/entities/message.entity";
 
 export interface ChannelInfoDto {
   name: string;
@@ -21,5 +21,14 @@ export interface UserConnectedDto {
 
 export class ClientDTO {
   readonly id: string
+  readonly username: string;
+}
+
+export class ConnectedClientInfo {
+  readonly username: string;
+}
+
+export class DecodedTokenDTO {
+  readonly id: number
   readonly username: string;
 }
