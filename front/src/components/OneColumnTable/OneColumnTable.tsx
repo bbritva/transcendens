@@ -38,9 +38,8 @@ const OneColumnTable: FC<{
       <Grid container
         component={Paper}
         display="flex"
-        flexDirection={'column'}
         sx={{
-          alignContent:"center",
+          justifyContent:"center",
           height: '100%',
           ...chatStyles.borderStyle,
         }}>
