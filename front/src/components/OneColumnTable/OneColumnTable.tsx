@@ -1,16 +1,18 @@
 import { Button, Grid, Paper, Typography, useTheme } from "@mui/material";
-import { ReactElement, FC, useRef, CSSProperties, useState, ReactNode } from "react";
+import { ReactElement, FC, useRef, CSSProperties, useState, ReactNode, cloneElement, Children } from "react";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
-import { fromBackI, userFromBackI } from "src/pages/Chat/ChatPage";
+import { fromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
 import AdjustOutlinedIcon from '@mui/icons-material/AdjustOutlined';
 import { userI } from "src/store/userSlice";
+import React from "react";
 
 
 const anchorStyle = {
   overflowAnchor: 'auto',
   height: '1px'
 };
+
 
 const OneColumnTable: FC<{
   taper: string,
@@ -34,6 +36,7 @@ const OneColumnTable: FC<{
     const theme = useTheme();
     const tableRef = useRef(null);
     const [openDialog, setOpenDialog] = useState(false);
+    const child = Children.only(dialogChildren);
     return (
       <Grid container
         component={Paper}
@@ -101,7 +104,12 @@ const OneColumnTable: FC<{
           open={openDialog}
           setOpen={setOpenDialog}
         >
-          {dialogChildren}
+          {
+            React.isValidElement(child)
+            //@ts-ignore
+            ? cloneElement(child, {setOpen: setOpenDialog})
+            : <></>
+          }
         </DialogSelect>
       </Grid>
     );

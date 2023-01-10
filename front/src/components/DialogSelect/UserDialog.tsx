@@ -1,6 +1,6 @@
 import { Button, DialogTitle } from "@mui/material";
 import { Box } from "@mui/system";
-import { FC} from "react";
+import { FC } from "react";
 import { dialogProps } from "./ChooseDialogChildren";
 
 const UserDialog: FC<dialogProps> = (props: dialogProps) => {
@@ -9,7 +9,11 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       <DialogTitle>'User' actions</DialogTitle>
       <Button onClick={() => {
         props.setDestination(['Users', props.element]);
-      }}>Message</Button>
+        if (props?.setOpen)
+          props.setOpen(false);
+      }}>
+        Message
+      </Button>
       <Button>Pong's invite</Button>
       <Button>Profile</Button>
       <Button>Block</Button>

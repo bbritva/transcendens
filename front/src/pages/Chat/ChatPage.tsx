@@ -1,5 +1,5 @@
 import { ReactElement, FC, useState, useEffect } from "react";
-import { Divider, FabProps, Grid, Paper, useTheme  } from "@mui/material";
+import { Divider, Grid, Paper, useTheme  } from "@mui/material";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import ChatTable from "src/components/OneColumnTable/ChatTable";
 import { RootState } from 'src/store/store'
@@ -44,24 +44,6 @@ function useChosenUserState(){
   return ({chosenUser, selectUser});
 }
 
-// function setUserMessages(setUsers: Function, newMessage: newMessageI){
-//   setUsers((prev: userFromBackI[]) => {
-//     prev.forEach((user) => {
-//       console.log("wrong", user.id, newMessage.from)
-//       if (user.id === newMessage?.to || user.id === newMessage.from) {
-//         console.log("RIGHT from to", newMessage)
-//         user.messages = user?.messages?.length
-//         ? [ ...user.messages, newMessage ]
-//         : [ newMessage ]
-//         user.hasNewMessages = user.id === newMessage.from;
-//         return ;
-//       }
-//     });
-//     return [...prev];
-//   });
-// };
-
-
 const ChatPage: FC<any> = (): ReactElement => {
   const [userName, setUsername] = useState<string>('');
   const [users, setUsers] = useState<userFromBackI[]>([]);
@@ -70,7 +52,6 @@ const ChatPage: FC<any> = (): ReactElement => {
   const [value, setValue] = useState('');
   const [chosenChannel, setChosenChannel] = useState({} as channelFromBackI);
   const [loading, setLoading] = useState(false);
-  // const {chosenUser, selectUser} = useChosenUserState();
   const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
   const [destination, setDestination] = useState<[string, fromBackI]>(['', {} as fromBackI]);
   const { getState } = useStore();
@@ -129,7 +110,6 @@ const ChatPage: FC<any> = (): ReactElement => {
       'newMessage',
       newMessage
     );
-    // setUserMessages(setUsers, newMessage);
     setValue('');
   };
   socket.onAny((event, ...args) => {
