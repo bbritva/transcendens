@@ -14,7 +14,7 @@ import {
   ChannelInfoDtoIn,
   ChannelInfoDtoOut,
   ConnectedClientInfo,
-  DecodedTokenDTO
+  DecodedTokenDTO,
 } from "./websocket.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
@@ -40,8 +40,7 @@ export class Gateway implements OnModuleInit {
   onModuleInit() {
     this.server.on("connection", async (socket) => {
       // have to check authorisation
-      // logging
-      console.log("connected", socket.id, socket.handshake.auth.username);
+
       // event handler
       this.onConnection(socket);
 
@@ -50,7 +49,6 @@ export class Gateway implements OnModuleInit {
         this.onDisconnecting(socket);
       });
       socket.on("disconnect", async () => {
-        console.log("disconnected", socket.id);
       });
     });
   }
@@ -60,7 +58,6 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() channelIn: ChannelInfoDtoIn
   ) {
-    console.log(channelIn);
     await this.connectUserToChannel(
       this.connections.get(socket.id).username,
       channelIn.name
@@ -73,7 +70,6 @@ export class Gateway implements OnModuleInit {
 
   @SubscribeMessage("newMessage")
   async onNewMessage(@MessageBody() data: CreateMessageDTO) {
-    console.log("newMessage", data.authorName, ":", data.text);
     try {
       const messageOut = await this.messageService.createMessage({
         channel: {
@@ -116,45 +112,30 @@ export class Gateway implements OnModuleInit {
     });
     // notice users in channel about new client
     this.server.to(channelName).emit("userConnected", channel.name, userName);
-    console.log("emitted to channel", channelName, ": +", userName);
 
     // send to user channel info
-    let channelInfo: ChannelInfoDtoOut = {
+    const channelInfo: ChannelInfoDtoOut = {
       name: channel.name,
       users: channel.guests,
       messages: channel.messages,
     };
-    let userSocketId = null;
     this.connections.forEach((value: ConnectedClientInfo, key: string) => {
-      if (value.username == userName) userSocketId = key;
+      if (value.username == userName) {
+        this.server.to(key).emit("joinedToChannel", channelInfo);
+        this.server.sockets.sockets.get(key).join(channelName);
+      }
     });
-    if (userSocketId) {
-      const socket: Socket = this.server.sockets.sockets.get(userSocketId);
-      this.server.to(socket.id).emit("joinedToChannel", channelInfo);
-      console.log("emitted to user", channelInfo.name);
-      socket.join(channelName);
-      console.log("user", userName, "joined to ", channelName, "room");
-    }
   }
 
   private async disconnectUserFromChannels(userName: string) {
-    (
-      await this.userService.getChannels(
-        userName
-        // "Bob"
-      )
-    ).forEach((channelName) => {
+    (await this.userService.getChannels(userName)).forEach((channelName) => {
       this.disconnectFromChannel(channelName, userName);
     });
   }
 
-  private async disconnectFromChannel(
-    channelName: string,
-    userName: string
-  ) {
+  private async disconnectFromChannel(channelName: string, userName: string) {
     // notice users in channel about client disconnected
     this.server.to(channelName).emit("userDisconnected", channelName, userName);
-    console.log("emitted to channel", channelName, ": -", userName);
   }
 
   private async onConnection(socket: Socket) {
@@ -184,10 +165,7 @@ export class Gateway implements OnModuleInit {
   }
 
   private async onDisconnecting(socket: Socket) {
-    console.log("disconnecting", socket.id);
-    this.disconnectUserFromChannels(
-      this.connections.get(socket.id).username
-    );
+    this.disconnectUserFromChannels(this.connections.get(socket.id).username);
     const user = await this.userService.updateUser({
       where: {
         name: socket.handshake.auth.username,
@@ -196,7 +174,6 @@ export class Gateway implements OnModuleInit {
         status: "OFFLINE",
       },
     });
-    console.log("set to offline", user.name);
     this.connections.delete(socket.id);
   }
 }
