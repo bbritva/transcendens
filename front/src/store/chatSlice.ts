@@ -23,7 +23,7 @@ const chatSlice = createSlice({
       action: PayloadAction<{user: userFromBackI, messages: newMessageI[]}>
     ) {
       const ind = state.users.findIndex(
-        (el) => el.user.username == action.payload.user.username
+        (el) => el.user.name == action.payload.user.name
       );
       state.users[ind].messages = action.payload.messages;
     }
@@ -32,7 +32,7 @@ const chatSlice = createSlice({
 })
 
 export const selectChatUser = (state: RootState, user: userFromBackI) => {
-  state.chat.users.find((el) => el.user.username == user.username)
+  state.chat.users.find((el) => el.user.name == user.name)
 }
 export const {setUsers, setUserMessages} = chatSlice.actions;
 export default chatSlice.reducer;

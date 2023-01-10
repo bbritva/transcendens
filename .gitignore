@@ -11,7 +11,7 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-backend/nestjs_app/my_proj/prisma/migrations/*/*.sql
+backend/prisma/migrations/*/*.sql
 
 # OS
 .DS_Store

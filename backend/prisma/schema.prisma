@@ -21,6 +21,7 @@ model User {
   token         Token?  @relation("token", fields: [tokenId], references: [id])
   tokenId       Int?   @unique
   refreshToken  String?
+  channels      Channel[]
 }
 enum eStatus {
   OFFLINE
@@ -51,7 +52,7 @@ model Token {
 model Channel {
   name      String      @unique @id
   ownerId   Int
-  guestIds  Int[]
+  guests    User[]
   admIds    Int[]
   mutedIds  Int[]
   bannedIds Int[]

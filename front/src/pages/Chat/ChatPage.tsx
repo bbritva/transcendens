@@ -10,96 +10,106 @@ import { chatStyles } from "./chatStyles";
 import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
 
-export interface userFromBackI {
-  username: string,
-  userID: string,
-  connected: boolean,
+export interface fromBackI{
+  name: string,
+  id: string,
   hasNewMessages: boolean,
-  messages: newMessageI[]
+  messages: newMessageI[],
+  connected: boolean,
+}
+
+export interface userFromBackI extends fromBackI{
+}
+
+export interface channelFromBackI extends fromBackI{
+  users: userFromBackI[],
 }
 
 export interface newMessageI {
-  to: string,
-  from: string
-  content: string,
-  fromSelf: boolean,
+  id: number | null,
+  channelName: string,
+  sentAt: string | null,
+  authorName: string,
+  text: string,
 }
 
 function useChosenUserState(){
   const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
 
-  function selectUser(users: userFromBackI[], userId: string){
-    const user = users.find((el) => el.userID === userId);
+  function selectUser(users: userFromBackI[], id: string){
+    const user = users.find((el) => el.id === id);
     if (user)
       setChosenUser(user);
   }
   return ({chosenUser, selectUser});
 }
 
-function setUserMessages(setUsers: Function, newMessage: newMessageI){
-  setUsers((prev: userFromBackI[]) => {
-    prev.forEach((user) => {
-      console.log("wrong", user.userID, newMessage.from)
-      if (user.userID === newMessage?.to || user.userID === newMessage.from) {
-        console.log("RIGHT from to", newMessage)
-        user.messages = user?.messages?.length
-        ? [ ...user.messages, newMessage ]
-        : [ newMessage ]
-        user.hasNewMessages = user.userID === newMessage.from;
-        return ;
-      }
-    });
-    return [...prev];
-  });
-};
-
-
 const ChatPage: FC<any> = (): ReactElement => {
   const [userName, setUsername] = useState<string>('');
   const [users, setUsers] = useState<userFromBackI[]>([]);
+  const [channels, setChannels] = useState<channelFromBackI[]>([]);
   const [page, setPage] = useState(0);
   const [value, setValue] = useState('');
-  const [chosenChannel, setChosenChannel] = useState({});
+  const [chosenChannel, setChosenChannel] = useState({} as channelFromBackI);
   const [loading, setLoading] = useState(false);
-  const {chosenUser, selectUser} = useChosenUserState();
+  const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
+  const [destination, setDestination] = useState<[string, fromBackI]>(['', {} as fromBackI]);
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const dispatch = useDispatch();
   const theme = useTheme();
+  let flag = true;
 
   useEffect(() => {
-    if (userName) {
+    if (userName && flag) {
       const username = userName;
       socket.auth = { username };
       socket.connect();
-      initSocket(user.user, users, setUsers, setUserMessages, dispatch);
+      initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
+      flag = false;
     }
     return () => {
       socket.disconnect()
     };
   }, [userName]);
 
+  useEffect(() => {
+    const [destTaper, destObject] = destination;
+    if (destTaper === 'Channels')
+      setChosenChannel(destObject as channelFromBackI);
+    else if (destTaper === 'Users'){
+      const privateChannel = {} as channelFromBackI;
+      privateChannel.name = `${destObject.name} ${userName} pm`;
+      privateChannel.users = [
+        {name: destObject.name} as userFromBackI,
+        {name: userName} as userFromBackI,
+      ];
+      socket.emit('connectToChannel', privateChannel);
+      setChosenChannel(privateChannel)
+    }
+  }, [destination]);
+
   chatStyles
     .scrollStyle["&::-webkit-scrollbar-thumb"]
     .backgroundColor = theme.palette.primary.light;
 
   const onSubmit = () => {
-    console.log('submit', chosenUser, value);
-    if ( !chosenUser.userID ){
+    const [taper, destinationChannel] = destination;
+    if ( !destinationChannel.name ){
       setValue('');
       return ;
     }
     const newMessage: newMessageI = {
-      to: chosenUser.userID,
-      from: '',
-      content: value,
-      fromSelf: true
+      id: null,
+      channelName: destinationChannel.name,
+      sentAt: null,
+      authorName: userName,
+      text: value,
     };
     socket.emit(
-      'private message',
+      'newMessage',
       newMessage
     );
-    setUserMessages(setUsers, newMessage);
     setValue('');
   };
   socket.onAny((event, ...args) => {
@@ -115,27 +125,31 @@ const ChatPage: FC<any> = (): ReactElement => {
     >
       <Grid item xs={2} height={'100%'}>
         <OneColumnTable
-          name='Channels'
+          taper='Channels'
+          user={user.user}
           loading={loading}
-          elements={users}
+          elements={channels}
           chatStyles={chatStyles}
           selectedElement={chosenChannel}
-          setElement={setChosenChannel}
+          setElement={(channel: channelFromBackI) => {
+            setDestination(['Channels', channel]);
+          }}
           dialogChildren={
             <ChooseDialogChildren
               dialogName='Channels'
               user={user.user}
               element={chosenChannel}
               channel={chosenChannel}
+              setDestination={setDestination}
             />
           }
         />
       </Grid>
-      <Grid container item xs={8} height={'100%'} >
+      <Grid container item xs={7} height={'100%'} >
         <ChatTable
           name={'Chat'}
           loading={loading}
-          messages={users.find((el) => el.userID === chosenUser.userID)?.messages || []}
+          messages={channels.find((el) => el.name === chosenChannel.name)?.messages || []}
           socket={socket}
           chatStyles={chatStyles}
           user={user.user}
@@ -156,18 +170,20 @@ const ChatPage: FC<any> = (): ReactElement => {
       </Grid>
       <Grid item xs={2} height={'100%'}>
         <OneColumnTable
-          name='Users'
+          taper='Users'
+          user={user.user}
           loading={loading}
-          elements={users}
+          elements={channels.find((el) => el.name === chosenChannel.name)?.users || []}
           chatStyles={chatStyles}
           selectedElement={chosenUser}
-          setElement={selectUser}
+          setElement={setChosenUser}
           dialogChildren={
             <ChooseDialogChildren
               dialogName='Users'
               user={user.user}
               element={chosenUser}
               channel={chosenChannel}
+              setDestination={setDestination}
             />
           }
         />
