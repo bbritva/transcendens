@@ -13,3 +13,13 @@ export interface ChannelInfoDtoOut extends ChannelInfoDto {
 export interface ChannelInfoDtoIn extends ChannelInfoDto {
   users: {name: string}[];
 }
+
+export interface UserConnectedDto {
+  channelName: string;
+  userName: string;
+}
+
+export class ClientDTO {
+  readonly id: string
+  readonly username: string;
+}

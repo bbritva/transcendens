@@ -8,21 +8,13 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import {
-  CreateMessageDTO,
-  PrivateMessageDTO,
-} from "src/chat/message/dto/create-message.dto";
+import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import { MessageService } from "src/chat/message/message.service";
-import { ClientDTO } from "./client.dto";
-import { ChannelInfoDtoIn, ChannelInfoDtoOut } from "./channel.dto";
+import { ChannelInfoDtoIn, ChannelInfoDtoOut } from "./websocket.dto";
 import { ConnectedClientInfo } from "./connectedClientInfo";
 import { DecodedTokenDTO } from "./decodedToken.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "../channel/channel.service";
-
-interface newSocket extends Socket {
-  username: string;
-}
 
 @WebSocketGateway({
   cors: {
@@ -43,94 +35,39 @@ export class Gateway implements OnModuleInit {
   server: Server;
 
   onModuleInit() {
-    // have to check authorisation
-    // pseudo auth!
-    // this.server.use((socket: newSocket, next) => {
-    //   const username = socket.handshake.auth.username;
-    //   if (!username) {
-    //     return next(new Error("invalid username"));
-    //   }
-    //   socket.username = username;
-    //   next();
-    // });
-    if (true) {
-      this.server.on("connection", async (socket) => {
-        // logging
-        console.log("connected", socket.id, socket.handshake.auth.username);
-        this.connections.set(socket.id, {
-          username: socket.handshake.auth.username,
-        });
+    this.server.on("connection", async (socket) => {
+      // have to check authorisation
+      // logging
+      console.log("connected", socket.id, socket.handshake.auth.username);
+      // event handler
+      this.onConnection(socket);
 
-        // user status change
-        await this.userService.updateUser({
-          where: {
-            name: this.connections.get(socket.id).username
-          },
-          data: {
-            status : "ONLINE"
-          }
-        })
-
-        //discinnection handler
-        socket.on("disconnecting", async () => {
-          console.log("disconnecting", socket.id);
-          this.disconnectUserFromChannels(
-            socket,
-            this.connections.get(socket.id).username
-          );
-          const user = await this.userService.updateUser({
-            where: {
-              name: socket.handshake.auth.username
-            },
-            data: {
-              status : "OFFLINE"
-            }
-          })
-          console.log("set to offline", user);
-          this.connections.delete(socket.id);
-        });
-        socket.on("disconnect", async () => {
-          console.log("disconnected", socket.id);
-        });
-
-        //send to new user all channels
-        let channels = await this.channelService.ChannelList();
-        let channelList = [];
-        channels.forEach((value: { name: string }) => {
-          channelList.push({
-            name: value.name,
-          });
-        });
-        this.server.to(socket.id).emit("channels", channelList);
-
-        //connect user to his channels
-        this.connectUserToChannels(socket);
+      //discinnection handler
+      socket.on("disconnecting", async () => {
+        this.onDisconnecting(socket);
       });
-    } else this.server.close();
-  }
-
-  @SubscribeMessage("private message")
-  async onPrivateMessage(
-    @ConnectedSocket() client: ClientDTO,
-    @MessageBody() data: PrivateMessageDTO
-  ) {
-    console.log("private", data);
-    this.server.to(data.to).emit("private message", {
-      content: data.content,
-      from: client.id,
+      socket.on("disconnect", async () => {
+        console.log("disconnected", socket.id);
+      });
     });
   }
 
-  @SubscribeMessage("newMessage")
-  async onNewMessage(
-    @ConnectedSocket() client: ClientDTO,
-    @MessageBody() data: CreateMessageDTO
+  @SubscribeMessage("connect to channel")
+  async connectToChannel(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() channelIn: ChannelInfoDtoIn
   ) {
-    // console.log(this.connections[client.id]);
-    console.log("HELLOWORLD", data);
-    // console.log(this.connections);
+    console.log(channelIn);
+    await this.connectUserToChannel(socket, this.connections.get(socket.id).username, channelIn.name)
+    channelIn.users.forEach(
+      async (userName) =>
+        await this.connectUserToChannel(socket, userName.name, channelIn.name)
+    );
+  }
 
-    // console.log(client);
+  @SubscribeMessage("newMessage")
+  async onNewMessage(@MessageBody() data: CreateMessageDTO) {
+    console.log("newMessage", data.authorName, ":", data.text);
     try {
       const messageOut = await this.messageService.createMessage({
         channel: {
@@ -145,14 +82,6 @@ export class Gateway implements OnModuleInit {
     }
   }
 
-  @SubscribeMessage("connect to channel")
-  async onConnectToChannel(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: ChannelInfoDtoIn
-  ) {
-    this.connectToChannel(socket, data);
-  }
-
   private getUserNameFromJWT(JWTtoken: string): DecodedTokenDTO {
     const decodedToken = this.jwtService.decode(JWTtoken) as DecodedTokenDTO;
     return decodedToken;
@@ -163,47 +92,41 @@ export class Gateway implements OnModuleInit {
       this.connections.get(socket.id).username
       // "Bob"
     );
-   
+
     channels.forEach((channelName) => {
-      const channelInfoDtoIn : ChannelInfoDtoIn = {
+      const channelInfoDtoIn: ChannelInfoDtoIn = {
         name: channelName,
-        users : [{name:this.connections.get(socket.id).username}],
-      }
+        users: [{ name: this.connections.get(socket.id).username }],
+      };
       this.connectToChannel(socket, channelInfoDtoIn);
     });
   }
 
-  private async connectToChannel(socket: Socket, channelIn: ChannelInfoDtoIn) {
-
-    console.log(channelIn);
-
-    channelIn.users.forEach(async (userName) => {
-      const user = await this.userService.getUserByName(
-        userName.name
-        // "Bob"
-      );
-      const channel = await this.channelService.connectToChannel({
-        name: channelIn.name,
-        ownerId: user.id,
-      });
-      // notice users in channel about new client
-      this.server
-        .to(channelIn.name)
-        .emit("user connected", channel.name, userName);
-      console.log("emitted to channel", channelIn.name, ": +", userName);
-
-      // send to user channel info
-      let channelInfo: ChannelInfoDtoOut = {
-        name: channel.name,
-        users: channel.guests,
-        messages: channel.messages,
-      };
-      this.server.to(socket.id).emit("joined to channel", channelInfo);
-      console.log("emitted to user", channelInfo);
-
-      socket.join(channelIn.name);
-      console.log("user", userName, "connected to", channelIn.name, "room");
+  private async connectUserToChannel(
+    socket: Socket,
+    userName: string,
+    channelName: string
+  ) {
+    const user = await this.userService.getUserByName(userName);
+    const channel = await this.channelService.connectToChannel({
+      name: channelName,
+      ownerId: user.id,
     });
+    // notice users in channel about new client
+    this.server.to(channelName).emit("user connected", channel.name, userName);
+    console.log("emitted to channel", channelName, ": +", userName);
+
+    // send to user channel info
+    let channelInfo: ChannelInfoDtoOut = {
+      name: channel.name,
+      users: channel.guests,
+      messages: channel.messages,
+    };
+    this.server.to(socket.id).emit("joined to channel", channelInfo);
+    console.log("emitted to user", channelInfo.name);
+
+    socket.join(channelName);
+    console.log("user", userName, "joined to ", channelName, "room");
   }
 
   private async disconnectUserFromChannels(socket: Socket, userName: string) {
@@ -223,7 +146,52 @@ export class Gateway implements OnModuleInit {
     userName: string
   ) {
     // notice users in channel about client disconnected
-    this.server.to(channelName).emit("user disconnected", userName);
+    this.server
+      .to(channelName)
+      .emit("user disconnected", channelName, userName);
     console.log("emitted to channel", channelName, ": -", userName);
+  }
+
+  private async onConnection(socket: Socket) {
+    this.connections.set(socket.id, {
+      username: socket.handshake.auth.username,
+    });
+    await this.userService.updateUser({
+      where: {
+        name: this.connections.get(socket.id).username,
+      },
+      data: {
+        status: "ONLINE",
+      },
+    });
+    //send to new user all channels
+    let channels = await this.channelService.ChannelList();
+    let channelList = [];
+    channels.forEach((value: { name: string }) => {
+      channelList.push({
+        name: value.name,
+      });
+    });
+    this.server.to(socket.id).emit("channels", channelList);
+
+    //connect user to his channels
+    this.connectUserToChannels(socket);
+  }
+  private async onDisconnecting(socket: Socket) {
+    console.log("disconnecting", socket.id);
+    this.disconnectUserFromChannels(
+      socket,
+      this.connections.get(socket.id).username
+    );
+    const user = await this.userService.updateUser({
+      where: {
+        name: socket.handshake.auth.username,
+      },
+      data: {
+        status: "OFFLINE",
+      },
+    });
+    console.log("set to offline", user.name);
+    this.connections.delete(socket.id);
   }
 }
