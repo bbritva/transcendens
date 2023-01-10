@@ -38,3 +38,6 @@ backend/nestjs_app/my_proj/prisma/migrations/*/*.sql
 
 #env
 .env
+
+# uploads
+uploads

@@ -10,39 +10,39 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
-} from '@nestjs/common';
-import { UserService } from './user.service';
-import { User as UserModel } from '@prisma/client';
-import { CreateUserDto } from './dto/create-user.dto';
-import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { UserEntity } from './entities/user.entity';
-import { GetMeUserDto } from './dto/getMeUser.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { Observable, of } from 'rxjs';
-import { randomUUID } from 'crypto';
-import { Public } from 'src/auth/constants';
-import path = require('path');
-import { join } from 'path';
+} from "@nestjs/common";
+import { UserService } from "./user.service";
+import { User as UserModel } from "@prisma/client";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import { UserEntity } from "./entities/user.entity";
+import { GetMeUserDto } from "./dto/getMeUser.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { Observable, of } from "rxjs";
+import { randomUUID } from "crypto";
+import { Public } from "src/auth/constants";
+import path = require("path");
+import { join } from "path";
 
 export const storage = {
   storage: diskStorage({
-    destination: './uploads/avatars',
+    destination: "./uploads/avatars",
     filename: (req, file, cb) => {
-      const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + randomUUID();
+      const filename: string =
+        path.parse(file.originalname).name.replace(/\s/g, "") + randomUUID();
       const extention: string = path.parse(file.originalname).ext;
-      cb(null, `${filename}${extention}`)
-    }
-  }) //...
-}
+      cb(null, `${filename}${extention}`);
+    },
+  }), //...
+};
 
-
-@Controller('user')
-@ApiTags('user')
+@Controller("user")
+@ApiTags("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('add')
+  @Post("add")
   @ApiOkResponse({ type: UserEntity })
   async addUser(@Body() data: CreateUserDto): Promise<UserModel> {
     const user = await this.userService.getUser(data.id);
@@ -57,7 +57,7 @@ export class UserController {
     return user;
   }
 
-  @Patch('setName')
+  @Patch("setName")
   @ApiOkResponse({ type: UserEntity })
   async setUserName(@Body() data: CreateUserDto): Promise<UserModel> {
     return this.userService
@@ -74,37 +74,45 @@ export class UserController {
   }
 
   @ApiBody({
-    description: 'Request body',
+    description: "Request body",
     required: true,
     type: GetMeUserDto,
   })
   @ApiOkResponse({ type: UserEntity })
-  @Get('getMe')
-    async getMe( @Request() req : GetMeUserDto) {
+  @Get("getMe")
+  async getMe(@Request() req: GetMeUserDto) {
     // async getMe( @Body() req : GetMeUserDto) {
-       return await this.userService.getUser(req.user.id);
-    }
-
+    return await this.userService.getUser(req.user.id);
+  }
 
   @ApiOkResponse({ type: UserEntity })
-  @Get(':id')
-  async showUser(@Param('id') id: number): Promise<UserModel> {
+  @Get(":id")
+  async showUser(@Param("id") id: number): Promise<UserModel> {
     return this.userService.getUser(id);
   }
 
-  @Public()
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file', storage))
-  uploadFile(@UploadedFile() file): Observable<Object> {
-    console.log(file); 
-    return of({imagePath: file.filename});
+  @Post("upload")
+  @UseInterceptors(FileInterceptor("file", storage))
+  uploadFile(
+    @Request() req: GetMeUserDto,
+    @UploadedFile() file
+  ): Observable<Object> {
+    this.userService.updateUser({
+      where: {
+        id: req.user.id,
+      },
+      data: {
+        avatar: file.filename,
+      },
+    });
+    console.log(file);
+    return of({ imagePath: file.filename });
   }
 
   @Public()
-  @Get('avatar/:avatarname')
-  findAvatar(@Param('avatarname') avatarname, @Res() res): Observable<Object> {
-    return of(res.sendFile(join(process.cwd(), 'uploads/avatars/' + avatarname)));
+  @Get("avatar/:avatarname")
+  findAvatar(@Param("avatarname") avatarname, @Res() res): Observable<Object> {
+    return of(res.sendFile(join(process.cwd(), "uploads/avatars/" + avatarname))
+    );
   }
-
 }
- 
