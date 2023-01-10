@@ -16,7 +16,7 @@ export function initSocket(
     setUserMessages: Function,
     dispatch: Dispatch,
   ){
-  socket.on("connect_error", (err) => {
+  socket.on("connectError", (err) => {
     if (err.message === "invalid username") {
       dispatch(logout());
     }
@@ -26,7 +26,7 @@ export function initSocket(
     setChannels(channels);
   });
 
-  socket.on("user connected", (channelName: string, userName: string) => {
+  socket.on("userConnected", (channelName: string, userName: string) => {
     console.log("user Connected", channelName, userName);
     setChannels((prev: channelFromBackI[]) => {
       const channelInd = prev.findIndex((el) => el.name === channelName)
@@ -42,7 +42,7 @@ export function initSocket(
     });
   });
 
-  socket.on("joined to channel", (channel: channelFromBackI) => {
+  socket.on("joinedToChannel", (channel: channelFromBackI) => {
     setChannels((prev: channelFromBackI[]) => {
       const ind = prev.findIndex((el) => el.name === channel.name)
       const res = [...prev];
@@ -55,7 +55,7 @@ export function initSocket(
     });
   });
 
-  socket.on("onMessage", (message: newMessageI) => {
+  socket.on("newMessage", (message: newMessageI) => {
     setChannels((prev: channelFromBackI[]) => {
       const ind = prev.findIndex((el) => el.name === message.channelName)
       const res = [...prev];
