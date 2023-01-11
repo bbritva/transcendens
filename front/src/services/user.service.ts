@@ -1,5 +1,6 @@
 import axios from 'axios';
 import authHeader from './authHeader';
+import { userI } from 'src/store/userSlice';
 
 const API_URL = process.env.REACT_APP_USERS_URL;
 
@@ -11,10 +12,13 @@ class UserService {
     return axios.get(API_URL + '/getMe')
   }
 
-  uploadAvatar(fileData: FormData) {
-    return axios.post(API_URL + '/upload', fileData)
+  uploadAvatar(fileData: FormData): Promise<userI> {
+    return axios.post(API_URL + '/upload', fileData);
   }
 
+  findAvatar(avatarname: string){
+    return axios.get(API_URL + `/avatar/${avatarname}`);
+  }
 
   getUsers() {
     return axios.get("https://swapi.dev/api" + '/starships');

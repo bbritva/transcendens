@@ -104,7 +104,7 @@ export class UserController {
       },
     });
     console.log(file);
-    return ({ imagePath: file.filename });
+    return ({ avatar: file.filename });
   }
 
   @Public()

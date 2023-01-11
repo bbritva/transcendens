@@ -1,12 +1,13 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
 
 
 export interface userI {
   id: string,
-  name: string
-  image: string
+  name: string,
+  image: string,
+  avatar: string
 }
 
 interface userStateI {
@@ -33,7 +34,14 @@ export const getUser = createAsyncThunk(
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    updateUser(state, action: PayloadAction<userI>){
+      return {
+        ...state,
+        user: action.payload
+      }
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(getUser.pending, (state, action) => {
@@ -54,4 +62,5 @@ const userSlice = createSlice({
 })
 
 export const selectUser = (state: RootState) => state.user;
+export const { updateUser } = userSlice.actions;
 export default userSlice.reducer
