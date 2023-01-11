@@ -1,32 +1,38 @@
-import {ReactElement, FC, useRef, useEffect} from "react";
-import {Box, Typography} from "@mui/material";
+import { ReactElement, FC, useRef, useEffect, useState } from "react";
+import { Box, Typography } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
+import game from "./components/game";
 
 const GamePage: FC<any> = (): ReactElement => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [canvasNumber, setCanvasNumber] = useState(0);
 
-    useEffect(() => {
-        const canvas = canvasRef.current
-        if (!canvas)
-            return;
-            const context = canvas.getContext('2d')
-        if (!context)
-            return;
-        context.fillStyle = '#000000'
-        context.fillRect(0, 0, context.canvas.width, context.canvas.height)
-      }, [])
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas)
+      return;
+    game(canvas, setCanvasNumber);
+    return () => {
+      setCanvasNumber(1);
+    }
+  }, [])
 
-    return (
-        <Box sx={{
-            flexGrow: 1,
-            display: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-        }}>
-            <Typography variant="h3">GamePage</Typography>
-            <Canvas ref={canvasRef}/>
-        </Box>
-    );
+  const canvasProps = {
+    width: "720",
+    height: "480",
+  } as canvasPropsI;
+
+  return (
+    <Box sx={{
+      flexGrow: 1,
+      display: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+      <Typography variant="h3">GamePage</Typography>
+      <Canvas ref={canvasRef} {...canvasProps} />
+    </Box>
+  );
 };
 
 export default GamePage;
