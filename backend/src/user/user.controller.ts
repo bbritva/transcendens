@@ -10,20 +10,18 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
-} from "@nestjs/common";
-import { UserService } from "./user.service";
-import { User as UserModel } from "@prisma/client";
-import { CreateUserDto } from "./dto/create-user.dto";
-import { ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { UserEntity } from "./entities/user.entity";
-import { GetMeUserDto } from "./dto/getMeUser.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
-import { Observable, of } from "rxjs";
-import { randomUUID } from "crypto";
-import { Public } from "src/auth/constants";
-import path = require("path");
-import { join } from "path";
+} from '@nestjs/common';
+import { UserService } from './user.service';
+import { User as UserModel } from '@prisma/client';
+import { CreateUserDto } from './dto/create-user.dto';
+import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from './entities/user.entity';
+import { GetMeUserDto } from './dto/getMeUser.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { randomUUID } from 'crypto';
+import { Public } from 'src/auth/constants';
+import * as path from 'path';
 
 export const storage = {
   storage: diskStorage({
@@ -96,7 +94,7 @@ export class UserController {
   uploadFile(
     @Request() req: GetMeUserDto,
     @UploadedFile() file
-  ): Observable<Object> {
+  ): Object {
     this.userService.updateUser({
       where: {
         id: req.user.id,
@@ -106,13 +104,12 @@ export class UserController {
       },
     });
     console.log(file);
-    return of({ imagePath: file.filename });
+    return ({ imagePath: file.filename });
   }
 
   @Public()
-  @Get("avatar/:avatarname")
-  findAvatar(@Param("avatarname") avatarname, @Res() res): Observable<Object> {
-    return of(res.sendFile(join(process.cwd(), "uploads/avatars/" + avatarname))
-    );
+  @Get('avatar/:avatarname')
+  findAvatar(@Param('avatarname') avatarname, @Res() res): Promise<any> {
+    return res.sendFile(path.join(process.cwd(), 'uploads/avatars/' + avatarname));
   }
 }
