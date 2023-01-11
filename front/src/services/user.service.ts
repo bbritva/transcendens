@@ -1,9 +1,10 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-const API_URL = process.env.REACT_APP_AUTH_URL + '/user';
+const API_URL = process.env.REACT_APP_USERS_URL;
 
 class UserService {
+
   getMe() {
     const storageData = localStorage.getItem('access_token') || '{}';
     const token = JSON.parse(storageData);
@@ -12,6 +13,11 @@ class UserService {
 
   uploadAvatar(fileData: FormData) {
     return axios.post(API_URL + '/upload', fileData)
+  }
+
+
+  getUsers() {
+    return axios.get("https://swapi.dev/api" + '/starships');
   }
 
   getPublicContent() {
