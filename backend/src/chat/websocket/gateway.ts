@@ -15,6 +15,7 @@ import {
   ChannelInfoDtoOut,
   ConnectedClientInfo,
   DecodedTokenDTO,
+  ManageChannelDto,
 } from "./websocket.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
@@ -48,8 +49,7 @@ export class Gateway implements OnModuleInit {
       socket.on("disconnecting", async () => {
         this.onDisconnecting(socket);
       });
-      socket.on("disconnect", async () => {
-      });
+      socket.on("disconnect", async () => {});
     });
   }
 
@@ -60,11 +60,11 @@ export class Gateway implements OnModuleInit {
   ) {
     await this.connectUserToChannel(
       this.connections.get(socket.id).username,
-      channelIn.name
+      channelIn
     );
     channelIn.users.forEach(
       async (userName) =>
-        await this.connectUserToChannel(userName.name, channelIn.name)
+        await this.connectUserToChannel(userName.name, channelIn)
     );
   }
 
@@ -84,6 +84,40 @@ export class Gateway implements OnModuleInit {
     }
   }
 
+  @SubscribeMessage("addAdmin")
+  async onAddAdmin(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: ManageChannelDto
+  ) {
+    if (
+      (await this.channelService.addAdmin(
+        await this.getUserIdByName(this.connections.get(socket.id).username),
+        data
+      )) != 0
+    )
+      this.server.to(socket.id).emit("new admin added");
+    else
+      this.server.to(socket.id).emit("you are not allowed to this operation");
+  }
+
+  @SubscribeMessage("setPrivacy")
+  async onSetPrivacy(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: ManageChannelDto
+  ) {
+    if (
+      (await this.channelService.setPrivacy(
+        await this.getUserIdByName(this.connections.get(socket.id).username),
+        data
+      )) != 0
+    ) {
+      if (data.params[0] == true)
+        this.server.to(socket.id).emit(data.name, "is private now");
+      else this.server.to(socket.id).emit(data.name, "is public now");
+    } else
+      this.server.to(socket.id).emit("you are not allowed to this operation");
+  }
+
   private getUserNameFromJWT(JWTtoken: string): DecodedTokenDTO {
     const decodedToken = this.jwtService.decode(JWTtoken) as DecodedTokenDTO;
     return decodedToken;
@@ -92,7 +126,6 @@ export class Gateway implements OnModuleInit {
   private async connectUserToChannels(socket: Socket) {
     const channels = await this.userService.getChannels(
       this.connections.get(socket.id).username
-      // "Bob"
     );
 
     channels.forEach((channelName) => {
@@ -104,14 +137,22 @@ export class Gateway implements OnModuleInit {
     });
   }
 
-  private async connectUserToChannel(userName: string, channelName: string) {
-    const user = await this.userService.getUserByName(userName);
+  private async connectUserToChannel(
+    userName: string,
+    channelIn: ChannelInfoDtoIn
+  ) {
+    const user = await this.userService.getUser(
+      await this.getUserIdByName(userName)
+    );
     const channel = await this.channelService.connectToChannel({
-      name: channelName,
+      name: channelIn.name,
       ownerId: user.id,
+      isPrivate: channelIn.isPrivate,
     });
     // notice users in channel about new client
-    this.server.to(channelName).emit("userConnected", channel.name, userName);
+    this.server
+      .to(channelIn.name)
+      .emit("userConnected", channel.name, userName);
 
     // send to user channel info
     const channelInfo: ChannelInfoDtoOut = {
@@ -122,7 +163,7 @@ export class Gateway implements OnModuleInit {
     this.connections.forEach((value: ConnectedClientInfo, key: string) => {
       if (value.username == userName) {
         this.server.to(key).emit("joinedToChannel", channelInfo);
-        this.server.sockets.sockets.get(key).join(channelName);
+        this.server.sockets.sockets.get(key).join(channelIn.name);
       }
     });
   }
@@ -175,5 +216,10 @@ export class Gateway implements OnModuleInit {
       },
     });
     this.connections.delete(socket.id);
+  }
+
+  /////////// MUST BE DELETED !!!!!!!!!!!!!!!!!!!!!!!
+  async getUserIdByName(name: string): Promise<number> {
+    return (await this.userService.getUserByName(name)).id;
   }
 }

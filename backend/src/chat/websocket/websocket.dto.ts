@@ -1,13 +1,19 @@
 import { UserEntity } from "src/user/entities/user.entity";
 import { MessageEntity } from "src/chat/message/entities/message.entity";
 
+export interface ManageChannelDto {
+  name: string;
+  params: any[]
+}
+
 export interface ChannelInfoDto {
   name: string;
+  isPrivate?: boolean;
 }
 
 export interface ChannelInfoDtoOut extends ChannelInfoDto {
-  messages?: MessageEntity[];
-  users?: UserEntity[];
+  messages: MessageEntity[];
+  users: UserEntity[];
 }
 
 export interface ChannelInfoDtoIn extends ChannelInfoDto {

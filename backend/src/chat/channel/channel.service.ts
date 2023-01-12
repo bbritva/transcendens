@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Prisma } from "@prisma/client";
 import { ChannelInfoDto } from "./dto/channelInfo.dto";
+import { ManageChannelDto } from "../websocket/websocket.dto";
 
 @Injectable()
 export class ChannelService {
@@ -36,12 +37,14 @@ export class ChannelService {
     return this.prisma.channel.findMany({ select: { name: true } });
   }
 
-  async connectToChannel(data: Prisma.ChannelCreateInput): Promise<ChannelInfoDto> {
+  async connectToChannel(
+    data: Prisma.ChannelCreateInput
+  ): Promise<ChannelInfoDto> {
     return this.prisma.channel
       .upsert({
         include: {
-          guests : true,
-          messages: true
+          guests: true,
+          messages: true,
         },
         where: { name: data.name },
         // if channel exists
@@ -61,6 +64,8 @@ export class ChannelService {
               id: data.ownerId,
             },
           },
+          isPrivate: data.isPrivate,
+          admIds: [data.ownerId],
         },
       })
       .then((ret: any) => ret)
@@ -78,6 +83,43 @@ export class ChannelService {
         messages: true,
       },
     });
+  }
+
+  async setPrivacy(
+    executorId: number,
+    data: ManageChannelDto
+  ): Promise<number> {
+    return (
+      await this.prisma.channel.updateMany({
+        where: {
+          name: data.name,
+          admIds: {
+            has: executorId,
+          },
+        },
+        data: {
+          isPrivate: data.params[0]
+        },
+      })
+    ).count;
+  }
+
+  async addAdmin(executorId: number, data: ManageChannelDto): Promise<number> {
+    return (
+      await this.prisma.channel.updateMany({
+        where: {
+          name: data.name,
+          admIds: {
+            has: executorId,
+          },
+        },
+        data: {
+          admIds: {
+            push: data.params[0],
+          },
+        },
+      })
+    ).count;
   }
 
   async updateChannel(params: {
