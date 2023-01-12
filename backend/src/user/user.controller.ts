@@ -59,7 +59,6 @@ export class UserController {
   @ApiOkResponse({ type: UserEntity })
   @Get('getMe')
     async getMe( @Request() req : GetMeUserDto) {
-    // async getMe( @Body() req : GetMeUserDto) {
        return await this.userService.getUser(req.user.id);
     }
 
@@ -67,6 +66,6 @@ export class UserController {
   @ApiOkResponse({ type: UserEntity })
   @Get(':id')
   async showUser(@Param('id') id: number): Promise<UserModel> {
-    return this.userService.getUser(id);
+    return this.userService.getUser(id, true, true);
   }
 }

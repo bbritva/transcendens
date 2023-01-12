@@ -53,14 +53,15 @@ export class UserService {
     });
   }
 
-  async getUser(userId: number): Promise<User> {
+  async getUser(userId: number, includeGames=false, includeChannels=false): Promise<User> {
     return this.prisma.user.findFirst({
       where: {
         id: userId,
       },
       include: {
-        wins: true,
-        loses: true,
+        wins: includeGames,
+        loses: includeGames,
+        channels: includeChannels
       },
     });
   }

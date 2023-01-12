@@ -59,7 +59,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() channelIn: ChannelInfoDtoIn
   ) {
-    const channel = await this.channelService.getChannel(channelIn.name)
+    const channel = await this.channelService.getChannel(channelIn.name);
 
     if (channel == null || !channel.isPrivate) {
       await this.connectUserToChannel(
@@ -71,7 +71,7 @@ export class Gateway implements OnModuleInit {
           channelIn,
           await this.getClientDTOByName(user.name)
         );
-      })
+      });
     }
   }
   // @SubscribeMessage("connectToChannel")
@@ -106,8 +106,7 @@ export class Gateway implements OnModuleInit {
         channelIn,
         await this.getClientDTOByName(user.name)
       );
-    })
-    
+    });
   }
 
   @SubscribeMessage("newMessage")
@@ -193,7 +192,6 @@ export class Gateway implements OnModuleInit {
     channelIn: ChannelInfoDtoIn,
     user: ClientDTO
   ) {
-
     const channel = await this.channelService.connectToChannel({
       name: channelIn.name,
       ownerId: user.id,
@@ -202,7 +200,11 @@ export class Gateway implements OnModuleInit {
     // notice users in channel about new client
     this.server
       .to(channelIn.name)
-      .emit("userConnected", channel.name, user.name);
+      .emit(
+        "userConnected",
+        channel.name,
+        await this.userService.getUser(user.id, false, true)
+      );
 
     // send to user channel info
     const channelInfo: ChannelInfoDtoOut = {
