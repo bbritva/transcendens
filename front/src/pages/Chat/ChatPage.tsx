@@ -84,7 +84,7 @@ const ChatPage: FC<any> = (): ReactElement => {
         {name: destObject.name} as userFromBackI,
         {name: userName} as userFromBackI,
       ];
-      socket.emit('connectToChannel', privateChannel);
+      socket.emit('privateMessage', privateChannel);
       setChosenChannel(privateChannel)
     }
   }, [destination]);

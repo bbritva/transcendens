@@ -6,18 +6,16 @@ export interface ManageChannelDto {
   params: any[]
 }
 
-export interface ChannelInfoDto {
+export interface ChannelInfoDtoIn {
   name: string;
   isPrivate?: boolean;
+  users?: {name: string}[];
 }
 
-export interface ChannelInfoDtoOut extends ChannelInfoDto {
+export interface ChannelInfoDtoOut {
+  name: string;
   messages: MessageEntity[];
   users: UserEntity[];
-}
-
-export interface ChannelInfoDtoIn extends ChannelInfoDto {
-  users: {name: string}[];
 }
 
 export interface UserConnectedDto {
@@ -26,15 +24,15 @@ export interface UserConnectedDto {
 }
 
 export class ClientDTO {
-  readonly id: string
-  readonly username: string;
+  readonly id: number
+  readonly name: string;
 }
 
 export class ConnectedClientInfo {
-  readonly username: string;
+  readonly name: string;
 }
 
 export class DecodedTokenDTO {
   readonly id: number
-  readonly username: string;
+  readonly name: string;
 }

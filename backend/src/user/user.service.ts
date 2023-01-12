@@ -94,10 +94,10 @@ export class UserService {
     });
   }
 
-  async getChannels(userName: string): Promise<string[]> {
+  async getChannels(userId: number): Promise<string[]> {
     let channelList = [];
     const user = await this.prisma.user.findUnique({
-      where: { name: userName },
+      where: { id: userId },
       include: { channels: true },
     });
     if (user)
