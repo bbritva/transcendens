@@ -3,15 +3,16 @@
 function game(canvas, setStopGame) {
   const ctx = canvas.getContext("2d");
   let ballRadius = 10;
-  let x = canvas.width / 2;
-  let y = canvas.height - 30;
+  let x = canvas.height / 2;
+  let y = canvas.width - 30;
   let dx = 2;
   let dy = -2;
   let paddleHeight = 10;
   let paddleWidth = 75;
   let paddleX = (canvas.width - paddleWidth) / 2;
-  let rightPressed = false;
-  let leftPressed = false;
+  let paddleY = (canvas.height - paddleWidth) / 2;
+  let downPressed = false;
+  let upPressed = false;
   let brickRowCount = 5;
   let brickColumnCount = 3;
   let brickWidth = 75;
@@ -35,26 +36,26 @@ function game(canvas, setStopGame) {
   document.addEventListener("mousemove", mouseMoveHandler, false);
 
   function keyDownHandler(e) {
-    if (e.code == "ArrowRight") {
-      rightPressed = true;
+    if (e.code == "ArrowDown") {
+      downPressed = true;
     }
-    else if (e.code == 'ArrowLeft') {
-      leftPressed = true;
+    else if (e.code == 'ArrowUp') {
+      upPressed = true;
     }
   }
   function keyUpHandler(e) {
-    if (e.code == 'ArrowRight') {
-      rightPressed = false;
+    if (e.code == 'ArrowDown') {
+      downPressed = false;
     }
-    else if (e.code == 'ArrowLeft') {
-      leftPressed = false;
+    else if (e.code == 'ArrowUp') {
+      upPressed = false;
     }
   }
 
   function mouseMoveHandler(e) {
-    let relativeX = e.clientX - canvas.offsetLeft;
-    if (relativeX > 0 && relativeX < canvas.width) {
-      paddleX = relativeX - paddleWidth / 2;
+    let relativeY = e.clientY - canvas.offsetTop;
+    if (relativeY > 0 && relativeY < canvas.height) {
+      paddleY = relativeY - paddleHeight / 2;
     }
   }
 
@@ -85,9 +86,9 @@ function game(canvas, setStopGame) {
     ctx.closePath();
   }
 
-  function drawPaddle(paddleX) {
+  function drawPaddle() {
     ctx.beginPath();
-    ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+    ctx.rect(canvas.width - paddleHeight, paddleY, paddleHeight ,paddleWidth);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
@@ -126,22 +127,24 @@ function game(canvas, setStopGame) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBricks();
     drawBall();
-    drawPaddle(paddleX);
+    drawPaddle();
     drawScore();
     drawLives();
     collisionDetection();
 
-    if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
-      dx = -dx;
-    }
-    if (y + dy < ballRadius) {
+    if(y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
       dy = -dy;
     }
-    else if (y + dy > canvas.height - ballRadius) {
-      if (x > paddleX && x < paddleX + paddleWidth) {
-        dy = -dy;
+    if (x + dx < ballRadius) {
+      dx = -dx;
+    }
+    else if (x + dx > canvas.width) {
+      if (y > paddleY && y < paddleY + paddleWidth) {
+        console.log("REVERSE BALLS");
+        dx = -dx;
       }
       else {
+        console.log("LIVE -");
         lives--;
         if (!lives) {
           alert("GAME OVER");
@@ -152,16 +155,16 @@ function game(canvas, setStopGame) {
           y = canvas.height - 30;
           dx = 2;
           dy = -2;
-          paddleX = (canvas.width - paddleWidth) / 2;
+          paddleY = (canvas.height - paddleWidth) / 2;
         }
       }
     }
 
-    if (rightPressed && paddleX < canvas.width - paddleWidth) {
-      paddleX += 7;
+    if (downPressed && paddleY < canvas.height - paddleWidth) {
+      paddleY += 7;
     }
-    else if (leftPressed && paddleX > 0) {
-      paddleX -= 7;
+    else if (upPressed && paddleY > 0) {
+      paddleY -= 7;
     }
 
     x += dx;
