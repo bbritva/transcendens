@@ -3,14 +3,14 @@
 function game(canvas, setStopGame) {
   const ctx = canvas.getContext("2d");
   let ballRadius = 10;
-  let y = canvas.height / 2;
-  let x = canvas.width - 30;
-  let dx = -2;
-  let dy = 2;
   let paddleHeight = 10;
   let paddleWidth = 75;
   let paddleX = canvas.width - paddleHeight;
   let paddleY = (canvas.height - paddleWidth) / 2;
+  let y = canvas.height / 2;
+  let x = paddleX - 30;
+  let dx = -2;
+  let dy = 2;
   let downPressed = false;
   let upPressed = false;
   let brickRowCount = 5;
@@ -147,7 +147,7 @@ function game(canvas, setStopGame) {
         dx = -dx;
       }
       else {
-        console.log("LIVE -");
+        debugger;
         lives--;
         if (!lives) {
           alert("GAME OVER");
@@ -155,7 +155,7 @@ function game(canvas, setStopGame) {
         }
         else {
           y = canvas.height / 2;
-          x = canvas.width - 30;
+          x = paddleX - 30;
           dx = -2;
           dy = 2;
           paddleY = (canvas.height - paddleWidth) / 2;
@@ -173,7 +173,10 @@ function game(canvas, setStopGame) {
     x += dx;
     y += dy;
     setStopGame((prev) => {
-      if (prev) return prev;
+      if (prev){
+        console.log("game ended")
+        return prev;
+      }
       requestAnimationFrame(draw);
       return prev;
     });

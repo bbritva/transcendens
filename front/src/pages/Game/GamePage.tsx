@@ -5,16 +5,16 @@ import game from "./components/game";
 
 const GamePage: FC<any> = (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [stopGame, setStopGame] = useState(false);
+  const [stopGame, setStopGame] = useState<boolean>();
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas)
-      return;
-    setStopGame(false);
-    game(canvas, setStopGame);
-    return () => {
-      setStopGame(true);
+    if (canvas){
+      setStopGame(false);
+      game(canvas, setStopGame);
+      return () => {
+        setStopGame(true);
+      }
     }
   }, [])
 
