@@ -1,6 +1,6 @@
 
 
-function game(canvas, setCanvasNumber) {
+function game(canvas, setStopGame) {
   var ctx = canvas.getContext("2d");
   var ballRadius = 10;
   var x = canvas.width / 2;
@@ -161,7 +161,7 @@ function game(canvas, setCanvasNumber) {
 
     x += dx;
     y += dy;
-    setCanvasNumber((prev) => {
+    setStopGame((prev) => {
       if (prev) return prev;
       requestAnimationFrame(draw);
       return prev;
