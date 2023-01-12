@@ -3,13 +3,13 @@
 function game(canvas, setStopGame) {
   const ctx = canvas.getContext("2d");
   let ballRadius = 10;
-  let x = canvas.height / 2;
-  let y = canvas.width - 30;
-  let dx = 2;
-  let dy = -2;
+  let y = canvas.height / 2;
+  let x = canvas.width - 30;
+  let dx = -2;
+  let dy = 2;
   let paddleHeight = 10;
   let paddleWidth = 75;
-  let paddleX = (canvas.width - paddleWidth) / 2;
+  let paddleX = canvas.width - paddleHeight;
   let paddleY = (canvas.height - paddleWidth) / 2;
   let downPressed = false;
   let upPressed = false;
@@ -88,7 +88,7 @@ function game(canvas, setStopGame) {
 
   function drawPaddle() {
     ctx.beginPath();
-    ctx.rect(canvas.width - paddleHeight, paddleY, paddleHeight ,paddleWidth);
+    ctx.rect(paddleX, paddleY, paddleHeight ,paddleWidth);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath();
@@ -135,10 +135,13 @@ function game(canvas, setStopGame) {
     if(y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
       dy = -dy;
     }
+
     if (x + dx < ballRadius) {
       dx = -dx;
     }
     else if (x + dx > canvas.width) {
+      console.log("X Attention!", x, dx, canvas.width);
+      console.log("Y is!", y, dy, canvas.width);
       if (y > paddleY && y < paddleY + paddleWidth) {
         console.log("REVERSE BALLS");
         dx = -dx;
@@ -151,10 +154,10 @@ function game(canvas, setStopGame) {
           document.location.reload();
         }
         else {
-          x = canvas.width / 2;
-          y = canvas.height - 30;
-          dx = 2;
-          dy = -2;
+          y = canvas.height / 2;
+          x = canvas.width - 30;
+          dx = -2;
+          dy = 2;
           paddleY = (canvas.height - paddleWidth) / 2;
         }
       }
