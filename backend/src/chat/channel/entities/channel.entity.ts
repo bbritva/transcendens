@@ -9,6 +9,9 @@ export class ChannelEntity implements Channel {
   ownerId: number;
 
   @ApiProperty()
+  password: string;
+
+  @ApiProperty()
   admIds: number[];
   @ApiProperty()
   mutedIds: number[];

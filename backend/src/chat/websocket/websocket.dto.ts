@@ -9,6 +9,7 @@ export interface ManageChannelDto {
 export interface ChannelInfoDtoIn {
   name: string;
   isPrivate?: boolean;
+  password?: string;
   users?: {name: string}[];
 }
 

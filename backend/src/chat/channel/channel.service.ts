@@ -3,10 +3,12 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Prisma } from "@prisma/client";
 import { ChannelInfoDto } from "./dto/channelInfo.dto";
 import { ManageChannelDto } from "../websocket/websocket.dto";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class ChannelService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService,
+    private jwtService: JwtService) {}
 
   async Channel(
     ChannelWhereUniqueInput: Prisma.ChannelWhereUniqueInput
@@ -59,6 +61,7 @@ export class ChannelService {
         create: {
           name: data.name,
           ownerId: data.ownerId,
+          password: data.password,
           guests: {
             connect: {
               id: data.ownerId,

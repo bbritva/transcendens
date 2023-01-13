@@ -52,6 +52,7 @@ model Token {
 model Channel {
   name      String      @unique @id
   ownerId   Int
+  password  String?
   guests    User[]
   admIds    Int[]
   mutedIds  Int[]

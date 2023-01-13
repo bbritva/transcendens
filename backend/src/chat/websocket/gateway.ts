@@ -60,8 +60,13 @@ export class Gateway implements OnModuleInit {
     @MessageBody() channelIn: ChannelInfoDtoIn
   ) {
     const channel = await this.channelService.getChannel(channelIn.name);
-
-    if (channel == null || !channel.isPrivate) {
+    if (
+      channel == null ||
+      (!channel.isPrivate &&
+        (!channel.password ||
+          (channelIn.password &&
+            this.jwtService.sign(channelIn.password) == channel.password)))
+    ) {
       await this.connectUserToChannel(
         channelIn,
         await this.getClientDTOByName(this.connections.get(socket.id).name)
@@ -74,23 +79,6 @@ export class Gateway implements OnModuleInit {
       });
     }
   }
-  // @SubscribeMessage("connectToChannel")
-  // async connectToChannel(
-  //   @ConnectedSocket() socket: Socket,
-  //   @MessageBody() channelIn: ChannelInfoDtoIn
-  // ) {
-  //     await this.connectUserToChannel({
-  //       name: channelIn.name,
-  //       users: [{ name: this.connections.get(socket.id).username }],
-  //     });
-  //   channelIn.users.forEach(
-  //     async (user) =>
-  //       await this.connectUserToChannel({
-  //         name: channelIn.name,
-  //         users: [{ name: user.name }],
-  //       })
-  //   );
-  // }
 
   @SubscribeMessage("privateMessage")
   async connectToChannelPM(
@@ -192,10 +180,13 @@ export class Gateway implements OnModuleInit {
     channelIn: ChannelInfoDtoIn,
     user: ClientDTO
   ) {
+    let passwd = null;
+    if (channelIn.password) passwd = this.jwtService.sign(channelIn.password);
     const channel = await this.channelService.connectToChannel({
       name: channelIn.name,
       ownerId: user.id,
       isPrivate: channelIn.isPrivate,
+      password: passwd,
     });
     // notice users in channel about new client
     this.server
