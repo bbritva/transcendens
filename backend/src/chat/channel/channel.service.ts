@@ -2,13 +2,11 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Prisma } from "@prisma/client";
 import { ChannelInfoDto } from "./dto/channelInfo.dto";
-import { ManageChannelDto } from "../websocket/websocket.dto";
-import { JwtService } from "@nestjs/jwt";
+import { ManageChannel } from "../websocket/websocket.dto";
 
 @Injectable()
 export class ChannelService {
-  constructor(private prisma: PrismaService,
-    private jwtService: JwtService) {}
+  constructor(private prisma: PrismaService) {}
 
   async Channel(
     ChannelWhereUniqueInput: Prisma.ChannelWhereUniqueInput
@@ -90,7 +88,7 @@ export class ChannelService {
 
   async setPrivacy(
     executorId: number,
-    data: ManageChannelDto
+    data: ManageChannel
   ): Promise<number> {
     return (
       await this.prisma.channel.updateMany({
@@ -109,7 +107,7 @@ export class ChannelService {
 
   async setPassword(
     executorId: number,
-    data: ManageChannelDto
+    data: ManageChannel
   ): Promise<number> {
     return (
       await this.prisma.channel.updateMany({
@@ -124,7 +122,7 @@ export class ChannelService {
     ).count;
   }
   
-  async addAdmin(executorId: number, data: ManageChannelDto): Promise<number> {
+  async addAdmin(executorId: number, data: ManageChannel): Promise<number> {
     return (
       await this.prisma.channel.updateMany({
         where: {

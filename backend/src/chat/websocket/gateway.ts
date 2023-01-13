@@ -1,5 +1,4 @@
 import { OnModuleInit } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,14 +9,7 @@ import {
 import { Server, Socket } from "socket.io";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import { MessageService } from "src/chat/message/message.service";
-import {
-  ChannelInfoDtoIn,
-  ChannelInfoDtoOut,
-  ClientDTO,
-  ConnectedClientInfo,
-  DecodedTokenDTO,
-  ManageChannelDto,
-} from "./websocket.dto";
+import * as DTO from "./websocket.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
 
@@ -29,12 +21,11 @@ import { ChannelService } from "src/chat/channel/channel.service";
 export class Gateway implements OnModuleInit {
   constructor(
     private messageService: MessageService,
-    private jwtService: JwtService,
     private userService: UserService,
     private channelService: ChannelService
   ) {}
 
-  connections: Map<string, ConnectedClientInfo> = new Map();
+  connections: Map<string, DTO.ConnectedClientInfo> = new Map();
 
   @WebSocketServer()
   server: Server;
@@ -46,7 +37,7 @@ export class Gateway implements OnModuleInit {
       // event handler
       this.onConnection(socket);
 
-      //discinnection handler
+      // discinnection handlers
       socket.on("disconnecting", async () => {
         this.onDisconnecting(socket);
       });
@@ -57,7 +48,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("connectToChannel")
   async connectToChannel(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() channelIn: ChannelInfoDtoIn
+    @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
     const channel = await this.channelService.getChannel(channelIn.name);
     if (
@@ -65,7 +56,7 @@ export class Gateway implements OnModuleInit {
       (!channel.isPrivate &&
         (!channel.password ||
           (channelIn.password &&
-            this.jwtService.sign(channelIn.password) == channel.password)))
+            channelIn.password == channel.password)))
     ) {
       await this.connectUserToChannel(
         channelIn,
@@ -83,7 +74,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("privateMessage")
   async connectToChannelPM(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() channelIn: ChannelInfoDtoIn
+    @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
     await this.connectUserToChannel(
       channelIn,
@@ -116,7 +107,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("addAdmin")
   async onAddAdmin(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: ManageChannelDto
+    @MessageBody() data: DTO.ManageChannel
   ) {
     if (
       (await this.channelService.addAdmin(
@@ -133,7 +124,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("setPrivacy")
   async onSetPrivacy(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: ManageChannelDto
+    @MessageBody() data: DTO.ManageChannel
   ) {
     if (
       (await this.channelService.setPrivacy(
@@ -150,9 +141,8 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("setPassword")
   async onSetPassword(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: ManageChannelDto
+    @MessageBody() data: DTO.ManageChannel
   ) {
-    if (data.params[0]) data.params[0] = this.jwtService.sign(data.params[0]);
     if (
       (await this.channelService.setPassword(
         (
@@ -165,10 +155,10 @@ export class Gateway implements OnModuleInit {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  private getUserNameFromJWT(JWTtoken: string): DecodedTokenDTO {
-    const decodedToken = this.jwtService.decode(JWTtoken) as DecodedTokenDTO;
-    return decodedToken;
-  }
+  // private getUserNameFromJWT(JWTtoken: string): DTO.DecodedToken {
+  //   const decodedToken = this.jwtService.decode(JWTtoken) as DTO.DecodedToken;
+  //   return decodedToken;
+  // }
 
   private async connectUserToChannels(socket: Socket) {
     const client = await this.getClientDTOByName(
@@ -177,7 +167,7 @@ export class Gateway implements OnModuleInit {
     const channels = await this.userService.getChannels(client.id);
 
     channels.forEach((channelName) => {
-      const channelInfoDtoIn: ChannelInfoDtoIn = {
+      const channelInfoDtoIn: DTO.ChannelInfoIn = {
         name: channelName,
       };
       this.connectUserToChannel(channelInfoDtoIn, client);
@@ -185,16 +175,14 @@ export class Gateway implements OnModuleInit {
   }
 
   private async connectUserToChannel(
-    channelIn: ChannelInfoDtoIn,
-    user: ClientDTO
+    channelIn: DTO.ChannelInfoIn,
+    user: DTO.Client
   ) {
-    let passwd = null;
-    if (channelIn.password) passwd = this.jwtService.sign(channelIn.password);
     const channel = await this.channelService.connectToChannel({
       name: channelIn.name,
       ownerId: user.id,
       isPrivate: channelIn.isPrivate,
-      password: passwd,
+      password: channelIn.password,
     });
     // notice users in channel about new client
     this.server
@@ -206,12 +194,12 @@ export class Gateway implements OnModuleInit {
       );
 
     // send to user channel info
-    const channelInfo: ChannelInfoDtoOut = {
+    const channelInfo: DTO.ChannelInfoOut = {
       name: channel.name,
       users: channel.guests,
       messages: channel.messages,
     };
-    this.connections.forEach((value: ConnectedClientInfo, key: string) => {
+    this.connections.forEach((value: DTO.ConnectedClientInfo, key: string) => {
       if (value.name == user.name) {
         this.server.to(key).emit("joinedToChannel", channelInfo);
         this.server.sockets.sockets.get(key).join(channelIn.name);
@@ -219,13 +207,13 @@ export class Gateway implements OnModuleInit {
     });
   }
 
-  private async disconnectUserFromChannels(user: ClientDTO) {
+  private async disconnectUserFromChannels(user: DTO.Client) {
     (await this.userService.getChannels(user.id)).forEach((channelName) => {
       this.disconnectFromChannel(channelName, user);
     });
   }
 
-  private async disconnectFromChannel(channelName: string, user: ClientDTO) {
+  private async disconnectFromChannel(channelName: string, user: DTO.Client) {
     // notice users in channel about client disconnected
     this.server
       .to(channelName)
@@ -274,7 +262,7 @@ export class Gateway implements OnModuleInit {
   }
 
   /////////// MUST BE DELETED !!!!!!!!!!!!!!!!!!!!!!!
-  async getClientDTOByName(name: string): Promise<ClientDTO> {
+  async getClientDTOByName(name: string): Promise<DTO.Client> {
     return await this.userService.getUserByName(name);
   }
 }
