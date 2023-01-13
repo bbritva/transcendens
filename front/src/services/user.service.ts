@@ -1,7 +1,7 @@
 import axios from 'axios';
 import authHeader from './authHeader';
 
-const API_URL = process.env.REACT_APP_USERS_URL;
+const API_URL = process.env.REACT_APP_AUTH_URL +'/user'
 
 class UserService {
 
