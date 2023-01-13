@@ -1,60 +1,9 @@
 import Ball from "./Ball";
+import Bricks from "./Bricks";
 import Paddle from "./Paddle";
 
 
 function game(canvas, setStopGame, mods) {
-  let brickRowCount = 5;
-  let brickColumnCount = 3;
-  let brickWidth = 75;
-  let brickHeight = 20;
-  let brickPadding = 10;
-  let brickOffsetTop = 30;
-  let brickOffsetLeft = 30;
-  let score = 0;
-  let bricks = [];
-  for (let c = 0; c < brickColumnCount; c++) {
-    bricks[c] = [];
-    for (let r = 0; r < brickRowCount; r++) {
-      bricks[c][r] = { x: 0, y: 0, status: 1 };
-    }
-  }
-
-  function drawBricks(ctx) {
-    for (let c = 0; c < brickColumnCount; c++) {
-      for (let r = 0; r < brickRowCount; r++) {
-        if (bricks[c][r].status == 1) {
-          let brickX = (r * (brickWidth + brickPadding)) + brickOffsetLeft;
-          let brickY = (c * (brickHeight + brickPadding)) + brickOffsetTop;
-          bricks[c][r].x = brickX;
-          bricks[c][r].y = brickY;
-          ctx.beginPath();
-          ctx.rect(brickX, brickY, brickWidth, brickHeight);
-          ctx.fillStyle = "#0095DD";
-          ctx.fill();
-          ctx.closePath();
-        }
-      }
-    }
-  }
-
-  function bricksCollision(ball) {
-    for (let c = 0; c < brickColumnCount; c++) {
-      for (let r = 0; r < brickRowCount; r++) {
-        let b = bricks[c][r];
-        if (b.status == 1) {
-          if (ball.x > b.x && ball.x < b.x + brickWidth && ball.y > b.y && ball.y < b.y + brickHeight) {
-            ball.dy = -ball.dy;
-            b.status = 0;
-            score++;
-            if (score == brickRowCount * brickColumnCount) {
-              alert("YOU WIN, CONGRATS!");
-              document.location.reload();
-            }
-          }
-        }
-      }
-    }
-  }
 
   function drawScore(ctx, leftPaddle, rightPaddle) {
     ctx.font = "16px Arial";
@@ -62,13 +11,13 @@ function game(canvas, setStopGame, mods) {
     ctx.fillText(`Score: ${leftPaddle.score} : ${rightPaddle.score}`, canvas.width / 2 - 70, 20);
   }
 
-  function draw(ball, rightPaddle, leftPaddle, canvas, ctx) {
+  function draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    mods.bricks && drawBricks(ctx);
+    mods.bricks && bricks.drawBricks(ctx);
     ball.drawBall(ctx);
     rightPaddle.drawPaddle(ctx);
     leftPaddle.drawPaddle(ctx);
-    mods.bricks && bricksCollision(ball);
+    mods.bricks && bricks.bricksCollision(ball);
     drawScore(ctx, leftPaddle, rightPaddle);
 
     ball.verticalCollision();
@@ -104,7 +53,7 @@ function game(canvas, setStopGame, mods) {
       if (prev){
         return prev;
       }
-      requestAnimationFrame(() => {draw(ball, rightPaddle, leftPaddle, canvas, ctx)});
+      requestAnimationFrame(() => {draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx)});
       return prev;
     });
   }
@@ -141,11 +90,13 @@ function game(canvas, setStopGame, mods) {
       canvas,
       ballRadius
     );
+
+    const bricks = new Bricks();
     document.addEventListener("keydown", (e) => {leftPaddle.keyDownHandler(e)}, false);
     document.addEventListener("keyup", (e) => {leftPaddle.keyUpHandler(e)}, false);
     document.addEventListener("mousemove", (e) => {rightPaddle.mouseMoveHandler(e)}, false);
     const ctx = canvas.getContext("2d");
-    draw(ball, rightPaddle, leftPaddle, canvas, ctx);
+    draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
   }
 
   initGame();
