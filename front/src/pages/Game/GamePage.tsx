@@ -1,7 +1,7 @@
 import { ReactElement, FC, useRef, useEffect, useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
-import game from "./components/game";
+import game from "./components/game/game";
 
 const GamePage: FC<any> = (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
