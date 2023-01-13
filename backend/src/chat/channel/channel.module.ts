@@ -6,6 +6,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
     imports: [PrismaModule, JwtModule],
+    exports: [ChannelService],
     controllers : [ChannelController],
     providers : [ChannelService]
 })

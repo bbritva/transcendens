@@ -107,14 +107,29 @@ export class ChannelService {
     ).count;
   }
 
+  async setPassword(
+    executorId: number,
+    data: ManageChannelDto
+  ): Promise<number> {
+    return (
+      await this.prisma.channel.updateMany({
+        where: {
+          name: data.name,
+          ownerId: executorId,
+        },
+        data: {
+          password: data.params[0]
+        },
+      })
+    ).count;
+  }
+  
   async addAdmin(executorId: number, data: ManageChannelDto): Promise<number> {
     return (
       await this.prisma.channel.updateMany({
         where: {
           name: data.name,
-          admIds: {
-            has: executorId,
-          },
+          ownerId: executorId
         },
         data: {
           admIds: {

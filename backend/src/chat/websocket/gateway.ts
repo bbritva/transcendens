@@ -126,15 +126,8 @@ export class Gateway implements OnModuleInit {
         data
       )) != 0
     )
-      this.server
-        .to(socket.id)
-        .emit(JSON.stringify({ result: "new admin added" }));
-    else
-      this.server
-        .to(socket.id)
-        .emit(
-          JSON.stringify({ result: "you are not allowed to this operation" })
-        );
+      this.server.to(data.name).emit("newAdmin", data);
+    else this.server.to(socket.id).emit("notAllowed", data);
   }
 
   @SubscribeMessage("setPrivacy")
@@ -150,11 +143,26 @@ export class Gateway implements OnModuleInit {
         data
       )) != 0
     ) {
-      if (data.params[0] == true)
-        this.server.to(socket.id).emit(data.name, "is private now");
-      else this.server.to(socket.id).emit(data.name, "is public now");
-    } else
-      this.server.to(socket.id).emit("you are not allowed to this operation");
+      this.server.to(data.name).emit("setPrivacy", data);
+    } else this.server.to(socket.id).emit("notAllowed", data);
+  }
+
+  @SubscribeMessage("setPassword")
+  async onSetPassword(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: ManageChannelDto
+  ) {
+    if (data.params[0]) data.params[0] = this.jwtService.sign(data.params[0]);
+    if (
+      (await this.channelService.setPassword(
+        (
+          await this.getClientDTOByName(this.connections.get(socket.id).name)
+        ).id,
+        data
+      )) != 0
+    ) {
+      this.server.to(data.name).emit("setPassword", data);
+    } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
   private getUserNameFromJWT(JWTtoken: string): DecodedTokenDTO {
