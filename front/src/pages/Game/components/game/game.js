@@ -88,7 +88,8 @@ function game(canvas, setStopGame, mods) {
       canvas.height / 2,
       false,
       canvas,
-      ballRadius
+      ballRadius,
+      1.3
     );
 
     const bricks = new Bricks();

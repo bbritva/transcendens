@@ -8,19 +8,21 @@ class Ball{
   dx: number;
   dy: number;
   ballRadius: number;
+  ballSpeed: number;
 
   constructor(
     initX: number, initY: number, 
     remote:boolean ,canvas: HTMLCanvasElement,
-    radius: number
+    radius: number, speed: number,
   ){
     this.canvas = canvas;
     this.x = initX;
     this.y = initY;
     this.remote = remote;
-    this.dx = -1.3;
-    this.dy = 1.3;
+    this.dx = -speed;
+    this.dy = speed;
     this.ballRadius = radius;
+    this.ballSpeed = speed;
   }
 
   verticalCollision() {
@@ -29,17 +31,30 @@ class Ball{
     }
   }
 
+  hitDirection(paddle: Paddle) {
+    const whereHit = paddle.ballCollision(this);
+    if (whereHit){
+      this.dx = -this.dx;
+      if (whereHit == 2)
+        this.dy = 0;
+      else if (this.dy <= 0 && whereHit < 0 || this.dy >= 0 && whereHit > 0)
+        this.dy = this.ballSpeed * -whereHit;
+    }
+  }
+
   leftCollision(leftPaddle: Paddle): boolean {
     const res = (this.x + this.dx < this.ballRadius + leftPaddle.paddleHeight + leftPaddle.paddleOffsetX);
-    if (res && leftPaddle.ballCollision(this))
-      this.dx = -this.dx;
+    if (res){
+      this.hitDirection(leftPaddle);
+    }
     return res;
   }
 
   rightCollision(rightPaddle: Paddle): boolean {
     const res = (this.x + this.dx > this.canvas.width - this.ballRadius - rightPaddle.paddleOffsetX);
-    if (res && rightPaddle.ballCollision(this))
-      this.dx = -this.dx;
+    if (res){
+      this.hitDirection(rightPaddle);
+    }
     return res;
   }
   
@@ -59,8 +74,8 @@ class Ball{
   reset(side: number) {
     this.y = this.canvas.height / 2;
     this.x = this.canvas.width / 2;
-    this.dx = -1.3 * side;
-    this.dy = 1.3 * side;
+    this.dx = -this.ballSpeed * side;
+    this.dy = this.ballSpeed * side;
   }
 }
 

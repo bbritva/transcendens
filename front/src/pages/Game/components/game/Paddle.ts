@@ -17,23 +17,23 @@ class Paddle{
   name: string
 
   constructor(initX: number, initY: number,
-              remote: boolean, canvas: HTMLCanvasElement,
-              height: number, width:number, offsetX: number, name: string){
-      this.canvas = canvas;
-      this.initX = initX;
-      this.initY = initY;
-      this.paddleX = initX;
-      this.paddleY = initY;
-      this.remote = remote;
-      this.downPressed = false;
-      this.upPressed = false;
-      this.paddleHeight = height;
-      this.paddleWidth = width;
-      this.paddleOffsetX = offsetX;
-      this.paddleSpeed = 5;
-      this.score = 0;
-      this.name = name
-    }
+            remote: boolean, canvas: HTMLCanvasElement,
+            height: number, width:number, offsetX: number, name: string){
+    this.canvas = canvas;
+    this.initX = initX;
+    this.initY = initY;
+    this.paddleX = initX;
+    this.paddleY = initY;
+    this.remote = remote;
+    this.downPressed = false;
+    this.upPressed = false;
+    this.paddleHeight = height;
+    this.paddleWidth = width;
+    this.paddleOffsetX = offsetX;
+    this.paddleSpeed = 5;
+    this.score = 0;
+    this.name = name
+  }
 
   keyDownHandler(e: KeyboardEvent) {
     if (e.code == "ArrowDown") {
@@ -77,8 +77,18 @@ class Paddle{
     }
   }
 
-  ballCollision(ball: Ball): boolean{
-    return ball.y > this.paddleY && ball.y < this.paddleY + this.paddleWidth;
+  ballCollision(ball: Ball): number{
+    const middle = this.paddleWidth / 2;
+    const topHit = ball.y > this.paddleY && ball.y < this.paddleY + middle;
+    const bottomHit = ball.y > this.paddleY + middle && ball.y < this.paddleY + this.paddleWidth;
+    const middleHit = ball.y > this.paddleY + middle - 3 && ball.y < this.paddleY + middle + 3;
+    if (middleHit)
+      return 2;
+    if (topHit)
+      return 1;
+    if (bottomHit)
+      return -1;
+    return 0;
   }
 
   makeScore(): boolean{
