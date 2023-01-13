@@ -1,3 +1,4 @@
+import Paddle from "./Paddle";
 
 class Ball{
   canvas: HTMLCanvasElement;
@@ -27,6 +28,20 @@ class Ball{
       this.dy = -this.dy;
     }
   }
+
+  leftCollision(leftPaddle: Paddle): boolean {
+    const res = (this.x + this.dx < this.ballRadius + leftPaddle.paddleHeight + leftPaddle.paddleOffsetX);
+    if (res && leftPaddle.ballCollision(this))
+      this.dx = -this.dx;
+    return res;
+  }
+
+  rightCollision(rightPaddle: Paddle): boolean {
+    const res = (this.x + this.dx > this.canvas.width - this.ballRadius - rightPaddle.paddleOffsetX);
+    if (res && rightPaddle.ballCollision(this))
+      this.dx = -this.dx;
+    return res;
+  }
   
   drawBall(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
@@ -39,6 +54,13 @@ class Ball{
   moveBall() {
     this.x += this.dx;
     this.y += this.dy;
+  }
+
+  reset(side: number) {
+    this.y = this.canvas.height / 2;
+    this.x = this.canvas.width / 2;
+    this.dx = -1.3 * side;
+    this.dy = 1.3 * side;
   }
 }
 

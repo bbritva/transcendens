@@ -2,20 +2,26 @@ import Ball from "./Ball";
 
 class Paddle{
   canvas: HTMLCanvasElement;
+  initX: number;
+  initY: number;
   paddleX: number;
   paddleY: number;
   paddleHeight: number;
   paddleWidth: number;
   paddleSpeed: number;
+  paddleOffsetX: number;
   score: number;
   remote: boolean;
   downPressed: boolean;
   upPressed: boolean;
+  name: string
 
   constructor(initX: number, initY: number,
               remote: boolean, canvas: HTMLCanvasElement,
-              height: number, width:number){
+              height: number, width:number, offsetX: number, name: string){
       this.canvas = canvas;
+      this.initX = initX;
+      this.initY = initY;
       this.paddleX = initX;
       this.paddleY = initY;
       this.remote = remote;
@@ -23,8 +29,10 @@ class Paddle{
       this.upPressed = false;
       this.paddleHeight = height;
       this.paddleWidth = width;
+      this.paddleOffsetX = offsetX;
       this.paddleSpeed = 5;
       this.score = 0;
+      this.name = name
     }
 
   keyDownHandler(e: KeyboardEvent) {
@@ -71,6 +79,15 @@ class Paddle{
 
   ballCollision(ball: Ball): boolean{
     return ball.y > this.paddleY && ball.y < this.paddleY + this.paddleWidth;
+  }
+
+  makeScore(): boolean{
+    this.score++;
+    return (this.score > 10);
+  }
+
+  reset() {
+    this.paddleY = this.initY;
   }
 }
 

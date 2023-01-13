@@ -11,7 +11,6 @@ function game(canvas, setStopGame, mods) {
   let brickOffsetTop = 30;
   let brickOffsetLeft = 30;
   let score = 0;
-  let lives = 3;
   let bricks = [];
   for (let c = 0; c < brickColumnCount; c++) {
     bricks[c] = [];
@@ -63,12 +62,6 @@ function game(canvas, setStopGame, mods) {
     ctx.fillText(`Score: ${leftPaddle.score} : ${rightPaddle.score}`, canvas.width / 2 - 70, 20);
   }
 
-  function drawLives(ctx) {
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#0095DD";
-    ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
-  }
-
   function draw(ball, rightPaddle, leftPaddle, canvas, ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     mods.bricks && drawBricks(ctx);
@@ -77,38 +70,29 @@ function game(canvas, setStopGame, mods) {
     leftPaddle.drawPaddle(ctx);
     mods.bricks && bricksCollision(ball);
     drawScore(ctx, leftPaddle, rightPaddle);
-    drawLives(ctx);
 
     ball.verticalCollision();
 
-
-    if (ball.x + ball.dx < ball.ballRadius) {
-      if (leftPaddle.ballCollision(ball)) {
-        ball.dx = -ball.dx;
-      }
-      else {
-        rightPaddle.score++;
-        ball.dx = -ball.dx;
+    if (ball.leftCollision(leftPaddle)) {
+      if (ball.x + ball.dx < ball.ballRadius){
+        if (rightPaddle.makeScore()){
+          alert(`${rightPaddle.name} WINS`);
+          document.location.reload();
+        };
+        ball.reset(-1);
+        leftPaddle.reset();
+        rightPaddle.reset();
       }
     }
-    else if (ball.x + ball.dx > canvas.width) {
-      if (rightPaddle.ballCollision(ball)) {
-        ball.dx = -ball.dx;
-      }
-      else {
-        leftPaddle.score++;
-        lives--;
-        if (!lives) {
-          alert("GAME OVER");
+    else if (ball.rightCollision(rightPaddle)) {
+      if(ball.x + ball.dx > canvas.width){
+        if (leftPaddle.makeScore()){
+          alert(`${leftPaddle.name} WINS`);
           document.location.reload();
-        }
-        else {
-          ball.y = canvas.height / 2;
-          ball.x = rightPaddle.paddleX - 30;
-          ball.dx = -1.3;
-          ball.dy = 1.3;
-          rightPaddle.paddleY = (canvas.height - rightPaddle.paddleWidth) / 2;
-        }
+        };
+        ball.reset(1);
+        leftPaddle.reset();
+        rightPaddle.reset();
       }
     }
 
@@ -129,22 +113,27 @@ function game(canvas, setStopGame, mods) {
     const paddleHeight = 10;
     const paddleWidth = 75;
     const ballRadius = 10;
+    const paddleOffsetX = 20;
     const rightPaddle = new Paddle(
-      canvas.width - paddleHeight,
+      canvas.width - paddleHeight - paddleOffsetX,
       (canvas.height - paddleWidth) / 2,
       false,
       canvas,
       paddleHeight,
-      paddleWidth
+      paddleWidth,
+      paddleOffsetX,
+      'right'
     );
     const leftPaddle = new Paddle(
-      0 + paddleHeight,
+      0 + paddleHeight + paddleOffsetX,
       (canvas.height - paddleWidth) / 2,
       true,
       canvas,
       paddleHeight,
-      paddleWidth
-    )
+      paddleWidth,
+      paddleOffsetX,
+      'left'
+    );
     const ball = new Ball(
       rightPaddle.paddleX - 30,
       canvas.height / 2,
