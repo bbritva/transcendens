@@ -1,25 +1,7 @@
+import Ball from "./Ball";
 import Paddle from "./Paddle";
 
 
-class Ball{
-  constructor(initX, initY, remote,canvas, radius){
-    this.canvas = canvas;
-    this.x = initX;
-    this.y = initY;
-    this.remote = remote;
-    this.dx = -2;
-    this.dy = 2;
-    this.ballRadius = radius;
-  }
-  
-  drawBall(ctx) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0090DD";
-    ctx.fill();
-    ctx.closePath();
-  }
-}
 
 function game(canvas, setStopGame) {
   let brickRowCount = 5;

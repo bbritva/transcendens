@@ -1,5 +1,4 @@
 
-
 class Paddle{
   canvas;
   paddleX;
