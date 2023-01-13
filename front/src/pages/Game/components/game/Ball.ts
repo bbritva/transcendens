@@ -17,9 +17,15 @@ class Ball{
     this.x = initX;
     this.y = initY;
     this.remote = remote;
-    this.dx = -2;
-    this.dy = 2;
+    this.dx = -1.3;
+    this.dy = 1.3;
     this.ballRadius = radius;
+  }
+
+  verticalCollision() {
+    if(this.y + this.dy > this.canvas.height - this.ballRadius || this.y + this.dy < this.ballRadius) {
+      this.dy = -this.dy;
+    }
   }
   
   drawBall(ctx: CanvasRenderingContext2D) {
@@ -28,6 +34,11 @@ class Ball{
     ctx.fillStyle = "#0090DD";
     ctx.fill();
     ctx.closePath();
+  }
+
+  moveBall() {
+    this.x += this.dx;
+    this.y += this.dy;
   }
 }
 

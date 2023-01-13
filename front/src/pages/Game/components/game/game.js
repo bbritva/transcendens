@@ -2,8 +2,7 @@ import Ball from "./Ball";
 import Paddle from "./Paddle";
 
 
-
-function game(canvas, setStopGame) {
+function game(canvas, setStopGame, mods) {
   let brickRowCount = 5;
   let brickColumnCount = 3;
   let brickWidth = 75;
@@ -39,7 +38,7 @@ function game(canvas, setStopGame) {
     }
   }
 
-  function collisionDetection(ball) {
+  function bricksCollision(ball) {
     for (let c = 0; c < brickColumnCount; c++) {
       for (let r = 0; r < brickRowCount; r++) {
         let b = bricks[c][r];
@@ -58,10 +57,10 @@ function game(canvas, setStopGame) {
     }
   }
 
-  function drawScore(ctx) {
+  function drawScore(ctx, leftPaddle, rightPaddle) {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
-    ctx.fillText("Score: " + score, 8, 20);
+    ctx.fillText(`Score: ${leftPaddle.score} : ${rightPaddle.score}`, canvas.width / 2 - 70, 20);
   }
 
   function drawLives(ctx) {
@@ -72,26 +71,32 @@ function game(canvas, setStopGame) {
 
   function draw(ball, rightPaddle, leftPaddle, canvas, ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBricks(ctx);
+    mods.bricks && drawBricks(ctx);
     ball.drawBall(ctx);
     rightPaddle.drawPaddle(ctx);
     leftPaddle.drawPaddle(ctx);
-    drawScore(ctx);
+    mods.bricks && bricksCollision(ball);
+    drawScore(ctx, leftPaddle, rightPaddle);
     drawLives(ctx);
-    collisionDetection(ball);
 
-    if(ball.y + ball.dy > canvas.height - ball.ballRadius || ball.y + ball.dy < ball.ballRadius) {
-      ball.dy = -ball.dy;
-    }
+    ball.verticalCollision();
+
 
     if (ball.x + ball.dx < ball.ballRadius) {
-      ball.dx = -ball.dx;
-    }
-    else if (ball.x + ball.dx > canvas.width) {
-      if (ball.y > rightPaddle.paddleY && ball.y < rightPaddle.paddleY + rightPaddle.paddleWidth) {
+      if (leftPaddle.ballCollision(ball)) {
         ball.dx = -ball.dx;
       }
       else {
+        rightPaddle.score++;
+        ball.dx = -ball.dx;
+      }
+    }
+    else if (ball.x + ball.dx > canvas.width) {
+      if (rightPaddle.ballCollision(ball)) {
+        ball.dx = -ball.dx;
+      }
+      else {
+        leftPaddle.score++;
         lives--;
         if (!lives) {
           alert("GAME OVER");
@@ -100,22 +105,17 @@ function game(canvas, setStopGame) {
         else {
           ball.y = canvas.height / 2;
           ball.x = rightPaddle.paddleX - 30;
-          ball.dx = -2;
-          ball.dy = 2;
+          ball.dx = -1.3;
+          ball.dy = 1.3;
           rightPaddle.paddleY = (canvas.height - rightPaddle.paddleWidth) / 2;
         }
       }
     }
 
-    if (rightPaddle.downPressed && rightPaddle.paddleY < canvas.height - rightPaddle.paddleWidth) {
-      rightPaddle.paddleY += 7;
-    }
-    else if (rightPaddle.upPressed && rightPaddle.paddleY > 0) {
-      rightPaddle.paddleY -= 7;
-    }
+    rightPaddle.movePaddle();
+    leftPaddle.movePaddle();
+    ball.moveBall();
 
-    ball.x += ball.dx;
-    ball.y += ball.dy;
     setStopGame((prev) => {
       if (prev){
         return prev;
@@ -152,8 +152,8 @@ function game(canvas, setStopGame) {
       canvas,
       ballRadius
     );
-    document.addEventListener("keydown", (e) => {rightPaddle.keyDownHandler(e)}, false);
-    document.addEventListener("keyup", (e) => {rightPaddle.keyUpHandler(e)}, false);
+    document.addEventListener("keydown", (e) => {leftPaddle.keyDownHandler(e)}, false);
+    document.addEventListener("keyup", (e) => {leftPaddle.keyUpHandler(e)}, false);
     document.addEventListener("mousemove", (e) => {rightPaddle.mouseMoveHandler(e)}, false);
     const ctx = canvas.getContext("2d");
     draw(ball, rightPaddle, leftPaddle, canvas, ctx);

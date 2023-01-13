@@ -1,13 +1,16 @@
+import Ball from "./Ball";
 
 class Paddle{
-  canvas;
-  paddleX;
-  paddleY;
-  remote;
-  downPressed;
-  upPressed;
-  paddleHeight;
-  paddleWidth;
+  canvas: HTMLCanvasElement;
+  paddleX: number;
+  paddleY: number;
+  paddleHeight: number;
+  paddleWidth: number;
+  paddleSpeed: number;
+  score: number;
+  remote: boolean;
+  downPressed: boolean;
+  upPressed: boolean;
 
   constructor(initX: number, initY: number,
               remote: boolean, canvas: HTMLCanvasElement,
@@ -20,6 +23,8 @@ class Paddle{
       this.upPressed = false;
       this.paddleHeight = height;
       this.paddleWidth = width;
+      this.paddleSpeed = 5;
+      this.score = 0;
     }
 
   keyDownHandler(e: KeyboardEvent) {
@@ -53,6 +58,19 @@ class Paddle{
     ctx.fillStyle = "#0096DD";
     ctx.fill();
     ctx.closePath();
+  }
+
+  movePaddle(){
+    if (this.downPressed && this.paddleY < this.canvas.height - this.paddleWidth) {
+      this.paddleY += this.paddleSpeed;
+    }
+    else if (this.upPressed && this.paddleY > 0) {
+      this.paddleY -= this.paddleSpeed;
+    }
+  }
+
+  ballCollision(ball: Ball): boolean{
+    return ball.y > this.paddleY && ball.y < this.paddleY + this.paddleWidth;
   }
 }
 

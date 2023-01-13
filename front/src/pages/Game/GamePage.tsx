@@ -20,7 +20,7 @@ const GamePage: FC<any> = (): ReactElement => {
     const canvas = canvasRef.current;
     if (canvas && stopGame){
       setStopGame(false);
-      game(canvas, setStopGame);
+      game(canvas, setStopGame, {bricks: false});
     }
   }
 
