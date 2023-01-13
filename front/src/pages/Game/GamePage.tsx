@@ -5,12 +5,11 @@ import game from "./components/game";
 
 const GamePage: FC<any> = (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [stopGame, setStopGame] = useState<boolean>();
+  const [stopGame, setStopGame] = useState<boolean>(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas){
-      setStopGame(false);
       return () => {
         setStopGame(true);
       }
@@ -19,7 +18,8 @@ const GamePage: FC<any> = (): ReactElement => {
 
   function startGame(){
     const canvas = canvasRef.current;
-    if (canvas){
+    if (canvas && stopGame){
+      setStopGame(false);
       game(canvas, setStopGame);
     }
   }

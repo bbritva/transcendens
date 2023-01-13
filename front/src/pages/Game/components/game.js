@@ -1,18 +1,71 @@
 
+class Paddle{
+  constructor(initX, initY, remote, canvas, height, width){
+      this.canvas = canvas;
+      this.paddleX = initX;
+      this.paddleY = initY;
+      this.remote = remote;
+      this.downPressed = false;
+      this.upPressed = false;
+      this.paddleHeight = height;
+      this.paddleWidth = width;
+    }
+
+  keyDownHandler(e) {
+    if (e.code == "ArrowDown") {
+      this.downPressed = true;
+    }
+    else if (e.code == 'ArrowUp') {
+      this.upPressed = true;
+    }
+  }
+
+  keyUpHandler(e) {
+    if (e.code == 'ArrowDown') {
+      this.downPressed = false;
+    }
+    else if (e.code == 'ArrowUp') {
+      this.upPressed = false;
+    }
+  }
+
+  mouseMoveHandler(e) {
+    let relativeY = e.clientY - this.canvas.offsetTop;
+    if (relativeY > 0 && relativeY < this.canvas.height) {
+      this.paddleY = relativeY - this.paddleHeight / 2;
+    }
+  }
+
+  drawPaddle(ctx) {
+    ctx.beginPath();
+    ctx.rect(this.paddleX, this.paddleY, this.paddleHeight ,this.paddleWidth);
+    ctx.fillStyle = "#0096DD";
+    ctx.fill();
+    ctx.closePath();
+  }
+}
+
+class Ball{
+  constructor(initX, initY, remote,canvas){
+    this.canvas = canvas;
+    this.x = initX;
+    this.y = initY;
+    this.remote = remote;
+    this.dx = -2;
+    this.dy = 2;
+    this.ballRadius = 10;
+  }
+  
+  drawBall(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "#0090DD";
+    ctx.fill();
+    ctx.closePath();
+  }
+}
 
 function game(canvas, setStopGame) {
-  const ctx = canvas.getContext("2d");
-  let ballRadius = 10;
-  let paddleHeight = 10;
-  let paddleWidth = 75;
-  let paddleX = canvas.width - paddleHeight;
-  let paddleY = (canvas.height - paddleWidth) / 2;
-  let y = canvas.height / 2;
-  let x = paddleX - 30;
-  let dx = -2;
-  let dy = 2;
-  let downPressed = false;
-  let upPressed = false;
   let brickRowCount = 5;
   let brickColumnCount = 3;
   let brickWidth = 75;
@@ -22,7 +75,6 @@ function game(canvas, setStopGame) {
   let brickOffsetLeft = 30;
   let score = 0;
   let lives = 3;
-
   let bricks = [];
   for (let c = 0; c < brickColumnCount; c++) {
     bricks[c] = [];
@@ -31,70 +83,7 @@ function game(canvas, setStopGame) {
     }
   }
 
-  document.addEventListener("keydown", keyDownHandler, false);
-  document.addEventListener("keyup", keyUpHandler, false);
-  document.addEventListener("mousemove", mouseMoveHandler, false);
-
-  function keyDownHandler(e) {
-    if (e.code == "ArrowDown") {
-      downPressed = true;
-    }
-    else if (e.code == 'ArrowUp') {
-      upPressed = true;
-    }
-  }
-  function keyUpHandler(e) {
-    if (e.code == 'ArrowDown') {
-      downPressed = false;
-    }
-    else if (e.code == 'ArrowUp') {
-      upPressed = false;
-    }
-  }
-
-  function mouseMoveHandler(e) {
-    let relativeY = e.clientY - canvas.offsetTop;
-    if (relativeY > 0 && relativeY < canvas.height) {
-      paddleY = relativeY - paddleHeight / 2;
-    }
-  }
-
-  function collisionDetection() {
-    for (let c = 0; c < brickColumnCount; c++) {
-      for (let r = 0; r < brickRowCount; r++) {
-        let b = bricks[c][r];
-        if (b.status == 1) {
-          if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
-            dy = -dy;
-            b.status = 0;
-            score++;
-            if (score == brickRowCount * brickColumnCount) {
-              alert("YOU WIN, CONGRATS!");
-              document.location.reload();
-            }
-          }
-        }
-      }
-    }
-  }
-
-  function drawBall() {
-    ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#0095DD";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  function drawPaddle() {
-    ctx.beginPath();
-    ctx.rect(paddleX, paddleY, paddleHeight ,paddleWidth);
-    ctx.fillStyle = "#0095DD";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  function drawBricks() {
+  function drawBricks(ctx) {
     for (let c = 0; c < brickColumnCount; c++) {
       for (let r = 0; r < brickRowCount; r++) {
         if (bricks[c][r].status == 1) {
@@ -112,77 +101,117 @@ function game(canvas, setStopGame) {
     }
   }
 
-  function drawScore() {
+  function collisionDetection(ball) {
+    for (let c = 0; c < brickColumnCount; c++) {
+      for (let r = 0; r < brickRowCount; r++) {
+        let b = bricks[c][r];
+        if (b.status == 1) {
+          if (ball.x > b.x && ball.x < b.x + brickWidth && ball.y > b.y && ball.y < b.y + brickHeight) {
+            ball.dy = -ball.dy;
+            b.status = 0;
+            score++;
+            if (score == brickRowCount * brickColumnCount) {
+              alert("YOU WIN, CONGRATS!");
+              document.location.reload();
+            }
+          }
+        }
+      }
+    }
+  }
+
+  function drawScore(ctx) {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText("Score: " + score, 8, 20);
   }
-  function drawLives() {
+
+  function drawLives(ctx) {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
   }
 
-  function draw() {
+  function draw(ball, rightPaddle, canvas, ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBricks();
-    drawBall();
-    drawPaddle();
-    drawScore();
-    drawLives();
-    collisionDetection();
+    drawBricks(ctx);
+    ball.drawBall(ctx);
+    rightPaddle.drawPaddle(ctx);
+    drawScore(ctx);
+    drawLives(ctx);
+    collisionDetection(ball);
 
-    if(y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
-      dy = -dy;
+    if(ball.y + ball.dy > canvas.height - ball.ballRadius || ball.y + ball.dy < ball.ballRadius) {
+      ball.dy = -ball.dy;
     }
 
-    if (x + dx < ballRadius) {
-      dx = -dx;
+    if (ball.x + ball.dx < ball.ballRadius) {
+      ball.dx = -ball.dx;
     }
-    else if (x + dx > canvas.width) {
-      console.log("X Attention!", x, dx, canvas.width);
-      console.log("Y is!", y, dy, canvas.width);
-      if (y > paddleY && y < paddleY + paddleWidth) {
-        console.log("REVERSE BALLS");
-        dx = -dx;
+    else if (ball.x + ball.dx > canvas.width) {
+      if (ball.y > rightPaddle.paddleY && ball.y < rightPaddle.paddleY + rightPaddle.paddleWidth) {
+        ball.dx = -ball.dx;
       }
       else {
-        debugger;
         lives--;
         if (!lives) {
           alert("GAME OVER");
           document.location.reload();
         }
         else {
-          y = canvas.height / 2;
-          x = paddleX - 30;
-          dx = -2;
-          dy = 2;
-          paddleY = (canvas.height - paddleWidth) / 2;
+          ball.y = canvas.height / 2;
+          ball.x = rightPaddle.paddleX - 30;
+          ball.dx = -2;
+          ball.dy = 2;
+          rightPaddle.paddleY = (canvas.height - rightPaddle.paddleWidth) / 2;
         }
       }
     }
 
-    if (downPressed && paddleY < canvas.height - paddleWidth) {
-      paddleY += 7;
+    if (rightPaddle.downPressed && rightPaddle.paddleY < canvas.height - rightPaddle.paddleWidth) {
+      rightPaddle.paddleY += 7;
     }
-    else if (upPressed && paddleY > 0) {
-      paddleY -= 7;
+    else if (rightPaddle.upPressed && rightPaddle.paddleY > 0) {
+      rightPaddle.paddleY -= 7;
     }
 
-    x += dx;
-    y += dy;
+    ball.x += ball.dx;
+    ball.y += ball.dy;
     setStopGame((prev) => {
       if (prev){
-        console.log("game ended")
         return prev;
       }
-      requestAnimationFrame(draw);
+      requestAnimationFrame(() => {draw(ball, rightPaddle, canvas, ctx)});
       return prev;
     });
   }
 
-  draw();
+  function initGame(){
+    const paddleHeight = 10;
+    const paddleWidth = 75
+    const rightPaddle = new Paddle(
+      canvas.width - paddleHeight,
+      (canvas.height - paddleWidth) / 2,
+      false,
+      canvas,
+      paddleHeight,
+      paddleWidth
+      );
+    const ball = new Ball(
+      rightPaddle.paddleX - 30,
+      canvas.height / 2,
+      false,
+      canvas
+    );
+    console.log(ball, rightPaddle, canvas);
+    document.addEventListener("keydown", (e) => {rightPaddle.keyDownHandler(e)}, false);
+    document.addEventListener("keyup", (e) => {rightPaddle.keyUpHandler(e)}, false);
+    document.addEventListener("mousemove", (e) => {rightPaddle.mouseMoveHandler(e)}, false);
+    const ctx = canvas.getContext("2d");
+    draw(ball, rightPaddle, canvas, ctx);
+  }
+
+  initGame();
 }
 
 export default game;
