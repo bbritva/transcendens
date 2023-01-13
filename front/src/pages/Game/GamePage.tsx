@@ -1,5 +1,5 @@
 import { ReactElement, FC, useRef, useEffect, useState } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Grid, Paper, Typography } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
 import game from "./components/game/game";
 
@@ -30,16 +30,17 @@ const GamePage: FC<any> = (): ReactElement => {
   } as canvasPropsI;
 
   return (
-    <Box sx={{
-      flexGrow: 1,
-      display: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-      <Typography variant="h3">GamePage</Typography>
-      <Button children={'StartGame'} variant={'outlined'} size="large" onClick={startGame}/>
-      <Canvas ref={canvasRef} {...canvasProps} />
-    </Box>
+    <Grid container
+      component={Paper}
+      display={'table-row'}
+    >
+      <Grid item display={'flex'} justifyContent={'center'}>
+        <Button children={'StartGame'} variant={'outlined'} size="large" onClick={startGame}/>
+      </Grid>
+      <Grid item display={'flex'} justifyContent={'center'}>
+        <Canvas ref={canvasRef} {...canvasProps} />
+      </Grid>
+    </Grid>
   );
 };
 
