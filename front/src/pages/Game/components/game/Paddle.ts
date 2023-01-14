@@ -1,4 +1,6 @@
+import socket from "src/services/socket";
 import Ball from "./Ball";
+import { coordinateDataI, gameChannelDataI } from "../../GamePage";
 
 class Paddle{
   canvas: HTMLCanvasElement;
@@ -14,11 +16,14 @@ class Paddle{
   remote: boolean;
   downPressed: boolean;
   upPressed: boolean;
-  name: string
+  name: string;
+  remoteY: number = 0;
+  game: gameChannelDataI;
 
   constructor(initX: number, initY: number,
             remote: boolean, canvas: HTMLCanvasElement,
-            height: number, width:number, offsetX: number, name: string){
+            height: number, width:number, offsetX: number,
+            name: string, game: gameChannelDataI){
     this.canvas = canvas;
     this.initX = initX;
     this.initY = initY;
@@ -32,7 +37,8 @@ class Paddle{
     this.paddleOffsetX = offsetX;
     this.paddleSpeed = 5;
     this.score = 0;
-    this.name = name
+    this.name = name;
+    this.game = game;
   }
 
   keyDownHandler(e: KeyboardEvent) {
@@ -57,6 +63,7 @@ class Paddle{
     let relativeY = e.clientY - this.canvas.offsetTop;
     if (relativeY > 0 && relativeY < this.canvas.height) {
       this.paddleY = relativeY - this.paddleHeight / 2;
+      this.emitCoord(this.paddleY);
     }
   }
 
@@ -68,12 +75,28 @@ class Paddle{
     ctx.closePath();
   }
 
-  movePaddle(){
-    if (this.downPressed && this.paddleY < this.canvas.height - this.paddleWidth) {
-      this.paddleY += this.paddleSpeed;
+  emitCoord(coordinate: number){
+    const newCoordinates: coordinateDataI = {
+      game: this.game.name,
+      coordinate: coordinate,
     }
-    else if (this.upPressed && this.paddleY > 0) {
-      this.paddleY -= this.paddleSpeed;
+    socket.emit('coordinates', newCoordinates);
+  }
+
+  movePaddle(){
+    if (this.remote){
+      this.paddleY = this.remoteY;
+      return ;
+    }
+    else {
+      if (this.downPressed && this.paddleY < this.canvas.height - this.paddleWidth) {
+        this.paddleY += this.paddleSpeed;
+        this.emitCoord(this.paddleY);
+      }
+      else if (this.upPressed && this.paddleY > 0) {
+        this.paddleY -= this.paddleSpeed;
+        this.emitCoord(this.paddleY);
+      }
     }
   }
 

@@ -68,9 +68,9 @@ const ChatPage: FC<any> = (): ReactElement => {
       initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
       flag = false;
     }
-    return () => {
-      socket.disconnect()
-    };
+    // return () => {
+    //   socket.disconnect()
+    // };
   }, [userName]);
 
   useEffect(() => {

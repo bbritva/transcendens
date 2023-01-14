@@ -1,14 +1,21 @@
+import socket from "src/services/socket";
 import Ball from "./Ball";
 import Bricks from "./Bricks";
 import Paddle from "./Paddle";
 
 
-function game(canvas, setStopGame, mods) {
+function game(canvas, setStopGame, mods, game) {
 
   function drawScore(ctx, leftPaddle, rightPaddle) {
+    let left = '';
+    let right = '';
+    if (game){
+      left = game?.players[0];
+      right = game?.players[1];
+    }
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
-    ctx.fillText(`Score: ${leftPaddle.score} : ${rightPaddle.score}`, canvas.width / 2 - 70, 20);
+    ctx.fillText(`Score: ${left} ${leftPaddle.score} : ${rightPaddle.score} ${right}`, canvas.width / 2 - 70, 20);
   }
 
   function draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx) {
@@ -71,7 +78,8 @@ function game(canvas, setStopGame, mods) {
       paddleHeight,
       paddleWidth,
       paddleOffsetX,
-      'right'
+      'right',
+      game
     );
     const leftPaddle = new Paddle(
       0 + paddleHeight + paddleOffsetX,
@@ -81,7 +89,8 @@ function game(canvas, setStopGame, mods) {
       paddleHeight,
       paddleWidth,
       paddleOffsetX,
-      'left'
+      'left',
+      game
     );
     const ball = new Ball(
       rightPaddle.paddleX - 30,
@@ -91,6 +100,12 @@ function game(canvas, setStopGame, mods) {
       ballRadius,
       1.3
     );
+
+    if (socket.connected){
+      socket.on('coordinates', (data) => {
+        leftPaddle.remoteY = leftPaddle.remote? data.coordinate : 0;
+      });
+    }
 
     const bricks = new Bricks();
     document.addEventListener("keydown", (e) => {leftPaddle.keyDownHandler(e)}, false);
