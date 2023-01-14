@@ -1,11 +1,32 @@
 import { ReactElement, FC, useRef, useEffect, useState } from "react";
-import { Box, Button, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, DialogTitle, Grid, Paper, TextField, Typography } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
 import game from "./components/game/game";
+import DialogSelect from "src/components/DialogSelect/DialogSelect";
+import socket from "src/services/socket";
+
+
+export interface coordinateDataI{
+  game: string,
+  coordinate: number,
+  player?: string
+}
+
+export interface gameChannelDataI{
+  name: string,
+  players: string[],
+  guests: string[]
+}
 
 const GamePage: FC<any> = (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stopGame, setStopGame] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState<string>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const testUsername = 'Bob';
+  const testGamename = 'gameOne';
+  let flag = true;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -14,14 +35,43 @@ const GamePage: FC<any> = (): ReactElement => {
         setStopGame(true);
       }
     }
-  }, [])
+  }, []);
 
-  function startGame(){
+  useEffect(() => {
+    if (socket.connected && flag){
+      flag = false;
+      socket.on('joinedToGame', (game: gameChannelDataI) => {
+        setStopGame(true);
+        startGame(game);
+      })
+    }
+  }, [socket.connected]);
+
+  function startGame(gameData?: gameChannelDataI){
     const canvas = canvasRef.current;
+    console.log('Starting');
     if (canvas && stopGame){
       setStopGame(false);
-      game(canvas, setStopGame, {bricks: false});
+      game(canvas, setStopGame, {bricks: false}, gameData);
     }
+  }
+
+  function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
+    // event.preventDefault();
+    setInputValue(event.currentTarget.value);
+  }
+
+  async function sendInvite(){
+    setLoading(true);
+    if (socket.connected){
+      const game = {
+        name: testGamename,
+        players: [testUsername, inputValue],
+        guests: []
+      }
+      socket.emit('connectToGame', game);
+    }
+    setOpen(false);
   }
 
   const canvasProps = {
@@ -30,17 +80,39 @@ const GamePage: FC<any> = (): ReactElement => {
   } as canvasPropsI;
 
   return (
-    <Grid container
-      component={Paper}
-      display={'table-row'}
-    >
-      <Grid item display={'flex'} justifyContent={'center'}>
-        <Button children={'StartGame'} variant={'outlined'} size="large" onClick={startGame}/>
+      <Grid container
+        component={Paper}
+        display={'table-row'}
+      >
+        <DialogSelect
+          options={{}}
+          open={open}
+          setOpen={setOpen}
+        >
+          <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
+            <DialogTitle>Invite 2nd player</DialogTitle>
+            <TextField label={'player nickname'} onChange={onChange} margin="dense"/>
+            <Button
+              variant="outlined"
+              sx={{
+                alignSelf: 'end'
+              }}
+              onClick={sendInvite}
+            >
+              Pong's invite
+            </Button>
+          </Box>
+        </DialogSelect>
+        <Grid item display={'flex'} justifyContent={'center'}>
+          <Button children={'Single player'} variant={'outlined'} size="large" onClick={() => startGame()}/>
+        </Grid>
+        <Grid item display={'flex'} justifyContent={'center'}>
+          <Button children={'Multi player'} variant={'outlined'} size="large" onClick={() => setOpen(true)}/>
+        </Grid>
+        <Grid item display={'flex'} justifyContent={'center'}>
+          <Canvas ref={canvasRef} {...canvasProps} />
+        </Grid>
       </Grid>
-      <Grid item display={'flex'} justifyContent={'center'}>
-        <Canvas ref={canvasRef} {...canvasProps} />
-      </Grid>
-    </Grid>
   );
 };
 
