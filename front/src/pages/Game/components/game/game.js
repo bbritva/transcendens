@@ -4,22 +4,46 @@ import Bricks from "./Bricks";
 import Paddle from "./Paddle";
 
 
-function game(canvas, setStopGame, mods, game) {
+function game(canvas, setStopGame, mods, game, myName) {
+  const isLeader = game?.first === myName;
+  const left = isLeader ? game?.second : game?.first;
+  const right = isLeader ? game?.first : game?.second;
 
   function drawScore(ctx, leftPaddle, rightPaddle) {
-    let left = '';
-    let right = '';
-    if (game){
-      left = game?.players[0];
-      right = game?.players[1];
-    }
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText(`Score: ${left} ${leftPaddle.score} : ${rightPaddle.score} ${right}`, canvas.width / 2 - 70, 20);
   }
 
+  function translateToPercent(big, little){
+    return (little / big);
+  }
+
+  function translateFromPercent(big, percent){
+    return (big - big * percent);
+  }
+
+  function emitCoord(canvas, paddle, ball){
+    const newCoordinates = {
+      game: game.name,
+      playerY: translateToPercent(canvas.height, paddle.paddleY),
+      ball: ball
+            ? {
+                x: translateToPercent(canvas.width, ball.x),
+                y: translateToPercent(canvas.height, ball.y),
+              }
+            : ball
+    }
+    socket.emit('coordinates', newCoordinates);
+  }
+
   function draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    emitCoord(
+      canvas,
+      rightPaddle,
+      isLeader ? ball : null
+    );
     mods.bricks && bricks.drawBricks(ctx);
     ball.drawBall(ctx);
     rightPaddle.drawPaddle(ctx);
@@ -27,28 +51,30 @@ function game(canvas, setStopGame, mods, game) {
     mods.bricks && bricks.bricksCollision(ball);
     drawScore(ctx, leftPaddle, rightPaddle);
 
-    ball.verticalCollision();
+    if(isLeader){
+      ball.verticalCollision();
 
-    if (ball.leftCollision(leftPaddle)) {
-      if (ball.x + ball.dx < ball.ballRadius){
-        if (rightPaddle.makeScore()){
-          alert(`${rightPaddle.name} WINS`);
-          document.location.reload();
-        };
-        ball.reset(-1);
-        leftPaddle.reset();
-        rightPaddle.reset();
+      if (ball.leftCollision(leftPaddle)) {
+        if (ball.x + ball.dx < ball.ballRadius){
+          if (rightPaddle.makeScore()){
+            alert(`${rightPaddle.name} WINS`);
+            document.location.reload();
+          };
+          ball.reset(-1);
+          leftPaddle.reset();
+          rightPaddle.reset();
+        }
       }
-    }
-    else if (ball.rightCollision(rightPaddle)) {
-      if(ball.x + ball.dx > canvas.width){
-        if (leftPaddle.makeScore()){
-          alert(`${leftPaddle.name} WINS`);
-          document.location.reload();
-        };
-        ball.reset(1);
-        leftPaddle.reset();
-        rightPaddle.reset();
+      else if (ball.rightCollision(rightPaddle)) {
+        if(ball.x + ball.dx > canvas.width){
+          if (leftPaddle.makeScore()){
+            alert(`${leftPaddle.name} WINS`);
+            document.location.reload();
+          };
+          ball.reset(1);
+          leftPaddle.reset();
+          rightPaddle.reset();
+        }
       }
     }
 
@@ -103,7 +129,13 @@ function game(canvas, setStopGame, mods, game) {
 
     if (socket.connected){
       socket.on('coordinates', (data) => {
-        leftPaddle.remoteY = leftPaddle.remote? data.coordinate : 0;
+        if (data.player === myName)
+          return;
+        leftPaddle.remoteY = leftPaddle.remote ? translateFromPercent(canvas.height, data.playerY): 0;
+        if (! isLeader){
+          ball.remoteX = translateFromPercent(canvas.width, data.ball.x)
+          ball.remoteY = translateFromPercent(canvas.height, data.ball.y)
+        }
       });
     }
 

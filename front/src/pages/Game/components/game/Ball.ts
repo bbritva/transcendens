@@ -9,6 +9,8 @@ class Ball{
   dy: number;
   ballRadius: number;
   ballSpeed: number;
+  remoteX: number = 0;
+  remoteY: number = 0;
 
   constructor(
     initX: number, initY: number, 
@@ -67,8 +69,14 @@ class Ball{
   }
 
   moveBall() {
-    this.x += this.dx;
-    this.y += this.dy;
+    if (this.remoteX || this.remoteY){
+      this.x = this.remoteX;
+      this.y = this.remoteY;
+    }
+    else {
+      this.x += this.dx;
+      this.y += this.dy;
+    }
   }
 
   reset(side: number) {

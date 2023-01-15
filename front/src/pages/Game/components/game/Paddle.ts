@@ -1,6 +1,6 @@
 import socket from "src/services/socket";
 import Ball from "./Ball";
-import { coordinateDataI, gameChannelDataI } from "../../GamePage";
+import { gameChannelDataI } from "../../GamePage";
 
 class Paddle{
   canvas: HTMLCanvasElement;
@@ -63,7 +63,6 @@ class Paddle{
     let relativeY = e.clientY - this.canvas.offsetTop;
     if (relativeY > 0 && relativeY < this.canvas.height) {
       this.paddleY = relativeY - this.paddleHeight / 2;
-      this.emitCoord(this.paddleY);
     }
   }
 
@@ -75,14 +74,6 @@ class Paddle{
     ctx.closePath();
   }
 
-  emitCoord(coordinate: number){
-    const newCoordinates: coordinateDataI = {
-      game: this.game.name,
-      coordinate: coordinate,
-    }
-    socket.emit('coordinates', newCoordinates);
-  }
-
   movePaddle(){
     if (this.remote){
       this.paddleY = this.remoteY;
@@ -91,11 +82,9 @@ class Paddle{
     else {
       if (this.downPressed && this.paddleY < this.canvas.height - this.paddleWidth) {
         this.paddleY += this.paddleSpeed;
-        this.emitCoord(this.paddleY);
       }
       else if (this.upPressed && this.paddleY > 0) {
         this.paddleY -= this.paddleSpeed;
-        this.emitCoord(this.paddleY);
       }
     }
   }

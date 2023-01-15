@@ -8,13 +8,15 @@ import socket from "src/services/socket";
 
 export interface coordinateDataI{
   game: string,
-  coordinate: number,
+  playerY: number,
+  ball?: {x: number, y: number},
   player?: string
 }
 
 export interface gameChannelDataI{
   name: string,
-  players: string[],
+  first: string,
+  second: string,
   guests: string[]
 }
 
@@ -24,7 +26,7 @@ const GamePage: FC<any> = (): ReactElement => {
   const [open, setOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
-  const testUsername = 'Bob';
+  const testUsername = sessionStorage.getItem('username');
   const testGamename = 'gameOne';
   let flag = true;
 
@@ -49,10 +51,9 @@ const GamePage: FC<any> = (): ReactElement => {
 
   function startGame(gameData?: gameChannelDataI){
     const canvas = canvasRef.current;
-    console.log('Starting');
     if (canvas && stopGame){
       setStopGame(false);
-      game(canvas, setStopGame, {bricks: false}, gameData);
+      game(canvas, setStopGame, {bricks: false}, gameData, testUsername);
     }
   }
 
@@ -66,7 +67,8 @@ const GamePage: FC<any> = (): ReactElement => {
     if (socket.connected){
       const game = {
         name: testGamename,
-        players: [testUsername, inputValue],
+        first: testUsername, 
+        second: inputValue,
         guests: []
       }
       socket.emit('connectToGame', game);

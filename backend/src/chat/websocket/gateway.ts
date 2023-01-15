@@ -19,6 +19,20 @@ import {
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
 
+
+interface coordinateDataI{
+  game: string,
+  playerY: number,
+  ball: {x: number, y: number}
+}
+
+interface gameChannelDataI{
+  name: string,
+  first: string,
+  second: string
+  guests: string[]
+}
+
 @WebSocketGateway({
   cors: {
     origin: ["http://localhost:3001"],
@@ -33,6 +47,7 @@ export class Gateway implements OnModuleInit {
   ) {}
 
   connections: Map<string, ConnectedClientInfo> = new Map();
+  gameRooms: Map<string, gameChannelDataI> = new Map();
 
   @WebSocketServer()
   server: Server;
@@ -66,6 +81,38 @@ export class Gateway implements OnModuleInit {
       async (userName) =>
         await this.connectUserToChannel(userName.name, channelIn.name)
     );
+  }
+
+  @SubscribeMessage("coordinates")
+  async getCoordinates(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: coordinateDataI
+  ){
+    const userName = this.connections.get(socket.id).username;
+    this.server.to(data.game).emit("coordinates", {player: userName, ...data});
+  }
+
+  @SubscribeMessage("connectToGame")
+  async connectToGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: gameChannelDataI
+  ){
+    const username = this.connections.get(socket.id).username;
+    const user = await this.userService.getUserByName(username);
+    const game = this.gameRooms.has(data.name)
+      ? this.gameRooms.get(data.name)
+      : this.gameRooms.set(data.name, data).get(data.name);
+    // this.server.to(game.name).emit("userConnectedToGame", game.name, username);
+    console.log('connectToGame', game)
+
+    // send to user game info
+    this.connections.forEach((value: ConnectedClientInfo, key: string) => {
+      if (game.first === value.username || game.second === value.username){
+        console.log('Joined', value.username)
+        this.server.to(key).emit("joinedToGame", game);
+        this.server.sockets.sockets.get(key).join(game.name);
+      }
+    });
   }
 
   @SubscribeMessage("newMessage")
