@@ -136,6 +136,5 @@ export class UserService {
           name: targetUserName,
         },
       })).bannedIds.includes(userId)
-
   }
 }

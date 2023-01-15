@@ -80,7 +80,7 @@ export class Gateway implements OnModuleInit {
         channelIn.users[1].name
       )
     ) {
-      this.server.to(socket.id).emit("notAllowed", channelIn)
+      this.server.to(socket.id).emit("notAllowed", channelIn);
     } else {
       await this.connectUserToChannel(
         channelIn,
@@ -96,18 +96,30 @@ export class Gateway implements OnModuleInit {
   }
 
   @SubscribeMessage("newMessage")
-  async onNewMessage(@MessageBody() data: CreateMessageDTO) {
-    try {
-      const messageOut = await this.messageService.createMessage({
-        channel: {
-          connect: { name: data.channelName },
-        },
-        authorName: data.authorName,
-        text: data.text,
-      });
-      this.server.to(data.channelName).emit("newMessage", messageOut);
-    } catch (e) {
-      console.log("err", e.meta.cause);
+  async onNewMessage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: CreateMessageDTO
+  ) {
+    if (
+      this.channelService.isMuted(
+        data.channelName,
+        (await this.getClientDTOByName(this.connections.get(socket.id).name)).id
+      )
+    )
+      this.server.to(socket.id).emit("notAllowed", data);
+    else {
+      try {
+        const messageOut = await this.messageService.createMessage({
+          channel: {
+            connect: { name: data.channelName },
+          },
+          authorName: data.authorName,
+          text: data.text,
+        });
+        this.server.to(data.channelName).emit("newMessage", messageOut);
+      } catch (e) {
+        console.log("err", e.meta.cause);
+      }
     }
   }
 

@@ -161,6 +161,15 @@ export class ChannelService {
       });
   }
 
+  async isMuted(channelName: string, userId : number) : Promise<boolean> {
+    return (await this.prisma.channel
+      .findUnique({
+        where: {
+          name: channelName,
+        },
+      })).mutedIds.includes(userId)
+  }
+
   async deleteChannel(where: Prisma.ChannelWhereUniqueInput): Promise<Channel> {
     return this.prisma.channel.delete({
       where,
