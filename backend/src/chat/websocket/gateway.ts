@@ -174,6 +174,71 @@ export class Gateway implements OnModuleInit {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
+  @SubscribeMessage("banUser")
+  async onBanUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    const channel = await this.channelService.getChannel(data.name);
+    if (
+      channel.admIds.includes(
+        (await this.getClientDTOByName(this.connections.get(socket.id).name)).id
+      )
+    ) {
+      this.channelService.updateChannel({
+        where: {
+          name: data.name,
+        },
+        data: {
+          guests: {
+            disconnect: {
+              id: (await this.getClientDTOByName(data.params[0])).id,
+            },
+          },
+          bannedIds: {
+            push: (await this.getClientDTOByName(data.params[0])).id,
+          },
+        },
+      });
+      this.disconnectFromChannel(
+        data.name,
+        await this.getClientDTOByName(data.params[0])
+      );
+      this.server.to(data.name).emit("userBanned", data);
+    } else this.server.to(socket.id).emit("notAllowed", data);
+  }
+
+
+  @SubscribeMessage("muteUser")
+  async onMuteUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    const channel = await this.channelService.getChannel(data.name);
+    if (
+      channel.admIds.includes(
+        (await this.getClientDTOByName(this.connections.get(socket.id).name)).id
+      )
+    ) {
+      this.channelService.updateChannel({
+        where: {
+          name: data.name,
+        },
+        data: {
+          mutedIds: {
+            push: (await this.getClientDTOByName(data.params[0])).id,
+          },
+        },
+      });
+      this.disconnectFromChannel(
+        data.name,
+        await this.getClientDTOByName(data.params[0])
+      );
+      this.server.to(data.name).emit("userMuted", data);
+    } else this.server.to(socket.id).emit("notAllowed", data);
+  }
+
+
   // private getUserNameFromJWT(JWTtoken: string): DTO.DecodedToken {
   //   const decodedToken = this.jwtService.decode(JWTtoken) as DTO.DecodedToken;
   //   return decodedToken;
