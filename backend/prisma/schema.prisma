@@ -16,6 +16,7 @@ model User {
   status        eStatus @default(OFFLINE)
   image         String?
   friendIds     Int[]
+  bannedIds     Int[]
   wins          Game[]  @relation("win")
   loses         Game[]  @relation("lose")
   token         Token?  @relation("token", fields: [tokenId], references: [id])

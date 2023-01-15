@@ -74,16 +74,25 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
-    await this.connectUserToChannel(
-      channelIn,
-      await this.getClientDTOByName(this.connections.get(socket.id).name)
-    );
-    channelIn.users.forEach(async (user) => {
+    if (
+      this.userService.isBanned(
+        (await this.getClientDTOByName(channelIn.users[0].name)).id,
+        channelIn.users[1].name
+      )
+    ) {
+      this.server.to(socket.id).emit("notAllowed", channelIn)
+    } else {
       await this.connectUserToChannel(
         channelIn,
-        await this.getClientDTOByName(user.name)
+        await this.getClientDTOByName(this.connections.get(socket.id).name)
       );
-    });
+      channelIn.users.forEach(async (user) => {
+        await this.connectUserToChannel(
+          channelIn,
+          await this.getClientDTOByName(user.name)
+        );
+      });
+    }
   }
 
   @SubscribeMessage("newMessage")

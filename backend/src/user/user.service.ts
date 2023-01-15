@@ -82,7 +82,6 @@ export class UserService {
           loses: includeGames,
           channels: includeChannels,
         },
-        
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
@@ -107,13 +106,14 @@ export class UserService {
   }
 
   async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user.delete({
-      where,
-    })
-    .then((ret: any) => ret)
-    .catch((e: any) => {
-      throw new BadRequestException(e.message);
-    });
+    return this.prisma.user
+      .delete({
+        where,
+      })
+      .then((ret: any) => ret)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
   async getChannels(userId: number): Promise<string[]> {
@@ -127,5 +127,15 @@ export class UserService {
         channelList.push(channel.name);
       });
     return channelList;
+  }
+
+  async isBanned(userId: number, targetUserName: string): Promise<boolean> {
+    return (await this.prisma.user
+      .findUnique({
+        where: {
+          name: targetUserName,
+        },
+      })).bannedIds.includes(userId)
+
   }
 }
