@@ -103,11 +103,10 @@ export class UserController {
         avatar: file.filename,
       },
     });
-    console.log(file);
+    console.log(file); 
     return ({ avatar: file.filename });
   }
 
-  @Public()
   @Get('avatar/:avatarname')
   findAvatar(@Param('avatarname') avatarname, @Res() res): Promise<any> {
     return res.sendFile(path.join(process.cwd(), 'uploads/avatars/' + avatarname));

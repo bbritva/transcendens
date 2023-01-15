@@ -1,4 +1,4 @@
-import { OnModuleInit } from "@nestjs/common";
+import { OnModuleInit, UseGuards } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import {
   ConnectedSocket,
@@ -18,7 +18,9 @@ import {
 } from "./websocket.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
+import { WsGuard } from "src/auth/jwt-auth.chat.guard";
 
+@UseGuards(WsGuard)
 @WebSocketGateway({
   cors: {
     origin: ["http://localhost:3001"],
@@ -38,21 +40,32 @@ export class Gateway implements OnModuleInit {
   server: Server;
 
   onModuleInit() {
-    this.server.on("connection", async (socket) => {
+    this.server.on("connection", async (socket) => this.tezd(socket));
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage("connection")
+  async tezd(socket: Socket) {
+    {
       // have to check authorisation
+      let auth_token = socket.handshake.auth.username;
+      console.log('auth token', auth_token);
+      
+      auth_token = auth_token.split(' ')[1];
 
       // event handler
       this.onConnection(socket);
 
-      //discinnection handler
+      //disconnection handler
       socket.on("disconnecting", async () => {
         this.onDisconnecting(socket);
       });
       socket.on("disconnect", async () => {
       });
-    });
-  }
+    }
 
+  }
+    
   @SubscribeMessage("connectToChannel")
   async connectToChannel(
     @ConnectedSocket() socket: Socket,
