@@ -12,6 +12,7 @@ import { MessageService } from "src/chat/message/message.service";
 import * as DTO from "./websocket.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
+import { ChannelEntity } from "src/chat/channel/entities/channel.entity";
 
 @WebSocketGateway({
   cors: {
@@ -50,23 +51,20 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
+    const user = await this.getClientDTOByName(
+      this.connections.get(socket.id).name
+    );
     const channel = await this.channelService.getChannel(channelIn.name);
-    if (
-      channel == null ||
-      (!channel.isPrivate &&
-        (!channel.password ||
-          (channelIn.password &&
-            channelIn.password == channel.password)))
-    ) {
+    // check possibility
+    if (this.canConnect(user, channel, channelIn, user)) {
       await this.connectUserToChannel(
         channelIn,
         await this.getClientDTOByName(this.connections.get(socket.id).name)
       );
-      channelIn.users.forEach(async (user) => {
-        await this.connectUserToChannel(
-          channelIn,
-          await this.getClientDTOByName(user.name)
-        );
+      channelIn.users.forEach(async (userName) => {
+        const targetUser = await this.getClientDTOByName(userName.name);
+        if (this.canConnect(user, channel, channelIn, targetUser))
+          await this.connectUserToChannel(channelIn, targetUser);
       });
     }
   }
@@ -259,6 +257,25 @@ export class Gateway implements OnModuleInit {
       },
     });
     this.connections.delete(socket.id);
+  }
+
+  // user can connect to channel:
+  // 1 channel doesn't exist
+  // 2 channel admin adds user
+  // 3 channel is public, password is correct and user is not banned
+  async canConnect(
+    executor: DTO.Client,
+    channel: ChannelEntity,
+    channelIn: DTO.ChannelInfoIn,
+    target: DTO.Client
+  ): Promise<boolean> {
+    return (
+      channel == null ||
+      channel.admIds.includes(executor.id) ||
+      (!channel.isPrivate &&
+        channel.password == channelIn.password &&
+        !channel.bannedIds.includes(target.id))
+    );
   }
 
   /////////// MUST BE DELETED !!!!!!!!!!!!!!!!!!!!!!!
