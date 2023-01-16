@@ -8,7 +8,6 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
-import { MessageService } from "src/chat/message/message.service";
 import * as DTO from "./websocket.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
@@ -23,7 +22,6 @@ import { JwtService } from "@nestjs/jwt";
 })
 export class Gateway implements OnModuleInit {
   constructor(
-    private messageService: MessageService,
     private userService: UserService,
     private channelService: ChannelService,
     private jwtService: JwtService
@@ -126,27 +124,14 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: CreateMessageDTO
   ) {
-    if (
-      await this.channelService.isMuted(
-        data.channelName,
-        this.connections.get(socket.id).id
-      )
-    )
-      this.server.to(socket.id).emit("notAllowed", data);
-    else {
-      try {
-        const messageOut = await this.messageService.createMessage({
-          channel: {
-            connect: { name: data.channelName },
-          },
-          authorName: this.connections.get(socket.id).name,
-          text: data.text,
-        });
-        this.server.to(data.channelName).emit("newMessage", messageOut);
-      } catch (e) {
-        console.log("err", e.meta.cause);
-      }
-    }
+    data.authorName = this.connections.get(socket.id).name;
+    const messageOut = await this.channelService.addMessage(
+      this.connections.get(socket.id).id,
+      data
+    );
+    if (messageOut)
+      this.server.to(data.channelName).emit("newMessage", messageOut);
+    else this.server.to(socket.id).emit("notAllowed", data);
   }
 
   @SubscribeMessage("addAdmin")
@@ -155,10 +140,10 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.ManageChannel
   ) {
     if (
-      (await this.channelService.addAdmin(
+      await this.channelService.addAdmin(
         this.connections.get(socket.id).id,
         data
-      )) != 0
+      )
     )
       this.server.to(data.name).emit("newAdmin", data);
     else this.server.to(socket.id).emit("notAllowed", data);
@@ -170,10 +155,10 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.ManageChannel
   ) {
     if (
-      (await this.channelService.setPrivacy(
+      await this.channelService.setPrivacy(
         this.connections.get(socket.id).id,
         data
-      )) != 0
+      )
     ) {
       this.server.to(data.name).emit("setPrivacy", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
@@ -185,10 +170,10 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.ManageChannel
   ) {
     if (
-      (await this.channelService.setPassword(
+      await this.channelService.setPassword(
         this.connections.get(socket.id).id,
         data
-      )) != 0
+      )
     ) {
       this.server.to(data.name).emit("setPassword", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
@@ -199,23 +184,15 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.ManageChannel
   ) {
-    const channel = await this.channelService.getChannel(data.name);
-    if (channel.admIds.includes(this.connections.get(socket.id).id)) {
-      this.channelService.updateChannel({
-        where: {
-          name: data.name,
-        },
-        data: {
-          guests: {
-            disconnect: {
-              id: (await this.userService.getUserByName(data.params[0])).id,
-            },
-          },
-          bannedIds: {
-            push: (await this.userService.getUserByName(data.params[0])).id,
-          },
-        },
-      });
+    if (
+      await this.channelService.banUser(
+        this.connections.get(socket.id).id,
+        data.name,
+        (
+          await this.userService.getUserByName(data.params[0])
+        ).id
+      )
+    ) {
       this.disconnectFromChannel(
         data.name,
         await this.userService.getUserByName(data.params[0])

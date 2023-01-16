@@ -1,12 +1,17 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { Channel, Prisma } from "@prisma/client";
+import { Channel, Message, Prisma } from "@prisma/client";
 import { ChannelInfoDto } from "./dto/channelInfo.dto";
-import { ManageChannel } from "../websocket/websocket.dto";
+import { ManageChannel } from "src/chat/websocket/websocket.dto";
+import { MessageService } from "src/chat/message/message.service";
+import { CreateMessageDTO } from "../message/dto/create-message.dto";
 
 @Injectable()
 export class ChannelService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private messageService: MessageService
+  ) {}
 
   async Channel(
     ChannelWhereUniqueInput: Prisma.ChannelWhereUniqueInput
@@ -86,56 +91,56 @@ export class ChannelService {
     });
   }
 
-  async setPrivacy(
-    executorId: number,
-    data: ManageChannel
-  ): Promise<number> {
+  async setPrivacy(executorId: number, data: ManageChannel): Promise<boolean> {
     return (
-      await this.prisma.channel.updateMany({
-        where: {
-          name: data.name,
-          admIds: {
-            has: executorId,
+      (
+        await this.prisma.channel.updateMany({
+          where: {
+            name: data.name,
+            admIds: {
+              has: executorId,
+            },
           },
-        },
-        data: {
-          isPrivate: data.params[0]
-        },
-      })
-    ).count;
+          data: {
+            isPrivate: data.params[0],
+          },
+        })
+      ).count != 0
+    );
   }
 
-  async setPassword(
-    executorId: number,
-    data: ManageChannel
-  ): Promise<number> {
+  async setPassword(executorId: number, data: ManageChannel): Promise<boolean> {
     return (
-      await this.prisma.channel.updateMany({
-        where: {
-          name: data.name,
-          ownerId: executorId,
-        },
-        data: {
-          password: data.params[0]
-        },
-      })
-    ).count;
-  }
-  
-  async addAdmin(executorId: number, data: ManageChannel): Promise<number> {
-    return (
-      await this.prisma.channel.updateMany({
-        where: {
-          name: data.name,
-          ownerId: executorId
-        },
-        data: {
-          admIds: {
-            push: data.params[0],
+      (
+        await this.prisma.channel.updateMany({
+          where: {
+            name: data.name,
+            ownerId: executorId,
           },
-        },
-      })
-    ).count;
+          data: {
+            password: data.params[0],
+          },
+        })
+      ).count != 0
+    );
+  }
+
+  async addAdmin(executorId: number, data: ManageChannel): Promise<boolean> {
+    return (
+      (
+        await this.prisma.channel.updateMany({
+          where: {
+            name: data.name,
+            ownerId: executorId,
+          },
+          data: {
+            admIds: {
+              push: data.params[0],
+            },
+          },
+        })
+      ).count != 0
+    );
   }
 
   async updateChannel(params: {
@@ -161,13 +166,61 @@ export class ChannelService {
       });
   }
 
-  async isMuted(channelName: string, userId : number) : Promise<boolean> {
-    return (await this.prisma.channel
-      .findUnique({
+  async isMuted(channelName: string, userId: number): Promise<boolean> {
+    return (
+      await this.prisma.channel.findUnique({
         where: {
           name: channelName,
         },
-      })).mutedIds.includes(userId)
+      })
+    ).mutedIds.includes(userId);
+  }
+
+  async addMessage(
+    executorId: number,
+    data: CreateMessageDTO
+  ): Promise<Message> {
+    if (!(await this.isMuted(data.channelName, executorId))) {
+      try {
+        const messageOut = await this.messageService.createMessage({
+          channel: {
+            connect: { name: data.channelName },
+          },
+          authorName: data.authorName,
+          text: data.text,
+        });
+        return messageOut;
+      } catch (e) {
+        console.log("err", e.meta.cause);
+      }
+    }
+    return null;
+  }
+
+  async banUser(
+    executorId: number,
+    channelName: string,
+    targetId: number
+  ): Promise<boolean> {
+    const channel = await this.getChannel(channelName);
+    if (channel.admIds.includes(executorId)) {
+      this.updateChannel({
+        where: {
+          name: channelName,
+        },
+        data: {
+          guests: {
+            disconnect: {
+              id: targetId,
+            },
+          },
+          bannedIds: {
+            push: targetId,
+          },
+        },
+      });
+      return true;
+    } else return false;
   }
 
   async deleteChannel(where: Prisma.ChannelWhereUniqueInput): Promise<Channel> {
