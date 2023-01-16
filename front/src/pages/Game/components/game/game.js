@@ -131,7 +131,7 @@ function game(canvas, setStopGame, mods, game, myName) {
       socket.on('coordinates', (data) => {
         if (data.player === myName)
           return;
-        leftPaddle.remoteY = leftPaddle.remote ? translateFromPercent(canvas.height, data.playerY): 0;
+        leftPaddle.remoteY = leftPaddle.remote ? translateFromPercent(canvas.height, data.playerY) : 0;
         if (! isLeader){
           ball.remoteX = translateFromPercent(canvas.width, data.ball.x)
           ball.remoteY = translateFromPercent(canvas.height, data.ball.y)

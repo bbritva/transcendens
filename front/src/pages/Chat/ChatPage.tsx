@@ -62,6 +62,7 @@ const ChatPage: FC<any> = (): ReactElement => {
 
   useEffect(() => {
     if (userName && flag) {
+      sessionStorage.setItem('username', userName);
       const username = userName;
       socket.auth = { username };
       socket.connect();
@@ -112,9 +113,9 @@ const ChatPage: FC<any> = (): ReactElement => {
     );
     setValue('');
   };
-  socket.onAny((event, ...args) => {
-    console.log(event, args);
-  });
+  // socket.onAny((event, ...args) => {
+  //   console.log(event, args);
+  // });
 
   return (
   <>

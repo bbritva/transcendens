@@ -76,7 +76,7 @@ class Paddle{
 
   movePaddle(){
     if (this.remote){
-      this.paddleY = this.remoteY;
+      this.paddleY = this.remoteY - this.paddleWidth;
       return ;
     }
     else {
