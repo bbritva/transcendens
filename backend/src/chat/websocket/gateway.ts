@@ -13,6 +13,9 @@ import * as DTO from "./websocket.dto";
 import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
 import { ChannelEntity } from "src/chat/channel/entities/channel.entity";
+import { env } from "process";
+import { JwtService } from "@nestjs/jwt";
+
 
 @WebSocketGateway({
   cors: {
@@ -23,7 +26,8 @@ export class Gateway implements OnModuleInit {
   constructor(
     private messageService: MessageService,
     private userService: UserService,
-    private channelService: ChannelService
+    private channelService: ChannelService,
+    private jwtService: JwtService
   ) {}
 
   connections: Map<string, DTO.ConnectedClientInfo> = new Map();
@@ -34,16 +38,30 @@ export class Gateway implements OnModuleInit {
   onModuleInit() {
     this.server.on("connection", async (socket) => {
       // have to check authorisation
+      let authToken = socket.handshake.auth.token;
+      let authName = socket.handshake.auth.username;
+      const authorizedUser = await this.getUserNameFromJWT(authToken);
+      if (!authorizedUser && !authName)
+        this.server.emit("connectError", { message: "invalid username" })
+      else if (authorizedUser)
+        this.connectionSet(authorizedUser, socket);
+      else if (authName)
+        this.connectionSet(authName, socket);
 
       // event handler
       this.onConnection(socket);
 
-      // discinnection handlers
+      //disconnection handler
       socket.on("disconnecting", async () => {
         this.onDisconnecting(socket);
       });
-      socket.on("disconnect", async () => {});
-    });
+      socket.on("disconnect", async () => {
+      });
+    })
+  }
+
+  connectionSet(decodedToken: DTO.DecodedToken, socket: Socket) {
+    this.connections.set(socket.id, decodedToken);
   }
 
   @SubscribeMessage("connectToChannel")
@@ -120,6 +138,16 @@ export class Gateway implements OnModuleInit {
       } catch (e) {
         console.log("err", e.meta.cause);
       }
+    }
+  }
+
+  private async getUserNameFromJWT(JWTtoken: string): Promise <DTO.DecodedToken> {
+    try {
+      const decodedToken = this.jwtService.verify(JWTtoken, { secret: env.JWT_ACCESS_SECRET}) as any;
+      const user = await this.userService.getUserByName(decodedToken.username)
+      return user;
+    } catch (ex) {
+      return null;
     }
   }
 
@@ -207,6 +235,7 @@ export class Gateway implements OnModuleInit {
       this.server.to(data.name).emit("userBanned", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
+  
   @SubscribeMessage("kickUser")
   async onKickUser(
     @ConnectedSocket() socket: Socket,
@@ -335,9 +364,6 @@ export class Gateway implements OnModuleInit {
   }
 
   private async onConnection(socket: Socket) {
-    this.connections.set(socket.id, {
-      name: socket.handshake.auth.username,
-    });
     await this.userService.updateUser({
       where: {
         name: this.connections.get(socket.id).name,

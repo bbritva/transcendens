@@ -1,5 +1,6 @@
 import axios from 'axios';
 import authHeader from './authHeader';
+import { userI } from 'src/store/userSlice';
 
 const API_URL = process.env.REACT_APP_AUTH_URL +'/user'
 
@@ -9,6 +10,14 @@ class UserService {
     const storageData = localStorage.getItem('access_token') || '{}';
     const token = JSON.parse(storageData);
     return axios.get(API_URL + '/getMe')
+  }
+
+  uploadAvatar(fileData: FormData): Promise<userI> {
+    return axios.post(API_URL + '/upload', fileData);
+  }
+
+  findAvatar(avatarname: string){
+    return axios.get(API_URL + `/avatar/${avatarname}`);
   }
 
   getUsers() {

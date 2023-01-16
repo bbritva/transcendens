@@ -8,8 +8,10 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { useSelector } from 'react-redux';
-import { selectUser } from 'src/store/userSlice';
+import { useDispatch, useStore } from 'react-redux';
+import { updateUser, userI } from 'src/store/userSlice';
+import userService from 'src/services/user.service';
+import { RootState } from 'src/store/store';
 
 
 function Copyright(props: any) {
@@ -30,7 +32,10 @@ export default function SignUp() {
   const [imageUrl, setImageUrl] = React.useState<any>();
   const [inputError, setInputError] = React.useState<boolean>(false);
   const [inputValue, setInputValue] = React.useState<string>();
-  const {user, status, error} = useSelector(selectUser);
+  const [avatarSource, setAvatarSource] = React.useState<string>('');
+  const { getState } = useStore();
+  const { user } = getState() as RootState;
+  const dispatch = useDispatch();
 
   React.useEffect(() => {
     if (file?.name){
@@ -39,36 +44,35 @@ export default function SignUp() {
   }, [file, file?.name])
 
   React.useEffect(() => {
+    imageUrl
+    ? setAvatarSource(imageUrl)
+    : user.user?.avatar
+      ? setAvatarSource(process.env.REACT_APP_USERS_URL + `/avatar/${user.user.avatar}`)
+      : setAvatarSource(user.user?.image || '')
+  }, [imageUrl, user.user?.avatar])
+
+  React.useEffect(() => {
     const timeOutId = setTimeout(() => {
-        if (inputValue !== user?.name){
+        if (inputValue !== user.user?.name){
           setInputError(true);
         }
         else {
           setInputError(false);
         }
-      // const upload = await axios({
-      //     url:"http://localhost:3000/checkNickname",
-      //     method:"get",
-      //     headers:{
-      //         Authorization: `Bearer your token`
-      //     },
-      //     inputValue:
-      // }).then(r => r);
     }, 500);
     return () => clearTimeout(timeOutId);
-  }, [inputValue, user?.name]);
+  }, [inputValue, user.user?.name]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // const upload = await axios({
-    //     url:"http://localhost:3000/upload",
-    //     method:"post",
-    //     headers:{
-    //         Authorization: `Bearer your token`
-    //     },
-    //     data:
-    // }).then(r => r);
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await userService.uploadAvatar(formData) as userI;
+    if (res?.avatar && user.user){
+      dispatch(updateUser({...user.user, avatar: res?.avatar}));
+    }
+    setFile(null);
+    setImageUrl('');
   };
 
   const onFileChange = async (iFile: React.ChangeEvent) => {
@@ -83,6 +87,7 @@ export default function SignUp() {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
   }
+
 
   return (
       <Container component="main" maxWidth="xs">
@@ -101,8 +106,8 @@ export default function SignUp() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <Avatar
-                  alt={user?.name}
-                  src={imageUrl || user?.image}
+                  alt={user.user?.name}
+                  src={avatarSource}
                   sx={{
                     width: 100,
                     height: 100,
@@ -134,12 +139,6 @@ export default function SignUp() {
                   onChange={nickChange}
                 />
               </Grid>
-              {/* <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid> */}
             </Grid>
             <Button
               type="submit"

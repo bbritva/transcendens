@@ -15,6 +15,7 @@ model User {
   name          String? @unique
   status        eStatus @default(OFFLINE)
   image         String?
+  avatar        String?
   friendIds     Int[]
   bannedIds     Int[]
   wins          Game[]  @relation("win")

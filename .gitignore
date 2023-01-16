@@ -38,3 +38,9 @@ backend/prisma/migrations/*/*.sql
 
 #env
 .env
+
+#migrations
+migration*
+
+# uploads
+uploads

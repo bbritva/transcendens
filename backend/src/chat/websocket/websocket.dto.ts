@@ -25,6 +25,7 @@ export class Client {
 }
 
 export class ConnectedClientInfo {
+  readonly id: number
   readonly name: string;
 }
 
