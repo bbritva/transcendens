@@ -19,17 +19,7 @@ export interface ChannelInfoOut {
   users: UserEntity[];
 }
 
-export class Client {
-  readonly id: number
-  readonly name: string;
-}
-
-export class ConnectedClientInfo {
-  readonly id: number
-  readonly name: string;
-}
-
-export class DecodedToken {
+export class ClientInfo {
   readonly id: number
   readonly name: string;
 }

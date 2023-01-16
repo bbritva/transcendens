@@ -16,7 +16,6 @@ import { ChannelEntity } from "src/chat/channel/entities/channel.entity";
 import { env } from "process";
 import { JwtService } from "@nestjs/jwt";
 
-
 @WebSocketGateway({
   cors: {
     origin: ["http://localhost:3001"],
@@ -30,7 +29,7 @@ export class Gateway implements OnModuleInit {
     private jwtService: JwtService
   ) {}
 
-  connections: Map<string, DTO.ConnectedClientInfo> = new Map();
+  connections: Map<string, DTO.ClientInfo> = new Map();
 
   @WebSocketServer()
   server: Server;
@@ -40,13 +39,19 @@ export class Gateway implements OnModuleInit {
       // have to check authorisation
       let authToken = socket.handshake.auth.token;
       let authName = socket.handshake.auth.username;
-      const authorizedUser = await this.getUserNameFromJWT(authToken);
-      if (!authorizedUser && !authName)
-        this.server.emit("connectError", { message: "invalid username" })
-      else if (authorizedUser)
-        this.connectionSet(authorizedUser, socket);
-      else if (authName)
-        this.connectionSet(authName, socket);
+      const authorizedUser = await this.getUserFromJWT(authToken);
+      if (!authorizedUser && !authName) {
+        this.server.emit("connectError", { message: "invalid username" });
+        socket.disconnect();
+        console.log("connectError");
+        
+        return;
+      } else if (authorizedUser) {this.connectionSet(authorizedUser, socket); console.log(authorizedUser.name);
+      }
+      else if (authName) {
+        console.log(authName);
+        this.connectionSet(await this.userService.getUserByName(authName), socket)
+      };
 
       // event handler
       this.onConnection(socket);
@@ -55,13 +60,12 @@ export class Gateway implements OnModuleInit {
       socket.on("disconnecting", async () => {
         this.onDisconnecting(socket);
       });
-      socket.on("disconnect", async () => {
-      });
-    })
+      socket.on("disconnect", async () => {});
+    });
   }
 
-  connectionSet(decodedToken: DTO.DecodedToken, socket: Socket) {
-    this.connections.set(socket.id, decodedToken);
+  connectionSet(client: DTO.ClientInfo, socket: Socket) {
+    this.connections.set(socket.id, client);
   }
 
   @SubscribeMessage("connectToChannel")
@@ -69,18 +73,16 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
-    const user = await this.getClientDTOByName(
-      this.connections.get(socket.id).name
-    );
+    const user = this.connections.get(socket.id);
     const channel = await this.channelService.getChannel(channelIn.name);
     // check possibility
     if (this.canConnect(user, channel, channelIn, user)) {
       await this.connectUserToChannel(
         channelIn,
-        await this.getClientDTOByName(this.connections.get(socket.id).name)
+        this.connections.get(socket.id)
       );
       channelIn.users.forEach(async (userName) => {
-        const targetUser = await this.getClientDTOByName(userName.name);
+        const targetUser = await this.userService.getUserByName(userName.name);
         if (this.canConnect(user, channel, channelIn, targetUser))
           await this.connectUserToChannel(channelIn, targetUser);
       });
@@ -94,7 +96,7 @@ export class Gateway implements OnModuleInit {
   ) {
     if (
       this.userService.isBanned(
-        (await this.getClientDTOByName(channelIn.users[0].name)).id,
+        (await this.userService.getUserByName(channelIn.users[0].name)).id,
         channelIn.users[1].name
       )
     ) {
@@ -102,12 +104,12 @@ export class Gateway implements OnModuleInit {
     } else {
       await this.connectUserToChannel(
         channelIn,
-        await this.getClientDTOByName(this.connections.get(socket.id).name)
+        this.connections.get(socket.id)
       );
       channelIn.users.forEach(async (user) => {
         await this.connectUserToChannel(
           channelIn,
-          await this.getClientDTOByName(user.name)
+          await this.userService.getUserByName(user.name)
         );
       });
     }
@@ -119,9 +121,9 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: CreateMessageDTO
   ) {
     if (
-      this.channelService.isMuted(
+      await this.channelService.isMuted(
         data.channelName,
-        (await this.getClientDTOByName(this.connections.get(socket.id).name)).id
+        this.connections.get(socket.id).id
       )
     )
       this.server.to(socket.id).emit("notAllowed", data);
@@ -141,10 +143,12 @@ export class Gateway implements OnModuleInit {
     }
   }
 
-  private async getUserNameFromJWT(JWTtoken: string): Promise <DTO.DecodedToken> {
+  private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
     try {
-      const decodedToken = this.jwtService.verify(JWTtoken, { secret: env.JWT_ACCESS_SECRET}) as any;
-      const user = await this.userService.getUserByName(decodedToken.username)
+      const decodedToken = this.jwtService.verify(JWTtoken, {
+        secret: env.JWT_ACCESS_SECRET,
+      }) as any;
+      const user = await this.userService.getUserByName(decodedToken.username);
       return user;
     } catch (ex) {
       return null;
@@ -158,9 +162,7 @@ export class Gateway implements OnModuleInit {
   ) {
     if (
       (await this.channelService.addAdmin(
-        (
-          await this.getClientDTOByName(this.connections.get(socket.id).name)
-        ).id,
+        this.connections.get(socket.id).id,
         data
       )) != 0
     )
@@ -175,9 +177,7 @@ export class Gateway implements OnModuleInit {
   ) {
     if (
       (await this.channelService.setPrivacy(
-        (
-          await this.getClientDTOByName(this.connections.get(socket.id).name)
-        ).id,
+        this.connections.get(socket.id).id,
         data
       )) != 0
     ) {
@@ -192,9 +192,7 @@ export class Gateway implements OnModuleInit {
   ) {
     if (
       (await this.channelService.setPassword(
-        (
-          await this.getClientDTOByName(this.connections.get(socket.id).name)
-        ).id,
+        this.connections.get(socket.id).id,
         data
       )) != 0
     ) {
@@ -208,11 +206,7 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.ManageChannel
   ) {
     const channel = await this.channelService.getChannel(data.name);
-    if (
-      channel.admIds.includes(
-        (await this.getClientDTOByName(this.connections.get(socket.id).name)).id
-      )
-    ) {
+    if (channel.admIds.includes(this.connections.get(socket.id).id)) {
       this.channelService.updateChannel({
         where: {
           name: data.name,
@@ -220,33 +214,29 @@ export class Gateway implements OnModuleInit {
         data: {
           guests: {
             disconnect: {
-              id: (await this.getClientDTOByName(data.params[0])).id,
+              id: (await this.userService.getUserByName(data.params[0])).id,
             },
           },
           bannedIds: {
-            push: (await this.getClientDTOByName(data.params[0])).id,
+            push: (await this.userService.getUserByName(data.params[0])).id,
           },
         },
       });
       this.disconnectFromChannel(
         data.name,
-        await this.getClientDTOByName(data.params[0])
+        await this.userService.getUserByName(data.params[0])
       );
       this.server.to(data.name).emit("userBanned", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
-  
+
   @SubscribeMessage("kickUser")
   async onKickUser(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.ManageChannel
   ) {
     const channel = await this.channelService.getChannel(data.name);
-    if (
-      channel.admIds.includes(
-        (await this.getClientDTOByName(this.connections.get(socket.id).name)).id
-      )
-    ) {
+    if (channel.admIds.includes(this.connections.get(socket.id).id)) {
       this.channelService.updateChannel({
         where: {
           name: data.name,
@@ -254,19 +244,18 @@ export class Gateway implements OnModuleInit {
         data: {
           guests: {
             disconnect: {
-              id: (await this.getClientDTOByName(data.params[0])).id,
+              id: (await this.userService.getUserByName(data.params[0])).id,
             },
           },
         },
       });
       this.disconnectFromChannel(
         data.name,
-        await this.getClientDTOByName(data.params[0])
+        await this.userService.getUserByName(data.params[0])
       );
       this.server.to(data.name).emit("userKicked", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
-
 
   @SubscribeMessage("muteUser")
   async onMuteUser(
@@ -274,39 +263,27 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.ManageChannel
   ) {
     const channel = await this.channelService.getChannel(data.name);
-    if (
-      channel.admIds.includes(
-        (await this.getClientDTOByName(this.connections.get(socket.id).name)).id
-      )
-    ) {
+    if (channel.admIds.includes(this.connections.get(socket.id).id)) {
       this.channelService.updateChannel({
         where: {
           name: data.name,
         },
         data: {
           mutedIds: {
-            push: (await this.getClientDTOByName(data.params[0])).id,
+            push: (await this.userService.getUserByName(data.params[0])).id,
           },
         },
       });
       this.disconnectFromChannel(
         data.name,
-        await this.getClientDTOByName(data.params[0])
+        await this.userService.getUserByName(data.params[0])
       );
       this.server.to(data.name).emit("userMuted", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-
-  // private getUserNameFromJWT(JWTtoken: string): DTO.DecodedToken {
-  //   const decodedToken = this.jwtService.decode(JWTtoken) as DTO.DecodedToken;
-  //   return decodedToken;
-  // }
-
   private async connectUserToChannels(socket: Socket) {
-    const client = await this.getClientDTOByName(
-      this.connections.get(socket.id).name
-    );
+    const client = this.connections.get(socket.id);
     const channels = await this.userService.getChannels(client.id);
 
     channels.forEach((channelName) => {
@@ -319,7 +296,7 @@ export class Gateway implements OnModuleInit {
 
   private async connectUserToChannel(
     channelIn: DTO.ChannelInfoIn,
-    user: DTO.Client
+    user: DTO.ClientInfo
   ) {
     const channel = await this.channelService.connectToChannel({
       name: channelIn.name,
@@ -342,7 +319,7 @@ export class Gateway implements OnModuleInit {
       users: channel.guests,
       messages: channel.messages,
     };
-    this.connections.forEach((value: DTO.ConnectedClientInfo, key: string) => {
+    this.connections.forEach((value: DTO.ClientInfo, key: string) => {
       if (value.name == user.name) {
         this.server.to(key).emit("joinedToChannel", channelInfo);
         this.server.sockets.sockets.get(key).join(channelIn.name);
@@ -350,13 +327,16 @@ export class Gateway implements OnModuleInit {
     });
   }
 
-  private async disconnectUserFromChannels(user: DTO.Client) {
+  private async disconnectUserFromChannels(user: DTO.ClientInfo) {
     (await this.userService.getChannels(user.id)).forEach((channelName) => {
       this.disconnectFromChannel(channelName, user);
     });
   }
 
-  private async disconnectFromChannel(channelName: string, user: DTO.Client) {
+  private async disconnectFromChannel(
+    channelName: string,
+    user: DTO.ClientInfo
+  ) {
     // notice users in channel about client disconnected
     this.server
       .to(channelName)
@@ -366,7 +346,7 @@ export class Gateway implements OnModuleInit {
   private async onConnection(socket: Socket) {
     await this.userService.updateUser({
       where: {
-        name: this.connections.get(socket.id).name,
+        id: this.connections.get(socket.id).id,
       },
       data: {
         status: "ONLINE",
@@ -387,12 +367,10 @@ export class Gateway implements OnModuleInit {
   }
 
   private async onDisconnecting(socket: Socket) {
-    this.disconnectUserFromChannels(
-      await this.getClientDTOByName(this.connections.get(socket.id).name)
-    );
+    this.disconnectUserFromChannels(this.connections.get(socket.id));
     const user = await this.userService.updateUser({
       where: {
-        name: socket.handshake.auth.username,
+        id: this.connections.get(socket.id).id,
       },
       data: {
         status: "OFFLINE",
@@ -406,10 +384,10 @@ export class Gateway implements OnModuleInit {
   // 2 channel admin adds user
   // 3 channel is public, password is correct and user is not banned
   async canConnect(
-    executor: DTO.Client,
+    executor: DTO.ClientInfo,
     channel: ChannelEntity,
     channelIn: DTO.ChannelInfoIn,
-    target: DTO.Client
+    target: DTO.ClientInfo
   ): Promise<boolean> {
     return (
       channel == null ||
@@ -418,10 +396,5 @@ export class Gateway implements OnModuleInit {
         channel.password == channelIn.password &&
         !channel.bannedIds.includes(target.id))
     );
-  }
-
-  /////////// MUST BE DELETED !!!!!!!!!!!!!!!!!!!!!!!
-  async getClientDTOByName(name: string): Promise<DTO.Client> {
-    return await this.userService.getUserByName(name);
   }
 }
