@@ -20,7 +20,6 @@ import { GetMeUserDto } from './dto/getMeUser.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
-import { Public } from 'src/auth/constants';
 import * as path from 'path';
 
 export const storage = {
@@ -103,7 +102,6 @@ export class UserController {
         avatar: file.filename,
       },
     });
-    console.log(file); 
     return ({ avatar: file.filename });
   }
 
