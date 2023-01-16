@@ -10,6 +10,7 @@ import { chatStyles } from "./chatStyles";
 import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
 
+
 export interface fromBackI{
   name: string,
   id: string,
@@ -55,23 +56,32 @@ const ChatPage: FC<any> = (): ReactElement => {
   const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
   const [destination, setDestination] = useState<[string, fromBackI]>(['', {} as fromBackI]);
   const { getState } = useStore();
-  const { user } = getState() as RootState;
+  const { user, auth } = getState() as RootState;
   const dispatch = useDispatch();
   const theme = useTheme();
-  let flag = true;
+  let notConnected = true;
 
   useEffect(() => {
-    if (userName && flag) {
-      const username = userName;
-      socket.auth = { username };
-      socket.connect();
-      initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
-      flag = false;
+    if (userName && notConnected) {
+      connectUser({ username: userName });
+      notConnected = false;
+    }
+    else if (auth.accessToken?.access_token && notConnected) {
+      setTimeout(() => {
+      connectUser({ token: auth.accessToken.access_token });
+      }, 500)
+      notConnected = false;
     }
     return () => {
       socket.disconnect()
     };
   }, [userName]);
+
+  function connectUser(tokenConnect: {}) {
+    socket.auth = tokenConnect;
+    socket.connect();
+    initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
+  }
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
