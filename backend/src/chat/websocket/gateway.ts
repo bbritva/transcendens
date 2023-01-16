@@ -42,16 +42,22 @@ export class Gateway implements OnModuleInit {
       const authorizedUser = await this.getUserFromJWT(authToken);
       if (!authorizedUser && !authName) {
         this.server.emit("connectError", { message: "invalid username" });
-        socket.disconnect();
+        socket.disconnect(true);
         console.log("connectError");
-        
         return;
-      } else if (authorizedUser) {this.connectionSet(authorizedUser, socket); console.log(authorizedUser.name);
+      } else if (authorizedUser) {
+        this.connectionSet(authorizedUser, socket);
+        console.log("authorizedUser:", authorizedUser.name);
+      } else if (authName) {
+        console.log("nonAuthorizedUser:", authName);
+        const user = await this.userService.getUserByName(authName);
+        if (user) this.connectionSet(user, socket);
+        else {
+          socket.disconnect(true);
+          console.log("connectError");
+          return;
+        }
       }
-      else if (authName) {
-        console.log(authName);
-        this.connectionSet(await this.userService.getUserByName(authName), socket)
-      };
 
       // event handler
       this.onConnection(socket);
@@ -95,9 +101,9 @@ export class Gateway implements OnModuleInit {
     @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
     if (
-      this.userService.isBanned(
-        (await this.userService.getUserByName(channelIn.users[0].name)).id,
-        channelIn.users[1].name
+      await this.userService.isBanned(
+        this.connections.get(socket.id).id,
+        channelIn.users[0].name
       )
     ) {
       this.server.to(socket.id).emit("notAllowed", channelIn);
@@ -133,25 +139,13 @@ export class Gateway implements OnModuleInit {
           channel: {
             connect: { name: data.channelName },
           },
-          authorName: data.authorName,
+          authorName: this.connections.get(socket.id).name,
           text: data.text,
         });
         this.server.to(data.channelName).emit("newMessage", messageOut);
       } catch (e) {
         console.log("err", e.meta.cause);
       }
-    }
-  }
-
-  private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
-    try {
-      const decodedToken = this.jwtService.verify(JWTtoken, {
-        secret: env.JWT_ACCESS_SECRET,
-      }) as any;
-      const user = await this.userService.getUserByName(decodedToken.username);
-      return user;
-    } catch (ex) {
-      return null;
     }
   }
 
@@ -282,6 +276,18 @@ export class Gateway implements OnModuleInit {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
+  private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
+    try {
+      const decodedToken = this.jwtService.verify(JWTtoken, {
+        secret: env.JWT_ACCESS_SECRET,
+      }) as any;
+      const user = await this.userService.getUserByName(decodedToken.username);
+      return user;
+    } catch (ex) {
+      return null;
+    }
+  }
+
   private async connectUserToChannels(socket: Socket) {
     const client = this.connections.get(socket.id);
     const channels = await this.userService.getChannels(client.id);
@@ -304,6 +310,7 @@ export class Gateway implements OnModuleInit {
       isPrivate: channelIn.isPrivate,
       password: channelIn.password,
     });
+
     // notice users in channel about new client
     this.server
       .to(channelIn.name)
@@ -344,26 +351,24 @@ export class Gateway implements OnModuleInit {
   }
 
   private async onConnection(socket: Socket) {
-    await this.userService.updateUser({
-      where: {
-        id: this.connections.get(socket.id).id,
-      },
-      data: {
-        status: "ONLINE",
-      },
-    });
-    //send to new user all channels
-    let channels = await this.channelService.ChannelList();
-    let channelList = [];
-    channels.forEach((value: { name: string }) => {
-      channelList.push({
-        name: value.name,
-      });
-    });
-    this.server.to(socket.id).emit("channels", channelList);
+    if (
+      await this.userService.updateUser({
+        where: {
+          id: this.connections.get(socket.id).id,
+        },
+        data: {
+          status: "ONLINE",
+        },
+      })
+    ) {
+      //send to new user all channels
+      this.server
+        .to(socket.id)
+        .emit("channels", await this.channelService.ChannelList());
 
-    //connect user to his channels
-    this.connectUserToChannels(socket);
+      //connect user to his channels
+      this.connectUserToChannels(socket);
+    } else socket.disconnect(true);
   }
 
   private async onDisconnecting(socket: Socket) {
