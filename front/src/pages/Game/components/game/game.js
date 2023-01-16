@@ -38,6 +38,7 @@ function game(canvas, setStopGame, mods, game, myName) {
   }
 
   function draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx) {
+    let win = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     emitCoord(
       canvas,
@@ -53,13 +54,23 @@ function game(canvas, setStopGame, mods, game, myName) {
 
     if(isLeader){
       ball.verticalCollision();
-
       if (ball.leftCollision(leftPaddle)) {
         if (ball.x + ball.dx < ball.ballRadius){
           if (rightPaddle.makeScore()){
             alert(`${rightPaddle.name} WINS`);
             document.location.reload();
           };
+          socket.emit('score', {
+            game: game.name,
+            playerOne: {
+              name: game.first,
+              score: rightPaddle.score
+            },
+            playerTwo: {
+              name: game.second,
+              score: leftPaddle.score
+            }
+          });
           ball.reset(-1);
           leftPaddle.reset();
           rightPaddle.reset();
@@ -137,6 +148,13 @@ function game(canvas, setStopGame, mods, game, myName) {
           ball.remoteY = translateFromPercent(canvas.height, data.ball.y)
         }
       });
+      if (!isLeader){
+        socket.on('gameScore', (data) => {
+          console.log(data)
+          leftPaddle.score = data.playerOne.score;
+          rightPaddle.score = data.playerTwo.score;
+        })
+      }
     }
 
     const bricks = new Bricks();

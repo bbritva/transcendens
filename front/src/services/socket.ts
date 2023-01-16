@@ -27,7 +27,6 @@ export function initSocket(
   });
 
   socket.on("userConnected", (channelName: string, userName: string) => {
-    console.log("user Connected", channelName, userName);
     setChannels((prev: channelFromBackI[]) => {
       const channelInd = prev.findIndex((el) => el.name === channelName)
       if (channelInd !== -1) {
@@ -81,9 +80,9 @@ export function initSocket(
       }
     });
   });
-  socket.onAny((event, ...args) => {
-    console.log(event, args);
-  });
+  // socket.onAny((event, ...args) => {
+  //   console.log(event, args);
+  // });
 }
 
 export default socket

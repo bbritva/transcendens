@@ -20,6 +20,18 @@ import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
 
 
+interface scoreDataI{
+  game: string,
+  playerOne: {
+    name: string, 
+    score: number
+  },
+  playerTwo: {
+    name: string, 
+    score: number
+  },
+}
+
 interface coordinateDataI{
   game: string,
   playerY: number,
@@ -34,9 +46,7 @@ interface gameChannelDataI{
 }
 
 @WebSocketGateway({
-  cors: {
-    origin: ["http://localhost:3001"],
-  },
+  cors: true
 })
 export class Gateway implements OnModuleInit {
   constructor(
@@ -81,6 +91,14 @@ export class Gateway implements OnModuleInit {
       async (userName) =>
         await this.connectUserToChannel(userName.name, channelIn.name)
     );
+  }
+
+  @SubscribeMessage("score")
+  async getScore(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: scoreDataI
+  ){
+    this.server.to(data.game).emit("gameScore", { ...data });
   }
 
   @SubscribeMessage("coordinates")
