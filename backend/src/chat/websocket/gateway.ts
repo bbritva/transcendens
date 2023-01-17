@@ -349,13 +349,6 @@ export class Gateway implements OnModuleInit {
   }
 
   private async onDisconnecting(socket: Socket) {
-    (
-      await this.userService.getChannels(this.connections.get(socket.id).id)
-    ).forEach((channelName) => {
-      this.server
-        .to(channelName)
-        .emit("userDisconnected", channelName, user.name);
-    });
     const user = await this.userService.updateUser({
       where: {
         id: this.connections.get(socket.id).id,
@@ -363,6 +356,13 @@ export class Gateway implements OnModuleInit {
       data: {
         status: "OFFLINE",
       },
+    });
+    (
+      await this.userService.getChannels(this.connections.get(socket.id).id)
+    ).forEach((channelName) => {
+      this.server
+        .to(channelName)
+        .emit("userDisconnected", channelName, user.name);
     });
     this.connections.delete(socket.id);
   }
