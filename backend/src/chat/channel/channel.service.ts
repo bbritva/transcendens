@@ -65,12 +65,12 @@ export class ChannelService {
               (id) => id != data.ownerId
             ),
           },
-          //removing from muted
-          mutedIds: {
-            set: (await this.getChannel(data.name)).mutedIds.filter(
-              (id) => id != data.ownerId
-            ),
-          },
+          // //removing from muted
+          // mutedIds: {
+          //   set: (await this.getChannel(data.name)).mutedIds.filter(
+          //     (id) => id != data.ownerId
+          //   ),
+          // },
         },
         // if channel doesn't exist
         create: {
@@ -179,13 +179,18 @@ export class ChannelService {
   }
 
   async isMuted(channelName: string, userId: number): Promise<boolean> {
-    return (
+    console.log(channelName, userId);
+    
+    const res = (
       await this.prisma.channel.findUnique({
         where: {
           name: channelName,
         },
       })
-    ).mutedIds.includes(userId);
+    )
+    console.log(res);
+    
+    return res.mutedIds.includes(userId);
   }
 
   async addMessage(
