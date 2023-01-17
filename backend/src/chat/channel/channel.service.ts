@@ -59,6 +59,18 @@ export class ChannelService {
               id: data.ownerId,
             },
           },
+          //removing from banned
+          bannedIds: {
+            set: (await this.getChannel(data.name)).bannedIds.filter(
+              (id) => id != data.ownerId
+            ),
+          },
+          //removing from muted
+          mutedIds: {
+            set: (await this.getChannel(data.name)).mutedIds.filter(
+              (id) => id != data.ownerId
+            ),
+          },
         },
         // if channel doesn't exist
         create: {
@@ -208,7 +220,7 @@ export class ChannelService {
         where: {
           name: channelName,
         },
-        data:{
+        data: {
           bannedIds: {
             push: targetId,
           },
@@ -229,7 +241,7 @@ export class ChannelService {
         where: {
           name: channelName,
         },
-        data:{
+        data: {
           mutedIds: {
             push: targetId,
           },
