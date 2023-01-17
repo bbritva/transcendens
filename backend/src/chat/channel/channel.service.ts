@@ -208,13 +208,29 @@ export class ChannelService {
         where: {
           name: channelName,
         },
-        data: {
-          guests: {
-            disconnect: {
-              id: targetId,
-            },
-          },
+        data:{
           bannedIds: {
+            push: targetId,
+          },
+        },
+      });
+      return true;
+    } else return false;
+  }
+
+  async muteUser(
+    executorId: number,
+    channelName: string,
+    targetId: number
+  ): Promise<boolean> {
+    const channel = await this.getChannel(channelName);
+    if (channel.admIds.includes(executorId)) {
+      this.updateChannel({
+        where: {
+          name: channelName,
+        },
+        data:{
+          mutedIds: {
             push: targetId,
           },
         },
