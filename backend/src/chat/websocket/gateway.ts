@@ -41,18 +41,16 @@ export class Gateway implements OnModuleInit {
       if (!authorizedUser && !authName) {
         this.server.emit("connectError", { message: "invalid username" });
         socket.disconnect(true);
-        console.log("connectError");
         return;
       } else if (authorizedUser) {
         this.connectionSet(authorizedUser, socket);
-        console.log("authorizedUser:", authorizedUser.name);
       } else if (authName) {
-        console.log("nonAuthorizedUser:", authName);
         const user = await this.userService.getUserByName(authName);
-        if (user) this.connectionSet(user, socket);
+        if (user)
+          this.connectionSet(user, socket);
         else {
+          this.server.emit("connectError", { message: "invalid username" });
           socket.disconnect(true);
-          console.log("connectError");
           return;
         }
       }

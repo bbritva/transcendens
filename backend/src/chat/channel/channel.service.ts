@@ -137,7 +137,11 @@ export class ChannelService {
     );
   }
 
-  async addAdmin(executorId: number, channelName: string, targetId: number): Promise<boolean> {
+  async addAdmin(
+    executorId: number,
+    channelName: string,
+    targetId: number
+  ): Promise<boolean> {
     return (
       (
         await this.prisma.channel.updateMany({
@@ -155,44 +159,52 @@ export class ChannelService {
     );
   }
 
-  async unmuteUser(executorId: number, channelName: string, targetId: number): Promise<boolean> {
+  async unmuteUser(
+    executorId: number,
+    channelName: string,
+    targetId: number
+  ): Promise<boolean> {
     return (
       (
         await this.prisma.channel.updateMany({
           where: {
             name: channelName,
             admIds: {
-              has : executorId
+              has: executorId,
             },
           },
           data: {
-          mutedIds: {
-            set: (await this.getChannel(channelName)).mutedIds.filter(
-              (id) => id != targetId
-            ),
-          },
+            mutedIds: {
+              set: (
+                await this.getChannel(channelName)
+              ).mutedIds.filter((id) => id != targetId),
+            },
           },
         })
       ).count != 0
     );
   }
 
-  async unbanUser(executorId: number, channelName: string, targetId: number): Promise<boolean> {
+  async unbanUser(
+    executorId: number,
+    channelName: string,
+    targetId: number
+  ): Promise<boolean> {
     return (
       (
         await this.prisma.channel.updateMany({
           where: {
             name: channelName,
             admIds: {
-              has : executorId
+              has: executorId,
             },
           },
           data: {
-          bannedIds: {
-            set: (await this.getChannel(channelName)).mutedIds.filter(
-              (id) => id != targetId
-            ),
-          },
+            bannedIds: {
+              set: (
+                await this.getChannel(channelName)
+              ).mutedIds.filter((id) => id != targetId),
+            },
           },
         })
       ).count != 0
@@ -223,18 +235,13 @@ export class ChannelService {
   }
 
   async isMuted(channelName: string, userId: number): Promise<boolean> {
-    console.log(channelName, userId);
-    
-    const res = (
+    return (
       await this.prisma.channel.findUnique({
         where: {
           name: channelName,
         },
       })
-    )
-    console.log(res);
-    
-    return res.mutedIds.includes(userId);
+    ).mutedIds.includes(userId);
   }
 
   async addMessage(
