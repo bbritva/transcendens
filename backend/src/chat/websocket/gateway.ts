@@ -98,7 +98,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
-    this.leaveChannel(socket, channelIn.name, this.connections.get(socket.id))
+    this.leaveChannel(socket, channelIn.name, this.connections.get(socket.id));
   }
 
   @SubscribeMessage("privateMessage")
@@ -205,6 +205,57 @@ export class Gateway implements OnModuleInit {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
+  @SubscribeMessage("muteUser")
+  async onMuteUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    const targetUser = await this.userService.getUserByName(data.params[0]);
+    if (
+      await this.channelService.muteUser(
+        this.connections.get(socket.id).id,
+        data.name,
+        targetUser.id
+      )
+    ) {
+      this.server.to(data.name).emit("userMuted", data);
+    } else this.server.to(socket.id).emit("notAllowed", data);
+  }
+
+  @SubscribeMessage("unmuteUser")
+  async onUnmuteUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    const targetUser = await this.userService.getUserByName(data.params[0]);
+    if (
+      this.channelService.unmuteUser(
+        this.connections.get(socket.id).id,
+        data.name,
+        targetUser.id
+      )
+    ) {
+      this.server.to(socket.id).emit("userUnmuted", data);
+    } else this.server.to(socket.id).emit("notAllowed", data);
+  }
+
+  @SubscribeMessage("unbanUser")
+  async onUnbanUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    const targetUser = await this.userService.getUserByName(data.params[0]);
+    if (
+      this.channelService.unbanUser(
+        this.connections.get(socket.id).id,
+        data.name,
+        targetUser.id
+      )
+    ) {
+      this.server.to(socket.id).emit("userUnbanned", data);
+    } else this.server.to(socket.id).emit("notAllowed", data);
+  }
+
   @SubscribeMessage("kickUser")
   async onKickUser(
     @ConnectedSocket() socket: Socket,
@@ -215,24 +266,6 @@ export class Gateway implements OnModuleInit {
       const targetUser = await this.userService.getUserByName(data.params[0]);
       this.leaveChannel(socket, data.name, targetUser);
       this.server.to(socket.id).emit("userKicked", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
-  }
-
-  @SubscribeMessage("muteUser")
-  async onMuteUser(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
-  ) {
-    if (
-      await this.channelService.muteUser(
-        this.connections.get(socket.id).id,
-        data.name,
-        (
-          await this.userService.getUserByName(data.params[0])
-        ).id
-      )
-    ) {
-      this.server.to(data.name).emit("userMuted", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 

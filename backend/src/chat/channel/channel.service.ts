@@ -60,11 +60,11 @@ export class ChannelService {
             },
           },
           //removing from banned
-          bannedIds: {
-            set: (await this.getChannel(data.name)).bannedIds.filter(
-              (id) => id != data.ownerId
-            ),
-          },
+          // bannedIds: {
+          //   set: (await this.getChannel(data.name)).bannedIds.filter(
+          //     (id) => id != data.ownerId
+          //   ),
+          // },
           // //removing from muted
           // mutedIds: {
           //   set: (await this.getChannel(data.name)).mutedIds.filter(
@@ -149,6 +149,50 @@ export class ChannelService {
             admIds: {
               push: data.params[0],
             },
+          },
+        })
+      ).count != 0
+    );
+  }
+
+  async unmuteUser(executorId: number, channelName: string, targetId: number): Promise<boolean> {
+    return (
+      (
+        await this.prisma.channel.updateMany({
+          where: {
+            name: channelName,
+            admIds: {
+              has : executorId
+            },
+          },
+          data: {
+          mutedIds: {
+            set: (await this.getChannel(channelName)).mutedIds.filter(
+              (id) => id != targetId
+            ),
+          },
+          },
+        })
+      ).count != 0
+    );
+  }
+
+  async unbanUser(executorId: number, channelName: string, targetId: number): Promise<boolean> {
+    return (
+      (
+        await this.prisma.channel.updateMany({
+          where: {
+            name: channelName,
+            admIds: {
+              has : executorId
+            },
+          },
+          data: {
+          bannedIds: {
+            set: (await this.getChannel(channelName)).mutedIds.filter(
+              (id) => id != targetId
+            ),
+          },
           },
         })
       ).count != 0
