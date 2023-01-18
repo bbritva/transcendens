@@ -137,17 +137,17 @@ export class ChannelService {
     );
   }
 
-  async addAdmin(executorId: number, data: ManageChannel): Promise<boolean> {
+  async addAdmin(executorId: number, channelName: string, targetId: number): Promise<boolean> {
     return (
       (
         await this.prisma.channel.updateMany({
           where: {
-            name: data.name,
+            name: channelName,
             ownerId: executorId,
           },
           data: {
             admIds: {
-              push: data.params[0],
+              push: targetId,
             },
           },
         })

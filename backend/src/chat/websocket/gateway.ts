@@ -90,7 +90,7 @@ export class Gateway implements OnModuleInit {
         if (this.canConnect(user, channel, channelIn, targetUser))
           await this.connectUserToChannel(channelIn, targetUser);
       });
-    }
+    } else this.server.to(socket.id).emit("notAllowed", channelIn);
   }
 
   @SubscribeMessage("leaveChannel")
@@ -147,10 +147,12 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.ManageChannel
   ) {
+    const targetUser = await this.userService.getUserByName(data.params[0]);
     if (
       await this.channelService.addAdmin(
         this.connections.get(socket.id).id,
-        data
+        data.name,
+        targetUser.id
       )
     )
       this.server.to(data.name).emit("newAdmin", data);
@@ -344,6 +346,8 @@ export class Gateway implements OnModuleInit {
         },
       },
     });
+    // notice user
+    this.server.to(socket.id).emit("leftChannel", channelName);
     // exit room
     this.server.in(socket.id).socketsLeave(channelName);
     // notice channel
