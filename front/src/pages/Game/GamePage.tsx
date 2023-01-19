@@ -64,7 +64,6 @@ const GamePage: FC<any> = (): ReactElement => {
   }
 
   async function sendInvite(){
-    setLoading(true);
     if (socket.connected){
       const game = {
         name: testGamename,
@@ -72,7 +71,9 @@ const GamePage: FC<any> = (): ReactElement => {
         second: inputValue,
         guests: []
       }
-      socket.emit('connectToGame', game);
+      setLoading(true);
+      socket.emit('inviteToGame', {recipient: game.second });
+      // socket.emit('connectToGame', game);
     }
     setOpen(false);
   }

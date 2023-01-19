@@ -54,13 +54,12 @@ const ChatPage: FC<any> = (): ReactElement => {
       sessionStorage.setItem('username', userName);
       const username = userName;
       socket.auth = { username };
-      socket.connect();
       initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
       flag = false;
     }
-    return () => {
-      socket.disconnect()
-    };
+    // return () => {
+    //   socket.disconnect()
+    // };
   }, [userName]);
 
   useEffect(() => {

@@ -93,6 +93,41 @@ export class Gateway implements OnModuleInit {
     );
   }
 
+  @SubscribeMessage('inviteToGame')
+  async inviteToGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { recipient: string }
+  ){
+    const username = this.connections.get(socket.id).username;
+    console.log("Invite")
+    const recipientUser = await this.userService.getUserByName(data.recipient);
+    const iterator = this.connections.entries();
+    for (const el of iterator){
+      if (el[1].username == recipientUser.name){
+        this.server.to(el[0]).emit('inviteToGame', { sender: username })
+        break ;
+      }
+    }
+  }
+
+  @SubscribeMessage('acceptInvite')
+  async acceptInvite(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { sender: string }
+  ){
+    const username = this.connections.get(socket.id).username;
+    console.log("ACCEPT Invite")
+  }
+
+  @SubscribeMessage('declineInvite')
+  async declineInvite(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { sender: string }
+  ){
+    console.log("DECLINE Invite")
+    const username = this.connections.get(socket.id).username;
+  }
+
   @SubscribeMessage("score")
   async getScore(
     @ConnectedSocket() socket: Socket,

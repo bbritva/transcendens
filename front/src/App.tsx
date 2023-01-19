@@ -13,6 +13,7 @@ import { RootState } from 'src/store/store'
 import { selectLoggedIn } from "src/store/authReducer";
 import { login, logout } from "src/store/authActions";
 import DialogSelect from "./components/DialogSelect/DialogSelect";
+import socket, { initSocket } from "./services/socket";
 
 
 const theme = createTheme({
@@ -34,6 +35,7 @@ function App() {
   const dispatch = useDispatch();
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
+  const [inviteSender, setInviteSender] = useState('');
   const [open, setOpen] = useState(false);
   const isLoggedIn = useSelector(selectLoggedIn);
   authHeader();
@@ -60,16 +62,36 @@ function App() {
     }
   }, [accessCode, isLoggedIn]);
 
+  useEffect(() => {
+    if (socket.connected){
+      console.log('socket invote set');
+      socket.on("inviteToGame", (data) => {
+        console.log('socket invote RUNNING');
+        setInviteSender(data.sender);
+        setOpen(true);
+      })
+    }
+  }, [socket?.connected]);
+
   function onLogoutClick() {
     dispatch(logout());
     window.location.reload();
   };
 
   function accept() {
+    if (socket.connected){
+      setOpen(false);
+      socket.emit("acceptInvite", { sender: inviteSender })
+    }
   }
 
   function decline () {
+    if (socket.connected){
+      setOpen(false);
+      socket.emit("declineInvite", { sender: inviteSender })
+    }
   }
+
   return (
     <ThemeProvider theme={theme}>
       <div className="landing-background">
