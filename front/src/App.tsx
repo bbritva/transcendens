@@ -2,7 +2,7 @@ import "src/App.css";
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid } from "@mui/material";
+import { createTheme, ThemeProvider, Grid, Box, DialogTitle, Button } from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
@@ -12,6 +12,7 @@ import { authRefreshInterceptor } from "src/services/authRefreshInterceptor";
 import { RootState } from 'src/store/store'
 import { selectLoggedIn } from "src/store/authReducer";
 import { login, logout } from "src/store/authActions";
+import DialogSelect from "./components/DialogSelect/DialogSelect";
 
 
 const theme = createTheme({
@@ -33,6 +34,7 @@ function App() {
   const dispatch = useDispatch();
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
+  const [open, setOpen] = useState(false);
   const isLoggedIn = useSelector(selectLoggedIn);
   authHeader();
   authRefreshInterceptor();
@@ -57,10 +59,19 @@ function App() {
       }
     }
   }, [accessCode, isLoggedIn]);
+
   function onLogoutClick() {
     dispatch(logout());
     window.location.reload();
   };
+
+  function accept() {
+    console.log("invitation accepted");
+  }
+
+  function decline () {
+    console.log("invitation declined");
+  }
   return (
     <ThemeProvider theme={theme}>
       <div className="landing-background">
@@ -73,6 +84,29 @@ function App() {
               onLogoutClick={onLogoutClick}
             />
             <Allerts />
+            <DialogSelect
+              options={{}}
+              open={open}
+              setOpen={setOpen}
+            >
+              <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
+                <DialogTitle>NICKNAME invited you</DialogTitle>
+                <Button
+                  variant="outlined"
+                  sx={{alignSelf: 'end'}}
+                  onClick={decline}
+                >
+                  Decline
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{alignSelf: 'end'}}
+                  onClick={accept}
+                >
+                  Accept
+                </Button>
+              </Box>
+            </DialogSelect>
             <Grid item xs={8} margin={10} sx={{
             }}>
               <Routes>
