@@ -66,11 +66,9 @@ function App() {
   };
 
   function accept() {
-    console.log("invitation accepted");
   }
 
   function decline () {
-    console.log("invitation declined");
   }
   return (
     <ThemeProvider theme={theme}>

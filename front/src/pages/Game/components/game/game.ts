@@ -177,7 +177,6 @@ function game(
       });
       if (!isLeader){
         socket.on('gameScore', (data) => {
-          console.log(data)
           leftPaddle.score = data.playerOne.score;
           rightPaddle.score = data.playerTwo.score;
         })

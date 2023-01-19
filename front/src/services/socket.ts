@@ -80,9 +80,6 @@ export function initSocket(
       }
     });
   });
-  // socket.onAny((event, ...args) => {
-  //   console.log(event, args);
-  // });
 }
 
 export default socket
