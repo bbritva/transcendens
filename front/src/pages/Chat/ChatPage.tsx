@@ -33,17 +33,6 @@ export interface newMessageI {
   text: string,
 }
 
-function useChosenUserState(){
-  const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
-
-  function selectUser(users: userFromBackI[], id: string){
-    const user = users.find((el) => el.id === id);
-    if (user)
-      setChosenUser(user);
-  }
-  return ({chosenUser, selectUser});
-}
-
 const ChatPage: FC<any> = (): ReactElement => {
   const [userName, setUsername] = useState<string>('');
   const [users, setUsers] = useState<userFromBackI[]>([]);

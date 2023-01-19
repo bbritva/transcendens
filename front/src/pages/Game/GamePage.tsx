@@ -1,5 +1,5 @@
 import { ReactElement, FC, useRef, useEffect, useState } from "react";
-import { Box, Button, DialogTitle, Grid, Paper, TextField, Typography } from "@mui/material";
+import { Box, Button, DialogTitle, Grid, Paper, TextField } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
 import game from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
