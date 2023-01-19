@@ -4,7 +4,7 @@ import { Channel, Message, Prisma } from "@prisma/client";
 import { ChannelInfoDto } from "./dto/channelInfo.dto";
 import { ManageChannel } from "src/chat/websocket/websocket.dto";
 import { MessageService } from "src/chat/message/message.service";
-import { CreateMessageDTO } from "../message/dto/create-message.dto";
+import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 
 @Injectable()
 export class ChannelService {
@@ -59,18 +59,6 @@ export class ChannelService {
               id: data.ownerId,
             },
           },
-          //removing from banned
-          // bannedIds: {
-          //   set: (await this.getChannel(data.name)).bannedIds.filter(
-          //     (id) => id != data.ownerId
-          //   ),
-          // },
-          // //removing from muted
-          // mutedIds: {
-          //   set: (await this.getChannel(data.name)).mutedIds.filter(
-          //     (id) => id != data.ownerId
-          //   ),
-          // },
         },
         // if channel doesn't exist
         create: {

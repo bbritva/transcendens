@@ -71,10 +71,3 @@ model Message {
   authorName  String
   text        String
 }
-
-// model PrivateChannel {
-//   id        Int      @id @default(autoincrement())
-//   history   Json
-//   ownerId   Int
-//   guestId   Int
-// }
