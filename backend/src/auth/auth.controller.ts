@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
   Request,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -53,4 +55,30 @@ export class AuthController {
   refreshTokens(@Request() req : AuthRefreshTokenDto) {
     return this.authService.refreshTokens(req.user.username, req.user.refreshToken);
   }
+
+  @Post('2fa/turn-on')
+  async turnOnTwoFa(@Request() req, @Body() body) {
+    const isCodeValid = this.authService.isTwoFaCodeValid (
+      body.twoFaCode,
+      req.user,
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    await this.authService.turnOnTwoFa(req.user.id);
+  }
+
+  @Post('2fa/auth')
+  async authenticate(@Request() req, @Body() body) {
+    const isCodeValid = this.authService.isTwoFaCodeValid(
+      body.twoFaCode,
+      req.user,
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+
+    return this.authService.loginWith2Fa(req.user);
+  }
+
 }
