@@ -1,13 +1,13 @@
 import { Module } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { ChannelService } from "src/chat/channel/channel.service";
+import { JwtModule } from "@nestjs/jwt";
 import { MessageService } from "src/chat/message/message.service";
 import { PrismaModule } from "src/prisma/prisma.module";
 import { Gateway } from "./gateway";
 import { UserModule } from "src/user/user.module";
+import { ChannelModule } from "src/chat/channel/channel.module";
 
 @Module({
-    imports: [PrismaModule, UserModule],
-    providers: [Gateway, ChannelService, MessageService, JwtService, Object]
+    imports: [PrismaModule, UserModule, ChannelModule, JwtModule],
+    providers: [Gateway, MessageService, Object]
 })
 export class GatewayModule{}
