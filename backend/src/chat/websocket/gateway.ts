@@ -14,6 +14,7 @@ import { ChannelService } from "src/chat/channel/channel.service";
 import { ChannelEntity } from "src/chat/channel/entities/channel.entity";
 import { env } from "process";
 import { JwtService } from "@nestjs/jwt";
+import { GatewayService } from "./gateway.service";
 
 @WebSocketGateway({
   cors: {
@@ -24,15 +25,18 @@ export class Gateway implements OnModuleInit {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private gatewayService: GatewayService,
   ) {}
-
-  connections: Map<string, DTO.ClientInfo> = new Map();
 
   @WebSocketServer()
   server: Server;
 
+  connections: Map<string, DTO.ClientInfo> = new Map();
+
+
   onModuleInit() {
+    this.gatewayService.setServer(this.server);
     this.server.on("connection", async (socket) => {
       // have to check authorisation
       let authToken = socket.handshake.auth.token;
@@ -47,7 +51,14 @@ export class Gateway implements OnModuleInit {
       } else if (authName) {
         const user = await this.userService.getUserByName(authName);
         if (user)
-          this.connectionSet(user, socket);
+          this.connectionSet(
+            {
+              id: user.id,
+              name: user.name,
+              socketId: socket.id,
+            },
+            socket
+          );
         else {
           this.server.emit("connectError", { message: "invalid username" });
           socket.disconnect(true);
@@ -96,7 +107,12 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
-    this.leaveChannel(socket, channelIn.name, this.connections.get(socket.id));
+    this.gatewayService.leaveChannel(
+      this.server,
+      socket.id,
+      channelIn.name,
+      this.connections.get(socket.id)
+    );
   }
 
   @SubscribeMessage("privateMessage")
@@ -200,7 +216,12 @@ export class Gateway implements OnModuleInit {
         targetUser.id
       )
     ) {
-      this.leaveChannel(socket, data.name, targetUser);
+      this.gatewayService.leaveChannel(
+        this.server,
+        socket.id,
+        data.name,
+        targetUser
+      );
       this.server.to(socket.id).emit("userBanned", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
@@ -261,12 +282,11 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.ManageChannel
   ) {
-    const channel = await this.channelService.getChannel(data.name);
-    if (channel.admIds.includes(this.connections.get(socket.id).id)) {
-      const targetUser = await this.userService.getUserByName(data.params[0]);
-      this.leaveChannel(socket, data.name, targetUser);
-      this.server.to(socket.id).emit("userKicked", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+    this.gatewayService.kickUser(
+      this.connections.get(socket.id),
+      data,
+      this.server
+    );
   }
 
   private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
@@ -327,40 +347,40 @@ export class Gateway implements OnModuleInit {
     });
   }
 
-  private async leaveChannel(
-    socket: Socket,
-    channelName: string,
-    user: DTO.ClientInfo
-  ) {
-    const channel = await this.channelService.updateChannel({
-      where: {
-        name: channelName,
-      },
-      data: {
-        guests: {
-          disconnect: {
-            id: user.id,
-          },
-        },
-      },
-    });
-    // notice user
-    this.server.to(socket.id).emit("leftChannel", channelName);
-    // exit room
-    this.server.in(socket.id).socketsLeave(channelName);
-    // notice channel
-    this.server
-      .to(channelName)
-      .emit(
-        "userLeft",
-        channel.name,
-        await this.userService.getUser(
-          this.connections.get(socket.id).id,
-          false,
-          false
-        )
-      );
-  }
+  // private async leaveChannel(
+  //   socket: Socket,
+  //   channelName: string,
+  //   user: DTO.ClientInfo
+  // ) {
+  //   const channel = await this.channelService.updateChannel({
+  //     where: {
+  //       name: channelName,
+  //     },
+  //     data: {
+  //       guests: {
+  //         disconnect: {
+  //           id: user.id,
+  //         },
+  //       },
+  //     },
+  //   });
+  //   // notice user
+  //   this.server.to(socket.id).emit("leftChannel", channelName);
+  //   // exit room
+  //   this.server.in(socket.id).socketsLeave(channelName);
+  //   // notice channel
+  //   this.server
+  //     .to(channelName)
+  //     .emit(
+  //       "userLeft",
+  //       channel.name,
+  //       await this.userService.getUser(
+  //         this.connections.get(socket.id).id,
+  //         false,
+  //         false
+  //       )
+  //     );
+  // }
 
   private async onConnection(socket: Socket) {
     if (
