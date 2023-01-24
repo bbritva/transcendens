@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ChannelController } from 'src/chat/channel/channel.controller';
 import { ChannelService } from 'src/chat/channel/channel.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { MessageService } from '../message/message.service';
+import { MessageService } from 'src/chat/message/message.service';
 
 @Module({
     imports: [PrismaModule, JwtModule],
