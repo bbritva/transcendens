@@ -26,7 +26,6 @@ export class Gateway implements OnModuleInit {
 
   connections: Map<string, DTO.ClientInfo> = new Map();
 
-
   onModuleInit() {
     this.gatewayService.setServer(this.server);
     this.server.on("connection", async (socket) => {
@@ -39,7 +38,7 @@ export class Gateway implements OnModuleInit {
 
       //disconnection handler
       socket.on("disconnecting", async () => {
-        this.onDisconnecting(socket);
+        this.gatewayService.disconnectUser(socket);
       });
       socket.on("disconnect", async () => { });
     });
@@ -150,9 +149,5 @@ export class Gateway implements OnModuleInit {
       socket,
       data,
     );
-  }
-
-  private async onDisconnecting(socket: Socket) {
-    this.gatewayService.disconnectUser(socket);
   }
 }

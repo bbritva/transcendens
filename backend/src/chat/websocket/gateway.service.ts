@@ -67,6 +67,7 @@ export class GatewayService {
   connectionSet(client: DTO.ClientInfo, socket: Socket) {
     this.connections.set(socket.id, client);
   }
+
   async disconnectUser(socket: Socket) {
     const user = await this.userService.updateUser({
       where: {
@@ -368,7 +369,7 @@ export class GatewayService {
   // 1 channel doesn't exist
   // 2 channel admin adds user
   // 3 channel is public, password is correct and user is not banned
-  async canConnect(
+  private async canConnect(
     executor: DTO.ClientInfo,
     channel: ChannelEntity,
     channelIn: DTO.ChannelInfoIn,
