@@ -8,7 +8,6 @@ import ChatInput from "src/components/ChatInput/ChatInput";
 import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
 import { chatStyles } from "./chatStyles";
 import socket, { initSocket } from "src/services/socket";
-import FormDialog from "src/components/FormDialog/FormDialog";
 
 
 export interface fromBackI{
@@ -54,8 +53,6 @@ const ChatPage: FC<ChatPageProps> = ({
   const dispatch = useDispatch();
   const theme = useTheme();
   const testUsername = sessionStorage.getItem('username');
-
-
 
 
   function connectUser(tokenConnect: {}) {
