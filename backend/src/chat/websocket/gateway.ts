@@ -31,7 +31,7 @@ export class Gateway implements OnModuleInit {
     this.server.on("connection", async (socket) => {
 
       // check authorisation
-      if (! await this.gatewayService.authorizeUser(socket)) {
+      if (! await this.gatewayService.connectUser(socket)) {
         socket.disconnect(true);
         return;
       }

@@ -22,10 +22,9 @@ export class GatewayService {
       this.server = server;
   }
 
-  async authorizeUser(socket: Socket): Promise<boolean> {
-    let authToken = socket.handshake.auth.token;
+  async connectUser(socket: Socket): Promise<boolean> {
     let authName = socket.handshake.auth.username;
-    const authorizedUser = await this.getUserFromJWT(authToken);
+    const authorizedUser = await this.getUserFromJWT(socket.handshake.auth.token);
     if (authorizedUser || authName) {
       if (authorizedUser) {
         this.connectionSet(authorizedUser, socket);
