@@ -14,6 +14,8 @@ import { selectLoggedIn } from "src/store/authReducer";
 import { login, logout } from "src/store/authActions";
 import DialogSelect from "./components/DialogSelect/DialogSelect";
 import socket, { initSocket } from "./services/socket";
+import FormDialog from "./components/FormDialog/FormDialog";
+import { channelFromBackI } from "./pages/Chat/ChatPage";
 
 
 const theme = createTheme({
@@ -38,8 +40,33 @@ function App() {
   const [inviteSender, setInviteSender] = useState('');
   const [open, setOpen] = useState(false);
   const isLoggedIn = useSelector(selectLoggedIn);
+  const [userName, setUsername] = useState<string>('');
+  const [channels, setChannels] = useState<channelFromBackI[]>([]);
+
+  let notConnected = true;
+
+
   authHeader();
   authRefreshInterceptor();
+
+  useEffect(() => {
+    if (userName && notConnected) {
+      const { user } = getState() as RootState;
+
+      console.log(userName);
+      
+      sessionStorage.setItem('username', userName);
+      const username = userName;
+      socket.auth = { username };
+      socket.connect();
+      initSocket(setChannels, dispatch);
+      notConnected = false;
+    }
+    // return () => {
+    //   socket.disconnect()
+    // };
+  }, [userName]);
+
   useEffect(() => {
     const { user } = getState() as RootState;
     if (
@@ -95,6 +122,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="landing-background">
+      <FormDialog userName={userName} setUsername={setUsername } />
         <Router>
           <Grid container spacing={2} justifyContent="center">
             <Navbar

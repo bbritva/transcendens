@@ -9,11 +9,7 @@ const URL = process.env.REACT_APP_AUTH_URL || '';
 const socket = io(URL, { autoConnect: false });
 
 export function initSocket(
-    user: userI | null,
-    users: userFromBackI[],
-    setUsers: Function,
     setChannels: Function,
-    setUserMessages: Function,
     dispatch: Dispatch,
   ){
   socket.on("connectError", (err) => {
@@ -66,19 +62,11 @@ export function initSocket(
   });
 
   socket.on("connect", () => {
-    users.forEach((user) => {
-      if (user.id) {
-        user.connected = true;
-      }
-    });
+
   });
 
   socket.on("disconnect", () => {
-    users.forEach((user) => {
-      if (user.id) {
-        user.connected = false;
-      }
-    });
+
   });
 }
 

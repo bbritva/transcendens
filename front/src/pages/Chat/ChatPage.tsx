@@ -34,10 +34,15 @@ export interface newMessageI {
   text: string,
 }
 
-const ChatPage: FC<any> = (): ReactElement => {
-  const [userName, setUsername] = useState<string>('');
-  const [users, setUsers] = useState<userFromBackI[]>([]);
-  const [channels, setChannels] = useState<channelFromBackI[]>([]);
+export interface ChatPageProps {
+  channels : channelFromBackI[],
+  setChannels : Function
+}
+
+const ChatPage: FC<ChatPageProps> = ({
+  channels,
+  setChannels
+}): ReactElement => {
   const [page, setPage] = useState(0);
   const [value, setValue] = useState('');
   const [chosenChannel, setChosenChannel] = useState({} as channelFromBackI);
@@ -48,28 +53,15 @@ const ChatPage: FC<any> = (): ReactElement => {
   const { user, auth } = getState() as RootState;
   const dispatch = useDispatch();
   const theme = useTheme();
-  let notConnected = true;
+  const testUsername = sessionStorage.getItem('username');
 
-  useEffect(() => {
-    if (userName && notConnected) {
-      console.log(userName);
-      
-      sessionStorage.setItem('username', userName);
-      const username = userName;
-      socket.auth = { username };
-      socket.connect();
-      initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
-      notConnected = false;
-    }
-    // return () => {
-    //   socket.disconnect()
-    // };
-  }, [userName]);
+
+
 
   function connectUser(tokenConnect: {}) {
     socket.auth = tokenConnect;
     socket.connect();
-    initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
+    initSocket(setChannels, dispatch);
   }
 
   useEffect(() => {
@@ -78,10 +70,10 @@ const ChatPage: FC<any> = (): ReactElement => {
       setChosenChannel(destObject as channelFromBackI);
     else if (destTaper === 'Users'){
       const privateChannel = {} as channelFromBackI;
-      privateChannel.name = `${destObject.name} ${userName} pm`;
+      privateChannel.name = `${destObject.name} ${testUsername} pm`;
       privateChannel.users = [
         {name: destObject.name} as userFromBackI,
-        {name: userName} as userFromBackI,
+        {name: testUsername} as userFromBackI,
       ];
       socket.emit('privateMessage', privateChannel);
       setChosenChannel(privateChannel)
@@ -93,6 +85,8 @@ const ChatPage: FC<any> = (): ReactElement => {
     .backgroundColor = theme.palette.primary.light;
 
   const onSubmit = () => {
+    if (!testUsername)
+      return;
     const [taper, destinationChannel] = destination;
     if ( !destinationChannel.name ){
       setValue('');
@@ -102,7 +96,7 @@ const ChatPage: FC<any> = (): ReactElement => {
       id: null,
       channelName: destinationChannel.name,
       sentAt: null,
-      authorName: userName,
+      authorName: testUsername,
       text: value,
     };
     socket.emit(
@@ -114,7 +108,6 @@ const ChatPage: FC<any> = (): ReactElement => {
 
   return (
   <>
-    <FormDialog userName={userName} setUsername={setUsername } />
     <Grid container spacing={1}
       height={'60vh'}
       padding={'6px'}
