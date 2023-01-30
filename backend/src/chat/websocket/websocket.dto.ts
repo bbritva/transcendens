@@ -22,4 +22,10 @@ export interface ChannelInfoOut {
 export class ClientInfo {
   readonly id: number
   readonly name: string;
+  readonly socketId?: string;
+}
+
+export interface ToEmit {
+  name: string;
+  param: any
 }
