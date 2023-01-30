@@ -1,6 +1,6 @@
 import "src/App.css";
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import { createTheme, ThemeProvider, Grid, Box, DialogTitle, Button } from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
@@ -42,7 +42,7 @@ function App() {
   const isLoggedIn = useSelector(selectLoggedIn);
   const [userName, setUsername] = useState<string>('');
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
-
+  const navigate = useNavigate();
   let notConnected = true;
 
 
@@ -108,11 +108,12 @@ function App() {
   function accept() {
     if (socket.connected){
       setOpen(false);
+      navigate('/game',  {replace: true});
       socket.emit("acceptInvite", { sender: inviteSender })
     }
   }
 
-  function decline () {
+  function decline() {
     if (socket.connected){
       setOpen(false);
       socket.emit("declineInvite", { sender: inviteSender })
@@ -123,7 +124,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <div className="landing-background">
       <FormDialog userName={userName} setUsername={setUsername } />
-        <Router>
           <Grid container spacing={2} justifyContent="center">
             <Navbar
               loginButtonText="login"
@@ -138,7 +138,7 @@ function App() {
               setOpen={setOpen}
             >
               <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
-                <DialogTitle>NICKNAME invited you</DialogTitle>
+                <DialogTitle>{inviteSender || 'NICKNAME'} invited you</DialogTitle>
                 <Button
                   variant="outlined"
                   sx={{alignSelf: 'end'}}
@@ -162,13 +162,14 @@ function App() {
                   <Route
                     key={route.key}
                     path={route.path}
-                    element={<route.component />}
+                    element={
+                      <route.component channels={channels} setChannels={setChannels}/>
+                    }
                   />
                 ))}
               </Routes>
             </Grid>
           </Grid>
-        </Router>
       </div>
     </ThemeProvider>
   );

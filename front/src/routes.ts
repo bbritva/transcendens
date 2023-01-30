@@ -1,5 +1,5 @@
 import AccountPage from "src/pages/Account/AccountPage";
-import ChatPage from "src/pages/Chat/ChatPage";
+import ChatPage, { ChatPageProps } from "src/pages/Chat/ChatPage";
 import GamePage from "src/pages/Game/GamePage";
 import HomePage from "src/pages/Home/HomePage";
 
@@ -12,7 +12,7 @@ interface Route {
     title: string,
     path: string,
     enabled: boolean,
-    component: FC<{}>
+    component: FC<{}> | FC<ChatPageProps>
 }
 
 export const routes: Array<Route> = [
