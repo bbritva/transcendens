@@ -67,9 +67,9 @@ export class AuthService {
       isTwoFaEnabled: !!user.isTwoFaEnabled,
       isTwoFactorAuthenticated: true,
     };
-    const res = this.getTokens(payload);
+    const res = await this.getTokens(payload);
     const dbResponse = await this.updateRefreshTokenDb(
-      user.name,
+      user.username,
       res.refreshToken,
     );
     return res;
@@ -95,6 +95,7 @@ export class AuthService {
   }
 
   async updateRefreshTokenDb(username: string, refreshToken: string) {
+
     const res = await this.userService.updateUser({
       where: { name: username },
       data: { refreshToken: refreshToken },
@@ -146,10 +147,15 @@ export class AuthService {
     return res;
   }
 
-  isTwoFaCodeValid(twoFaCodeCode: string, user: any) { //to check
-    return authenticator.verify({
-      token: twoFaCodeCode,
-      secret: user.twoFaSecret,
-    });
+  async isTwoFaCodeValid(twoFaCode: string, user: any) {
+    const res = await this.userService.getUserByName(user.username);
+    if (twoFaCode && res.twoFaSecret)
+    {
+      return authenticator.verify({
+        token: twoFaCode,
+        secret: res.twoFaSecret,
+      });
+    }
+    return false;
   }
 }

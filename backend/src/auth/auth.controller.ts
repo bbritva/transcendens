@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Request,
+  Response,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -56,29 +57,34 @@ export class AuthController {
     return this.authService.refreshTokens(req.user.username, req.user.refreshToken);
   }
 
-  @Post('2fa/turn-on')
-  async turnOnTwoFa(@Request() req, @Body() body) {
-    const isCodeValid = this.authService.isTwoFaCodeValid (
-      body.twoFaCode,
-      req.user,
+  @Post('2fa/generate')
+  async register(@Response() res, @Request() req) {
+    const { otpauthUrl } =
+      await this.authService.generateTwoFaSecret(
+        req.user,
+      );
+
+    return res.json(
+      await this.authService.generateQrCodeDataURL(otpauthUrl),
     );
-    if (!isCodeValid) {
-      throw new UnauthorizedException('Wrong authentication code');
-    }
-    await this.authService.turnOnTwoFa(req.user.id);
+  }
+
+  @Post('2fa/turn-on')
+  async turnOnTwoFa(@Request() req) {
+    return this.authService.turnOnTwoFa(req.user.id);
   }
 
   @Post('2fa/auth')
   async authenticate(@Request() req, @Body() body) {
-    const isCodeValid = this.authService.isTwoFaCodeValid(
+    const isCodeValid = await this.authService.isTwoFaCodeValid(
       body.twoFaCode,
       req.user,
     );
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-
-    return this.authService.loginWith2Fa(req.user);
+    const res =  await this.authService.loginWith2Fa(req.user);
+    return res;
   }
 
 }
