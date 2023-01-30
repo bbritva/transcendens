@@ -1,7 +1,7 @@
 import "src/App.css";
 import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector, useStore } from "react-redux";
+import { useSelector, useStore } from "react-redux";
 import { createTheme, ThemeProvider, Grid, Box, DialogTitle, Button } from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
@@ -16,6 +16,7 @@ import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
 import { channelFromBackI } from "src/pages/Chat/ChatPage";
+import { useAppDispatch } from "src/app/hooks";
 
 
 const theme = createTheme({
@@ -34,7 +35,7 @@ function App() {
     refreshToken: localStorage.getItem('refreshToken') || ''
   };
   const { getState } = useStore();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
   const [inviteSender, setInviteSender] = useState('');
@@ -73,18 +74,13 @@ function App() {
       && storageToken.refreshToken !== ""
       && user.status === 'idle'
     ) {
-      //@ts-ignore
       dispatch(getUser());
     }
     if (accessCode) {
-      if (!isLoggedIn) {
-        // @ts-ignore
+      if (!isLoggedIn)
         dispatch(login({ accessCode, accessState }));
-      }
-      else {
-        // @ts-ignore
+      else
         dispatch(getUser());
-      }
     }
     if (isLoggedIn)
       connectUser({ token: auth.accessToken.access_token });

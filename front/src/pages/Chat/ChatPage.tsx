@@ -3,11 +3,12 @@ import { Divider, Grid, Paper, useTheme  } from "@mui/material";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import ChatTable from "src/components/OneColumnTable/ChatTable";
 import { RootState } from 'src/store/store'
-import { useDispatch, useStore } from "react-redux";
+import { useStore } from "react-redux";
 import ChatInput from "src/components/ChatInput/ChatInput";
 import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
 import { chatStyles } from "./chatStyles";
-import socket, { initSocket } from "src/services/socket";
+import socket from "src/services/socket";
+import { useAppDispatch } from "src/app/hooks";
 
 
 export interface fromBackI{
@@ -50,16 +51,9 @@ const ChatPage: FC<ChatPageProps> = ({
   const [destination, setDestination] = useState<[string, fromBackI]>(['', {} as fromBackI]);
   const { getState } = useStore();
   const { user, auth } = getState() as RootState;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const theme = useTheme();
   const testUsername = sessionStorage.getItem('username');
-
-
-  function connectUser(tokenConnect: {}) {
-    socket.auth = tokenConnect;
-    socket.connect();
-    initSocket(setChannels, dispatch);
-  }
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
