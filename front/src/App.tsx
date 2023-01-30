@@ -12,10 +12,10 @@ import { authRefreshInterceptor } from "src/services/authRefreshInterceptor";
 import { RootState } from 'src/store/store'
 import { selectLoggedIn } from "src/store/authReducer";
 import { login, logout } from "src/store/authActions";
-import DialogSelect from "./components/DialogSelect/DialogSelect";
-import socket, { initSocket } from "./services/socket";
-import FormDialog from "./components/FormDialog/FormDialog";
-import { channelFromBackI } from "./pages/Chat/ChatPage";
+import DialogSelect from "src/components/DialogSelect/DialogSelect";
+import socket, { initSocket } from "src/services/socket";
+import FormDialog from "src/components/FormDialog/FormDialog";
+import { channelFromBackI } from "src/pages/Chat/ChatPage";
 
 
 const theme = createTheme({
@@ -49,26 +49,25 @@ function App() {
   authHeader();
   authRefreshInterceptor();
 
+  function connectUser(tokenConnect: {}) {
+    socket.auth = tokenConnect;
+    socket.connect();
+    initSocket(setChannels, dispatch);
+  }
+
   useEffect(() => {
     if (userName && notConnected) {
-      const { user } = getState() as RootState;
-
-      console.log(userName);
-      
       sessionStorage.setItem('username', userName);
-      const username = userName;
-      socket.auth = { username };
-      socket.connect();
-      initSocket(setChannels, dispatch);
+      connectUser({ username: userName });
       notConnected = false;
     }
-    // return () => {
-    //   socket.disconnect()
-    // };
+    return () => {
+      socket.disconnect()
+    };
   }, [userName]);
 
   useEffect(() => {
-    const { user } = getState() as RootState;
+    const { user, auth } = getState() as RootState;
     if (
       !user.user
       && storageToken.refreshToken !== ""
@@ -87,6 +86,8 @@ function App() {
         dispatch(getUser());
       }
     }
+    if (isLoggedIn)
+      connectUser({ token: auth.accessToken.access_token });
   }, [accessCode, isLoggedIn]);
 
   useEffect(() => {

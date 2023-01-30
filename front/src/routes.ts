@@ -2,9 +2,8 @@ import AccountPage from "src/pages/Account/AccountPage";
 import ChatPage, { ChatPageProps } from "src/pages/Chat/ChatPage";
 import GamePage from "src/pages/Game/GamePage";
 import HomePage from "src/pages/Home/HomePage";
-
-// other
 import {FC} from "react";
+
 
 // interface
 interface Route {
