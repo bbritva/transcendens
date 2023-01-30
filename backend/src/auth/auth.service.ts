@@ -22,6 +22,11 @@ export class AuthService {
         id: parseInt(userResponse.data.id),
         name: userResponse.data.login,
         image: userResponse.data.image.link,
+        channels : {
+          connect : {
+            name : "main"
+          }
+        }
       };
       let userBd = await this.userService.getUser(userData.id);
       if (!userBd) {

@@ -1,5 +1,4 @@
 import { OnModuleInit } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
 import {
   ConnectedSocket,
   MessageBody,
@@ -9,88 +8,65 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
-import { MessageService } from "src/chat/message/message.service";
-import {
-  ChannelInfoDtoIn,
-  ChannelInfoDtoOut,
-  ConnectedClientInfo,
-  DecodedTokenDTO,
-} from "./websocket.dto";
-import { UserService } from "src/user/user.service";
-import { ChannelService } from "src/chat/channel/channel.service";
-
-
-interface scoreDataI{
-  game: string,
-  playerOne: {
-    name: string, 
-    score: number
-  },
-  playerTwo: {
-    name: string, 
-    score: number
-  },
-}
-
-interface coordinateDataI{
-  game: string,
-  playerY: number,
-  ball: {x: number, y: number}
-}
-
-interface gameChannelDataI{
-  name: string,
-  first: string,
-  second: string
-  guests: string[]
-}
+import * as DTO from "./websocket.dto";
+import { GatewayService } from "./gateway.service";
 
 @WebSocketGateway({
   cors: true
 })
 export class Gateway implements OnModuleInit {
   constructor(
-    private messageService: MessageService,
-    private jwtService: JwtService,
-    private userService: UserService,
-    private channelService: ChannelService
+    private readonly gatewayService: GatewayService,
   ) {}
-
-  connections: Map<string, ConnectedClientInfo> = new Map();
-  gameRooms: Map<string, gameChannelDataI> = new Map();
-
+  
   @WebSocketServer()
   server: Server;
 
   onModuleInit() {
+    this.gatewayService.setServer(this.server);
     this.server.on("connection", async (socket) => {
-      // have to check authorisation
+      console.log("connection");
 
-      // event handler
-      this.onConnection(socket);
+      // check authorisation
+      if (! await this.gatewayService.connectUser(socket)) {
+        socket.disconnect(true);
+        return;
+      }
 
-      //discinnection handler
+      //disconnection handler
       socket.on("disconnecting", async () => {
-        this.onDisconnecting(socket);
+        this.gatewayService.disconnectUser(socket);
       });
-      socket.on("disconnect", async () => {
-      });
+      socket.on("disconnect", async () => { });
     });
   }
 
   @SubscribeMessage("connectToChannel")
-  async connectToChannel(
+  async onConnectToChannel(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() channelIn: ChannelInfoDtoIn
+    @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
-    await this.connectUserToChannel(
-      this.connections.get(socket.id).username,
+    
+    this.gatewayService.connectToChannel(socket, channelIn);
+  }
+
+  @SubscribeMessage("leaveChannel")
+  async onLeaveChannel(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() channelIn: DTO.ChannelInfoIn
+  ) {
+    this.gatewayService.leaveChannel(
+      socket.id,
       channelIn.name
     );
-    channelIn.users.forEach(
-      async (userName) =>
-        await this.connectUserToChannel(userName.name, channelIn.name)
-    );
+  }
+
+  @SubscribeMessage("privateMessage")
+  async onPrivateMessage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() channelIn: DTO.ChannelInfoIn
+  ) {
+    this.gatewayService.connectToChannelPM(socket, channelIn);
   }
 
   @SubscribeMessage('inviteToGame')
@@ -98,16 +74,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { recipient: string }
   ){
-    const username = this.connections.get(socket.id).username;
-    console.log("Invite")
-    const recipientUser = await this.userService.getUserByName(data.recipient);
-    const iterator = this.connections.entries();
-    for (const el of iterator){
-      if (el[1].username == recipientUser.name){
-        this.server.to(el[0]).emit('inviteToGame', { sender: username })
-        break ;
-      }
-    }
+    this.gatewayService.inviteToGame(socket, data.recipient);
   }
 
   @SubscribeMessage('acceptInvite')
@@ -115,7 +82,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { sender: string }
   ){
-    const username = this.connections.get(socket.id).username;
+    // const username = this.connections.get(socket.id).username;
     console.log("ACCEPT Invite")
   }
 
@@ -125,13 +92,13 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: { sender: string }
   ){
     console.log("DECLINE Invite")
-    const username = this.connections.get(socket.id).username;
+    // const username = this.connections.get(socket.id).username;
   }
 
   @SubscribeMessage("score")
   async getScore(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: scoreDataI
+    @MessageBody() data: DTO.scoreDataI
   ){
     this.server.to(data.game).emit("gameScore", { ...data });
   }
@@ -139,141 +106,91 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("coordinates")
   async getCoordinates(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: coordinateDataI
+    @MessageBody() data: DTO.coordinateDataI
   ){
-    const userName = this.connections.get(socket.id).username;
-    this.server.to(data.game).emit("coordinates", {player: userName, ...data});
+    this.gatewayService.getCoordinates(socket, data);
   }
 
   @SubscribeMessage("connectToGame")
   async connectToGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: gameChannelDataI
+    @MessageBody() data: DTO.gameChannelDataI
   ){
-    const username = this.connections.get(socket.id).username;
-    const user = await this.userService.getUserByName(username);
-    const game = this.gameRooms.has(data.name)
-      ? this.gameRooms.get(data.name)
-      : this.gameRooms.set(data.name, data).get(data.name);
-    // this.server.to(game.name).emit("userConnectedToGame", game.name, username);
-    console.log('connectToGame', game)
-
-    // send to user game info
-    this.connections.forEach((value: ConnectedClientInfo, key: string) => {
-      if (game.first === value.username || game.second === value.username){
-        console.log('Joined', value.username)
-        this.server.to(key).emit("joinedToGame", game);
-        this.server.sockets.sockets.get(key).join(game.name);
-      }
-    });
+    this.gatewayService.connectToGame(socket, data);
   }
 
   @SubscribeMessage("newMessage")
-  async onNewMessage(@MessageBody() data: CreateMessageDTO) {
-    try {
-      const messageOut = await this.messageService.createMessage({
-        channel: {
-          connect: { name: data.channelName },
-        },
-        authorName: data.authorName,
-        text: data.text,
-      });
-      this.server.to(data.channelName).emit("newMessage", messageOut);
-    } catch (e) {
-      console.log("err", e.meta.cause);
-    }
+  async onNewMessage(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() message: CreateMessageDTO
+  ) {
+    this.gatewayService.newMessage(socket, message)
   }
 
-  private getUserNameFromJWT(JWTtoken: string): DecodedTokenDTO {
-    const decodedToken = this.jwtService.decode(JWTtoken) as DecodedTokenDTO;
-    return decodedToken;
+  @SubscribeMessage("addAdmin")
+  async onAddAdmin(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    this.gatewayService.addAdmin(socket, data);
   }
 
-  private async connectUserToChannels(socket: Socket) {
-    const channels = await this.userService.getChannels(
-      this.connections.get(socket.id).username
-      // "Bob"
+  @SubscribeMessage("setPrivacy")
+  async onSetPrivacy(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    this.gatewayService.setPrivacy(socket, data);
+  }
+
+  @SubscribeMessage("setPassword")
+  async onSetPassword(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    this.gatewayService.setPassword(socket, data);
+  }
+
+  @SubscribeMessage("banUser")
+  async onBanUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    this.gatewayService.banUser(socket, data);
+  }
+
+  @SubscribeMessage("muteUser")
+  async onMuteUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    this.gatewayService.muteUser(socket, data);
+  }
+
+  @SubscribeMessage("unmuteUser")
+  async onUnmuteUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    this.gatewayService.unmuteUser(socket, data);
+  }
+
+  @SubscribeMessage("unbanUser")
+  async onUnbanUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    this.gatewayService.unbanUser(socket, data);
+  }
+
+  @SubscribeMessage("kickUser")
+  async onKickUser(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageChannel
+  ) {
+    this.gatewayService.kickUser(
+      socket,
+      data,
     );
-
-    channels.forEach((channelName) => {
-      const channelInfoDtoIn: ChannelInfoDtoIn = {
-        name: channelName,
-        users: [{ name: this.connections.get(socket.id).username }],
-      };
-      this.connectToChannel(socket, channelInfoDtoIn);
-    });
-  }
-
-  private async connectUserToChannel(userName: string, channelName: string) {
-    const user = await this.userService.getUserByName(userName);
-    const channel = await this.channelService.connectToChannel({
-      name: channelName,
-      ownerId: user.id,
-    });
-    // notice users in channel about new client
-    this.server.to(channelName).emit("userConnected", channel.name, userName);
-
-    // send to user channel info
-    const channelInfo: ChannelInfoDtoOut = {
-      name: channel.name,
-      users: channel.guests,
-      messages: channel.messages,
-    };
-    this.connections.forEach((value: ConnectedClientInfo, key: string) => {
-      if (value.username == userName) {
-        this.server.to(key).emit("joinedToChannel", channelInfo);
-        this.server.sockets.sockets.get(key).join(channelName);
-      }
-    });
-  }
-
-  private async disconnectUserFromChannels(userName: string) {
-    (await this.userService.getChannels(userName)).forEach((channelName) => {
-      this.disconnectFromChannel(channelName, userName);
-    });
-  }
-
-  private async disconnectFromChannel(channelName: string, userName: string) {
-    // notice users in channel about client disconnected
-    this.server.to(channelName).emit("userDisconnected", channelName, userName);
-  }
-
-  private async onConnection(socket: Socket) {
-    this.connections.set(socket.id, {
-      username: socket.handshake.auth.username,
-    });
-    await this.userService.updateUser({
-      where: {
-        name: this.connections.get(socket.id).username,
-      },
-      data: {
-        status: "ONLINE",
-      },
-    });
-    //send to new user all channels
-    let channels = await this.channelService.ChannelList();
-    let channelList = [];
-    channels.forEach((value: { name: string }) => {
-      channelList.push({
-        name: value.name,
-      });
-    });
-    this.server.to(socket.id).emit("channels", channelList);
-
-    //connect user to his channels
-    this.connectUserToChannels(socket);
-  }
-
-  private async onDisconnecting(socket: Socket) {
-    this.disconnectUserFromChannels(this.connections.get(socket.id).username);
-    const user = await this.userService.updateUser({
-      where: {
-        name: socket.handshake.auth.username,
-      },
-      data: {
-        status: "OFFLINE",
-      },
-    });
-    this.connections.delete(socket.id);
   }
 }

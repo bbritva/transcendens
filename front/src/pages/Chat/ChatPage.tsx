@@ -10,6 +10,7 @@ import { chatStyles } from "./chatStyles";
 import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
 
+
 export interface fromBackI{
   name: string,
   id: string,
@@ -44,23 +45,32 @@ const ChatPage: FC<any> = (): ReactElement => {
   const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
   const [destination, setDestination] = useState<[string, fromBackI]>(['', {} as fromBackI]);
   const { getState } = useStore();
-  const { user } = getState() as RootState;
+  const { user, auth } = getState() as RootState;
   const dispatch = useDispatch();
   const theme = useTheme();
-  let flag = true;
+  let notConnected = true;
 
   useEffect(() => {
-    if (userName && flag) {
+    if (userName && notConnected) {
+      console.log(userName);
+      
       sessionStorage.setItem('username', userName);
       const username = userName;
       socket.auth = { username };
+      socket.connect();
       initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
-      flag = false;
+      notConnected = false;
     }
     // return () => {
     //   socket.disconnect()
     // };
   }, [userName]);
+
+  function connectUser(tokenConnect: {}) {
+    socket.auth = tokenConnect;
+    socket.connect();
+    initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
+  }
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
@@ -73,7 +83,7 @@ const ChatPage: FC<any> = (): ReactElement => {
         {name: destObject.name} as userFromBackI,
         {name: userName} as userFromBackI,
       ];
-      socket.emit('connectToChannel', privateChannel);
+      socket.emit('privateMessage', privateChannel);
       setChosenChannel(privateChannel)
     }
   }, [destination]);

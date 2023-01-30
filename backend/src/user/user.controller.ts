@@ -20,7 +20,6 @@ import { GetMeUserDto } from './dto/getMeUser.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { randomUUID } from 'crypto';
-import { Public } from 'src/auth/constants';
 import * as path from 'path';
 
 export const storage = {
@@ -77,16 +76,15 @@ export class UserController {
     type: GetMeUserDto,
   })
   @ApiOkResponse({ type: UserEntity })
-  @Get("getMe")
-  async getMe(@Request() req: GetMeUserDto) {
-    // async getMe( @Body() req : GetMeUserDto) {
-    return await this.userService.getUser(req.user.id);
-  }
+  @Get('getMe')
+    async getMe( @Request() req : GetMeUserDto) {
+       return await this.userService.getUser(req.user.id);
+    }
 
   @ApiOkResponse({ type: UserEntity })
-  @Get(":id")
-  async showUser(@Param("id") id: number): Promise<UserModel> {
-    return this.userService.getUser(id);
+  @Get(':id')
+  async showUser(@Param('id') id: number): Promise<UserModel> {
+    return this.userService.getUser(id, true, true);
   }
 
   @Post("upload")
@@ -103,11 +101,9 @@ export class UserController {
         avatar: file.filename,
       },
     });
-    console.log(file);
     return ({ avatar: file.filename });
   }
 
-  @Public()
   @Get('avatar/:avatarname')
   findAvatar(@Param('avatarname') avatarname, @Res() res): Promise<any> {
     return res.sendFile(path.join(process.cwd(), 'uploads/avatars/' + avatarname));
