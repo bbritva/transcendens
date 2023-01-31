@@ -27,9 +27,9 @@ const GamePage: FC<any> = (): ReactElement => {
   const [open, setOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [flag, setFlag] = useState<string>(sessionStorage.getItem("game") || '');
   const testUsername = sessionStorage.getItem('username');
   const testGamename = 'gameOne';
-  let flag = sessionStorage.getItem("game");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -42,13 +42,15 @@ const GamePage: FC<any> = (): ReactElement => {
 
   useEffect(() => {
     if (socket.connected && flag == 'true'){
-      flag = '';
+      console.log("BEfore join the game!")
+      setFlag('');
       socket.on('joinedToGame', (game: gameChannelDataI) => {
+        console.log("join the game!")
         setStopGame(true);
         startGame(game);
       })
     }
-  }, [socket.connected]);
+  }, [socket.connected, flag]);
 
   function startGame(gameData?: gameChannelDataI){
     const canvas = canvasRef.current;
@@ -75,11 +77,15 @@ const GamePage: FC<any> = (): ReactElement => {
       setLoading(true);
       socket.emit('inviteToGame', {recipient: game.second });
       socket.on('acceptInvite', () => {
+        setFlag('true');
+        sessionStorage.setItem("game", "true");
         socket.emit('connectToGame', game);
       })
       socket.on('declineInvite', () => {
         setDeclined(true);
         setOpen(true);
+        sessionStorage.setItem("game", "false");
+        setFlag('');
       })
     }
     setOpen(false);
