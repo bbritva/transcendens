@@ -305,19 +305,30 @@ export class GatewayService {
         )
       );
   }
-  async inviteToGame(
-    socket: Socket,
-    recipientName: string
-  ){
-    const executorName = this.connections.get(socket.id).name;
-    console.log(executorName, "is inviting", recipientName);
-    const recipientUser = await this.userService.getUserByName(recipientName);
+
+  connectionByName(name: string){
     for (const el of this.connections.entries()){
-      if (el[1].name == recipientUser.name){
-        this.server.to(el[0]).emit('inviteToGame', { sender: executorName })
-        break ;
+      if (el[1].name == name){
+        return el[0];
       }
     }
+    return null;
+  }
+
+  async emitToRecipient(
+    event: string,
+    socket: Socket,
+    recipient: string,
+  ){
+    const executorName = this.connections.get(socket.id).name;
+    console.log({executorName, event, recipient});
+    const recipientUser = await this.userService.getUserByName(recipient);
+    const recipientConnection = this.connectionByName(recipientUser?.name);
+    if (recipientConnection)
+      this.server.to(recipientConnection).emit(event, { sender: executorName })
+    else
+      return null;
+
   }
 
   async connectToGame(

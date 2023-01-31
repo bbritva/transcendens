@@ -74,7 +74,8 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { recipient: string }
   ){
-    this.gatewayService.inviteToGame(socket, data.recipient);
+    console.log("Invite to game")
+    this.gatewayService.emitToRecipient('inviteToGame', socket, data.recipient)
   }
 
   @SubscribeMessage('acceptInvite')
@@ -82,8 +83,8 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { sender: string }
   ){
-    // const username = this.connections.get(socket.id).username;
-    console.log("ACCEPT Invite")
+    console.log("accepted Invite")
+    this.gatewayService.emitToRecipient('acceptInvite', socket, data.sender)
   }
 
   @SubscribeMessage('declineInvite')
@@ -92,7 +93,7 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: { sender: string }
   ){
     console.log("DECLINE Invite")
-    // const username = this.connections.get(socket.id).username;
+    this.gatewayService.emitToRecipient('declineInvite', socket, data.sender)
   }
 
   @SubscribeMessage("score")

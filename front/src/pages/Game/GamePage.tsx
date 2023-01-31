@@ -22,13 +22,14 @@ export interface gameChannelDataI{
 
 const GamePage: FC<any> = (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [declined, setDeclined] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
   const [open, setOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
   const testUsername = sessionStorage.getItem('username');
   const testGamename = 'gameOne';
-  let flag = true;
+  let flag = sessionStorage.getItem("game");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -40,8 +41,8 @@ const GamePage: FC<any> = (): ReactElement => {
   }, []);
 
   useEffect(() => {
-    if (socket.connected && flag){
-      flag = false;
+    if (socket.connected && flag == 'true'){
+      flag = '';
       socket.on('joinedToGame', (game: gameChannelDataI) => {
         setStopGame(true);
         startGame(game);
@@ -73,7 +74,13 @@ const GamePage: FC<any> = (): ReactElement => {
       }
       setLoading(true);
       socket.emit('inviteToGame', {recipient: game.second });
-      // socket.emit('connectToGame', game);
+      socket.on('acceptInvite', () => {
+        socket.emit('connectToGame', game);
+      })
+      socket.on('declineInvite', () => {
+        setDeclined(true);
+        setOpen(true);
+      })
     }
     setOpen(false);
   }
@@ -93,19 +100,34 @@ const GamePage: FC<any> = (): ReactElement => {
           open={open}
           setOpen={setOpen}
         >
-          <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
-            <DialogTitle>Invite 2nd player</DialogTitle>
-            <TextField label={'player nickname'} onChange={onChange} margin="dense"/>
-            <Button
-              variant="outlined"
-              sx={{
-                alignSelf: 'end'
-              }}
-              onClick={sendInvite}
-            >
-              Pong's invite
-            </Button>
-          </Box>
+          {
+            declined
+            ? <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
+                <DialogTitle>{inputValue} declined!</DialogTitle>
+                <Button
+                  variant="outlined"
+                  sx={{
+                    alignSelf: 'end'
+                  }}
+                  onClick={() => setOpen(false)}
+                >
+                  OK
+                </Button>
+              </Box>
+            : <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
+                <DialogTitle>Invite 2nd player</DialogTitle>
+                <TextField label={'player nickname'} onChange={onChange} margin="dense"/>
+                <Button
+                  variant="outlined"
+                  sx={{
+                    alignSelf: 'end'
+                  }}
+                  onClick={sendInvite}
+                >
+                  Pong's invite
+                </Button>
+              </Box>
+          }
         </DialogSelect>
         <Grid item display={'flex'} justifyContent={'center'}>
           <Button children={'Single player'} variant={'outlined'} size="large" onClick={() => startGame()}/>

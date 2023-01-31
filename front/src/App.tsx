@@ -105,8 +105,9 @@ function App() {
   function accept() {
     if (socket.connected){
       setOpen(false);
-      navigate('/game',  {replace: true});
       socket.emit("acceptInvite", { sender: inviteSender })
+      sessionStorage.setItem("game", "true");
+      navigate('/game',  {replace: true});
     }
   }
 
