@@ -4,6 +4,8 @@ import Canvas, { canvasPropsI } from "./components/Canvas";
 import game from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import socket from "src/services/socket";
+import { useStore } from "react-redux";
+import { RootState } from "src/store/store";
 
 
 export interface coordinateDataI{
@@ -30,6 +32,8 @@ const GamePage: FC<any> = (): ReactElement => {
   const [flag, setFlag] = useState<string>(sessionStorage.getItem("game") || '');
   const testUsername = sessionStorage.getItem('username');
   const testGamename = 'gameOne';
+  const { getState } = useStore();
+  const { user, auth } = getState() as RootState;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -42,10 +46,8 @@ const GamePage: FC<any> = (): ReactElement => {
 
   useEffect(() => {
     if (socket.connected && flag == 'true'){
-      console.log("BEfore join the game!")
       setFlag('');
       socket.on('joinedToGame', (game: gameChannelDataI) => {
-        console.log("join the game!")
         setStopGame(true);
         startGame(game);
       })
@@ -58,6 +60,8 @@ const GamePage: FC<any> = (): ReactElement => {
       setStopGame(false);
       if (gameData && testUsername)
         game(canvas, setStopGame, {bricks: false}, gameData, testUsername);
+      else if (gameData && user.user?.name)
+        game(canvas, setStopGame, {bricks: false}, gameData, user.user.name);
     }
   }
 
