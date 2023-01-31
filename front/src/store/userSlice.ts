@@ -7,7 +7,8 @@ export interface userI {
   id: string,
   name: string,
   image: string,
-  avatar: string
+  avatar: string,
+  isTwoFaEnabled: boolean
 }
 
 interface userStateI {

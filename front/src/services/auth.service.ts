@@ -38,6 +38,45 @@ class AuthService {
     return responseData;
   }
 
+  otpGenerateQR() {
+    let urlAuth = API_URL + "/auth/2fa/generate";
+    const responseData = axios
+      .post(urlAuth, {})
+      .then((response) => {
+        if (response.status !== 201){
+          throw "Not authorized!";
+        }
+        return response.data;
+      })
+    return responseData;
+  }
+
+  otpTurnOn() {
+    let urlAuth = API_URL + "/auth/2fa/turn-on";
+    const responseData = axios
+      .post(urlAuth, {})
+      .then((response) => {
+        if (response.status !== 201){
+          throw "Not authorized!";
+        }
+        return response.data;
+      })
+    return responseData;
+  }
+
+  otpAuth(twoFaCode: string) {
+    let urlAuth = API_URL + "/auth/2fa/auth";
+    const responseData = axios
+      .post(urlAuth, { twoFaCode })
+      .then((response) => {
+        if (response.status !== 201){
+          throw "Not authorized!";
+        }
+        return response.data;
+      })
+    return responseData;
+  }
+
   logout() {
     const inter = localStorage.getItem("interceptor");
     axios.interceptors.request.eject(parseInt(inter || ''));
