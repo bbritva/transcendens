@@ -96,6 +96,10 @@ export default function SignUp() {
   }
 
   async function twoFA() {
+    const userEnable = await authService.otpTurnOn();
+    if (!userEnable.isTwoFaEnabled)
+      return;
+    dispatch(updateUser({...userEnable}));
     const src = await authService.otpGenerateQR();
     if (src){
       setUrlQR(src);

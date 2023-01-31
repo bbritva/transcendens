@@ -1,4 +1,5 @@
 import axios from "axios"
+import { userI } from "src/store/userSlice";
 
 const API_URL = process.env.REACT_APP_AUTH_URL;
 
@@ -51,7 +52,7 @@ class AuthService {
     return responseData;
   }
 
-  otpTurnOn() {
+  otpTurnOn(): Promise<userI> {
     let urlAuth = API_URL + "/auth/2fa/turn-on";
     const responseData = axios
       .post(urlAuth, {})
