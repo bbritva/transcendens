@@ -25,7 +25,7 @@ const ChooseDialogChildren: FC<dialogProps> = (props: dialogProps) => {
                 <UserDialog {...props} />
                 <ChannelOwnerDialog />
               </>
-            : <ChannelSettingsDialog />
+            : <ChannelSettingsDialog {...props}/>
         }
       </DialogContent>
     </>

@@ -8,6 +8,7 @@ const ChannelOwnerDialog: FC = () => {
       <DialogTitle>'Channel' actions</DialogTitle>
       <Button>Set as adm in 'channel'</Button>
       <Button>Ban in 'channel'</Button>
+      <Button>Leave 'channel'</Button>
       <Button>Mute in 'channel'</Button>
     </Box>
   );

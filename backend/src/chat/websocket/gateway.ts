@@ -24,8 +24,6 @@ export class Gateway implements OnModuleInit {
   @WebSocketServer()
   server: Server;
 
-  connections: Map<string, DTO.ClientInfo> = new Map();
-
   onModuleInit() {
     this.gatewayService.setServer(this.server);
     this.server.on("connection", async (socket) => {
@@ -44,10 +42,6 @@ export class Gateway implements OnModuleInit {
     });
   }
 
-  connectionSet(client: DTO.ClientInfo, socket: Socket) {
-    this.connections.set(socket.id, client);
-  }
-
   @SubscribeMessage("connectToChannel")
   async onConnectToChannel(
     @ConnectedSocket() socket: Socket,
@@ -59,12 +53,11 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("leaveChannel")
   async onLeaveChannel(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() channelIn: DTO.ChannelInfoIn
+    @MessageBody() params: string[]
   ) {
     this.gatewayService.leaveChannel(
       socket.id,
-      channelIn.name,
-      this.connections.get(socket.id)
+      params[0],
     );
   }
 

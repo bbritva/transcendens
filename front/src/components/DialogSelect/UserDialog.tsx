@@ -16,7 +16,11 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       </Button>
       <Button>Pong's invite</Button>
       <Button>Profile</Button>
-      <Button>Block</Button>
+      <Button onClick={() => {
+        props.setDestination(['beep', props.element]);
+        if (props?.setOpen)
+          props.setOpen(false);
+      }}>Block</Button>
     </Box>
   );
 }

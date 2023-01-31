@@ -17,6 +17,7 @@ export interface fromBackI{
   hasNewMessages: boolean,
   messages: newMessageI[],
   connected: boolean,
+  params?: string[]
 }
 
 export interface userFromBackI extends fromBackI{
@@ -85,8 +86,10 @@ const ChatPage: FC<any> = (): ReactElement => {
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
-    if (destTaper === 'Channels')
+    if (destTaper === 'Channels'){
+      socket.emit(destObject.name, destObject.params);
       setChosenChannel(destObject as channelFromBackI);
+    }
     else if (destTaper === 'Users'){
       const privateChannel = {} as channelFromBackI;
       privateChannel.name = `${destObject.name} ${userName} pm`;
@@ -97,6 +100,8 @@ const ChatPage: FC<any> = (): ReactElement => {
       socket.emit('privateMessage', privateChannel);
       setChosenChannel(privateChannel)
     }
+    else
+    console.log("else", destination);
   }, [destination]);
 
   chatStyles

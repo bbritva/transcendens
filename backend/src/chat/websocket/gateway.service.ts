@@ -13,25 +13,26 @@ export class GatewayService {
     private readonly userService: UserService,
     private readonly channelService: ChannelService,
     private readonly jwtService: JwtService
-  ) { }
+  ) {}
 
   connections: Map<string, DTO.ClientInfo> = new Map();
   server: Server;
 
   setServer(server: Server) {
-      this.server = server;
+    this.server = server;
   }
 
   async connectUser(socket: Socket): Promise<boolean> {
     let authName = socket.handshake.auth.username;
-    const authorizedUser = await this.getUserFromJWT(socket.handshake.auth.token);
+    const authorizedUser = await this.getUserFromJWT(
+      socket.handshake.auth.token
+    );
     if (authorizedUser || authName) {
       if (authorizedUser) {
         this.connectionSet(authorizedUser, socket);
       } else if (authName) {
         const user = await this.userService.getUserByName(authName);
-        if (!user)
-          return false
+        if (!user) return false;
         this.connectionSet(
           {
             id: user.id,
@@ -49,7 +50,7 @@ export class GatewayService {
         data: {
           status: "ONLINE",
         },
-      })
+      });
       //send to new user all channels
       this.server
         .to(socket.id)
@@ -86,10 +87,7 @@ export class GatewayService {
     this.connections.delete(socket.id);
   }
 
-  async connectToChannelPM(
-    socket: Socket,
-    channelIn: DTO.ChannelInfoIn
-  ) {
+  async connectToChannelPM(socket: Socket, channelIn: DTO.ChannelInfoIn) {
     if (
       await this.userService.isBanned(
         this.connections.get(socket.id).id,
@@ -111,10 +109,7 @@ export class GatewayService {
     }
   }
 
-  async newMessage(
-    socket: Socket,
-    message: CreateMessageDTO
-  ) {
+  async newMessage(socket: Socket, message: CreateMessageDTO) {
     message.authorName = this.connections.get(socket.id).name;
     const messageOut = await this.channelService.addMessage(
       this.connections.get(socket.id).id,
@@ -125,10 +120,7 @@ export class GatewayService {
     else this.server.to(socket.id).emit("notAllowed", message);
   }
 
-  async addAdmin(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async addAdmin(socket: Socket, data: DTO.ManageChannel) {
     const targetUser = await this.userService.getUserByName(data.params[0]);
     if (
       await this.channelService.addAdmin(
@@ -141,10 +133,7 @@ export class GatewayService {
     else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async setPrivacy(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async setPrivacy(socket: Socket, data: DTO.ManageChannel) {
     if (
       await this.channelService.setPrivacy(
         this.connections.get(socket.id).id,
@@ -155,10 +144,7 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async setPassword(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async setPassword(socket: Socket, data: DTO.ManageChannel) {
     if (
       await this.channelService.setPassword(
         this.connections.get(socket.id).id,
@@ -169,10 +155,7 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async banUser(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async banUser(socket: Socket, data: DTO.ManageChannel) {
     const targetUser = await this.userService.getUserByName(data.params[0]);
     if (
       await this.channelService.banUser(
@@ -181,19 +164,12 @@ export class GatewayService {
         targetUser.id
       )
     ) {
-      this.leaveChannel(
-        socket.id,
-        data.name,
-        targetUser
-      );
+      this.leaveChannel(socket.id, data.name, targetUser);
       this.server.to(socket.id).emit("userBanned", data);
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async muteUser(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async muteUser(socket: Socket, data: DTO.ManageChannel) {
     const targetUser = await this.userService.getUserByName(data.params[0]);
     if (
       await this.channelService.muteUser(
@@ -206,10 +182,7 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async unmuteUser(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async unmuteUser(socket: Socket, data: DTO.ManageChannel) {
     const targetUser = await this.userService.getUserByName(data.params[0]);
     if (
       this.channelService.unmuteUser(
@@ -222,10 +195,7 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async unbanUser(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async unbanUser(socket: Socket, data: DTO.ManageChannel) {
     const targetUser = await this.userService.getUserByName(data.params[0]);
     if (
       this.channelService.unbanUser(
@@ -238,10 +208,7 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async connectToChannel(
-    socket: Socket,
-    channelIn: DTO.ChannelInfoIn
-  ) {
+  async connectToChannel(socket: Socket, channelIn: DTO.ChannelInfoIn) {
     const user = this.connections.get(socket.id);
     const channel = await this.channelService.getChannel(channelIn.name);
     // check possibility
@@ -258,10 +225,7 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", channelIn);
   }
 
-  async kickUser(
-    socket: Socket,
-    data: DTO.ManageChannel,
-  ) {
+  async kickUser(socket: Socket, data: DTO.ManageChannel) {
     const channel = await this.channelService.getChannel(data.name);
     if (channel.admIds.includes(this.connections.get(socket.id).id)) {
       const targetUser = await this.userService.getUserByName(data.params[0]);
@@ -273,9 +237,9 @@ export class GatewayService {
   async leaveChannel(
     socketId: string,
     channelName: string,
-    user: DTO.ClientInfo
+    user: DTO.ClientInfo = this.connections.get(socketId)
   ) {
-    const channel = await this.channelService.updateChannel({
+    await this.channelService.updateChannel({
       where: {
         name: channelName,
       },
@@ -296,7 +260,7 @@ export class GatewayService {
       .to(channelName)
       .emit(
         "userLeft",
-        channel.name,
+        channelName,
         await this.userService.getUser(
           this.connections.get(socketId).id,
           false,
@@ -334,6 +298,7 @@ export class GatewayService {
     channelIn: DTO.ChannelInfoIn,
     user: DTO.ClientInfo
   ) {
+    if (!user) return;
     const channel = await this.channelService.connectToChannel({
       name: channelIn.name,
       ownerId: user.id,
@@ -382,5 +347,4 @@ export class GatewayService {
         !channel.bannedIds.includes(target.id))
     );
   }
-
 }

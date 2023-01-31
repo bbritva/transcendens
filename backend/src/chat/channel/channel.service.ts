@@ -80,13 +80,14 @@ export class ChannelService {
       });
   }
 
-  async getChannel(channelName: string): Promise<Channel> {
+  async getChannel(channelName: string, includeMessages = false, includeGuests = false): Promise<Channel> {
     return this.prisma.channel.findUnique({
       where: {
         name: channelName,
       },
       include: {
-        messages: true,
+        messages: includeMessages,
+        guests: includeGuests
       },
     });
   }
