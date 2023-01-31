@@ -69,23 +69,6 @@ export class AuthController {
     );
   }
 
-  /*
-    its Too big return for TURN_ON. You should send only {name: asda, isTwoFaEnabled: true\false}
-    {
-    id:73725
-    name:"tphung"
-    status:"OFFLINE"
-    image:"https://cdn.intra.42.fr/users/5f3ace50a3e8b68a1104184b5dd2a257/tphung.jpg"
-    avatar:null
-    friendIds:
-    tokenId:2
-    refreshToken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NzM3MjUsInVzZXJuYW1lIjoidHBodW5nIiwic3ViIjoiaHR0cHM6Ly9jZG4uaW50cmEuNDIuZnIvdXNlcnMvNWYzYWNlNTBhM2U4YjY4YTExMDQxODRiNWRkMmEyNTcvdHBodW5nLmpwZyIsImlhdCI6MTY3NTE3ODYwOSwiZXhwIjoxNjc1NzgzNDA5fQ.SqXG66A61RcOTW5ueUPoGPLNyD4-q_X9Vkt4k2c6Vgw"
-    twoFaSecret:"OM6CYXBWBI4RYJ3Z"
-    isTwoFaEnabled:true
-    wins:
-    loses:
-    }
-  */
   @Post('2fa/turn-on')
   async turnOnTwoFa(@Request() req) {
     return this.authService.turnOnTwoFa(req.user.id);
