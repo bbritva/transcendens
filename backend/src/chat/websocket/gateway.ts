@@ -87,6 +87,14 @@ export class Gateway implements OnModuleInit {
     this.gatewayService.addAdmin(socket, data);
   }
 
+  @SubscribeMessage("changeChannelName")
+  async onChangeChannelName(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() params: string[]
+  ) {
+    this.gatewayService.changeChannelName(socket.id, params[0], params[1]);
+  }
+
   @SubscribeMessage("setPrivacy")
   async onSetPrivacy(
     @ConnectedSocket() socket: Socket,

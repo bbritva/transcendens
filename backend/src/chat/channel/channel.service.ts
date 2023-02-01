@@ -200,6 +200,28 @@ export class ChannelService {
     );
   }
 
+  async changeChannelName(
+    executorId: number,
+    oldName: string,
+    newName: string
+  ): Promise<boolean> {
+    return (
+      (
+        await this.prisma.channel.updateMany({
+          where: {
+            name: oldName,
+            admIds: {
+              has: executorId,
+            },
+          },
+          data: {
+            name : newName
+          },
+        })
+      ).count != 0
+    );
+  }
+
   async updateChannel(params: {
     where: Prisma.ChannelWhereUniqueInput;
     data: Prisma.ChannelUpdateInput;

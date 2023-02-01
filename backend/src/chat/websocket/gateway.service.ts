@@ -133,6 +133,23 @@ export class GatewayService {
     else this.server.to(socket.id).emit("notAllowed", data);
   }
 
+  async changeChannelName(socketId: string, oldName: string, newName: string) {
+    if (
+      await this.channelService.changeChannelName(
+        this.connections.get(socketId).id,
+        oldName,
+        newName
+      )
+    ) {
+      // connect all users to new room
+      this.server.in(oldName).socketsJoin(newName);
+      // leave old room
+      this.server.socketsLeave(oldName);
+      // notice user about new channel name
+      this.server.to(newName).emit("newChannelName", newName);
+    } else this.server.to(socketId).emit("notAllowed", [oldName, newName]);
+  }
+
   async setPrivacy(socket: Socket, data: DTO.ManageChannel) {
     if (
       await this.channelService.setPrivacy(
