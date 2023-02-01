@@ -150,40 +150,51 @@ export class GatewayService {
     } else this.server.to(socketId).emit("notAllowed", [oldName, newName]);
   }
 
-  async setPrivacy(socket: Socket, channelName: string, isPrivate:boolean) {
+  async setPrivacy(socketId: string, channelName: string, isPrivate: boolean) {
     if (
       await this.channelService.setPrivacy(
-        this.connections.get(socket.id).id,
-        channelName, isPrivate
+        this.connections.get(socketId).id,
+        channelName,
+        isPrivate
       )
     ) {
-      this.server.to(channelName).emit("privacySet", [channelName, isPrivate.toString()]);
-    } else this.server.to(socket.id).emit("notAllowed", [channelName, isPrivate.toString()]);
+      this.server
+        .to(channelName)
+        .emit("privacySet", [channelName, isPrivate.toString()]);
+    } else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", [channelName, isPrivate.toString()]);
   }
 
-  async setPassword(socket: Socket, data: DTO.ManageChannel) {
+  async setPassword(socketId: string, data: DTO.ManageChannel) {
     if (
       await this.channelService.setPassword(
-        this.connections.get(socket.id).id,
+        this.connections.get(socketId).id,
         data
       )
     ) {
       this.server.to(data.name).emit("setPassword", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+    } else this.server.to(socketId).emit("notAllowed", data);
   }
 
-  async banUser(socket: Socket, data: DTO.ManageChannel) {
-    const targetUser = await this.userService.getUserByName(data.params[0]);
+  async banUser(socketId: string, channelName: string, targetUserName: string) {
+    const targetUser = await this.userService.getUserByName(targetUserName);
     if (
       await this.channelService.banUser(
-        this.connections.get(socket.id).id,
-        data.name,
+        this.connections.get(socketId).id,
+        channelName,
         targetUser.id
       )
     ) {
-      this.leaveChannel(socket.id, data.name, targetUser);
-      this.server.to(socket.id).emit("userBanned", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+      await this.leaveChannel(socketId, channelName, targetUser);
+      this.server
+        .to(socketId)
+        .emit("userBanned", [channelName, targetUserName]);
+    } else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", [channelName, targetUserName]);
   }
 
   async muteUser(socket: Socket, data: DTO.ManageChannel) {
@@ -225,21 +236,23 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async connectToChannel(socket: Socket, channelIn: DTO.ChannelInfoIn) {
-    const user = this.connections.get(socket.id);
+  async connectToChannel(socketId: string, channelIn: DTO.ChannelInfoIn) {
+    const user = this.connections.get(socketId);
     const channel = await this.channelService.getChannel(channelIn.name);
     // check possibility
-    if (this.canConnect(user, channel, channelIn, user)) {
+    if (await this.canConnect(user, channel, channelIn, user)) {
+      console.log("hrer");
+      
       await this.connectUserToChannel(
         channelIn,
-        this.connections.get(socket.id)
+        this.connections.get(socketId)
       );
       channelIn.users.forEach(async (userName) => {
         const targetUser = await this.userService.getUserByName(userName.name);
         if (this.canConnect(user, channel, channelIn, targetUser))
           await this.connectUserToChannel(channelIn, targetUser);
       });
-    } else this.server.to(socket.id).emit("notAllowed", channelIn);
+    } else this.server.to(socketId).emit("notAllowed", channelIn);
   }
 
   async kickUser(socket: Socket, data: DTO.ManageChannel) {
@@ -273,17 +286,7 @@ export class GatewayService {
     // exit room
     this.server.in(socketId).socketsLeave(channelName);
     // notice channel
-    this.server
-      .to(channelName)
-      .emit(
-        "userLeft",
-        channelName,
-        await this.userService.getUser(
-          this.connections.get(socketId).id,
-          false,
-          false
-        )
-      );
+    this.server.to(channelName).emit("userLeft", channelName, user);
   }
 
   // PRIVATE FUNCTIONS
@@ -356,6 +359,7 @@ export class GatewayService {
     channelIn: DTO.ChannelInfoIn,
     target: DTO.ClientInfo
   ): Promise<boolean> {
+    console.log(target.id, channel.bannedIds);
     return (
       channel == null ||
       channel.admIds.includes(executor.id) ||

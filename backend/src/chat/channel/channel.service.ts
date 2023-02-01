@@ -80,19 +80,27 @@ export class ChannelService {
       });
   }
 
-  async getChannel(channelName: string, includeMessages = false, includeGuests = false): Promise<Channel> {
+  async getChannel(
+    channelName: string,
+    includeMessages = false,
+    includeGuests = false
+  ): Promise<Channel> {
     return this.prisma.channel.findUnique({
       where: {
         name: channelName,
       },
       include: {
         messages: includeMessages,
-        guests: includeGuests
+        guests: includeGuests,
       },
     });
   }
 
-  async setPrivacy(executorId: number, channelName: string, isPrivate : boolean): Promise<boolean> {
+  async setPrivacy(
+    executorId: number,
+    channelName: string,
+    isPrivate: boolean
+  ): Promise<boolean> {
     return (
       (
         await this.prisma.channel.updateMany({
@@ -215,7 +223,7 @@ export class ChannelService {
             },
           },
           data: {
-            name : newName
+            name: newName,
           },
         })
       ).count != 0
@@ -283,16 +291,17 @@ export class ChannelService {
   ): Promise<boolean> {
     const channel = await this.getChannel(channelName);
     if (channel.admIds.includes(executorId)) {
-      this.updateChannel({
-        where: {
-          name: channelName,
-        },
-        data: {
-          bannedIds: {
-            push: targetId,
+      if (!channel.bannedIds.includes(targetId))
+        this.updateChannel({
+          where: {
+            name: channelName,
           },
-        },
-      });
+          data: {
+            bannedIds: {
+              push: targetId,
+            },
+          },
+        });
       return true;
     } else return false;
   }
@@ -304,16 +313,17 @@ export class ChannelService {
   ): Promise<boolean> {
     const channel = await this.getChannel(channelName);
     if (channel.admIds.includes(executorId)) {
-      this.updateChannel({
-        where: {
-          name: channelName,
-        },
-        data: {
-          mutedIds: {
-            push: targetId,
+      if (!channel.mutedIds.includes(targetId))
+        this.updateChannel({
+          where: {
+            name: channelName,
           },
-        },
-      });
+          data: {
+            mutedIds: {
+              push: targetId,
+            },
+          },
+        });
       return true;
     } else return false;
   }

@@ -50,9 +50,7 @@ export class Gateway implements OnModuleInit {
       password: params[2],
       users : []
     };
-    console.log(channelIn);
-    
-    this.gatewayService.connectToChannel(socket, channelIn);
+    this.gatewayService.connectToChannel(socket.id, channelIn);
   }
 
   @SubscribeMessage("leaveChannel")
@@ -100,7 +98,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() params: string[]
   ) {
-    this.gatewayService.setPrivacy(socket, params[0], params[1] == "true");
+    this.gatewayService.setPrivacy(socket.id, params[0], params[1] == "true");
   }
 
   @SubscribeMessage("setPassword")
@@ -108,15 +106,15 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.ManageChannel
   ) {
-    this.gatewayService.setPassword(socket, data);
+    this.gatewayService.setPassword(socket.id, data);
   }
 
   @SubscribeMessage("banUser")
   async onBanUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
+    @MessageBody() params: string[]
   ) {
-    this.gatewayService.banUser(socket, data);
+    this.gatewayService.banUser(socket.id, params[0], params[1]);
   }
 
   @SubscribeMessage("muteUser")

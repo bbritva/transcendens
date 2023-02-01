@@ -58,7 +58,7 @@ model Channel {
   guests    User[]
   admIds    Int[]
   mutedIds  Int[]
-  bannedIds Int[]
+  bannedIds Int[]       
   isPrivate Boolean     @default(false)
   messages  Message[]   @relation()
 }

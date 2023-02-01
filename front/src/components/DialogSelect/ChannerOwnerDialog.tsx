@@ -19,7 +19,15 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
           props.setOpen(false);
       }}>Set as adm in 'channel'</Button>
       
-      <Button>Ban in 'channel'</Button>
+      <Button onClick={() => {
+        const event : EventI = {
+          name : "banUser",
+          params : [props.channel.name, props.element.name]
+        }
+        props.setDestination(['Channels', event]);
+        if (props?.setOpen)
+          props.setOpen(false);
+      }}>Ban in 'channel'</Button>
       
       <Button>Mute in 'channel'</Button>
       
