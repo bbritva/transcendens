@@ -98,9 +98,9 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("setPrivacy")
   async onSetPrivacy(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
+    @MessageBody() params: string[]
   ) {
-    this.gatewayService.setPrivacy(socket, data);
+    this.gatewayService.setPrivacy(socket, params[0], params[1] == "true");
   }
 
   @SubscribeMessage("setPassword")

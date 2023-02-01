@@ -12,6 +12,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
   return (
     <Box>
       <DialogTitle>'Channel' settings</DialogTitle>
+
       <Button onClick={() => {
         const event : EventI = {
           name : "changeChannelName",
@@ -22,6 +23,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
         if (props?.setOpen)
           props.setOpen(false);
       }}>Change name 'channel'</Button>
+
       <Button onClick={() => {
         const event : EventI = {
           name : "connectToChannel",
@@ -31,6 +33,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
         if (props?.setOpen)
           props.setOpen(false);
       }}>Connect to 'channel'</Button>
+
       <Button  onClick={() => {
         const event : EventI = {
           name : "leaveChannel",
@@ -40,7 +43,18 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
         if (props?.setOpen)
           props.setOpen(false);
       }}>Leave 'channel'</Button>
-      <Button>Set 'channel' private</Button>
+
+      <Button onClick={() => {
+        const event : EventI = {
+          name : "setPrivacy",
+          params : [props.element.name, "true"]
+          // need possibility to set privacy to false
+        }
+        props.setDestination(['Channels', event]);
+        if (props?.setOpen)
+          props.setOpen(false);
+      }}>Set 'channel' private</Button>
+
       <Button>Change pass 'channel'</Button>
     </Box>
   );

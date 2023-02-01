@@ -150,15 +150,15 @@ export class GatewayService {
     } else this.server.to(socketId).emit("notAllowed", [oldName, newName]);
   }
 
-  async setPrivacy(socket: Socket, data: DTO.ManageChannel) {
+  async setPrivacy(socket: Socket, channelName: string, isPrivate:boolean) {
     if (
       await this.channelService.setPrivacy(
         this.connections.get(socket.id).id,
-        data
+        channelName, isPrivate
       )
     ) {
-      this.server.to(data.name).emit("setPrivacy", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+      this.server.to(channelName).emit("privacySet", [channelName, isPrivate.toString()]);
+    } else this.server.to(socket.id).emit("notAllowed", [channelName, isPrivate.toString()]);
   }
 
   async setPassword(socket: Socket, data: DTO.ManageChannel) {

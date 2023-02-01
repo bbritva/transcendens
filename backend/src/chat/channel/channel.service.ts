@@ -92,18 +92,18 @@ export class ChannelService {
     });
   }
 
-  async setPrivacy(executorId: number, data: ManageChannel): Promise<boolean> {
+  async setPrivacy(executorId: number, channelName: string, isPrivate : boolean): Promise<boolean> {
     return (
       (
         await this.prisma.channel.updateMany({
           where: {
-            name: data.name,
+            name: channelName,
             admIds: {
               has: executorId,
             },
           },
           data: {
-            isPrivate: data.params[0],
+            isPrivate: isPrivate,
           },
         })
       ).count != 0
