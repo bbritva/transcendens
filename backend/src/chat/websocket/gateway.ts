@@ -17,9 +17,7 @@ import { GatewayService } from "./gateway.service";
   },
 })
 export class Gateway implements OnModuleInit {
-  constructor(
-    private readonly gatewayService: GatewayService,
-  ) {}
+  constructor(private readonly gatewayService: GatewayService) {}
 
   @WebSocketServer()
   server: Server;
@@ -27,9 +25,8 @@ export class Gateway implements OnModuleInit {
   onModuleInit() {
     this.gatewayService.setServer(this.server);
     this.server.on("connection", async (socket) => {
-
       // check authorisation
-      if (! await this.gatewayService.connectUser(socket)) {
+      if (!(await this.gatewayService.connectUser(socket))) {
         socket.disconnect(true);
         return;
       }
@@ -38,15 +35,23 @@ export class Gateway implements OnModuleInit {
       socket.on("disconnecting", async () => {
         this.gatewayService.disconnectUser(socket);
       });
-      socket.on("disconnect", async () => { });
+      socket.on("disconnect", async () => {});
     });
   }
 
   @SubscribeMessage("connectToChannel")
   async onConnectToChannel(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() channelIn: DTO.ChannelInfoIn
+    @MessageBody() params: string[]
   ) {
+    const channelIn: DTO.ChannelInfoIn = {
+      name: params[0],
+      isPrivate: params[1] == "true",
+      password: params[2],
+      users : []
+    };
+    console.log(channelIn);
+    
     this.gatewayService.connectToChannel(socket, channelIn);
   }
 
@@ -55,10 +60,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() params: string[]
   ) {
-    this.gatewayService.leaveChannel(
-      socket.id,
-      params[0],
-    );
+    this.gatewayService.leaveChannel(socket.id, params[0]);
   }
 
   @SubscribeMessage("privateMessage")
@@ -74,7 +76,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() message: CreateMessageDTO
   ) {
-    this.gatewayService.newMessage(socket, message)
+    this.gatewayService.newMessage(socket, message);
   }
 
   @SubscribeMessage("addAdmin")
@@ -138,9 +140,6 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.ManageChannel
   ) {
-    this.gatewayService.kickUser(
-      socket,
-      data,
-    );
+    this.gatewayService.kickUser(socket, data);
   }
 }

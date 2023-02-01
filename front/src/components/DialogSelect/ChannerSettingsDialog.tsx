@@ -15,6 +15,15 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
       <Button>Change name 'channel'</Button>
       <Button  onClick={() => {
         const event : EventI = {
+          name : "connectToChannel",
+          params : [props.element.name]
+        }
+        props.setDestination(['Channels', event]);
+        if (props?.setOpen)
+          props.setOpen(false);
+      }}>Connect to 'channel'</Button>
+      <Button  onClick={() => {
+        const event : EventI = {
           name : "leaveChannel",
           params : [props.element.name]
         }
