@@ -82,9 +82,9 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("addAdmin")
   async onAddAdmin(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
+    @MessageBody() params: string[]
   ) {
-    this.gatewayService.addAdmin(socket, data);
+    this.gatewayService.addAdmin(socket.id, params[0], params[1]);
   }
 
   @SubscribeMessage("changeChannelName")

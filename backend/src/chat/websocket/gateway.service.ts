@@ -120,17 +120,17 @@ export class GatewayService {
     else this.server.to(socket.id).emit("notAllowed", message);
   }
 
-  async addAdmin(socket: Socket, data: DTO.ManageChannel) {
-    const targetUser = await this.userService.getUserByName(data.params[0]);
+  async addAdmin(socketId: string, channelName: string, userName: string) {
+    const targetUser = await this.userService.getUserByName(userName);
     if (
       await this.channelService.addAdmin(
-        this.connections.get(socket.id).id,
-        data.name,
+        this.connections.get(socketId).id,
+        channelName,
         targetUser.id
       )
     )
-      this.server.to(data.name).emit("newAdmin", data);
-    else this.server.to(socket.id).emit("notAllowed", data);
+      this.server.to(channelName).emit("newAdmin", [channelName, userName]);
+    else this.server.to(socketId).emit("notAllowed", [channelName, userName]);
   }
 
   async changeChannelName(socketId: string, oldName: string, newName: string) {
@@ -146,7 +146,7 @@ export class GatewayService {
       // leave old room
       this.server.socketsLeave(oldName);
       // notice user about new channel name
-      this.server.to(newName).emit("newChannelName", newName);
+      this.server.to(newName).emit("newChannelName", [oldName, newName]);
     } else this.server.to(socketId).emit("notAllowed", [oldName, newName]);
   }
 

@@ -88,6 +88,8 @@ const ChatPage: FC<any> = (): ReactElement => {
     const [destTaper, destObject] = destination;
     if (destTaper === 'Channels'){
       socket.emit(destObject.name, destObject.params);
+      console.log(destObject);
+      
       setChosenChannel(destObject as channelFromBackI);
     }
     else if (destTaper === 'Users'){
@@ -99,6 +101,8 @@ const ChatPage: FC<any> = (): ReactElement => {
       ];
       socket.emit('privateMessage', privateChannel);
       setChosenChannel(privateChannel)
+      console.log(destObject);
+      
     }
     else
     console.log("else", destination);
