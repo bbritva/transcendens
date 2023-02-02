@@ -167,15 +167,15 @@ export class GatewayService {
         .emit("notAllowed", [channelName, isPrivate.toString()]);
   }
 
-  async setPassword(socketId: string, data: DTO.ManageChannel) {
+  async setPassword(socketId: string, channelName: string, password: string) {
     if (
       await this.channelService.setPassword(
         this.connections.get(socketId).id,
-        data
+        channelName, password
       )
     ) {
-      this.server.to(data.name).emit("setPassword", data);
-    } else this.server.to(socketId).emit("notAllowed", data);
+      this.server.to(channelName).emit("setPassword", [channelName, password]);
+    } else this.server.to(socketId).emit("notAllowed", [channelName, password]);
   }
 
   async banUser(socketId: string, channelName: string, targetUserName: string) {

@@ -29,6 +29,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           name : "connectToChannel",
           params : [props.element.name]
         }
+        // need possibility to enter a password
         props.setDestination(['Channels', event]);
         if (props?.setOpen)
           props.setOpen(false);
@@ -55,7 +56,16 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           props.setOpen(false);
       }}>Set 'channel' private</Button>
 
-      <Button>Change pass 'channel'</Button>
+      <Button onClick={() => {
+        const event : EventI = {
+          name : "setPassword",
+          params : [props.element.name, "password"]
+          // need possibility to set password
+        }
+        props.setDestination(['Channels', event]);
+        if (props?.setOpen)
+          props.setOpen(false);
+      }}>Change pass 'channel'</Button>
     </Box>
   );
 }

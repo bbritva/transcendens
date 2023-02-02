@@ -118,16 +118,20 @@ export class ChannelService {
     );
   }
 
-  async setPassword(executorId: number, data: ManageChannel): Promise<boolean> {
+  async setPassword(
+    executorId: number,
+    channelName: string,
+    password: string
+  ): Promise<boolean> {
     return (
       (
         await this.prisma.channel.updateMany({
           where: {
-            name: data.name,
+            name: channelName,
             ownerId: executorId,
           },
           data: {
-            password: data.params[0],
+            password: password,
           },
         })
       ).count != 0
