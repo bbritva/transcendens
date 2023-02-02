@@ -82,6 +82,11 @@ export class AuthController {
     return this.authService.turnOnTwoFa(req.user.id);
   }
 
+  @Post('2fa/turn-off')
+  async turnOffTwoFa(@Request() req) {
+    return this.authService.turnOffTwoFa(req.user.id);
+  }
+  
   @Public()
   @Post('2fa/auth')
   async authenticate(@Request() req, @Body() body) {
@@ -95,6 +100,6 @@ export class AuthController {
     }
     const res =  await this.authService.loginWith2Fa(user);
     return res;
-  }
+  } 
 
 }

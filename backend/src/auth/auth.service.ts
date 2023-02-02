@@ -148,6 +148,17 @@ export class AuthService {
     };
   }
 
+  async turnOffTwoFa(userId: number) {
+    const res = await this.userService.updateUser({
+      where: { id: userId },
+      data: { isTwoFaEnabled: false },
+    });
+    return {
+      username: res.name, 
+      isTwoFaEnabled: res.isTwoFaEnabled 
+    };
+  }
+
   async isTwoFaCodeValid(twoFaCode: string, user: User) {
     if (twoFaCode && user.twoFaSecret)
     {
