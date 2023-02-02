@@ -29,9 +29,25 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
           props.setOpen(false);
       }}>Ban in 'channel'</Button>
       
-      <Button>Mute in 'channel'</Button>
+      <Button onClick={() => {
+        const event : EventI = {
+          name : "muteUser",
+          params : [props.channel.name, props.element.name]
+        }
+        props.setDestination(['Channels', event]);
+        if (props?.setOpen)
+          props.setOpen(false);
+      }}>Mute in 'channel'</Button>
       
-      <Button>Kick from 'channel'</Button>
+      <Button onClick={() => {
+        const event : EventI = {
+          name : "kickUser",
+          params : [props.channel.name, props.element.name]
+        }
+        props.setDestination(['Channels', event]);
+        if (props?.setOpen)
+          props.setOpen(false);
+      }}>Kick from 'channel'</Button>
     </Box>
   );
 }

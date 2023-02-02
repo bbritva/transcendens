@@ -197,17 +197,17 @@ export class GatewayService {
         .emit("notAllowed", [channelName, targetUserName]);
   }
 
-  async muteUser(socket: Socket, data: DTO.ManageChannel) {
-    const targetUser = await this.userService.getUserByName(data.params[0]);
+  async muteUser(socketId: string, channelName: string, targetUserName: string) {
+    const targetUser = await this.userService.getUserByName(targetUserName);
     if (
       await this.channelService.muteUser(
-        this.connections.get(socket.id).id,
-        data.name,
+        this.connections.get(socketId).id,
+        channelName,
         targetUser.id
       )
     ) {
-      this.server.to(data.name).emit("userMuted", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+      this.server.to(channelName).emit("userMuted", [channelName, targetUserName]);
+    } else this.server.to(socketId).emit("notAllowed", [channelName, targetUserName]);
   }
 
   async unmuteUser(socket: Socket, data: DTO.ManageChannel) {
@@ -241,8 +241,6 @@ export class GatewayService {
     const channel = await this.channelService.getChannel(channelIn.name);
     // check possibility
     if (await this.canConnect(user, channel, channelIn, user)) {
-      console.log("hrer");
-      
       await this.connectUserToChannel(
         channelIn,
         this.connections.get(socketId)
@@ -255,20 +253,32 @@ export class GatewayService {
     } else this.server.to(socketId).emit("notAllowed", channelIn);
   }
 
-  async kickUser(socket: Socket, data: DTO.ManageChannel) {
-    const channel = await this.channelService.getChannel(data.name);
-    if (channel.admIds.includes(this.connections.get(socket.id).id)) {
-      const targetUser = await this.userService.getUserByName(data.params[0]);
-      this.leaveChannel(socket.id, data.name, targetUser);
-      this.server.to(socket.id).emit("userKicked", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+  async kickUser(socketId: string, channelName: string, targetUserName: string) {
+    const channel = await this.channelService.getChannel(channelName);
+    if (channel.admIds.includes(this.connections.get(socketId).id)) {
+      console.log(this.server.sockets.adapter.rooms);
+
+      let targetUser : DTO.ClientInfo;
+      this.connections.forEach((client: DTO.ClientInfo) => {
+        if (client.name == targetUserName) {
+          targetUser = client;
+        }
+      })
+      if (targetUser == undefined)
+        targetUser = await this.userService.getUserByName(targetUserName)
+      await this.leaveChannel(socketId, channelName, targetUser);
+      this.server.to(socketId).emit("userKicked", channelName);
+    } else this.server.to(socketId).emit("notAllowed", channelName);
   }
 
+// should i devide leave channal in db and on server?
   async leaveChannel(
     socketId: string,
     channelName: string,
     user: DTO.ClientInfo = this.connections.get(socketId)
   ) {
+    console.log(socketId, user);
+    
     await this.channelService.updateChannel({
       where: {
         name: channelName,
@@ -284,7 +294,7 @@ export class GatewayService {
     // notice user
     this.server.to(user.socketId).emit("leftChannel", channelName);
     // exit room
-    this.server.in(socketId).socketsLeave(channelName);
+    this.server.in(user.socketId).socketsLeave(channelName);
     // notice channel
     this.server.to(channelName).emit("userLeft", channelName, user);
   }

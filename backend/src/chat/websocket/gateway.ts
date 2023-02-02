@@ -120,9 +120,9 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("muteUser")
   async onMuteUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
+    @MessageBody() params: string[]
   ) {
-    this.gatewayService.muteUser(socket, data);
+    this.gatewayService.muteUser(socket.id, params[0], params[1]);
   }
 
   @SubscribeMessage("unmuteUser")
@@ -144,8 +144,8 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("kickUser")
   async onKickUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
+    @MessageBody() params: string[]
   ) {
-    this.gatewayService.kickUser(socket, data);
+    this.gatewayService.kickUser(socket.id, params[0], params[1]);
   }
 }
