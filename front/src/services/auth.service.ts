@@ -31,8 +31,11 @@ class AuthService {
             localStorage.setItem("access_token", JSON.stringify(response.data.access_token));
             localStorage.setItem("refreshToken", JSON.stringify(response.data.refreshToken));
         }
-        else {
+        else if (response.status >= 400){
           throw "Not authorized!";
+        }
+        else {
+          console.log(response);
         }
         return response.data;
       })
@@ -65,10 +68,10 @@ class AuthService {
     return responseData;
   }
 
-  otpAuth(twoFaCode: string) {
+  otpAuth(twoFaCode: string, user: string) {
     let urlAuth = API_URL + "/auth/2fa/auth";
     const responseData = axios
-      .post(urlAuth, { twoFaCode })
+      .post(urlAuth, { twoFaCode, user })
       .then((response) => {
         if (response.status !== 201){
           throw "Not authorized!";

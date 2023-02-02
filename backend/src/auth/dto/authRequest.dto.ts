@@ -5,6 +5,7 @@ export class AuthLoginUserDto {
   id : number
   @ApiProperty()
   name : string
+  isTwoFaEnabled: boolean
 }
 
 export class AuthLoginDto {

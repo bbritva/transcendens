@@ -2,9 +2,10 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Post,
   Request,
-  Response,
+  Res,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -14,12 +15,15 @@ import { RefreshTokenGuard } from 'src/auth/jwt-auth.refresh.guard';
 import { Public } from 'src/auth/constants';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthRefreshTokenDto, AuthLoginDto } from './dto/authRequest.dto';
+import { Response } from 'express';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly userService: UserService,
   ) {}
 
   @ApiBody({
@@ -30,7 +34,11 @@ export class AuthController {
   @Public()
   @UseGuards(AuthGuard('local'))
   @Post('/')
-  async login(@Request() req : AuthLoginDto) {
+  async login(@Res({ passthrough: true }) res: Response, @Request() req : AuthLoginDto) {
+    if (req.user.isTwoFaEnabled){
+      res.status(HttpStatus.I_AM_A_TEAPOT).send({username: req.user.name});
+      return ;
+    }
     return this.authService.login(req.user);
   }
 
@@ -58,7 +66,7 @@ export class AuthController {
   }
 
   @Post('2fa/generate')
-  async register(@Response() res, @Request() req) {
+  async register(@Res() res, @Request() req) {
     const { otpauthUrl } =
       await this.authService.generateTwoFaSecret(
         req.user,
@@ -74,16 +82,20 @@ export class AuthController {
     return this.authService.turnOnTwoFa(req.user.id);
   }
 
+  @Public()
   @Post('2fa/auth')
   async authenticate(@Request() req, @Body() body) {
-    const isCodeValid = await this.authService.isTwoFaCodeValid(
-      body.twoFaCode,
-      req.user,
-    );
+    console.log({body});
+      const user = await this.userService.getUserByName(body.user);
+    console.log({user});
+      const isCodeValid = await this.authService.isTwoFaCodeValid(
+        body.twoFaCode,
+        user,
+      );
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }
-    const res =  await this.authService.loginWith2Fa(req.user);
+    const res =  await this.authService.loginWith2Fa(user);
     return res;
   }
 

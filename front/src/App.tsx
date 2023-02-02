@@ -1,8 +1,8 @@
 import "src/App.css";
-import { useEffect, useState } from "react";
+import { ReactEventHandler, useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid } from "@mui/material";
+import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button } from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
@@ -10,8 +10,10 @@ import { getUser } from "src/store/userSlice";
 import authHeader from "src/services/authHeader";
 import { authRefreshInterceptor } from "src/services/authRefreshInterceptor";
 import { RootState } from 'src/store/store'
-import { selectLoggedIn } from "src/store/authReducer";
+import { selectIsTwoFAEnabled, selectLoggedIn } from "src/store/authReducer";
 import { login, logout } from "src/store/authActions";
+import DialogSelect from "./components/DialogSelect/DialogSelect";
+import { Box } from "@mui/system";
 
 
 const theme = createTheme({
@@ -33,11 +35,14 @@ function App() {
   const dispatch = useDispatch();
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState('');
   const isLoggedIn = useSelector(selectLoggedIn);
+  const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
   authHeader();
   authRefreshInterceptor();
   useEffect(() => {
-    const { user } = getState() as RootState;
+    const { user, auth } = getState() as RootState;
     if (
       !user.user
       && storageToken.refreshToken !== ""
@@ -47,7 +52,11 @@ function App() {
       dispatch(getUser());
     }
     if (accessCode) {
-      if (!isLoggedIn) {
+      if (!isLoggedIn && auth.isTwoFAEnabled){
+        console.log('2faLOGIN', accessCode);
+        setOpen(true);
+      }
+      else if (!auth.isLoggedIn) {
         // @ts-ignore
         dispatch(login({ accessCode, accessState }));
       }
@@ -56,14 +65,40 @@ function App() {
         dispatch(getUser());
       }
     }
-  }, [accessCode, isLoggedIn]);
+  }, [accessCode, isLoggedIn, isTwoFAEnabled]);
+
   function onLogoutClick() {
     dispatch(logout());
     window.location.reload();
   };
+  function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
+    // event.preventDefault();
+    setInputValue(event.currentTarget.value);
+  }
+  function login2fa(){
+    const { auth } = getState() as RootState;
+    console.log('before dispatch', auth );
+    // @ts-ignore
+    dispatch(login({ accessCode, accessState, twoFACode: inputValue, user: auth.username }));
+  }
   return (
     <ThemeProvider theme={theme}>
       <div className="landing-background">
+        <DialogSelect open={open} setOpen={setOpen} options>
+          <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
+            <DialogTitle>Enter 2fa code</DialogTitle>
+            <TextField label={'otp code'} onChange={onChange} margin="dense"/>
+            <Button
+              variant="outlined"
+              sx={{
+                alignSelf: 'end'
+              }}
+              onClick={login2fa}
+            >
+              Login
+            </Button>
+          </Box>
+        </DialogSelect>
         <Router>
           <Grid container spacing={2} justifyContent="center">
             <Navbar

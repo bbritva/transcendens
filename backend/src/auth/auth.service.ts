@@ -7,6 +7,7 @@ import { intraTokenDto } from 'src/token/intraToken.dto';
 import { TokenService } from 'src/token/token.service';
 import { UserService } from 'src/user/user.service';
 import { toDataURL } from 'qrcode';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -40,17 +41,16 @@ export class AuthService {
           ...accessTokenData
         });
       }
-      return userData;
+      return userBd;
     }
     return null;
   }
 
-  async login(user: any, isTwoFactorAuthenticated = false) {
+  async login(user: any) {
     const payload = { 
       id: user.id,
       username: user.name,
       isTwoFaEnabled: !!user.isTwoFaEnabled,
-      isTwoFactorAuthenticated,
     };
     const res = this.getTokens(payload);
     const dbResponse = await this.updateRefreshTokenDb(
@@ -69,7 +69,7 @@ export class AuthService {
     };
     const res = await this.getTokens(payload);
     const dbResponse = await this.updateRefreshTokenDb(
-      user.username,
+      user.name,
       res.refreshToken,
     );
     return res;
@@ -95,7 +95,7 @@ export class AuthService {
   }
 
   async updateRefreshTokenDb(username: string, refreshToken: string) {
-
+    console.log({username, refreshToken});
     const res = await this.userService.updateUser({
       where: { name: username },
       data: { refreshToken: refreshToken },
@@ -149,13 +149,12 @@ export class AuthService {
     };
   }
 
-  async isTwoFaCodeValid(twoFaCode: string, user: any) {
-    const res = await this.userService.getUserByName(user.username);
-    if (twoFaCode && res.twoFaSecret)
+  async isTwoFaCodeValid(twoFaCode: string, user: User) {
+    if (twoFaCode && user.twoFaSecret)
     {
       return authenticator.verify({
         token: twoFaCode,
-        secret: res.twoFaSecret,
+        secret: user.twoFaSecret,
       });
     }
     return false;
