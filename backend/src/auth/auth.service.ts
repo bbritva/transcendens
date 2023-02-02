@@ -95,7 +95,6 @@ export class AuthService {
   }
 
   async updateRefreshTokenDb(username: string, refreshToken: string) {
-    console.log({username, refreshToken});
     const res = await this.userService.updateUser({
       where: { name: username },
       data: { refreshToken: refreshToken },

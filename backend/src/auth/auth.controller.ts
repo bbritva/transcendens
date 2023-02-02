@@ -85,13 +85,11 @@ export class AuthController {
   @Public()
   @Post('2fa/auth')
   async authenticate(@Request() req, @Body() body) {
-    console.log({body});
-      const user = await this.userService.getUserByName(body.user);
-    console.log({user});
-      const isCodeValid = await this.authService.isTwoFaCodeValid(
-        body.twoFaCode,
-        user,
-      );
+    const user = await this.userService.getUserByName(body.user);
+    const isCodeValid = await this.authService.isTwoFaCodeValid(
+      body.twoFaCode,
+      user,
+    );
     if (!isCodeValid) {
       throw new UnauthorizedException('Wrong authentication code');
     }

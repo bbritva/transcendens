@@ -53,7 +53,6 @@ function App() {
     }
     if (accessCode) {
       if (!isLoggedIn && auth.isTwoFAEnabled){
-        console.log('2faLOGIN', accessCode);
         setOpen(true);
       }
       else if (!auth.isLoggedIn) {
@@ -77,9 +76,9 @@ function App() {
   }
   function login2fa(){
     const { auth } = getState() as RootState;
-    console.log('before dispatch', auth );
     // @ts-ignore
     dispatch(login({ accessCode, accessState, twoFACode: inputValue, user: auth.username }));
+    setOpen(false);
   }
   return (
     <ThemeProvider theme={theme}>

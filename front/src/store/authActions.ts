@@ -4,9 +4,6 @@ import { createAction } from '@reduxjs/toolkit';
 import { AxiosError } from "axios";
 
 
-export const registerFail = createAction('REGISTER_FAIL')
-export const registerSuccess = createAction('REGISTER_SUCCESS')
-
 export interface twoFaResponseDataI{
   username: string;
 }
@@ -41,7 +38,6 @@ export const login = createAsyncThunk(
     }
     catch (error){
       const err = error as AxiosError;
-      console.log(err);
       if (err?.response?.status === 418){
         const {username} = err.response.data as twoFaResponseDataI;
         return thunkApi.rejectWithValue({

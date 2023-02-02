@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 import authHeader from 'src/services/authHeader';
-import { login, loginFail, loginSuccess, logout, refresh, registerFail, registerSuccess, twoFaResponseDataI, userSuccess } from 'src/store/authActions';
+import { login, logout, refresh, twoFaResponseDataI } from 'src/store/authActions';
 import { RootState } from 'src/store/store'
 
 
@@ -53,14 +53,12 @@ const authReducer = createReducer(initialState, (builder) => {
       authHeader();
     })
     .addCase(login.rejected, (state, action) => {
-      console.log({action});
       state.isTwoFAEnabled = action.meta.rejectedWithValue;
       if (state.isTwoFAEnabled){
         state.username = (action.payload as twoFaResponseDataI).username;
       }
       state.isLoggedIn = false;
       state.status = 'failed';
-      console.log(state)
     })
     .addCase(logout, (state, action) => {
       state.isLoggedIn = false;
