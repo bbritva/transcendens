@@ -94,12 +94,20 @@ export class Gateway implements OnModuleInit {
     this.gatewayService.emitToRecipient('declineInvite', socket, data.sender)
   }
 
+  @SubscribeMessage("connectToGame")
+  async connectToGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.gameChannelDataI
+  ){
+    this.gatewayService.connectToGame(socket, data);
+  }
+
   @SubscribeMessage("score")
   async getScore(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.scoreDataI
   ){
-    this.server.to(data.game).emit("gameScore", { ...data });
+    this.server.to(data.game).volatile.emit("gameScore", { ...data });
   }
 
   @SubscribeMessage("coordinates")
@@ -108,14 +116,6 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.coordinateDataI
   ){
     this.gatewayService.getCoordinates(socket, data);
-  }
-
-  @SubscribeMessage("connectToGame")
-  async connectToGame(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.gameChannelDataI
-  ){
-    this.gatewayService.connectToGame(socket, data);
   }
 
   @SubscribeMessage("newMessage")

@@ -329,11 +329,14 @@ export class GatewayService {
     socket: Socket,
     data: DTO.gameChannelDataI
   ){
+    console.log('connectToGame data', data)
+
     const username = this.connections.get(socket.id).name;
     const user = await this.userService.getUserByName(username);
-    const game = this.gameRooms.has(data.name)
-      ? this.gameRooms.get(data.name)
-      : this.gameRooms.set(data.name, data).get(data.name);
+    // const game = this.gameRooms.has(data.name)
+    //   ? this.gameRooms.get(data.name)
+    //   : this.gameRooms.set(data.name, data).get(data.name);
+      const game = this.gameRooms.set(data.name, data).get(data.name);
     // this.server.to(game.name).emit("userConnectedToGame", game.name, username);
     console.log('connectToGame', game)
 
@@ -352,7 +355,7 @@ export class GatewayService {
     data: any
   ){
     const userName = this.connections.get(socket.id).name;
-    this.server.to(data.game).emit("coordinates", {player: userName, ...data});
+    this.server.to(data.game).volatile.emit("coordinates", {player: userName, ...data});
   }
 
   // PRIVATE FUNCTIONS
