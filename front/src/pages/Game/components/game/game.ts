@@ -2,7 +2,7 @@ import socket from "src/services/socket";
 import Ball from "./Ball";
 import Bricks from "./Bricks";
 import Paddle from "./Paddle";
-import { gameChannelDataI } from "../../GamePage";
+import { gameChannelDataI } from "src/pages/Game/GamePage";
 
 
 function game(
@@ -67,6 +67,15 @@ function game(
   ) {
     let win = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = "#0090DD";
+    ctx.lineWidth = 2;
+    ctx.moveTo(2, 2);
+    ctx.lineTo(2, canvas.height - 2);
+    ctx.lineTo(canvas.width - 2, canvas.height - 2);
+    ctx.lineTo(canvas.width - 2, 2);
+    ctx.lineTo(2, 2);
+    ctx.stroke();
     emitCoord(
       canvas,
       rightPaddle,

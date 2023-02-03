@@ -12,7 +12,7 @@ import * as DTO from "./websocket.dto";
 import { GatewayService } from "./gateway.service";
 
 @WebSocketGateway({
-  cors: true
+  cors: true,
 })
 export class Gateway implements OnModuleInit {
   constructor(private readonly gatewayService: GatewayService) {}
@@ -46,7 +46,7 @@ export class Gateway implements OnModuleInit {
       name: params[0],
       isPrivate: params[1] == "true",
       password: params[2],
-      users : []
+      users: [],
     };
     this.gatewayService.connectToChannel(socket.id, channelIn);
   }
@@ -67,38 +67,38 @@ export class Gateway implements OnModuleInit {
     this.gatewayService.connectToChannelPM(socket, channelIn);
   }
 
-  @SubscribeMessage('inviteToGame')
+  @SubscribeMessage("inviteToGame")
   async inviteToGame(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { recipient: string }
-  ){
-    console.log("Invite to game")
-    this.gatewayService.emitToRecipient('inviteToGame', socket, data.recipient)
+  ) {
+    console.log("Invite to game");
+    this.gatewayService.emitToRecipient("inviteToGame", socket, data.recipient);
   }
 
-  @SubscribeMessage('acceptInvite')
+  @SubscribeMessage("acceptInvite")
   async acceptInvite(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { sender: string }
-  ){
-    console.log("accepted Invite")
-    this.gatewayService.emitToRecipient('acceptInvite', socket, data.sender)
+  ) {
+    console.log("accepted Invite");
+    this.gatewayService.emitToRecipient("acceptInvite", socket, data.sender);
   }
 
-  @SubscribeMessage('declineInvite')
+  @SubscribeMessage("declineInvite")
   async declineInvite(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { sender: string }
-  ){
-    console.log("DECLINE Invite")
-    this.gatewayService.emitToRecipient('declineInvite', socket, data.sender)
+  ) {
+    console.log("DECLINE Invite");
+    this.gatewayService.emitToRecipient("declineInvite", socket, data.sender);
   }
 
   @SubscribeMessage("connectToGame")
   async connectToGame(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.gameChannelDataI
-  ){
+  ) {
     this.gatewayService.connectToGame(socket, data);
   }
 
@@ -106,9 +106,7 @@ export class Gateway implements OnModuleInit {
   async getScore(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.scoreDataI
-  ){
-    console.log(data);
-    
+  ) {
     this.server.to(data.game).emit("gameScore", { ...data });
   }
 
@@ -116,7 +114,7 @@ export class Gateway implements OnModuleInit {
   async getCoordinates(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.coordinateDataI
-  ){
+  ) {
     this.gatewayService.getCoordinates(socket, data);
   }
 
