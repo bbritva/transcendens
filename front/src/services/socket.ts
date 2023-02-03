@@ -68,6 +68,11 @@ export function initSocket(
   socket.on("disconnect", () => {
 
   });
+
+  socket.onAny((data) => {
+    console.log("received",data);
+    
+  })
 }
 
 export default socket
