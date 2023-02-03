@@ -3,12 +3,12 @@ import { Divider, Grid, Paper, useTheme  } from "@mui/material";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import ChatTable from "src/components/OneColumnTable/ChatTable";
 import { RootState } from 'src/store/store'
-import { useDispatch, useStore } from "react-redux";
+import { useStore } from "react-redux";
 import ChatInput from "src/components/ChatInput/ChatInput";
 import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
 import { chatStyles } from "./chatStyles";
-import socket, { initSocket } from "src/services/socket";
-import FormDialog from "src/components/FormDialog/FormDialog";
+import socket from "src/services/socket";
+import { useAppDispatch } from "src/app/hooks";
 
 
 export interface fromBackI{
@@ -34,21 +34,15 @@ export interface newMessageI {
   text: string,
 }
 
-function useChosenUserState(){
-  const [chosenUser, setChosenUser] = useState<userFromBackI>({} as userFromBackI);
-
-  function selectUser(users: userFromBackI[], id: string){
-    const user = users.find((el) => el.id === id);
-    if (user)
-      setChosenUser(user);
-  }
-  return ({chosenUser, selectUser});
+export interface ChatPageProps {
+  channels : channelFromBackI[],
+  setChannels : Function
 }
 
-const ChatPage: FC<any> = (): ReactElement => {
-  const [userName, setUsername] = useState<string>('');
-  const [users, setUsers] = useState<userFromBackI[]>([]);
-  const [channels, setChannels] = useState<channelFromBackI[]>([]);
+const ChatPage: FC<ChatPageProps> = ({
+  channels,
+  setChannels
+}): ReactElement => {
   const [page, setPage] = useState(0);
   const [value, setValue] = useState('');
   const [chosenChannel, setChosenChannel] = useState({} as channelFromBackI);
@@ -57,31 +51,9 @@ const ChatPage: FC<any> = (): ReactElement => {
   const [destination, setDestination] = useState<[string, fromBackI]>(['', {} as fromBackI]);
   const { getState } = useStore();
   const { user, auth } = getState() as RootState;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const theme = useTheme();
-  let notConnected = true;
-
-  useEffect(() => {
-    if (userName && notConnected) {
-      connectUser({ username: userName });
-      notConnected = false;
-    }
-    else if (auth.accessToken?.access_token && notConnected) {
-      setTimeout(() => {
-      connectUser({ token: auth.accessToken.access_token });
-      }, 500)
-      notConnected = false;
-    }
-    return () => {
-      socket.disconnect()
-    };
-  }, [userName]);
-
-  function connectUser(tokenConnect: {}) {
-    socket.auth = tokenConnect;
-    socket.connect();
-    initSocket(user.user, users, setUsers, setChannels, () => {}, dispatch);
-  }
+  const testUsername = sessionStorage.getItem('username');
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
@@ -89,10 +61,10 @@ const ChatPage: FC<any> = (): ReactElement => {
       setChosenChannel(destObject as channelFromBackI);
     else if (destTaper === 'Users'){
       const privateChannel = {} as channelFromBackI;
-      privateChannel.name = `${destObject.name} ${userName} pm`;
+      privateChannel.name = `${destObject.name} ${testUsername} pm`;
       privateChannel.users = [
         {name: destObject.name} as userFromBackI,
-        {name: userName} as userFromBackI,
+        {name: testUsername} as userFromBackI,
       ];
       socket.emit('privateMessage', privateChannel);
       setChosenChannel(privateChannel)
@@ -104,6 +76,8 @@ const ChatPage: FC<any> = (): ReactElement => {
     .backgroundColor = theme.palette.primary.light;
 
   const onSubmit = () => {
+    if (!testUsername)
+      return;
     const [taper, destinationChannel] = destination;
     if ( !destinationChannel.name ){
       setValue('');
@@ -113,7 +87,7 @@ const ChatPage: FC<any> = (): ReactElement => {
       id: null,
       channelName: destinationChannel.name,
       sentAt: null,
-      authorName: userName,
+      authorName: testUsername,
       text: value,
     };
     socket.emit(
@@ -122,13 +96,9 @@ const ChatPage: FC<any> = (): ReactElement => {
     );
     setValue('');
   };
-  socket.onAny((event, ...args) => {
-    console.log(event, args);
-  });
 
   return (
   <>
-    <FormDialog userName={userName} setUsername={setUsername } />
     <Grid container spacing={1}
       height={'60vh'}
       padding={'6px'}

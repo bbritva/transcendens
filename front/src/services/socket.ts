@@ -9,11 +9,7 @@ const URL = process.env.REACT_APP_AUTH_URL || '';
 const socket = io(URL, { autoConnect: false });
 
 export function initSocket(
-    user: userI | null,
-    users: userFromBackI[],
-    setUsers: Function,
     setChannels: Function,
-    setUserMessages: Function,
     dispatch: Dispatch,
   ){
   socket.on("connectError", (err) => {
@@ -27,7 +23,6 @@ export function initSocket(
   });
 
   socket.on("userConnected", (channelName: string, userName: string) => {
-    console.log("user Connected", channelName, userName);
     setChannels((prev: channelFromBackI[]) => {
       const channelInd = prev.findIndex((el) => el.name === channelName)
       if (channelInd !== -1) {
@@ -67,22 +62,11 @@ export function initSocket(
   });
 
   socket.on("connect", () => {
-    users.forEach((user) => {
-      if (user.id) {
-        user.connected = true;
-      }
-    });
+
   });
 
   socket.on("disconnect", () => {
-    users.forEach((user) => {
-      if (user.id) {
-        user.connected = false;
-      }
-    });
-  });
-  socket.onAny((event, ...args) => {
-    console.log(event, args);
+
   });
 }
 
