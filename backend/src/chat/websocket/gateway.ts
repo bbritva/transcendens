@@ -107,7 +107,9 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.scoreDataI
   ){
-    this.server.to(data.game).volatile.emit("gameScore", { ...data });
+    console.log(data);
+    
+    this.server.to(data.game).emit("gameScore", { ...data });
   }
 
   @SubscribeMessage("coordinates")

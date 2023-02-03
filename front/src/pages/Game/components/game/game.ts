@@ -54,7 +54,7 @@ function game(
               }
             : ball
     }
-    socket.emit('coordinates', newCoordinates);
+    socket.volatile.emit('coordinates', newCoordinates);
   }
 
   function draw(
@@ -109,6 +109,17 @@ function game(
             alert(`${leftPaddle.name} WINS`);
             document.location.reload();
           };
+          socket.emit('score', {
+            game: game.name,
+            playerOne: {
+              name: game.first,
+              score: rightPaddle.score
+            },
+            playerTwo: {
+              name: game.second,
+              score: leftPaddle.score
+            }
+          });
           ball.reset(1);
           leftPaddle.reset();
           rightPaddle.reset();
