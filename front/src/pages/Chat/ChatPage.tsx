@@ -25,6 +25,8 @@ export interface userFromBackI extends fromBackI{
 
 export interface channelFromBackI extends fromBackI{
   users: userFromBackI[],
+  hasPasswrod : boolean,
+  isPrivate : boolean
 }
 
 export interface newMessageI {

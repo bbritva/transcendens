@@ -348,6 +348,8 @@ export class GatewayService {
     // send to user channel info
     const channelInfo: DTO.ChannelInfoOut = {
       name: channel.name,
+      isPrivate : channel.isPrivate,
+      hasPassword : channel.password != undefined,
       users: channel.guests,
       messages: channel.messages,
     };

@@ -104,9 +104,9 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("setPassword")
   async onSetPassword(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
+    @MessageBody() params: string[]
   ) {
-    this.gatewayService.setPassword(socket.id, data);
+    this.gatewayService.setPassword(socket.id, params[0], params[1]);
   }
 
   @SubscribeMessage("banUser")
