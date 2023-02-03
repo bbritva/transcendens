@@ -1,34 +1,31 @@
 import { UserEntity } from "src/user/entities/user.entity";
 import { MessageEntity } from "src/chat/message/entities/message.entity";
 
-export interface ChannelInfoDto {
+export interface ManageChannel {
   name: string;
+  params: any[]
 }
 
-export interface ChannelInfoDtoOut extends ChannelInfoDto {
-  messages?: MessageEntity[];
-  users?: UserEntity[];
+export interface ChannelInfoIn {
+  name: string;
+  isPrivate?: boolean;
+  password?: string;
+  users?: {name: string}[];
 }
 
-export interface ChannelInfoDtoIn extends ChannelInfoDto {
-  users: {name: string}[];
+export interface ChannelInfoOut {
+  name: string;
+  messages: MessageEntity[];
+  users: UserEntity[];
 }
 
-export interface UserConnectedDto {
-  channelName: string;
-  userName: string;
-}
-
-export class ClientDTO {
-  readonly id: string
-  readonly username: string;
-}
-
-export class ConnectedClientInfo {
-  readonly username: string;
-}
-
-export class DecodedTokenDTO {
+export class ClientInfo {
   readonly id: number
-  readonly username: string;
+  readonly name: string;
+  readonly socketId?: string;
+}
+
+export interface ToEmit {
+  name: string;
+  param: any
 }

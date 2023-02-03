@@ -17,6 +17,7 @@ model User {
   image           String?
   avatar          String?
   friendIds       Int[]
+  bannedIds       Int[]
   wins            Game[]  @relation("win")
   loses           Game[]  @relation("lose")
   token           Token?  @relation("token", fields: [tokenId], references: [id])
@@ -55,10 +56,12 @@ model Token {
 model Channel {
   name      String      @unique @id
   ownerId   Int
+  password  String?
   guests    User[]
   admIds    Int[]
   mutedIds  Int[]
   bannedIds Int[]
+  isPrivate Boolean     @default(false)
   messages  Message[]   @relation()
 }
 
@@ -70,10 +73,3 @@ model Message {
   authorName  String
   text        String
 }
-
-// model PrivateChannel {
-//   id        Int      @id @default(autoincrement())
-//   history   Json
-//   ownerId   Int
-//   guestId   Int
-// }

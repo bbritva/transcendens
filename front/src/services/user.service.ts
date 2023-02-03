@@ -2,7 +2,7 @@ import axios from 'axios';
 import authHeader from './authHeader';
 import { userI } from 'src/store/userSlice';
 
-const API_URL = process.env.REACT_APP_USERS_URL;
+const API_URL = process.env.REACT_APP_AUTH_URL +'/user'
 
 class UserService {
 

@@ -76,16 +76,15 @@ export class UserController {
     type: GetMeUserDto,
   })
   @ApiOkResponse({ type: UserEntity })
-  @Get("getMe")
-  async getMe(@Request() req: GetMeUserDto) {
-    // async getMe( @Body() req : GetMeUserDto) {
-    return await this.userService.getUser(req.user.id);
-  }
+  @Get('getMe')
+    async getMe( @Request() req : GetMeUserDto) {
+       return await this.userService.getUser(req.user.id);
+    }
 
   @ApiOkResponse({ type: UserEntity })
-  @Get(":id")
-  async showUser(@Param("id") id: number): Promise<UserModel> {
-    return this.userService.getUser(id);
+  @Get(':id')
+  async showUser(@Param('id') id: number): Promise<UserModel> {
+    return this.userService.getUser(id, true, true);
   }
 
   @Post("upload")

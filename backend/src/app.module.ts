@@ -14,7 +14,6 @@ import { TokenService } from 'src/token/token.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { GatewayModule } from 'src/chat/websocket/gateway.module';
 import { ChannelModule } from 'src/chat/channel/channel.module';
-import { MessageService } from 'src/chat/message/message.service';
 import { HttpModule } from '@nestjs/axios';
 import { MulterModule } from '@nestjs/platform-express';
 
@@ -45,7 +44,6 @@ process.on('warning', (warning) => {
     AppService, 
     ReqService, 
     TokenService,
-    MessageService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

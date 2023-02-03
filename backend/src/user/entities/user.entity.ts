@@ -20,6 +20,9 @@ export class UserEntity implements User {
   @ApiProperty({isArray: true, type : "number"})
   friendIds: number[];
 
+  @ApiProperty({isArray: true, type : "number"})
+  bannedIds: number[];
+
   @ApiProperty()
   tokenId: number;
 
