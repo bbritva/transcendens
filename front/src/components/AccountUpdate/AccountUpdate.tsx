@@ -95,7 +95,7 @@ export default function SignUp() {
     setInputValue(event.currentTarget.value);
   }
 
-  async function twoFA() {
+  async function enableTwoFA() {
     const userEnable = await authService.otpTurnOn();
     if (!userEnable.isTwoFaEnabled)
       return;
@@ -107,6 +107,13 @@ export default function SignUp() {
     }
     else
       setOpen(false);
+  }
+
+  async function disableTwoFA() {
+    const userDisable = await authService.otpTurnOff();
+    if (userDisable.isTwoFaEnabled)
+      return;
+    dispatch(updateUser({...userDisable}));
   }
 
   return (
@@ -134,14 +141,19 @@ export default function SignUp() {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
+              <Grid item xs={12}>
               {
-                !user.user?.isTwoFaEnabled &&
-                <Grid item xs={12}>
-                <Button variant="contained" component="label" onClick={twoFA}>
+                user.user?.isTwoFaEnabled
+                ?
+                <Button variant="contained" component="label" onClick={disableTwoFA}>
+                  Disable two factor auth
+                </Button>
+                :
+                <Button variant="contained" component="label" onClick={enableTwoFA}>
                   Enable two factor auth
                 </Button>
-              </Grid>
               }
+              </Grid>
               <Grid item xs={6}>
                 <Avatar
                   alt={user.user?.name}
@@ -166,7 +178,6 @@ export default function SignUp() {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  autoComplete='nickname'
                   name="nickname"
                   fullWidth
                   id="nickname"
