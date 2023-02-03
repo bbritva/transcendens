@@ -153,7 +153,7 @@ function game(
     const paddleHeight = 10;
     const paddleWidth = 75;
     const ballRadius = 10;
-    const paddleOffsetX = 20;
+    const paddleOffsetX = 10;
     const rightPaddle = new Paddle(
       canvas.width - paddleHeight - paddleOffsetX,
       (canvas.height - paddleWidth) / 2,
@@ -166,7 +166,7 @@ function game(
       game
     );
     const leftPaddle = new Paddle(
-      0 + paddleHeight + paddleOffsetX,
+      0 + paddleOffsetX,
       (canvas.height - paddleWidth) / 2,
       true,
       canvas,
