@@ -13,7 +13,7 @@ import { updateUser, userI } from 'src/store/userSlice';
 import userService from 'src/services/user.service';
 import { RootState } from 'src/store/store';
 import DialogSelect from '../DialogSelect/DialogSelect';
-import { DialogTitle } from '@mui/material';
+import { DialogContentText, DialogTitle } from '@mui/material';
 import authService from 'src/services/auth.service';
 
 
@@ -36,12 +36,12 @@ export default function SignUp() {
   const [urlQR, setUrlQR] = React.useState<any>();
   const [inputError, setInputError] = React.useState<boolean>(false);
   const [inputValue, setInputValue] = React.useState<string>();
+  const [otpValue, setOtpValue] = React.useState<string>('');
   const [avatarSource, setAvatarSource] = React.useState<string>('');
   const [open, setOpen] = React.useState<boolean>(false);
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const dispatch = useDispatch();
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
 
   React.useEffect(() => {
@@ -95,11 +95,7 @@ export default function SignUp() {
     setInputValue(event.currentTarget.value);
   }
 
-  async function enableTwoFA() {
-    const userEnable = await authService.otpTurnOn();
-    if (!userEnable.isTwoFaEnabled)
-      return;
-    dispatch(updateUser({...userEnable}));
+  async function generateTwoFA() {
     const src = await authService.otpGenerateQR();
     if (src){
       setUrlQR(src);
@@ -109,6 +105,14 @@ export default function SignUp() {
       setOpen(false);
   }
 
+  async function enableTwoFA() {
+    const userEnable = await authService.otpTurnOn(otpValue);
+    if (!userEnable.isTwoFaEnabled)
+      return;
+    dispatch(updateUser({...userEnable}));
+    setOpen(false);
+  }
+
   async function disableTwoFA() {
     const userDisable = await authService.otpTurnOff();
     if (userDisable.isTwoFaEnabled)
@@ -116,17 +120,51 @@ export default function SignUp() {
     dispatch(updateUser({...userDisable}));
   }
 
+  function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
+    // event.preventDefault();
+    setOtpValue(event.currentTarget.value);
+  }
+
   return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <DialogSelect options open={open} setOpen={setOpen}>
-          <Box>
-            <DialogTitle>Scan QR code with google auth app</DialogTitle>
+          <Box
+            display={'grid'}
+            padding={'2rem'}
+            paddingTop={'1rem'}
+          >
+            <DialogTitle>Enable 2FA</DialogTitle>
+            <DialogContentText>1. Scan QR code with auth app</DialogContentText>
+            <Link href='https://apps.apple.com/fr/app/google-authenticator/id388497605'
+              marginLeft={'1rem'}
+              target={'_blank'}
+            >
+              iOs
+            </Link>
+            <Link href='https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=fr&gl=US&pli=1'
+              marginLeft={'1rem'}
+              target={'_blank'}
+            >
+              Android
+            </Link>
             <Box
               component={'img'}
               alt="2faQR"
               src={urlQR}
             />
+            <DialogContentText>2. Enter google auth app</DialogContentText>
+            <TextField label={'otp code'} onChange={onChange} margin="dense"/>
+            <Button
+              variant="outlined"
+              sx={{
+                alignSelf: 'end'
+              }}
+              onClick={enableTwoFA}
+              disabled={!otpValue}
+            >
+              enableTwoFA
+            </Button>
           </Box>
         </DialogSelect>
         <Box
@@ -149,7 +187,7 @@ export default function SignUp() {
                   Disable two factor auth
                 </Button>
                 :
-                <Button variant="contained" component="label" onClick={enableTwoFA}>
+                <Button variant="contained" component="label" onClick={generateTwoFA}>
                   Enable two factor auth
                 </Button>
               }

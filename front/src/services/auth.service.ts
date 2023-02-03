@@ -52,10 +52,10 @@ class AuthService {
     return responseData;
   }
 
-  otpTurnOn(): Promise<userI> {
+  otpTurnOn(twoFaCode: string): Promise<userI> {
     let urlAuth = API_URL + "/auth/2fa/turn-on";
     const responseData = axios
-      .post(urlAuth, {})
+      .post(urlAuth, { twoFaCode })
       .then((response) => {
         if (response.status !== 201){
           throw "Not authorized!";
