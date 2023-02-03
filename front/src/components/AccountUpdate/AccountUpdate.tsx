@@ -8,10 +8,11 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { useDispatch, useStore } from 'react-redux';
+import { useStore } from 'react-redux';
 import { updateUser, userI } from 'src/store/userSlice';
 import userService from 'src/services/user.service';
 import { RootState } from 'src/store/store';
+import { useAppDispatch } from "src/app/hooks";
 
 
 function Copyright(props: any) {
@@ -35,7 +36,7 @@ export default function SignUp() {
   const [avatarSource, setAvatarSource] = React.useState<string>('');
   const { getState } = useStore();
   const { user } = getState() as RootState;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   React.useEffect(() => {
     if (file?.name){
