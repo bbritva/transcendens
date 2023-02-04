@@ -15,6 +15,7 @@ import { RootState } from 'src/store/store';
 import DialogSelect from '../DialogSelect/DialogSelect';
 import { DialogContentText, DialogTitle } from '@mui/material';
 import authService from 'src/services/auth.service';
+import ChooseTwoFA, { twoFAdialogProps } from './ChooseTwoFA';
 
 
 function Copyright(props: any) {
@@ -109,15 +110,23 @@ export default function SignUp() {
     const userEnable = await authService.otpTurnOn(otpValue);
     if (!userEnable.isTwoFaEnabled)
       return;
-    dispatch(updateUser({...userEnable}));
     setOpen(false);
+    
+    setTimeout(
+      () => {dispatch(updateUser({...userEnable}));},
+      140
+    );
   }
 
   async function disableTwoFA() {
-    const userDisable = await authService.otpTurnOff();
+    const userDisable = await authService.otpTurnOff(otpValue);
     if (userDisable.isTwoFaEnabled)
       return;
-    dispatch(updateUser({...userDisable}));
+    setOpen(false);
+    setTimeout(
+      () => {dispatch(updateUser({...userDisable}))},
+      140
+    );
   }
 
   function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
@@ -125,47 +134,33 @@ export default function SignUp() {
     setOtpValue(event.currentTarget.value);
   }
 
+  const enableProps: twoFAdialogProps = {
+    title: 'Enable', 
+    urlQR: urlQR,
+    isEnabled: true,
+    onClick: enableTwoFA,
+    onChange: onChange,
+    value: otpValue,
+  }
+
+  const disableProps: twoFAdialogProps = {
+    title: 'Disable', 
+    urlQR: urlQR,
+    isEnabled: false,
+    onClick: disableTwoFA,
+    onChange: onChange,
+    value: otpValue,
+  }
+
   return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <DialogSelect options open={open} setOpen={setOpen}>
-          <Box
-            display={'grid'}
-            padding={'2rem'}
-            paddingTop={'1rem'}
-          >
-            <DialogTitle>Enable 2FA</DialogTitle>
-            <DialogContentText>1. Scan QR code with auth app</DialogContentText>
-            <Link href='https://apps.apple.com/fr/app/google-authenticator/id388497605'
-              marginLeft={'1rem'}
-              target={'_blank'}
-            >
-              iOs
-            </Link>
-            <Link href='https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=fr&gl=US&pli=1'
-              marginLeft={'1rem'}
-              target={'_blank'}
-            >
-              Android
-            </Link>
-            <Box
-              component={'img'}
-              alt="2faQR"
-              src={urlQR}
-            />
-            <DialogContentText>2. Enter google auth app</DialogContentText>
-            <TextField label={'otp code'} onChange={onChange} margin="dense"/>
-            <Button
-              variant="outlined"
-              sx={{
-                alignSelf: 'end'
-              }}
-              onClick={enableTwoFA}
-              disabled={!otpValue}
-            >
-              enableTwoFA
-            </Button>
-          </Box>
+        <ChooseTwoFA {
+                ...(user.user?.isTwoFaEnabled
+                ? disableProps
+                : enableProps)
+          }/>
         </DialogSelect>
         <Box
           sx={{
@@ -183,7 +178,7 @@ export default function SignUp() {
               {
                 user.user?.isTwoFaEnabled
                 ?
-                <Button variant="contained" component="label" onClick={disableTwoFA}>
+                <Button variant="contained" component="label" onClick={() => {setOpen(true)}}>
                   Disable two factor auth
                 </Button>
                 :

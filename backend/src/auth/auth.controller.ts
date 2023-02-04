@@ -91,7 +91,15 @@ export class AuthController {
   }
 
   @Post('2fa/turn-off')
-  async turnOffTwoFa(@Request() req) {
+  async turnOffTwoFa(@Request() req, @Body() body) {
+    const user = await this.userService.getUserByName(req.user.username);
+    const isCodeValid = await this.authService.isTwoFaCodeValid(
+      body.twoFaCode,
+      user,
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
     return this.authService.turnOffTwoFa(req.user.id);
   }
   
