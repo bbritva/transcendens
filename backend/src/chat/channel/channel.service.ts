@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Message, Prisma } from "@prisma/client";
-import { ChannelInfoOut, ManageChannel } from "src/chat/websocket/websocket.dto";
+import { ChannelInfoOut } from "src/chat/websocket/websocket.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import { ChannelEntity } from "./entities/channel.entity";
@@ -16,9 +16,14 @@ export class ChannelService {
   async Channel(
     ChannelWhereUniqueInput: Prisma.ChannelWhereUniqueInput
   ): Promise<Channel | null> {
-    return this.prisma.channel.findUnique({
-      where: ChannelWhereUniqueInput,
-    });
+    return this.prisma.channel
+      .findUnique({
+        where: ChannelWhereUniqueInput,
+      })
+      .then((ret: any) => ret)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
   async Channels(params: {
@@ -29,24 +34,36 @@ export class ChannelService {
     orderBy?: Prisma.ChannelOrderByWithRelationInput;
   }): Promise<Channel[]> {
     const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.channel.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-    });
+    return this.prisma.channel
+      .findMany({
+        skip,
+        take,
+        cursor,
+        where,
+        orderBy,
+      })
+      .then((ret: any) => ret)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
   async ChannelList(): Promise<ChannelInfoOut[]> {
-    let channelList : ChannelInfoOut[] = [];
-    (await this.prisma.channel.findMany()).forEach((channel) => {
-      channelList.push({
-        name : channel.name,
-        isPrivate : channel.isPrivate,
-        hasPassword : channel.password != null
+    let channelList: ChannelInfoOut[] = [];
+    this.prisma.channel
+      .findMany()
+      .then((res: ChannelEntity[]) => {
+        res.forEach((channel) => {
+          channelList.push({
+            name: channel.name,
+            isPrivate: channel.isPrivate,
+            hasPassword: channel.password != null,
+          });
+        });
       })
-    });
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
     return channelList;
   }
 
@@ -93,15 +110,20 @@ export class ChannelService {
     includeMessages = false,
     includeGuests = false
   ): Promise<Channel> {
-    return this.prisma.channel.findUnique({
-      where: {
-        name: channelName,
-      },
-      include: {
-        messages: includeMessages,
-        guests: includeGuests,
-      },
-    });
+    return this.prisma.channel
+      .findUnique({
+        where: {
+          name: channelName,
+        },
+        include: {
+          messages: includeMessages,
+          guests: includeGuests,
+        },
+      })
+      .then((ret: any) => ret)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
   async setPrivacy(
@@ -109,21 +131,24 @@ export class ChannelService {
     channelName: string,
     isPrivate: boolean
   ): Promise<boolean> {
-    return (
-      (
-        await this.prisma.channel.updateMany({
-          where: {
-            name: channelName,
-            admIds: {
-              has: executorId,
-            },
+    return this.prisma.channel
+      .updateMany({
+        where: {
+          name: channelName,
+          admIds: {
+            has: executorId,
           },
-          data: {
-            isPrivate: isPrivate,
-          },
-        })
-      ).count != 0
-    );
+        },
+        data: {
+          isPrivate: isPrivate,
+        },
+      })
+      .then((ret: any) => {
+        return ret.count != 0;
+      })
+      .catch((e: any) => {
+        return false;
+      });
   }
 
   async setPassword(
@@ -131,19 +156,22 @@ export class ChannelService {
     channelName: string,
     password: string
   ): Promise<boolean> {
-    return (
-      (
-        await this.prisma.channel.updateMany({
-          where: {
-            name: channelName,
-            ownerId: executorId,
-          },
-          data: {
-            password: password,
-          },
-        })
-      ).count != 0
-    );
+    return this.prisma.channel
+      .updateMany({
+        where: {
+          name: channelName,
+          ownerId: executorId,
+        },
+        data: {
+          password: password,
+        },
+      })
+      .then((ret: any) => {
+        return ret.count != 0;
+      })
+      .catch((e: any) => {
+        return false;
+      });
   }
 
   async addAdmin(
@@ -151,21 +179,24 @@ export class ChannelService {
     channelName: string,
     targetId: number
   ): Promise<boolean> {
-    return (
-      (
-        await this.prisma.channel.updateMany({
-          where: {
-            name: channelName,
-            ownerId: executorId,
+    return this.prisma.channel
+      .updateMany({
+        where: {
+          name: channelName,
+          ownerId: executorId,
+        },
+        data: {
+          admIds: {
+            push: targetId,
           },
-          data: {
-            admIds: {
-              push: targetId,
-            },
-          },
-        })
-      ).count != 0
-    );
+        },
+      })
+      .then((ret: any) => {
+        return ret.count != 0;
+      })
+      .catch((e: any) => {
+        return false;
+      });
   }
 
   async unmuteUser(
@@ -173,25 +204,28 @@ export class ChannelService {
     channelName: string,
     targetId: number
   ): Promise<boolean> {
-    return (
-      (
-        await this.prisma.channel.updateMany({
-          where: {
-            name: channelName,
-            admIds: {
-              has: executorId,
-            },
+    return this.prisma.channel
+      .updateMany({
+        where: {
+          name: channelName,
+          admIds: {
+            has: executorId,
           },
-          data: {
-            mutedIds: {
-              set: (
-                await this.getChannel(channelName)
-              ).mutedIds.filter((id) => id != targetId),
-            },
+        },
+        data: {
+          mutedIds: {
+            set: (await this.getChannel(channelName)).mutedIds.filter(
+              (id) => id != targetId
+            ),
           },
-        })
-      ).count != 0
-    );
+        },
+      })
+      .then((ret: any) => {
+        return ret.count != 0;
+      })
+      .catch((e: any) => {
+        return false;
+      });
   }
 
   async unbanUser(
@@ -199,25 +233,28 @@ export class ChannelService {
     channelName: string,
     targetId: number
   ): Promise<boolean> {
-    return (
-      (
-        await this.prisma.channel.updateMany({
-          where: {
-            name: channelName,
-            admIds: {
-              has: executorId,
-            },
+    return this.prisma.channel
+      .updateMany({
+        where: {
+          name: channelName,
+          admIds: {
+            has: executorId,
           },
-          data: {
-            bannedIds: {
-              set: (
-                await this.getChannel(channelName)
-              ).mutedIds.filter((id) => id != targetId),
-            },
+        },
+        data: {
+          bannedIds: {
+            set: (await this.getChannel(channelName)).mutedIds.filter(
+              (id) => id != targetId
+            ),
           },
-        })
-      ).count != 0
-    );
+        },
+      })
+      .then((ret: any) => {
+        return ret.count != 0;
+      })
+      .catch((e: any) => {
+        return false;
+      });
   }
 
   async changeChannelName(
@@ -225,21 +262,24 @@ export class ChannelService {
     oldName: string,
     newName: string
   ): Promise<boolean> {
-    return (
-      (
-        await this.prisma.channel.updateMany({
-          where: {
-            name: oldName,
-            admIds: {
-              has: executorId,
-            },
+    return this.prisma.channel
+      .updateMany({
+        where: {
+          name: oldName,
+          admIds: {
+            has: executorId,
           },
-          data: {
-            name: newName,
-          },
-        })
-      ).count != 0
-    );
+        },
+        data: {
+          name: newName,
+        },
+      })
+      .then((ret: any) => {
+        return ret.count != 0;
+      })
+      .catch((e: any) => {
+        return false;
+      });
   }
 
   async updateChannel(params: {
@@ -323,26 +363,36 @@ export class ChannelService {
     channelName: string,
     targetId: number
   ): Promise<boolean> {
-    const channel = await this.getChannel(channelName);
-    if (channel.admIds.includes(executorId)) {
-      if (!channel.mutedIds.includes(targetId))
-        this.updateChannel({
-          where: {
-            name: channelName,
-          },
-          data: {
-            mutedIds: {
-              push: targetId,
-            },
-          },
-        });
-      return true;
-    } else return false;
+    return this.getChannel(channelName)
+      .then((channel: Channel) => {
+        if (channel.admIds.includes(executorId)) {
+          if (!channel.mutedIds.includes(targetId))
+            this.updateChannel({
+              where: {
+                name: channelName,
+              },
+              data: {
+                mutedIds: {
+                  push: targetId,
+                },
+              },
+            });
+          return true;
+        } else return false;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
   async deleteChannel(where: Prisma.ChannelWhereUniqueInput): Promise<Channel> {
-    return this.prisma.channel.delete({
-      where,
-    });
+    return this.prisma.channel
+      .delete({
+        where,
+      })
+      .then((ret: any) => ret)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
   }
 }

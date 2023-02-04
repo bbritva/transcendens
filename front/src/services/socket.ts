@@ -69,8 +69,8 @@ export function initSocket(
 
   });
 
-  socket.onAny((data) => {
-    console.log("received",data);
+  socket.onAny((data: any) => {
+    console.log("received", data);
     
   })
 }

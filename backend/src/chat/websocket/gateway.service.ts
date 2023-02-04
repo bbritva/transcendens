@@ -387,7 +387,7 @@ export class GatewayService {
     channelIn: DTO.ChannelInfoIn,
     user: DTO.ClientInfo
   ) {
-    if (!user) return;
+    // if (!user) return;
     const channel = await this.channelService.connectToChannel({
       name: channelIn.name,
       ownerId: user.id,
@@ -410,7 +410,7 @@ export class GatewayService {
       users: channel.guests,
       messages: channel.messages,
       isPrivate: channel.isPrivate,
-      hasPassword: channel.password != null
+      hasPassword: !!channel.password
     };
     this.connections.forEach((client: DTO.ClientInfo, socketId: string) => {
       if (client.name == user.name) {
