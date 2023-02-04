@@ -41,7 +41,14 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
       <DialogContentText>2. Enter google auth app</DialogContentText>
     </>
     }
-    <TextField label={'otp code'} onChange={props.onChange} margin="dense"/>
+    <TextField 
+      label={'otp code'}
+      onChange={props.onChange}
+      onKeyUp={(e) => {
+        if (e.key === 'Enter')
+          props.onClick();
+      }}
+      margin="dense"/>
     <Button
       variant="outlined"
       sx={{
