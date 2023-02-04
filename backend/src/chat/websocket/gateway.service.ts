@@ -411,6 +411,8 @@ export class GatewayService {
       hasPassword : channel.password != undefined,
       users: channel.guests,
       messages: channel.messages,
+      isPrivate: channel.isPrivate,
+      hasPassword: channel.password != null
     };
     this.connections.forEach((client: DTO.ClientInfo, socketId: string) => {
       if (client.name == user.name) {

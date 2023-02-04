@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Message, Prisma } from "@prisma/client";
-import { ChannelInfoDto } from "./dto/channelInfo.dto";
-import { ManageChannel } from "src/chat/websocket/websocket.dto";
+import { ChannelInfoOut, ManageChannel } from "src/chat/websocket/websocket.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
+import { ChannelEntity } from "./entities/channel.entity";
 
 @Injectable()
 export class ChannelService {
@@ -38,13 +38,21 @@ export class ChannelService {
     });
   }
 
-  async ChannelList(): Promise<{ name: string }[]> {
-    return this.prisma.channel.findMany({ select: { name: true } });
+  async ChannelList(): Promise<ChannelInfoOut[]> {
+    let channelList : ChannelInfoOut[] = [];
+    (await this.prisma.channel.findMany()).forEach((channel) => {
+      channelList.push({
+        name : channel.name,
+        isPrivate : channel.isPrivate,
+        hasPassword : channel.password != null
+      })
+    });
+    return channelList;
   }
 
   async connectToChannel(
     data: Prisma.ChannelCreateInput
-  ): Promise<ChannelInfoDto> {
+  ): Promise<ChannelEntity> {
     return this.prisma.channel
       .upsert({
         include: {

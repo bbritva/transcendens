@@ -13,13 +13,10 @@ export interface ChannelInfoIn {
   users?: { name: string }[];
 }
 
-export interface ChannelInfoOut extends ChannelInfoShort{
-  messages: MessageEntity[];
-  users: UserEntity[];
-}
-
-export interface ChannelInfoShort {
+export interface ChannelInfoOut {
   name: string;
+  messages?: MessageEntity[];
+  users?: UserEntity[];
   isPrivate: boolean;
   hasPassword: boolean;
 }
