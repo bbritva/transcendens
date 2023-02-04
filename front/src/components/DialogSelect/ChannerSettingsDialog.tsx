@@ -65,7 +65,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             const event: EventI = {
               name: "changeChannelName",
               data: {channelName : props.element.name, newName: value},
-              // need possibility to set privacy to false
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
@@ -82,7 +81,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             name: "connectToChannel",
             data: {channelName : props.element.name},
           };
-          // need possibility to enter a password
           props.setDestination(["Channels", event]);
           if (props?.setOpen) props.setOpen(false);
         }}
@@ -107,7 +105,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             const event: EventI = {
               name: "setPrivacy",
               data: {channelName : props.element.name, isPrivate: false},
-              // need possibility to set privacy to false
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
@@ -122,7 +119,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             const event: EventI = {
               name: "setPrivacy",
               data: {channelName : props.element.name, isPrivate: true},
-              // need possibility to set privacy to false
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
@@ -161,7 +157,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             const event: EventI = {
               name: "setPassword",
               data: {channelName : props.element.name, password: value},
-              // need possibility to set privacy to false
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
