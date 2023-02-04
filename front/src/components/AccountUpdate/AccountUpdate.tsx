@@ -43,6 +43,7 @@ export default function SignUp() {
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const dispatch = useDispatch();
+  const [otpError, setOtpError] = React.useState<boolean>(false);
 
 
   React.useEffect(() => {
@@ -107,11 +108,13 @@ export default function SignUp() {
   }
 
   async function enableTwoFA() {
+    setOtpError(false)
     const userEnable = await authService.otpTurnOn(otpValue);
-    if (!userEnable.isTwoFaEnabled)
+    if (!userEnable?.isTwoFaEnabled){
+      setOtpError(true);
       return;
+    }
     setOpen(false);
-    
     setTimeout(
       () => {dispatch(updateUser({...userEnable}));},
       140
@@ -119,9 +122,12 @@ export default function SignUp() {
   }
 
   async function disableTwoFA() {
+    setOtpError(false)
     const userDisable = await authService.otpTurnOff(otpValue);
-    if (userDisable.isTwoFaEnabled)
+    if (userDisable.isTwoFaEnabled){
+      setOtpError(true);
       return;
+    }
     setOpen(false);
     setTimeout(
       () => {dispatch(updateUser({...userDisable}))},
@@ -141,6 +147,7 @@ export default function SignUp() {
     onClick: enableTwoFA,
     onChange: onChange,
     value: otpValue,
+    error: otpError
   }
 
   const disableProps: twoFAdialogProps = {
@@ -150,6 +157,7 @@ export default function SignUp() {
     onClick: disableTwoFA,
     onChange: onChange,
     value: otpValue,
+    error: otpError
   }
 
   return (

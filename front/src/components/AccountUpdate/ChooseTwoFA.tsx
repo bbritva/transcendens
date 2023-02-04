@@ -9,6 +9,7 @@ export interface twoFAdialogProps {
     onClick: () => {}
     onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
     value: string
+    error: boolean
 }
 
 const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
@@ -41,7 +42,9 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
       <DialogContentText>2. Enter google auth app</DialogContentText>
     </>
     }
-    <TextField 
+    <TextField
+      error={props.error}
+      helperText={props.error ? 'Wrong authentication code' : ''}
       label={'otp code'}
       onChange={props.onChange}
       onKeyUp={(e) => {
