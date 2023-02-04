@@ -114,10 +114,10 @@ export class AuthService {
     return tokens;
   }
 
-  async generateTwoFaSecret(user: {id: number, name:string})
+  async generateTwoFaSecret(user: {id: number, username:string})
   {
     const secret = authenticator.generateSecret();
-    const otpauthUrl = authenticator.keyuri(user.name, 'AUTH_APP_NAME', secret)
+    const otpauthUrl = authenticator.keyuri(user.username, env.AUTH_APP_NAME, secret)
     await this.setTwoFaSecret(secret, user.id);
     return {
       secret,

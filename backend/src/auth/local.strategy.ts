@@ -26,10 +26,4 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     }
     return user;
   }
-} // intra login validation
-
-// JWT {
-//   id: number,
-//   hasPassed2FA: boolean,
-//   (username: string),
-// }
+}
