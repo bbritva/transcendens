@@ -40,23 +40,17 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("connectToChannel")
   async onConnectToChannel(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
-    const channelIn: DTO.ChannelInfoIn = {
-      name: params[0],
-      isPrivate: params[1] == "true",
-      password: params[2],
-      users: [],
-    };
     this.gatewayService.connectToChannel(socket.id, channelIn);
   }
 
   @SubscribeMessage("leaveChannel")
   async onLeaveChannel(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
-    this.gatewayService.leaveChannel(socket.id, params[0]);
+    this.gatewayService.leaveChannel(socket.id, channelIn.name);
   }
 
   @SubscribeMessage("privateMessage")
@@ -70,7 +64,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("inviteToGame")
   async inviteToGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { recipient: string }
+    @MessageBody() data: DTO.InviteToGameI
   ) {
     console.log("Invite to game");
     this.gatewayService.emitToRecipient("inviteToGame", socket, data.recipient);
@@ -79,7 +73,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("acceptInvite")
   async acceptInvite(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { sender: string }
+    @MessageBody() data: DTO.AcceptInviteI
   ) {
     console.log("accepted Invite");
     this.gatewayService.emitToRecipient("acceptInvite", socket, data.sender);
@@ -88,7 +82,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("declineInvite")
   async declineInvite(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { sender: string }
+    @MessageBody() data: DTO.AcceptInviteI
   ) {
     console.log("DECLINE Invite");
     this.gatewayService.emitToRecipient("declineInvite", socket, data.sender);
@@ -129,55 +123,55 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("addAdmin")
   async onAddAdmin(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() data: DTO.UserManageI
   ) {
-    this.gatewayService.addAdmin(socket.id, params[0], params[1]);
+    this.gatewayService.addAdmin(socket.id, data);
   }
 
   @SubscribeMessage("changeChannelName")
   async onChangeChannelName(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() data: DTO.ChangeChannelNameI
   ) {
-    this.gatewayService.changeChannelName(socket.id, params[0], params[1]);
+    this.gatewayService.changeChannelName(socket.id, data);
   }
 
   @SubscribeMessage("setPrivacy")
   async onSetPrivacy(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() data: DTO.SetPrivacyI
   ) {
-    this.gatewayService.setPrivacy(socket.id, params[0], params[1] == "true");
+    this.gatewayService.setPrivacy(socket.id, data);
   }
 
   @SubscribeMessage("setPassword")
   async onSetPassword(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() data: DTO.SetPasswordI
   ) {
-    this.gatewayService.setPassword(socket.id, params[0], params[1]);
+    this.gatewayService.setPassword(socket.id, data);
   }
 
   @SubscribeMessage("banUser")
   async onBanUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() data: DTO.UserManageI
   ) {
-    this.gatewayService.banUser(socket.id, params[0], params[1]);
+    this.gatewayService.banUser(socket.id, data);
   }
 
   @SubscribeMessage("muteUser")
   async onMuteUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() data: DTO.UserManageI
   ) {
-    this.gatewayService.muteUser(socket.id, params[0], params[1]);
+    this.gatewayService.muteUser(socket.id, data);
   }
 
   @SubscribeMessage("unmuteUser")
   async onUnmuteUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
+    @MessageBody() data: DTO.UserManageI
   ) {
     this.gatewayService.unmuteUser(socket, data);
   }
@@ -185,7 +179,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("unbanUser")
   async onUnbanUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.ManageChannel
+    @MessageBody() data: DTO.UserManageI
   ) {
     this.gatewayService.unbanUser(socket, data);
   }
@@ -193,8 +187,8 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("kickUser")
   async onKickUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() params: string[]
+    @MessageBody() data: DTO.UserManageI
   ) {
-    this.gatewayService.kickUser(socket.id, params[0], params[1]);
+    this.gatewayService.kickUser(socket.id, data);
   }
 }

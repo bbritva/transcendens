@@ -1,11 +1,6 @@
 import { UserEntity } from "src/user/entities/user.entity";
 import { MessageEntity } from "src/chat/message/entities/message.entity";
 
-export interface ManageChannel {
-  name: string;
-  params: any[];
-}
-
 export interface ChannelInfoIn {
   name: string;
   isPrivate?: boolean;
@@ -27,9 +22,37 @@ export class ClientInfo {
   readonly socketId?: string;
 }
 
-export interface ToEmit {
-  name: string;
-  param: any;
+export interface NotAllowedI {
+  eventName: string;
+  data: any;
+}
+
+export interface UserManageI {
+  channelName: string;
+  targetUserName: string;
+}
+
+export interface ChangeChannelNameI {
+  channelName: string;
+  newName: string;
+}
+
+export interface SetPrivacyI {
+  channelName: string;
+  isPrivate: boolean;
+}
+
+export interface SetPasswordI {
+  channelName: string;
+  password: string;
+}
+
+export interface InviteToGameI {
+  recipient: string;
+}
+
+export interface AcceptInviteI {
+  sender: string;
 }
 
 export interface scoreDataI{

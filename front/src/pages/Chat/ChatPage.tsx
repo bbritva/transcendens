@@ -17,7 +17,7 @@ export interface fromBackI{
   hasNewMessages: boolean,
   messages: newMessageI[],
   connected: boolean,
-  params?: string[]
+  data: any
 }
 
 export interface userFromBackI extends fromBackI{
@@ -61,7 +61,7 @@ const ChatPage: FC<ChatPageProps> = ({
   useEffect(() => {
     const [destTaper, destObject] = destination;
     if (destTaper === 'Channels'){
-      socket.emit(destObject.name, destObject.params);
+      socket.emit(destObject.name, destObject.data);
       setChosenChannel(destObject as channelFromBackI);
     }
     else if (destTaper === 'Users'){

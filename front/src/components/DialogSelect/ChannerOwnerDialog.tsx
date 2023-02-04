@@ -12,7 +12,7 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
       <Button onClick={() => {
         const event : EventI = {
           name : "addAdmin",
-          params : [props.channel.name, props.element.name]
+          data: {channelName : props.channel.name, targetUserName: props.element.name},
         }
         props.setDestination(['Channels', event]);
         if (props?.setOpen)
@@ -22,7 +22,7 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
       <Button onClick={() => {
         const event : EventI = {
           name : "banUser",
-          params : [props.channel.name, props.element.name]
+          data: {channelName : props.channel.name, targetUserName: props.element.name},
         }
         props.setDestination(['Channels', event]);
         if (props?.setOpen)
@@ -32,7 +32,7 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
       <Button onClick={() => {
         const event : EventI = {
           name : "muteUser",
-          params : [props.channel.name, props.element.name]
+          data: {channelName : props.channel.name, targetUserName: props.element.name},
         }
         props.setDestination(['Channels', event]);
         if (props?.setOpen)
@@ -42,8 +42,10 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
       <Button onClick={() => {
         const event : EventI = {
           name : "kickUser",
-          params : [props.channel.name, props.element.name]
+          data: {channelName : props.channel.name, targetUserName: props.element.name},
         }
+        console.log(event);
+        
         props.setDestination(['Channels', event]);
         if (props?.setOpen)
           props.setOpen(false);

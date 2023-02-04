@@ -1,7 +1,12 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Message, Prisma } from "@prisma/client";
-import { ChannelInfoOut } from "src/chat/websocket/websocket.dto";
+import {
+  ChangeChannelNameI,
+  ChannelInfoOut,
+  SetPasswordI,
+  SetPrivacyI,
+} from "src/chat/websocket/websocket.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import { ChannelEntity } from "./entities/channel.entity";
@@ -126,21 +131,17 @@ export class ChannelService {
       });
   }
 
-  async setPrivacy(
-    executorId: number,
-    channelName: string,
-    isPrivate: boolean
-  ): Promise<boolean> {
+  async setPrivacy(executorId: number, data: SetPrivacyI): Promise<boolean> {
     return this.prisma.channel
       .updateMany({
         where: {
-          name: channelName,
+          name: data.channelName,
           admIds: {
             has: executorId,
           },
         },
         data: {
-          isPrivate: isPrivate,
+          isPrivate: data.isPrivate,
         },
       })
       .then((ret: any) => {
@@ -151,19 +152,15 @@ export class ChannelService {
       });
   }
 
-  async setPassword(
-    executorId: number,
-    channelName: string,
-    password: string
-  ): Promise<boolean> {
+  async setPassword(executorId: number, data: SetPasswordI): Promise<boolean> {
     return this.prisma.channel
       .updateMany({
         where: {
-          name: channelName,
+          name: data.channelName,
           ownerId: executorId,
         },
         data: {
-          password: password,
+          password: data.password,
         },
       })
       .then((ret: any) => {
@@ -259,19 +256,18 @@ export class ChannelService {
 
   async changeChannelName(
     executorId: number,
-    oldName: string,
-    newName: string
+    data: ChangeChannelNameI
   ): Promise<boolean> {
     return this.prisma.channel
       .updateMany({
         where: {
-          name: oldName,
+          name: data.channelName,
           admIds: {
             has: executorId,
           },
         },
         data: {
-          name: newName,
+          name: data.newName,
         },
       })
       .then((ret: any) => {

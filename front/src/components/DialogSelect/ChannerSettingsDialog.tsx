@@ -3,9 +3,29 @@ import { Box } from "@mui/system";
 import { FC, useState } from "react";
 import { dialogProps } from "./ChooseDialogChildren";
 
+export interface UserManageI {
+  channelName: string;
+  targetUserName: string;
+}
+
+export interface ChangeChannelNameI {
+  channelName: string;
+  newName: string;
+}
+
+export interface SetPrivacyI {
+  channelName: string;
+  isPrivate: boolean;
+}
+
+export interface SetPasswordI {
+  channelName: string;
+  password: string;
+}
+
 export interface EventI {
   name: string;
-  params: string[];
+  data: any;
 }
 
 const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
@@ -44,7 +64,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             console.log(props.element);
             const event: EventI = {
               name: "changeChannelName",
-              params: [props.element.name, value],
+              data: {channelName : props.element.name, newName: value},
               // need possibility to set privacy to false
             };
             props.setDestination(["Channels", event]);
@@ -60,7 +80,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
         onClick={() => {
           const event: EventI = {
             name: "connectToChannel",
-            params: [props.element.name],
+            data: {channelName : props.element.name},
           };
           // need possibility to enter a password
           props.setDestination(["Channels", event]);
@@ -73,7 +93,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
         onClick={() => {
           const event: EventI = {
             name: "leaveChannel",
-            params: [props.element.name],
+            data: {channelName : props.element.name},
           };
           props.setDestination(["Channels", event]);
           if (props?.setOpen) props.setOpen(false);
@@ -86,7 +106,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           onClick={() => {
             const event: EventI = {
               name: "setPrivacy",
-              params: [props.element.name, "false"],
+              data: {channelName : props.element.name, isPrivate: false},
               // need possibility to set privacy to false
             };
             props.setDestination(["Channels", event]);
@@ -101,7 +121,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           onClick={() => {
             const event: EventI = {
               name: "setPrivacy",
-              params: [props.element.name, "true"],
+              data: {channelName : props.element.name, isPrivate: true},
               // need possibility to set privacy to false
             };
             props.setDestination(["Channels", event]);
@@ -140,7 +160,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             console.log(props.element);
             const event: EventI = {
               name: "setPassword",
-              params: [props.element.name, value],
+              data: {channelName : props.element.name, password: value},
               // need possibility to set privacy to false
             };
             props.setDestination(["Channels", event]);

@@ -73,6 +73,13 @@ export function initSocket(
     console.log("received", data);
     
   })
+
+  socket.on("notAllowed", (data: {
+    eventName: string;
+    data: any;
+  }) => {
+    console.log(data);
+  });
 }
 
 export default socket
