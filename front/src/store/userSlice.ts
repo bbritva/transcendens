@@ -7,7 +7,8 @@ export interface userI {
   id: string,
   name: string,
   image: string,
-  avatar: string
+  avatar: string,
+  isTwoFaEnabled: boolean
 }
 
 interface userStateI {
@@ -36,10 +37,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     updateUser(state, action: PayloadAction<userI>){
-      return {
-        ...state,
-        user: action.payload
-      }
+      state.user = {...state.user, ...action.payload};
     },
   },
   extraReducers(builder) {
@@ -63,4 +61,4 @@ const userSlice = createSlice({
 
 export const selectUser = (state: RootState) => state.user;
 export const { updateUser } = userSlice.actions;
-export default userSlice.reducer
+export default userSlice.reducer;

@@ -1,10 +1,13 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { authenticator } from 'otplib';
 import { env } from 'process';
 import { ReqService } from 'src/req/req.service';
 import { intraTokenDto } from 'src/token/intraToken.dto';
 import { TokenService } from 'src/token/token.service';
 import { UserService } from 'src/user/user.service';
+import { toDataURL } from 'qrcode';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -38,14 +41,33 @@ export class AuthService {
           ...accessTokenData
         });
       }
-      return userData;
+      return userBd;
     }
     return null;
   }
 
   async login(user: any) {
-    const payload = { id: user.id, username: user.name };
+    const payload = { 
+      id: user.id,
+      username: user.name,
+      isTwoFaEnabled: !!user.isTwoFaEnabled,
+    };
     const res = this.getTokens(payload);
+    const dbResponse = await this.updateRefreshTokenDb(
+      user.name,
+      res.refreshToken,
+    );
+    return res;
+  }
+  
+  async loginWith2Fa(user: any) {
+    const payload = { 
+      id: user.id,
+      username: user.name,
+      isTwoFaEnabled: !!user.isTwoFaEnabled,
+      isTwoFactorAuthenticated: true,
+    };
+    const res = await this.getTokens(payload);
     const dbResponse = await this.updateRefreshTokenDb(
       user.name,
       res.refreshToken,
@@ -90,5 +112,61 @@ export class AuthService {
     const tokens = this.getTokens(payload);
     await this.updateRefreshTokenDb(user.name, tokens.refreshToken);
     return tokens;
+  }
+
+  async generateTwoFaSecret(user: {id: number, username:string})
+  {
+    const secret = authenticator.generateSecret();
+    const otpauthUrl = authenticator.keyuri(user.username, env.AUTH_APP_NAME, secret)
+    await this.setTwoFaSecret(secret, user.id);
+    return {
+      secret,
+      otpauthUrl
+    }
+  }
+
+  async setTwoFaSecret(secret: string, userId: number) {
+    const res = await this.userService.updateUser({
+      where: { id: userId },
+      data: { twoFaSecret: secret },
+    });
+    return res;
+  }
+
+  async generateQrCodeDataURL(otpauthUrl: string) {
+    return toDataURL(otpauthUrl);
+  }
+
+  async turnOnTwoFa(userId: number) {
+    const res = await this.userService.updateUser({
+      where: { id: userId },
+      data: { isTwoFaEnabled: true },
+    });
+    return {
+      username: res.name, 
+      isTwoFaEnabled: res.isTwoFaEnabled 
+    };
+  }
+
+  async turnOffTwoFa(userId: number) {
+    const res = await this.userService.updateUser({
+      where: { id: userId },
+      data: { isTwoFaEnabled: false },
+    });
+    return {
+      username: res.name, 
+      isTwoFaEnabled: res.isTwoFaEnabled 
+    };
+  }
+
+  async isTwoFaCodeValid(twoFaCode: string, user: User) {
+    if (twoFaCode && user.twoFaSecret)
+    {
+      return authenticator.verify({
+        token: twoFaCode,
+        secret: user.twoFaSecret,
+      });
+    }
+    return false;
   }
 }

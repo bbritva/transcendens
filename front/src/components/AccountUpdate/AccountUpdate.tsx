@@ -12,6 +12,10 @@ import { useStore } from 'react-redux';
 import { updateUser, userI } from 'src/store/userSlice';
 import userService from 'src/services/user.service';
 import { RootState } from 'src/store/store';
+import DialogSelect from 'src/components/DialogSelect/DialogSelect';
+import { DialogContentText, DialogTitle } from '@mui/material';
+import authService from 'src/services/auth.service';
+import ChooseTwoFA, { twoFAdialogProps } from './ChooseTwoFA';
 import { useAppDispatch } from "src/app/hooks";
 
 
@@ -31,12 +35,17 @@ function Copyright(props: any) {
 export default function SignUp() {
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
+  const [urlQR, setUrlQR] = React.useState<any>();
   const [inputError, setInputError] = React.useState<boolean>(false);
   const [inputValue, setInputValue] = React.useState<string>();
+  const [otpValue, setOtpValue] = React.useState<string>('');
   const [avatarSource, setAvatarSource] = React.useState<string>('');
+  const [open, setOpen] = React.useState<boolean>(false);
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const dispatch = useAppDispatch();
+  const [otpError, setOtpError] = React.useState<boolean>(false);
+
 
   React.useEffect(() => {
     if (file?.name){
@@ -89,10 +98,79 @@ export default function SignUp() {
     setInputValue(event.currentTarget.value);
   }
 
+  async function generateTwoFA() {
+    const src = await authService.otpGenerateQR();
+    if (src){
+      setUrlQR(src);
+      setOpen(true);
+    }
+    else
+      setOpen(false);
+  }
+
+  async function enableTwoFA() {
+    setOtpError(false)
+    const userEnable = await authService.otpTurnOn(otpValue);
+    if (!userEnable?.isTwoFaEnabled){
+      setOtpError(true);
+      return;
+    }
+    setOpen(false);
+    setTimeout(
+      () => {dispatch(updateUser({...userEnable}));},
+      140
+    );
+  }
+
+  async function disableTwoFA() {
+    setOtpError(false)
+    const userDisable = await authService.otpTurnOff(otpValue);
+    if (userDisable.isTwoFaEnabled){
+      setOtpError(true);
+      return;
+    }
+    setOpen(false);
+    setTimeout(
+      () => {dispatch(updateUser({...userDisable}))},
+      140
+    );
+  }
+
+  function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
+    // event.preventDefault();
+    setOtpValue(event.currentTarget.value);
+  }
+
+  const enableProps: twoFAdialogProps = {
+    title: 'Enable', 
+    urlQR: urlQR,
+    isEnabled: true,
+    onClick: enableTwoFA,
+    onChange: onChange,
+    value: otpValue,
+    error: otpError
+  }
+
+  const disableProps: twoFAdialogProps = {
+    title: 'Disable', 
+    urlQR: urlQR,
+    isEnabled: false,
+    onClick: disableTwoFA,
+    onChange: onChange,
+    value: otpValue,
+    error: otpError
+  }
 
   return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
+        <DialogSelect options open={open} setOpen={setOpen}>
+        <ChooseTwoFA {
+                ...(user.user?.isTwoFaEnabled
+                ? disableProps
+                : enableProps)
+          }/>
+        </DialogSelect>
         <Box
           sx={{
             display: 'flex',
@@ -105,6 +183,19 @@ export default function SignUp() {
           </Typography>
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
+              <Grid item xs={12}>
+              {
+                user.user?.isTwoFaEnabled
+                ?
+                <Button variant="contained" component="label" onClick={() => {setOpen(true)}}>
+                  Disable two factor auth
+                </Button>
+                :
+                <Button variant="contained" component="label" onClick={generateTwoFA}>
+                  Enable two factor auth
+                </Button>
+              }
+              </Grid>
               <Grid item xs={6}>
                 <Avatar
                   alt={user.user?.name}
@@ -129,7 +220,6 @@ export default function SignUp() {
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  autoComplete='nickname'
                   name="nickname"
                   fullWidth
                   id="nickname"

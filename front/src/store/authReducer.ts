@@ -1,11 +1,13 @@
 import { createReducer } from '@reduxjs/toolkit';
 import authHeader from 'src/services/authHeader';
-import { login, loginFail, loginSuccess, logout, refresh, registerFail, registerSuccess, userSuccess } from 'src/store/authActions';
+import { login, logout, refresh, twoFaResponseDataI } from 'src/store/authActions';
 import { RootState } from 'src/store/store'
 
 
 export interface authState {
   isLoggedIn: boolean,
+  isTwoFAEnabled: boolean,
+  username: string,
   status: 'idle' | 'loading' | 'succeeded' | 'failed',
   accessToken: {
     access_token: string,
@@ -15,6 +17,8 @@ export interface authState {
 
 const initialState: authState = {
   isLoggedIn: false,
+  isTwoFAEnabled: false,
+  username: '',
   status: 'idle',
   accessToken: {access_token: '', refreshToken: ''}
 }
@@ -49,28 +53,12 @@ const authReducer = createReducer(initialState, (builder) => {
       authHeader();
     })
     .addCase(login.rejected, (state, action) => {
-      state.isLoggedIn = false;
-    })
-    .addCase(registerSuccess, (state, action) => {
-      state.isLoggedIn = false;
-    })
-    .addCase(registerFail, (state, action) => {
-      state.isLoggedIn = false;
-    })
-    .addCase(loginSuccess, (state, action) => {
-      state.isLoggedIn = true;
-      state.accessToken = action.payload;
-      authHeader();
-    })
-    .addCase(userSuccess, (state, action) => {
-      state.isLoggedIn = true;
-    })
-    .addCase(loginFail, (state, action) => {
-      state.isLoggedIn = false;
-      state.accessToken = {
-        access_token: '',
-        refreshToken: ''
+      state.isTwoFAEnabled = action.meta.rejectedWithValue;
+      if (state.isTwoFAEnabled){
+        state.username = (action.payload as twoFaResponseDataI).username;
       }
+      state.isLoggedIn = false;
+      state.status = 'failed';
     })
     .addCase(logout, (state, action) => {
       state.isLoggedIn = false;
@@ -83,5 +71,6 @@ const authReducer = createReducer(initialState, (builder) => {
 
 export const selectToken = (state: RootState) => state.auth.accessToken;
 export const selectLoggedIn = (state: RootState) => state.auth.isLoggedIn;
+export const selectIsTwoFAEnabled = (state: RootState) => state.auth.isTwoFAEnabled;
 
 export default authReducer;

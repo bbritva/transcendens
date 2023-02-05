@@ -1,8 +1,8 @@
 import "src/App.css";
-import { useEffect, useState } from "react";
+import { ReactEventHandler, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid, Box, DialogTitle, Button } from "@mui/material";
+import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box} from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
@@ -10,9 +10,9 @@ import { getUser } from "src/store/userSlice";
 import authHeader from "src/services/authHeader";
 import { authRefreshInterceptor } from "src/services/authRefreshInterceptor";
 import { RootState } from 'src/store/store'
-import { selectLoggedIn } from "src/store/authReducer";
+import { selectIsTwoFAEnabled, selectLoggedIn } from "src/store/authReducer";
 import { login, logout } from "src/store/authActions";
-import DialogSelect from "src/components/DialogSelect/DialogSelect";
+import DialogSelect from "./components/DialogSelect/DialogSelect";
 import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
 import { channelFromBackI } from "src/pages/Chat/ChatPage";
@@ -38,9 +38,12 @@ function App() {
   const dispatch = useAppDispatch();
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
+  const [openNick, setOpenNick] = useState(false);
+  const [inputValue, setInputValue] = useState('');
   const [inviteSender, setInviteSender] = useState('');
   const [open, setOpen] = useState(false);
   const isLoggedIn = useSelector(selectLoggedIn);
+  const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
   const [userName, setUsername] = useState<string>('');
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
   const navigate = useNavigate();
@@ -77,14 +80,19 @@ function App() {
       dispatch(getUser());
     }
     if (accessCode) {
-      if (!isLoggedIn)
+      if (!isLoggedIn && auth.isTwoFAEnabled){
+        setOpen(true);
+      }
+      else if (!auth.isLoggedIn)
+        //@ts-ignore
         dispatch(login({ accessCode, accessState }));
       else
         dispatch(getUser());
     }
     if (isLoggedIn)
       connectUser({ token: auth.accessToken.access_token });
-  }, [accessCode, isLoggedIn]);
+  }, [accessCode, isLoggedIn, isTwoFAEnabled]);
+
 
   useEffect(() => {
     if (socket.connected){
@@ -92,7 +100,7 @@ function App() {
       socket.on("inviteToGame", (data) => {
         console.log('socket invote RUNNING');
         setInviteSender(data.sender);
-        setOpen(true);
+        setOpenNick(true);
       })
     }
   }, [socket?.connected]);
@@ -101,10 +109,20 @@ function App() {
     dispatch(logout());
     window.location.reload();
   };
+  function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
+    // event.preventDefault();
+    setInputValue(event.currentTarget.value);
+  }
+  function login2fa(){
+    const { auth } = getState() as RootState;
+    // @ts-ignore
+    dispatch(login({ accessCode, accessState, twoFACode: inputValue, user: auth.username }));
+    setOpen(false);
+  }
 
   function accept() {
     if (socket.connected){
-      setOpen(false);
+      setOpenNick(false);
       socket.emit("acceptInvite", { sender: inviteSender })
       sessionStorage.setItem("game", "true");
       navigate('/game',  {replace: true});
@@ -113,7 +131,7 @@ function App() {
 
   function decline() {
     if (socket.connected){
-      setOpen(false);
+      setOpenNick(false);
       socket.emit("declineInvite", { sender: inviteSender })
     }
   }
@@ -121,6 +139,21 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="landing-background">
+        <DialogSelect open={open} setOpen={setOpen} options>
+          <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
+            <DialogTitle>Enter 2fa code</DialogTitle>
+            <TextField label={'otp code'} onChange={onChange} margin="dense"/>
+            <Button
+              variant="outlined"
+              sx={{
+                alignSelf: 'end'
+              }}
+              onClick={login2fa}
+            >
+              Login
+            </Button>
+          </Box>
+        </DialogSelect>
       <FormDialog userName={userName} setUsername={setUsername } />
           <Grid container spacing={2} justifyContent="center">
             <Navbar
@@ -132,8 +165,8 @@ function App() {
             <Allerts />
             <DialogSelect
               options={{}}
-              open={open}
-              setOpen={setOpen}
+              open={openNick}
+              setOpen={setOpenNick}
             >
               <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
                 <DialogTitle>{inviteSender || 'NICKNAME'} invited you</DialogTitle>
