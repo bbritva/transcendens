@@ -15,6 +15,7 @@ export class GatewayService {
     private readonly jwtService: JwtService
   ) { }
 
+  gameRooms: Map<string, DTO.gameChannelDataI> = new Map();
   connections: Map<string, DTO.ClientInfo> = new Map();
   server: Server;
 
@@ -273,7 +274,7 @@ export class GatewayService {
   async leaveChannel(
     socketId: string,
     channelName: string,
-    user: DTO.ClientInfo
+    user: DTO.ClientInfo = this.connections.get(socketId)
   ) {
     const channel = await this.channelService.updateChannel({
       where: {
@@ -303,6 +304,61 @@ export class GatewayService {
           false
         )
       );
+  }
+
+  connectionByName(name: string){
+    for (const el of this.connections.entries()){
+      if (el[1].name == name){
+        return el[0];
+      }
+    }
+    return null;
+  }
+
+  async emitToRecipient(
+    event: string,
+    socket: Socket,
+    recipient: string,
+  ){
+    const executorName = this.connections.get(socket.id).name;
+    console.log({executorName, event, recipient});
+    const recipientUser = await this.userService.getUserByName(recipient);
+    const recipientConnection = this.connectionByName(recipientUser?.name);
+    if (recipientConnection)
+      this.server.to(recipientConnection).emit(event, { sender: executorName })
+    else
+      return null;
+
+  }
+
+  async connectToGame(
+    socket: Socket,
+    data: DTO.gameChannelDataI
+  ){
+    const username = this.connections.get(socket.id).name;
+    const user = await this.userService.getUserByName(username);
+    const game = this.gameRooms.has(data.name)
+      ? this.gameRooms.get(data.name)
+      : this.gameRooms.set(data.name, data).get(data.name);
+    // this.server.to(game.name).emit("userConnectedToGame", game.name, username);
+    console.log('connectToGame', game)
+
+    // send to user game info
+    this.connections.forEach((value: DTO.ClientInfo, key: string) => {
+      if (game.first === value.name || game.second === value.name){
+        console.log('Joined', value.name)
+        this.server.to(key).emit("joinedToGame", game);
+        this.server.sockets.sockets.get(key).join(game.name);
+      }
+    });
+  }
+
+  async getCoordinates(
+    socket: Socket,
+    data: any
+  ){
+    const userName = this.connections.get(socket.id).name;
+    this.server.to(data.game).emit("coordinates", {player: userName, ...data});
   }
 
   // PRIVATE FUNCTIONS

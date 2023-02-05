@@ -29,3 +29,28 @@ export interface ToEmit {
   name: string;
   param: any
 }
+
+export interface scoreDataI{
+  game: string,
+  playerOne: {
+    name: string, 
+    score: number
+  },
+  playerTwo: {
+    name: string, 
+    score: number
+  },
+}
+
+export interface coordinateDataI{
+  game: string,
+  playerY: number,
+  ball: {x: number, y: number}
+}
+
+export interface gameChannelDataI{
+  name: string,
+  first: string,
+  second: string
+  guests: string[]
+}

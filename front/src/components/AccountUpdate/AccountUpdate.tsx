@@ -8,14 +8,15 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { useDispatch, useStore } from 'react-redux';
+import { useStore } from 'react-redux';
 import { updateUser, userI } from 'src/store/userSlice';
 import userService from 'src/services/user.service';
 import { RootState } from 'src/store/store';
-import DialogSelect from '../DialogSelect/DialogSelect';
+import DialogSelect from 'src/components/DialogSelect/DialogSelect';
 import { DialogContentText, DialogTitle } from '@mui/material';
 import authService from 'src/services/auth.service';
 import ChooseTwoFA, { twoFAdialogProps } from './ChooseTwoFA';
+import { useAppDispatch } from "src/app/hooks";
 
 
 function Copyright(props: any) {
@@ -42,7 +43,7 @@ export default function SignUp() {
   const [open, setOpen] = React.useState<boolean>(false);
   const { getState } = useStore();
   const { user } = getState() as RootState;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [otpError, setOtpError] = React.useState<boolean>(false);
 
 

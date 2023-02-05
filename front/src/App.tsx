@@ -1,8 +1,8 @@
 import "src/App.css";
 import { ReactEventHandler, useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useDispatch, useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button } from "@mui/material";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useSelector, useStore } from "react-redux";
+import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box} from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
@@ -13,7 +13,10 @@ import { RootState } from 'src/store/store'
 import { selectIsTwoFAEnabled, selectLoggedIn } from "src/store/authReducer";
 import { login, logout } from "src/store/authActions";
 import DialogSelect from "./components/DialogSelect/DialogSelect";
-import { Box } from "@mui/system";
+import socket, { initSocket } from "src/services/socket";
+import FormDialog from "src/components/FormDialog/FormDialog";
+import { channelFromBackI } from "src/pages/Chat/ChatPage";
+import { useAppDispatch } from "src/app/hooks";
 
 
 const theme = createTheme({
@@ -32,15 +35,41 @@ function App() {
     refreshToken: localStorage.getItem('refreshToken') || ''
   };
   const { getState } = useStore();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [accessCode, setAccessCode] = useState('');
   const [accessState, setAccessState] = useState('');
-  const [open, setOpen] = useState(false);
+  const [openNick, setOpenNick] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [inviteSender, setInviteSender] = useState('');
+  const [open, setOpen] = useState(false);
   const isLoggedIn = useSelector(selectLoggedIn);
   const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
+  const [userName, setUsername] = useState<string>('');
+  const [channels, setChannels] = useState<channelFromBackI[]>([]);
+  const navigate = useNavigate();
+  let notConnected = true;
+
+
   authHeader();
   authRefreshInterceptor();
+
+  function connectUser(tokenConnect: {}) {
+    socket.auth = tokenConnect;
+    socket.connect();
+    initSocket(setChannels, dispatch);
+  }
+
+  useEffect(() => {
+    if (userName && notConnected) {
+      sessionStorage.setItem('username', userName);
+      connectUser({ username: userName });
+      notConnected = false;
+    }
+    return () => {
+      socket.disconnect()
+    };
+  }, [userName]);
+
   useEffect(() => {
     const { user, auth } = getState() as RootState;
     if (
@@ -48,23 +77,33 @@ function App() {
       && storageToken.refreshToken !== ""
       && user.status === 'idle'
     ) {
-      //@ts-ignore
       dispatch(getUser());
     }
     if (accessCode) {
       if (!isLoggedIn && auth.isTwoFAEnabled){
         setOpen(true);
       }
-      else if (!auth.isLoggedIn) {
-        // @ts-ignore
+      else if (!auth.isLoggedIn)
+        //@ts-ignore
         dispatch(login({ accessCode, accessState }));
-      }
-      else {
-        // @ts-ignore
+      else
         dispatch(getUser());
-      }
     }
+    if (isLoggedIn)
+      connectUser({ token: auth.accessToken.access_token });
   }, [accessCode, isLoggedIn, isTwoFAEnabled]);
+
+
+  useEffect(() => {
+    if (socket.connected){
+      console.log('socket invote set');
+      socket.on("inviteToGame", (data) => {
+        console.log('socket invote RUNNING');
+        setInviteSender(data.sender);
+        setOpen(true);
+      })
+    }
+  }, [socket?.connected]);
 
   function onLogoutClick() {
     dispatch(logout());
@@ -80,6 +119,23 @@ function App() {
     dispatch(login({ accessCode, accessState, twoFACode: inputValue, user: auth.username }));
     setOpen(false);
   }
+
+  function accept() {
+    if (socket.connected){
+      setOpenNick(false);
+      socket.emit("acceptInvite", { sender: inviteSender })
+      sessionStorage.setItem("game", "true");
+      navigate('/game',  {replace: true});
+    }
+  }
+
+  function decline() {
+    if (socket.connected){
+      setOpenNick(false);
+      socket.emit("declineInvite", { sender: inviteSender })
+    }
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <div className="landing-background">
@@ -98,7 +154,7 @@ function App() {
             </Button>
           </Box>
         </DialogSelect>
-        <Router>
+      <FormDialog userName={userName} setUsername={setUsername } />
           <Grid container spacing={2} justifyContent="center">
             <Navbar
               loginButtonText="login"
@@ -107,6 +163,29 @@ function App() {
               onLogoutClick={onLogoutClick}
             />
             <Allerts />
+            <DialogSelect
+              options={{}}
+              open={open}
+              setOpen={setOpen}
+            >
+              <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
+                <DialogTitle>{inviteSender || 'NICKNAME'} invited you</DialogTitle>
+                <Button
+                  variant="outlined"
+                  sx={{alignSelf: 'end'}}
+                  onClick={decline}
+                >
+                  Decline
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{alignSelf: 'end'}}
+                  onClick={accept}
+                >
+                  Accept
+                </Button>
+              </Box>
+            </DialogSelect>
             <Grid item xs={8} margin={10} sx={{
             }}>
               <Routes>
@@ -114,13 +193,14 @@ function App() {
                   <Route
                     key={route.key}
                     path={route.path}
-                    element={<route.component />}
+                    element={
+                      <route.component channels={channels} setChannels={setChannels}/>
+                    }
                   />
                 ))}
               </Routes>
             </Grid>
           </Grid>
-        </Router>
       </div>
     </ThemeProvider>
   );
