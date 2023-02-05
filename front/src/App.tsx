@@ -100,7 +100,7 @@ function App() {
       socket.on("inviteToGame", (data) => {
         console.log('socket invote RUNNING');
         setInviteSender(data.sender);
-        setOpen(true);
+        setOpenNick(true);
       })
     }
   }, [socket?.connected]);
@@ -165,8 +165,8 @@ function App() {
             <Allerts />
             <DialogSelect
               options={{}}
-              open={open}
-              setOpen={setOpen}
+              open={openNick}
+              setOpen={setOpenNick}
             >
               <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
                 <DialogTitle>{inviteSender || 'NICKNAME'} invited you</DialogTitle>
