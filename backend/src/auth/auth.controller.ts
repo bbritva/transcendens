@@ -1,8 +1,12 @@
 import {
+  Body,
   Controller,
   Get,
+  HttpStatus,
   Post,
   Request,
+  Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -11,12 +15,15 @@ import { RefreshTokenGuard } from 'src/auth/jwt-auth.refresh.guard';
 import { Public } from 'src/auth/constants';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthRefreshTokenDto, AuthLoginDto } from './dto/authRequest.dto';
+import { Response } from 'express';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly userService: UserService,
   ) {}
 
   @ApiBody({
@@ -27,7 +34,11 @@ export class AuthController {
   @Public()
   @UseGuards(AuthGuard('local'))
   @Post('/')
-  async login(@Request() req : AuthLoginDto) {
+  async login(@Res({ passthrough: true }) res: Response, @Request() req : AuthLoginDto) {
+    if (req.user.isTwoFaEnabled){
+      res.status(HttpStatus.I_AM_A_TEAPOT).send({username: req.user.name});
+      return ;
+    }
     return this.authService.login(req.user);
   }
 
@@ -53,4 +64,58 @@ export class AuthController {
   refreshTokens(@Request() req : AuthRefreshTokenDto) {
     return this.authService.refreshTokens(req.user.username, req.user.refreshToken);
   }
+
+  @Post('2fa/generate')
+  async register(@Res() res, @Request() req) {
+    const { otpauthUrl } =
+      await this.authService.generateTwoFaSecret(
+        req.user,
+      );
+
+    return res.json(
+      await this.authService.generateQrCodeDataURL(otpauthUrl),
+    );
+  }
+
+  @Post('2fa/turn-on')
+  async turnOnTwoFa(@Request() req, @Body() body) {
+    const user = await this.userService.getUserByName(req.user.username);
+    const isCodeValid = await this.authService.isTwoFaCodeValid(
+      body.twoFaCode,
+      user,
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    return this.authService.turnOnTwoFa(req.user.id);
+  }
+
+  @Post('2fa/turn-off')
+  async turnOffTwoFa(@Request() req, @Body() body) {
+    const user = await this.userService.getUserByName(req.user.username);
+    const isCodeValid = await this.authService.isTwoFaCodeValid(
+      body.twoFaCode,
+      user,
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    return this.authService.turnOffTwoFa(req.user.id);
+  }
+  
+  @Public()
+  @Post('2fa/auth')
+  async authenticate(@Request() req, @Body() body) {
+    const user = await this.userService.getUserByName(body.user);
+    const isCodeValid = await this.authService.isTwoFaCodeValid(
+      body.twoFaCode,
+      user,
+    );
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    const res =  await this.authService.loginWith2Fa(user);
+    return res;
+  } 
+
 }

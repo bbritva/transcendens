@@ -1,10 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import AuthService from "src/services/auth.service";
 import { createAction } from '@reduxjs/toolkit';
+import { AxiosError } from "axios";
 
 
-export const registerFail = createAction('REGISTER_FAIL')
-export const registerSuccess = createAction('REGISTER_SUCCESS')
+export interface twoFaResponseDataI{
+  username: string;
+}
 
 export const userSuccess = createAction('USER_SUCCESS', ({user}) => {
   return {payload: {
@@ -25,9 +27,25 @@ export const loginFail = createAction('LOGIN_FAIL');
 
 export const login = createAsyncThunk(
   'login',
-  async (data: {accessCode: string, accessState: string}, thunkApi) => {
-    const response = await AuthService.login(data.accessCode, data.accessState);
-    return response;
+  async (data: {accessCode: string, accessState: string, twoFACode: string, user: string}, thunkApi) => {
+    if (data.twoFACode){
+      const test = await AuthService.otpAuth(data.twoFACode, data.user);
+      return test;
+    }
+    try{
+      const response = await AuthService.login(data.accessCode, data.accessState);
+      return response;
+    }
+    catch (error){
+      const err = error as AxiosError;
+      if (err?.response?.status === 418){
+        const {username} = err.response.data as twoFaResponseDataI;
+        return thunkApi.rejectWithValue({
+          username
+        });
+      }
+      throw error;
+    }
   }
 )
 

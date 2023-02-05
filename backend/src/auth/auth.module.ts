@@ -15,7 +15,7 @@ import { TokenService } from 'src/token/token.service';
 
 @Module({
   imports:[UserModule, PassportModule, HttpModule, JwtModule.register({
-    secret: env.JWT_ACCESS_SECRET, signOptions: { expiresIn: '60s' },
+    secret: env.JWT_ACCESS_SECRET, signOptions: { expiresIn: '600s' },
   })],
   providers: [
     AuthService, 

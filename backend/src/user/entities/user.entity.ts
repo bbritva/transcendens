@@ -28,4 +28,10 @@ export class UserEntity implements User {
 
   @ApiProperty()
   refreshToken: string;
+
+  @ApiProperty()
+  twoFaSecret: string | null;
+
+  @ApiProperty()
+  isTwoFaEnabled: boolean;
 }

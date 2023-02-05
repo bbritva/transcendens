@@ -53,7 +53,7 @@ function Navbar({ loginButtonText, setAccessCode, setAccessState, onLogoutClick}
           </Button>
         </Grid>
       ))}
-      <Grid item
+      <Grid item sm={1}
         display={'flex'}
         alignItems={'center'}
         sx={{ display: { xs: "none", sm: "flex" } }}
