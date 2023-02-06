@@ -130,11 +130,82 @@ export class UserService {
   }
 
   async isBanned(userId: number, targetUserName: string): Promise<boolean> {
-    return (await this.prisma.user
+    return this.prisma.user
       .findUnique({
         where: {
           name: targetUserName,
         },
-      })).bannedIds.includes(userId)
+      })
+      .then((user) => {
+        return user.bannedIds.includes(userId);
+      })
+      .catch(() => false);
+  }
+
+  async addFriend(userId: number, targetUserName: string): Promise<User> {
+    const user = await this.getUser(userId);
+    return this.getUserByName(targetUserName)
+      .then((targetUser) => {
+        if (targetUser && !targetUser.bannedIds.includes(userId)) {
+          if (!user.friendIds.includes(userId))
+            this.prisma.user.update({
+              where: {
+                id: userId,
+              },
+              data: {
+                friendIds: {
+                  push: targetUser.id,
+                },
+              },
+            });
+        }
+        return targetUser;
+      })
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async removeFriend(userId: number, targetUserName: string): Promise<User> {
+    const user = await this.getUser(userId);
+    return this.getUserByName(targetUserName)
+      .then((targetUser) => {
+        if (targetUser) {
+          if (user.friendIds.includes(userId))
+            this.prisma.user.update({
+              where: {
+                id: userId,
+              },
+              data: {
+                friendIds: {
+                  set: user.friendIds.filter(
+                    (id) => id != targetUser.id
+                  ),
+                },
+              },
+            });
+        }
+        return targetUser;
+      })
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async getFriends(userId: number): Promise<User[]> {
+    let friendsList: User[] = [];
+    return this.getUser(userId)
+      .then((user) => {
+        if (user) {
+          user.friendIds.forEach(async (friendId: number) => {
+            const user = await this.getUser(friendId);
+            friendsList.push(user);
+          });
+        }
+        return friendsList;
+      })
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
   }
 }

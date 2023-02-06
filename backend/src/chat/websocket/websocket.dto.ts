@@ -27,24 +27,28 @@ export interface NotAllowedI {
   data: any;
 }
 
-export interface UserManageI {
+export interface ManageChannelI {
   channelName: string;
+}
+
+export interface ManageUserInChannelI  extends ManageChannelI {
   targetUserName: string;
 }
 
-export interface ChangeChannelNameI {
-  channelName: string;
+export interface ChangeChannelNameI extends ManageChannelI {
   newName: string;
 }
 
-export interface SetPrivacyI {
-  channelName: string;
+export interface SetPrivacyI extends ManageChannelI {
   isPrivate: boolean;
 }
 
-export interface SetPasswordI {
-  channelName: string;
+export interface SetPasswordI extends ManageChannelI {
   password: string;
+}
+
+export interface ManageUserI {
+  targetUserName: string;
 }
 
 export interface InviteToGameI {

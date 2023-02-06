@@ -1,12 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Message, Prisma } from "@prisma/client";
-import {
-  ChangeChannelNameI,
-  ChannelInfoOut,
-  SetPasswordI,
-  SetPrivacyI,
-} from "src/chat/websocket/websocket.dto";
+import * as DTO from "src/chat/websocket/websocket.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import { ChannelEntity } from "./entities/channel.entity";
@@ -53,8 +48,8 @@ export class ChannelService {
       });
   }
 
-  async ChannelList(): Promise<ChannelInfoOut[]> {
-    let channelList: ChannelInfoOut[] = [];
+  async ChannelList(): Promise<DTO.ChannelInfoOut[]> {
+    let channelList: DTO.ChannelInfoOut[] = [];
     return this.prisma.channel
       .findMany()
       .then((res: ChannelEntity[]) => {
@@ -131,7 +126,10 @@ export class ChannelService {
       });
   }
 
-  async setPrivacy(executorId: number, data: SetPrivacyI): Promise<boolean> {
+  async setPrivacy(
+    executorId: number,
+    data: DTO.SetPrivacyI
+  ): Promise<boolean> {
     return this.prisma.channel
       .updateMany({
         where: {
@@ -152,7 +150,10 @@ export class ChannelService {
       });
   }
 
-  async setPassword(executorId: number, data: SetPasswordI): Promise<boolean> {
+  async setPassword(
+    executorId: number,
+    data: DTO.SetPasswordI
+  ): Promise<boolean> {
     return this.prisma.channel
       .updateMany({
         where: {
@@ -256,7 +257,7 @@ export class ChannelService {
 
   async changeChannelName(
     executorId: number,
-    data: ChangeChannelNameI
+    data: DTO.ChangeChannelNameI
   ): Promise<boolean> {
     return this.prisma.channel
       .updateMany({

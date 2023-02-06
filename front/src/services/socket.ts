@@ -38,8 +38,6 @@ export function initSocket(
   });
 
   socket.on("joinedToChannel", (channel: channelFromBackI) => {
-    console.log(channel);
-    
     setChannels((prev: channelFromBackI[]) => {
       const ind = prev.findIndex((el) => el.name === channel.name)
       const res = [...prev];
