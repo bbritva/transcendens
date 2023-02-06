@@ -55,7 +55,7 @@ export class ChannelService {
 
   async ChannelList(): Promise<ChannelInfoOut[]> {
     let channelList: ChannelInfoOut[] = [];
-    this.prisma.channel
+    return this.prisma.channel
       .findMany()
       .then((res: ChannelEntity[]) => {
         res.forEach((channel) => {
@@ -65,11 +65,11 @@ export class ChannelService {
             hasPassword: channel.password != null,
           });
         });
+        return channelList;
       })
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
-    return channelList;
   }
 
   async connectToChannel(
