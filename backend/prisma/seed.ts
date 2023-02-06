@@ -56,7 +56,8 @@ async function main() {
     update: {},
     create: {
       name: "another",
-      ownerId: 0,
+      ownerId: 2,
+      admIds: [2,1],
     },
     include: {
       guests: true,

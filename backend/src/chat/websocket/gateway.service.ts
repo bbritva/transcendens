@@ -13,26 +13,27 @@ export class GatewayService {
     private readonly userService: UserService,
     private readonly channelService: ChannelService,
     private readonly jwtService: JwtService
-  ) { }
+  ) {}
 
   gameRooms: Map<string, DTO.gameChannelDataI> = new Map();
   connections: Map<string, DTO.ClientInfo> = new Map();
   server: Server;
 
   setServer(server: Server) {
-      this.server = server;
+    this.server = server;
   }
 
   async connectUser(socket: Socket): Promise<boolean> {
     let authName = socket.handshake.auth.username;
-    const authorizedUser = await this.getUserFromJWT(socket.handshake.auth.token);
+    const authorizedUser = await this.getUserFromJWT(
+      socket.handshake.auth.token
+    );
     if (authorizedUser || authName) {
       if (authorizedUser) {
         this.connectionSet(authorizedUser, socket);
       } else if (authName) {
         const user = await this.userService.getUserByName(authName);
-        if (!user)
-          return false
+        if (!user) return false;
         this.connectionSet(
           {
             id: user.id,
@@ -50,7 +51,7 @@ export class GatewayService {
         data: {
           status: "ONLINE",
         },
-      })
+      });
       //send to new user all channels
       this.server
         .to(socket.id)
@@ -87,10 +88,7 @@ export class GatewayService {
     this.connections.delete(socket.id);
   }
 
-  async connectToChannelPM(
-    socket: Socket,
-    channelIn: DTO.ChannelInfoIn
-  ) {
+  async connectToChannelPM(socket: Socket, channelIn: DTO.ChannelInfoIn) {
     if (
       await this.userService.isBanned(
         this.connections.get(socket.id).id,
@@ -112,10 +110,7 @@ export class GatewayService {
     }
   }
 
-  async newMessage(
-    socket: Socket,
-    message: CreateMessageDTO
-  ) {
+  async newMessage(socket: Socket, message: CreateMessageDTO) {
     message.authorName = this.connections.get(socket.id).name;
     const messageOut = await this.channelService.addMessage(
       this.connections.get(socket.id).id,
@@ -126,96 +121,119 @@ export class GatewayService {
     else this.server.to(socket.id).emit("notAllowed", message);
   }
 
-  async addAdmin(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
-    const targetUser = await this.userService.getUserByName(data.params[0]);
+  async addAdmin(socketId: string, data: DTO.UserManageI) {
+    const targetUser = await this.userService.getUserByName(
+      data.targetUserName
+    );
     if (
       await this.channelService.addAdmin(
-        this.connections.get(socket.id).id,
-        data.name,
+        this.connections.get(socketId).id,
+        data.channelName,
         targetUser.id
       )
     )
-      this.server.to(data.name).emit("newAdmin", data);
-    else this.server.to(socket.id).emit("notAllowed", data);
+      this.server.to(data.channelName).emit("newAdmin", data);
+    else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", { eventName: "addAdmin", data: data });
   }
 
-  async setPrivacy(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async changeChannelName(socketId: string, data: DTO.ChangeChannelNameI) {
+    if (
+      await this.channelService.changeChannelName(
+        this.connections.get(socketId).id,
+        data
+      )
+    ) {
+      // connect all users to new room
+      this.server.in(data.channelName).socketsJoin(data.newName);
+      // leave old room
+      this.server.socketsLeave(data.channelName);
+      // notice user about new channel name
+      this.server.to(data.newName).emit("newChannelName", data);
+    } else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", { eventName: "changeChannelName", data: data });
+  }
+
+  async setPrivacy(socketId: string, data: DTO.SetPrivacyI) {
     if (
       await this.channelService.setPrivacy(
-        this.connections.get(socket.id).id,
+        this.connections.get(socketId).id,
         data
       )
     ) {
-      this.server.to(data.name).emit("setPrivacy", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+      this.server.to(data.channelName).emit("privacySet", data);
+    } else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", { eventName: "setPrivacy", data: data });
   }
 
-  async setPassword(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
+  async setPassword(socketId: string, data: DTO.SetPasswordI) {
     if (
       await this.channelService.setPassword(
-        this.connections.get(socket.id).id,
+        this.connections.get(socketId).id,
         data
       )
     ) {
-      this.server.to(data.name).emit("setPassword", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+      this.server
+        .to(data.channelName)
+        .emit("passwordSet", { channelName: data.channelName });
+    } else
+      this.server.to(socketId).emit("notAllowed", {
+        eventName: "setPassword",
+        channelName: data.channelName,
+      });
   }
 
-  async banUser(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
-    const targetUser = await this.userService.getUserByName(data.params[0]);
+  async banUser(socketId: string, data: DTO.UserManageI) {
+    const targetUser = await this.userService.getUserByName(
+      data.targetUserName
+    );
     if (
       await this.channelService.banUser(
-        this.connections.get(socket.id).id,
-        data.name,
+        this.connections.get(socketId).id,
+        data.channelName,
         targetUser.id
       )
     ) {
-      this.leaveChannel(
-        socket.id,
-        data.name,
-        targetUser
-      );
-      this.server.to(socket.id).emit("userBanned", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+      await this.leaveChannel(socketId, data.channelName, targetUser);
+      this.server.to(socketId).emit("userBanned", data);
+    } else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", { eventName: "banUser", data: data });
   }
 
-  async muteUser(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
-    const targetUser = await this.userService.getUserByName(data.params[0]);
+  async muteUser(socketId: string, data: DTO.UserManageI) {
+    const targetUser = await this.userService.getUserByName(
+      data.targetUserName
+    );
     if (
       await this.channelService.muteUser(
-        this.connections.get(socket.id).id,
-        data.name,
+        this.connections.get(socketId).id,
+        data.channelName,
         targetUser.id
       )
     ) {
-      this.server.to(data.name).emit("userMuted", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+      this.server.to(data.channelName).emit("userMuted", data);
+    } else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", { eventName: "muteUser", data: data });
   }
 
-  async unmuteUser(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
-    const targetUser = await this.userService.getUserByName(data.params[0]);
+  async unmuteUser(socket: Socket, data: DTO.UserManageI) {
+    const targetUser = await this.userService.getUserByName(
+      data.targetUserName
+    );
     if (
       this.channelService.unmuteUser(
         this.connections.get(socket.id).id,
-        data.name,
+        data.channelName,
         targetUser.id
       )
     ) {
@@ -223,15 +241,14 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async unbanUser(
-    socket: Socket,
-    data: DTO.ManageChannel
-  ) {
-    const targetUser = await this.userService.getUserByName(data.params[0]);
+  async unbanUser(socket: Socket, data: DTO.UserManageI) {
+    const targetUser = await this.userService.getUserByName(
+      data.targetUserName
+    );
     if (
       this.channelService.unbanUser(
         this.connections.get(socket.id).id,
-        data.name,
+        data.channelName,
         targetUser.id
       )
     ) {
@@ -239,44 +256,52 @@ export class GatewayService {
     } else this.server.to(socket.id).emit("notAllowed", data);
   }
 
-  async connectToChannel(
-    socket: Socket,
-    channelIn: DTO.ChannelInfoIn
-  ) {
-    const user = this.connections.get(socket.id);
+  async connectToChannel(socketId: string, channelIn: DTO.ChannelInfoIn) {
+    const user = this.connections.get(socketId);
     const channel = await this.channelService.getChannel(channelIn.name);
     // check possibility
-    if (this.canConnect(user, channel, channelIn, user)) {
+    if (await this.canConnect(user, channel, channelIn, user)) {
       await this.connectUserToChannel(
         channelIn,
-        this.connections.get(socket.id)
+        this.connections.get(socketId)
       );
       channelIn.users.forEach(async (userName) => {
         const targetUser = await this.userService.getUserByName(userName.name);
         if (this.canConnect(user, channel, channelIn, targetUser))
           await this.connectUserToChannel(channelIn, targetUser);
       });
-    } else this.server.to(socket.id).emit("notAllowed", channelIn);
+    } else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", { eventName: "connectToChannel", data: channelIn });
   }
 
-  async kickUser(
-    socket: Socket,
-    data: DTO.ManageChannel,
-  ) {
-    const channel = await this.channelService.getChannel(data.name);
-    if (channel.admIds.includes(this.connections.get(socket.id).id)) {
-      const targetUser = await this.userService.getUserByName(data.params[0]);
-      this.leaveChannel(socket.id, data.name, targetUser);
-      this.server.to(socket.id).emit("userKicked", data);
-    } else this.server.to(socket.id).emit("notAllowed", data);
+  async kickUser(socketId: string, data: DTO.UserManageI) {
+    const channel = await this.channelService.getChannel(data.channelName);
+    if (channel.admIds.includes(this.connections.get(socketId).id)) {
+      let targetUser: DTO.ClientInfo;
+      this.connections.forEach((client: DTO.ClientInfo) => {
+        if (client.name == data.targetUserName) {
+          targetUser = client;
+        }
+      });
+      if (targetUser == undefined)
+        targetUser = await this.userService.getUserByName(data.targetUserName);
+      await this.leaveChannel(socketId, data.channelName, targetUser);
+      this.server.to(socketId).emit("userKicked", data.channelName);
+    } else
+      this.server
+        .to(socketId)
+        .emit("notAllowed", { eventName: "kickUser", data: data });
   }
 
+  // should i devide leave channal in db and on server?
   async leaveChannel(
     socketId: string,
     channelName: string,
     user: DTO.ClientInfo = this.connections.get(socketId)
   ) {
-    const channel = await this.channelService.updateChannel({
+    await this.channelService.updateChannel({
       where: {
         name: channelName,
       },
@@ -291,74 +316,57 @@ export class GatewayService {
     // notice user
     this.server.to(user.socketId).emit("leftChannel", channelName);
     // exit room
-    this.server.in(socketId).socketsLeave(channelName);
+    this.server.in(user.socketId).socketsLeave(channelName);
     // notice channel
-    this.server
-      .to(channelName)
-      .emit(
-        "userLeft",
-        channel.name,
-        await this.userService.getUser(
-          this.connections.get(socketId).id,
-          false,
-          false
-        )
-      );
+    this.server.to(channelName).emit("userLeft", channelName, user);
   }
 
-  connectionByName(name: string){
-    for (const el of this.connections.entries()){
-      if (el[1].name == name){
+  connectionByName(name: string) {
+    for (const el of this.connections.entries()) {
+      if (el[1].name == name) {
         return el[0];
       }
     }
     return null;
   }
 
-  async emitToRecipient(
-    event: string,
-    socket: Socket,
-    recipient: string,
-  ){
+  async emitToRecipient(event: string, socket: Socket, recipient: string) {
     const executorName = this.connections.get(socket.id).name;
-    console.log({executorName, event, recipient});
+    console.log({ executorName, event, recipient });
     const recipientUser = await this.userService.getUserByName(recipient);
     const recipientConnection = this.connectionByName(recipientUser?.name);
     if (recipientConnection)
-      this.server.to(recipientConnection).emit(event, { sender: executorName })
-    else
-      return null;
-
+      this.server.to(recipientConnection).emit(event, { sender: executorName });
+    else return null;
   }
 
-  async connectToGame(
-    socket: Socket,
-    data: DTO.gameChannelDataI
-  ){
+  async connectToGame(socket: Socket, data: DTO.gameChannelDataI) {
+    console.log("connectToGame data", data);
+
     const username = this.connections.get(socket.id).name;
     const user = await this.userService.getUserByName(username);
-    const game = this.gameRooms.has(data.name)
-      ? this.gameRooms.get(data.name)
-      : this.gameRooms.set(data.name, data).get(data.name);
+    // const game = this.gameRooms.has(data.name)
+    //   ? this.gameRooms.get(data.name)
+    //   : this.gameRooms.set(data.name, data).get(data.name);
+    const game = this.gameRooms.set(data.name, data).get(data.name);
     // this.server.to(game.name).emit("userConnectedToGame", game.name, username);
-    console.log('connectToGame', game)
+    console.log("connectToGame", game);
 
     // send to user game info
     this.connections.forEach((value: DTO.ClientInfo, key: string) => {
-      if (game.first === value.name || game.second === value.name){
-        console.log('Joined', value.name)
+      if (game.first === value.name || game.second === value.name) {
+        console.log("Joined", value.name);
         this.server.to(key).emit("joinedToGame", game);
         this.server.sockets.sockets.get(key).join(game.name);
       }
     });
   }
 
-  async getCoordinates(
-    socket: Socket,
-    data: any
-  ){
+  async getCoordinates(socket: Socket, data: any) {
     const userName = this.connections.get(socket.id).name;
-    this.server.to(data.game).emit("coordinates", {player: userName, ...data});
+    this.server
+      .to(data.game)
+      .volatile.emit("coordinates", { player: userName, ...data });
   }
 
   // PRIVATE FUNCTIONS
@@ -390,6 +398,7 @@ export class GatewayService {
     channelIn: DTO.ChannelInfoIn,
     user: DTO.ClientInfo
   ) {
+    // if (!user) return;
     const channel = await this.channelService.connectToChannel({
       name: channelIn.name,
       ownerId: user.id,
@@ -411,6 +420,8 @@ export class GatewayService {
       name: channel.name,
       users: channel.guests,
       messages: channel.messages,
+      isPrivate: channel.isPrivate,
+      hasPassword: !!channel.password,
     };
     this.connections.forEach((client: DTO.ClientInfo, socketId: string) => {
       if (client.name == user.name) {
@@ -438,5 +449,4 @@ export class GatewayService {
         !channel.bannedIds.includes(target.id))
     );
   }
-
 }

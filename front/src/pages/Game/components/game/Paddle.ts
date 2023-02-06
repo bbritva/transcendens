@@ -61,8 +61,8 @@ class Paddle{
 
   mouseMoveHandler(e: MouseEvent) {
     let relativeY = e.clientY - this.canvas.offsetTop;
-    if (relativeY > 0 && relativeY < this.canvas.height) {
-      this.paddleY = relativeY - this.paddleHeight / 2;
+    if (relativeY > 0 && relativeY < this.canvas.height - this.paddleHeight) {
+      this.paddleY = relativeY;
     }
   }
 
@@ -105,7 +105,7 @@ class Paddle{
 
   makeScore(): boolean{
     this.score++;
-    return (this.score > 10);
+    return (this.score > 9);
   }
 
   reset() {

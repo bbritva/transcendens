@@ -68,6 +68,18 @@ export function initSocket(
   socket.on("disconnect", () => {
 
   });
+
+  socket.onAny((data: any) => {
+    console.log("received", data);
+    
+  })
+
+  socket.on("notAllowed", (data: {
+    eventName: string;
+    data: any;
+  }) => {
+    console.log(data);
+  });
 }
 
 export default socket

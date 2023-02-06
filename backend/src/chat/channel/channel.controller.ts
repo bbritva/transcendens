@@ -42,7 +42,7 @@ export class ChannelController {
   @ApiOkResponse({ type: ChannelEntity })
   async showChannel(@Param('name') name : string): Promise<ChannelModel> {
     return this.channelService
-      .getChannel(name)
+      .getChannel(name, true)
       .then((ret) => ret)
       .catch((error) => {
         throw new BadRequestException(error.code);

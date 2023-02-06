@@ -18,7 +18,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       tokenResponse = await this.httpService.getToken(accessCode, accessState)
     }
     catch (error) {
-      throw new UnauthorizedException(error);
+      throw new UnauthorizedException();
     }
     const user = await this.authService.validateUser(tokenResponse.data);
     if (!user) {

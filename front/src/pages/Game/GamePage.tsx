@@ -26,6 +26,7 @@ const GamePage: FC<any> = (): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
+  const [invitedUser, setInvitedUser] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -72,17 +73,19 @@ const GamePage: FC<any> = (): ReactElement => {
 
   async function sendInvite(){
     if (socket.connected){
-      const game = {
-        name: testGamename,
-        first: testUsername, 
-        second: inputValue,
-        guests: []
-      }
       setLoading(true);
-      socket.emit('inviteToGame', {recipient: game.second });
-      socket.on('acceptInvite', () => {
+      setInvitedUser(inputValue ? inputValue : "")
+      socket.emit('inviteToGame', {recipient: inputValue });
+      socket.on('acceptInvite', (body) => {
         setFlag('true');
         sessionStorage.setItem("game", "true");
+        const game = {
+          name: testUsername + body.sender + "Game",
+          first: testUsername, 
+          second: body.sender,
+          guests: []
+        }
+        console.log(game);
         socket.emit('connectToGame', game);
       })
       socket.on('declineInvite', () => {

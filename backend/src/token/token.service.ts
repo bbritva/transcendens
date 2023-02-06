@@ -34,7 +34,9 @@ export class TokenService {
       async createToken(data: Prisma.TokenCreateInput): Promise<Token> {
         return this.prisma.token.create({
           data,
-        });
+        })
+        .then((ret) => ret)
+        .catch(() => null);
       }
 
       async getToken(tokenId: number): Promise<Token> {
