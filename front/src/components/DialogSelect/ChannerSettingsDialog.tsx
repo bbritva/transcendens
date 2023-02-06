@@ -79,7 +79,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
         onClick={() => {
           const event: EventI = {
             name: "connectToChannel",
-            data: {channelName : props.element.name},
+            data: {name : props.element.name},
           };
           props.setDestination(["Channels", event]);
           if (props?.setOpen) props.setOpen(false);
@@ -91,7 +91,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
         onClick={() => {
           const event: EventI = {
             name: "leaveChannel",
-            data: {channelName : props.element.name},
+            data: {name : props.element.name},
           };
           props.setDestination(["Channels", event]);
           if (props?.setOpen) props.setOpen(false);

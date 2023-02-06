@@ -265,11 +265,12 @@ export class GatewayService {
         channelIn,
         this.connections.get(socketId)
       );
-      channelIn.users.forEach(async (userName) => {
+      if (channelIn.users)
+      {channelIn.users.forEach(async (userName) => {
         const targetUser = await this.userService.getUserByName(userName.name);
         if (this.canConnect(user, channel, channelIn, targetUser))
           await this.connectUserToChannel(channelIn, targetUser);
-      });
+      });}
     } else
       this.server
         .to(socketId)
