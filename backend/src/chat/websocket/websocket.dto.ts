@@ -1,5 +1,6 @@
 import { UserEntity } from "src/user/entities/user.entity";
 import { MessageEntity } from "src/chat/message/entities/message.entity";
+import { eStatus } from "@prisma/client";
 
 export interface ChannelInfoIn {
   name: string;
@@ -14,6 +15,14 @@ export interface ChannelInfoOut {
   users?: UserEntity[];
   isPrivate: boolean;
   hasPassword: boolean;
+}
+
+export interface UserInfoPublic {
+  id: number
+  name: string;
+  image?: string;
+  avatar?: string;
+  status: eStatus;
 }
 
 export class ClientInfo {

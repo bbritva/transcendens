@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UserInfoPublic } from "src/chat/websocket/websocket.dto";
 
 @Injectable()
 export class UserService {
@@ -142,7 +143,7 @@ export class UserService {
       .catch(() => false);
   }
 
-  async addFriend(userId: number, targetUserName: string): Promise<User> {
+  async addFriend(userId: number, targetUserName: string): Promise<UserInfoPublic> {
     const user = await this.getUser(userId);
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
@@ -165,7 +166,7 @@ export class UserService {
               });
           }
         }
-        return targetUser;
+        return targetUser as UserInfoPublic;
       })
       .catch((e) => {
         throw new BadRequestException(e.message);
@@ -201,14 +202,20 @@ export class UserService {
       });
   }
 
-  async getFriends(userId: number): Promise<User[]> {
-    let friendsList: User[] = [];
+  async getFriends(userId: number): Promise<UserInfoPublic[]> {
+    let friendsList: UserInfoPublic[] = [];
     try {
       const user = await this.getUser(userId);
       if (user) {
         for (const friendId of user.friendIds) {
           const friend = await this.getUser(friendId);
-          friendsList.push(friend);
+          friendsList.push({
+            id : friend.id,
+            name : friend.name,
+            status : friend.status,
+            image : friend.image,
+            avatar : friend.avatar,
+          });
         }
       }
       return friendsList;
@@ -275,14 +282,20 @@ export class UserService {
       });
   }
 
-  async getPersonallyBanned(userId: number): Promise<User[]> {
-    let bannedList: User[] = [];
+  async getPersonallyBanned(userId: number): Promise<UserInfoPublic[]> {
+    let bannedList: UserInfoPublic[] = [];
     try {
       const user = await this.getUser(userId);
       if (user) {
         for (const bannedId of user.bannedIds) {
-          const friend = await this.getUser(bannedId);
-          bannedList.push(friend);
+          const banned = await this.getUser(bannedId);
+          bannedList.push({
+            id : banned.id,
+            name : banned.name,
+            status : banned.status,
+            image : banned.image,
+            avatar : banned.avatar,
+          });
         }
       }
       return bannedList;
