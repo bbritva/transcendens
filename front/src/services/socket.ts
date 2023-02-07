@@ -1,6 +1,6 @@
 import { Dispatch } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
-import { channelFromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
+import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
 import { logout } from 'src/store/authActions';
 import { userI } from 'src/store/userSlice';
 
@@ -72,6 +72,31 @@ export function initSocket(
   socket.onAny((data: any) => {
     console.log("received", data);
     
+  })
+
+
+  socket.on("newFriend",(data: fromBackI) => {
+    console.log("newFriend", data);
+  })
+
+  socket.on("exFriend",(data: fromBackI) => {
+    console.log("exFriend", data);
+  })
+
+  socket.on("friendList",(data: fromBackI[]) => {
+    console.log("friendList", data);
+  })
+
+  socket.on("newPersonnalyBanned",(data: fromBackI) => {
+    console.log("newPersonnalyBanned", data);
+  })
+
+  socket.on("exPersonnalyBanned",(data: fromBackI) => {
+    console.log("exPersonnalyBanned", data);
+  })
+
+  socket.on("personallyBannedList",(data: fromBackI[]) => {
+    console.log("personallyBannedList", data);
   })
 
   socket.on("notAllowed", (data: {

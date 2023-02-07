@@ -147,17 +147,23 @@ export class UserService {
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
         if (targetUser && !targetUser.bannedIds.includes(userId)) {
-          if (!user.friendIds.includes(targetUser.id))
-            this.prisma.user.update({
-              where: {
-                id: userId,
-              },
-              data: {
-                friendIds: {
-                  push: targetUser.id,
+          if (!user.friendIds.includes(targetUser.id)) {
+            this.prisma.user
+              .update({
+                where: {
+                  id: userId,
                 },
-              },
-            });
+                data: {
+                  friendIds: {
+                    push: targetUser.id,
+                  },
+                },
+              })
+              .then()
+              .catch((e) => {
+                throw new BadRequestException(e.message);
+              });
+          }
         }
         return targetUser;
       })
@@ -172,18 +178,21 @@ export class UserService {
       .then((targetUser) => {
         if (targetUser) {
           if (user.friendIds.includes(targetUser.id))
-            this.prisma.user.update({
-              where: {
-                id: userId,
-              },
-              data: {
-                friendIds: {
-                  set: user.friendIds.filter(
-                    (id) => id != targetUser.id
-                  ),
+            this.prisma.user
+              .update({
+                where: {
+                  id: userId,
                 },
-              },
-            });
+                data: {
+                  friendIds: {
+                    set: user.friendIds.filter((id) => id != targetUser.id),
+                  },
+                },
+              })
+              .then()
+              .catch((e) => {
+                throw new BadRequestException(e.message);
+              });
         }
         return targetUser;
       })
@@ -194,19 +203,18 @@ export class UserService {
 
   async getFriends(userId: number): Promise<User[]> {
     let friendsList: User[] = [];
-    return this.getUser(userId)
-      .then((user) => {
-        if (user) {
-          user.friendIds.forEach(async (friendId: number) => {
-            const user = await this.getUser(friendId);
-            friendsList.push(user);
-          });
+    try {
+      const user = await this.getUser(userId);
+      if (user) {
+        for (const friendId of user.friendIds) {
+          const friend = await this.getUser(friendId);
+          friendsList.push(friend);
         }
-        return friendsList;
-      })
-      .catch((e) => {
-        throw new BadRequestException(e.message);
-      });
+      }
+      return friendsList;
+    } catch (e) {
+      console.log("err", e.meta.cause);
+    }
   }
 
   async banPersonally(userId: number, targetUserName: string): Promise<User> {
@@ -214,17 +222,22 @@ export class UserService {
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
         if (targetUser) {
-          if (!user.bannedIds.includes(userId))
-            this.prisma.user.update({
-              where: {
-                id: userId,
-              },
-              data: {
-                bannedIds: {
-                  push: targetUser.id,
+          if (!user.bannedIds.includes(targetUser.id))
+            this.prisma.user
+              .update({
+                where: {
+                  id: userId,
                 },
-              },
-            });
+                data: {
+                  bannedIds: {
+                    push: targetUser.id,
+                  },
+                },
+              })
+              .then()
+              .catch((e) => {
+                throw new BadRequestException(e.message);
+              });
         }
         return targetUser;
       })
@@ -239,18 +252,21 @@ export class UserService {
       .then((targetUser) => {
         if (targetUser) {
           if (user.bannedIds.includes(userId))
-            this.prisma.user.update({
-              where: {
-                id: userId,
-              },
-              data: {
-                bannedIds: {
-                  set: user.bannedIds.filter(
-                    (id) => id != targetUser.id
-                  ),
+            this.prisma.user
+              .update({
+                where: {
+                  id: userId,
                 },
-              },
-            });
+                data: {
+                  bannedIds: {
+                    set: user.bannedIds.filter((id) => id != targetUser.id),
+                  },
+                },
+              })
+              .then()
+              .catch((e) => {
+                throw new BadRequestException(e.message);
+              });
         }
         return targetUser;
       })
@@ -261,18 +277,17 @@ export class UserService {
 
   async getPersonallyBanned(userId: number): Promise<User[]> {
     let bannedList: User[] = [];
-    return this.getUser(userId)
-      .then((user) => {
-        if (user) {
-          user.bannedIds.forEach(async (friendId: number) => {
-            const user = await this.getUser(friendId);
-            bannedList.push(user);
-          });
+    try {
+      const user = await this.getUser(userId);
+      if (user) {
+        for (const bannedId of user.bannedIds) {
+          const friend = await this.getUser(bannedId);
+          bannedList.push(friend);
         }
-        return bannedList;
-      })
-      .catch((e) => {
-        throw new BadRequestException(e.message);
-      });
+      }
+      return bannedList;
+    } catch (e) {
+      console.log("err", e.meta.cause);
+    }
   }
 }
