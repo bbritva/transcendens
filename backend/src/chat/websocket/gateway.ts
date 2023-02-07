@@ -214,4 +214,26 @@ export class Gateway implements OnModuleInit {
   ) {
     this.gatewayService.getFriends(socket.id);
   }
+  @SubscribeMessage("banPersonally")
+  async onBanPersonally(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.banPersonally(socket.id, data);
+  }
+
+  @SubscribeMessage("unbanPersonally")
+  async onUnbanPersonally(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.unbanPersonally(socket.id, data);
+  }
+
+  @SubscribeMessage("getPersonallyBanned")
+  async onGetPersonallyBanned(
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.gatewayService.getPersonallyBanned(socket.id);
+  }
 }

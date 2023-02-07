@@ -147,7 +147,7 @@ export class UserService {
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
         if (targetUser && !targetUser.bannedIds.includes(userId)) {
-          if (!user.friendIds.includes(userId))
+          if (!user.friendIds.includes(targetUser.id))
             this.prisma.user.update({
               where: {
                 id: userId,
@@ -171,7 +171,7 @@ export class UserService {
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
         if (targetUser) {
-          if (user.friendIds.includes(userId))
+          if (user.friendIds.includes(targetUser.id))
             this.prisma.user.update({
               where: {
                 id: userId,
@@ -203,6 +203,73 @@ export class UserService {
           });
         }
         return friendsList;
+      })
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async banPersonally(userId: number, targetUserName: string): Promise<User> {
+    const user = await this.getUser(userId);
+    return this.getUserByName(targetUserName)
+      .then((targetUser) => {
+        if (targetUser) {
+          if (!user.bannedIds.includes(userId))
+            this.prisma.user.update({
+              where: {
+                id: userId,
+              },
+              data: {
+                bannedIds: {
+                  push: targetUser.id,
+                },
+              },
+            });
+        }
+        return targetUser;
+      })
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async unbanPersonally(userId: number, targetUserName: string): Promise<User> {
+    const user = await this.getUser(userId);
+    return this.getUserByName(targetUserName)
+      .then((targetUser) => {
+        if (targetUser) {
+          if (user.bannedIds.includes(userId))
+            this.prisma.user.update({
+              where: {
+                id: userId,
+              },
+              data: {
+                bannedIds: {
+                  set: user.bannedIds.filter(
+                    (id) => id != targetUser.id
+                  ),
+                },
+              },
+            });
+        }
+        return targetUser;
+      })
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async getPersonallyBanned(userId: number): Promise<User[]> {
+    let bannedList: User[] = [];
+    return this.getUser(userId)
+      .then((user) => {
+        if (user) {
+          user.bannedIds.forEach(async (friendId: number) => {
+            const user = await this.getUser(friendId);
+            bannedList.push(user);
+          });
+        }
+        return bannedList;
       })
       .catch((e) => {
         throw new BadRequestException(e.message);

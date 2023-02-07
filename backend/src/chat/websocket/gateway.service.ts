@@ -374,6 +374,56 @@ export class GatewayService {
       });
   }
 
+  async banPersonally(socketId: string, data: DTO.ManageUserI) {
+    this.userService
+      .banPersonally(this.connections.get(socketId).id, data.targetUserName)
+      .then((newPersonnalyBanned) => {
+        if (newPersonnalyBanned) this.server.to(socketId).emit("newPersonnalyBanned", newPersonnalyBanned);
+        else
+          this.server
+            .to(socketId)
+            .emit("notAllowed", { eventName: "banPersonnaly", data: data });
+      })
+      .catch((e) => {
+        console.log(e.message);
+        this.server
+          .to(socketId)
+          .emit("notAllowed", { eventName: "banPersonnaly", data: data });
+        });
+  }
+
+  async unbanPersonally(socketId: string, data: DTO.ManageUserI) {
+    this.userService
+      .unbanPersonally(this.connections.get(socketId).id, data.targetUserName)
+      .then((exPersonnalyBanned) => {
+        if (exPersonnalyBanned) this.server.to(socketId).emit("exPersonnalyBanned", exPersonnalyBanned);
+        else
+          this.server
+            .to(socketId)
+            .emit("notAllowed", { eventName: "unbanPersonally", data: data });
+      })
+      .catch((e) => {
+        console.log(e.message);
+        this.server
+          .to(socketId)
+          .emit("notAllowed", { eventName: "unbanPersonally", data: data });
+      });
+  }
+
+  async getPersonallyBanned(socketId: string) {
+    this.userService
+      .getPersonallyBanned(this.connections.get(socketId).id)
+      .then((personallyBannedList) => {
+        this.server.to(socketId).emit("personallyBannedList", personallyBannedList);
+      })
+      .catch((e) => {
+        console.log(e.message);
+        this.server
+          .to(socketId)
+          .emit("notAllowed", { eventName: "personallyBannedList"});
+      });
+  }
+
   async emitToRecipient(event: string, socket: Socket, recipient: string) {
     const executorName = this.connections.get(socket.id).name;
     console.log({ executorName, event, recipient });
