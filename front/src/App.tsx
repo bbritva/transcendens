@@ -17,6 +17,7 @@ import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
 import { channelFromBackI } from "src/pages/Chat/ChatPage";
 import { useAppDispatch } from "src/app/hooks";
+import PrivateRouteWrapper from "./components/Authentication/PrivateRouteWrapper";
 
 
 const theme = createTheme({
@@ -190,13 +191,15 @@ function App() {
             }}>
               <Routes>
                 {appRoutes.map((route) => (
-                  <Route
-                    key={route.key}
-                    path={route.path}
-                    element={
-                      <route.component channels={channels} setChannels={setChannels}/>
-                    }
-                  />
+                    <Route
+                      key={route.key}
+                      path={route.path}
+                      element={
+                        <PrivateRouteWrapper>
+                          <route.component channels={channels} setChannels={setChannels}/>
+                        </PrivateRouteWrapper>
+                      }
+                    />
                 ))}
               </Routes>
             </Grid>
