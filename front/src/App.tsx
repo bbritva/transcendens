@@ -1,5 +1,5 @@
 import "src/App.css";
-import { ReactEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useStore } from "react-redux";
 import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box} from "@mui/material";
@@ -17,7 +17,9 @@ import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
 import { channelFromBackI } from "src/pages/Chat/ChatPage";
 import { useAppDispatch } from "src/app/hooks";
-import PrivateRouteWrapper from "./components/Authentication/PrivateRouteWrapper";
+import PrivateRouteWrapper from "src/components/Authentication/PrivateRouteWrapper";
+import { getSearchParams, removeAllParamsFromUrl } from 'src/utils/urlUtils';
+import { getAuthorizeHref } from 'src/utils/oauthConfig';
 
 
 const theme = createTheme({
@@ -31,14 +33,19 @@ const theme = createTheme({
   },
 });
 
+const intraOAuthParams = getSearchParams();
+const intraCode = intraOAuthParams?.code;
+const intraState = intraOAuthParams?.state;
+removeAllParamsFromUrl();
+
 function App() {
   const storageToken = {
     refreshToken: localStorage.getItem('refreshToken') || ''
   };
   const { getState } = useStore();
   const dispatch = useAppDispatch();
-  const [accessCode, setAccessCode] = useState('');
-  const [accessState, setAccessState] = useState('');
+  const [accessCode, setAccessCode] = useState(intraCode);
+  const [accessState, setAccessState] = useState(intraState);
   const [openNick, setOpenNick] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [inviteSender, setInviteSender] = useState('');
@@ -49,7 +56,6 @@ function App() {
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
   const navigate = useNavigate();
   let notConnected = true;
-
 
   authHeader();
   authRefreshInterceptor();
@@ -110,6 +116,13 @@ function App() {
     dispatch(logout());
     window.location.reload();
   };
+
+  function onLoginClick() {
+    const stateArray = new Uint32Array(10);
+    self.crypto.getRandomValues(stateArray);/* eslint-disable-line no-restricted-globals */
+    window.open(getAuthorizeHref(stateArray), '_self')
+  }
+
   function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
@@ -159,8 +172,7 @@ function App() {
           <Grid container spacing={2} justifyContent="center">
             <Navbar
               loginButtonText="login"
-              setAccessCode={setAccessCode}
-              setAccessState={setAccessState}
+              onLoginClick={onLoginClick}
               onLogoutClick={onLogoutClick}
             />
             <Allerts />
