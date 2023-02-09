@@ -12,5 +12,5 @@ export class GameEntity implements Game {
   loserId: number;
   
   @ApiProperty()
-  result: string;
+  result: number[];
 }

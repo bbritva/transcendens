@@ -20,6 +20,7 @@ model User {
   bannedIds       Int[]
   wins            Game[]  @relation("win")
   loses           Game[]  @relation("lose")
+  score           Int     @default(0)
   token           Token?  @relation("token", fields: [tokenId], references: [id])
   tokenId         Int?   @unique
   refreshToken    String?
@@ -39,7 +40,7 @@ model Game {
   winnerId  Int
   loser     User    @relation("lose",fields: [loserId], references: [id])
   loserId   Int     
-  result    String
+  result    Int[]
 }
 
 model Token {

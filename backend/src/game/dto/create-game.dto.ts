@@ -8,5 +8,5 @@ export class CreateGameDto {
   loserId: number;
 
   @ApiProperty()
-  result: string;
+  result: number[];
 }

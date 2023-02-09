@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserInfoPublic } from "src/chat/websocket/websocket.dto";
+import { CreateGameDto } from "src/game/dto/create-game.dto";
 
 @Injectable()
 export class UserService {
@@ -143,7 +144,10 @@ export class UserService {
       .catch(() => false);
   }
 
-  async addFriend(userId: number, targetUserName: string): Promise<UserInfoPublic> {
+  async addFriend(
+    userId: number,
+    targetUserName: string
+  ): Promise<UserInfoPublic> {
     const user = await this.getUser(userId);
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
@@ -210,11 +214,11 @@ export class UserService {
         for (const friendId of user.friendIds) {
           const friend = await this.getUser(friendId);
           friendsList.push({
-            id : friend.id,
-            name : friend.name,
-            status : friend.status,
-            image : friend.image,
-            avatar : friend.avatar,
+            id: friend.id,
+            name: friend.name,
+            status: friend.status,
+            image: friend.image,
+            avatar: friend.avatar,
           });
         }
       }
@@ -290,11 +294,11 @@ export class UserService {
         for (const bannedId of user.bannedIds) {
           const banned = await this.getUser(bannedId);
           bannedList.push({
-            id : banned.id,
-            name : banned.name,
-            status : banned.status,
-            image : banned.image,
-            avatar : banned.avatar,
+            id: banned.id,
+            name: banned.name,
+            status: banned.status,
+            image: banned.image,
+            avatar: banned.avatar,
           });
         }
       }
@@ -302,5 +306,34 @@ export class UserService {
     } catch (e) {
       console.log("err", e.meta.cause);
     }
+  }
+
+  async addScores(gameData: CreateGameDto) {
+    const diff =
+      (gameData.result[0] > gameData.result[1] ? 1 : -1) *
+      (gameData.result[0] - gameData.result[1]);
+    this.prisma.user.update({
+      where: {
+        id: gameData.winnerId,
+      },
+      data: {
+        score: { increment: diff },
+      },
+    }).then()
+    .catch((e) => {
+      throw new BadRequestException(e.message);
+    });
+    this.prisma.user.update({
+      where: {
+        id: gameData.loserId,
+      },
+      data: {
+        score: { increment: -diff },
+      },
+    }).then()
+    .catch((e) => {
+      throw new BadRequestException(e.message);
+    });
+    
   }
 }
