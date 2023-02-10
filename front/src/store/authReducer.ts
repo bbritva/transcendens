@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 import authHeader from 'src/services/authHeader';
-import { login, logout, refresh, twoFaResponseDataI } from 'src/store/authActions';
+import { login, loginSuccess, logout, refresh, twoFaResponseDataI } from 'src/store/authActions';
 import { RootState } from 'src/store/store'
 
 
@@ -25,6 +25,10 @@ const initialState: authState = {
 
 const authReducer = createReducer(initialState, (builder) => {
   builder
+    .addCase(loginSuccess, (state, action) => {
+      state.isLoggedIn = true;
+      state.status = 'succeeded';
+    })
     .addCase(refresh.pending, (state, action) => {
       return {
         ...state,

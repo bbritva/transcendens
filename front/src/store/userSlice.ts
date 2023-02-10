@@ -1,6 +1,7 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
+import { loginSuccess } from "./authActions";
 
 
 export interface userI {
@@ -26,9 +27,9 @@ const initialState: userStateI = {
 
 export const getUser = createAsyncThunk(
   'getUser',
-  async () => {
-    const response = await userService.getMe()
-    return response.data;
+  async ( _, thunkApi) => {
+      const response = await userService.getMe()
+      return response.data;
   }
 )
 

@@ -6,7 +6,6 @@ import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box} 
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
-import { getUser } from "src/store/userSlice";
 import authHeader from "src/services/authHeader";
 import { authRefreshInterceptor } from "src/services/authRefreshInterceptor";
 import { RootState } from 'src/store/store'
@@ -18,8 +17,8 @@ import FormDialog from "src/components/FormDialog/FormDialog";
 import { channelFromBackI } from "src/pages/Chat/ChatPage";
 import { useAppDispatch } from "src/app/hooks";
 import PrivateRouteWrapper from "src/components/Authentication/PrivateRouteWrapper";
-import { getSearchParams, removeAllParamsFromUrl } from 'src/utils/urlUtils';
 import { getAuthorizeHref } from 'src/utils/oauthConfig';
+import useAuth from "./hooks/useAuth";
 
 
 const theme = createTheme({
@@ -33,27 +32,17 @@ const theme = createTheme({
   },
 });
 
-const intraOAuthParams = getSearchParams();
-const intraCode = intraOAuthParams?.code;
-const intraState = intraOAuthParams?.state;
-removeAllParamsFromUrl();
-
 function App() {
-  const storageToken = {
-    refreshToken: localStorage.getItem('refreshToken') || ''
-  };
   const { getState } = useStore();
   const dispatch = useAppDispatch();
-  const [accessCode, setAccessCode] = useState(intraCode);
-  const [accessState, setAccessState] = useState(intraState);
   const [openNick, setOpenNick] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [inviteSender, setInviteSender] = useState('');
-  const [open, setOpen] = useState(false);
+  const [openTwoFa, setTwoFaOpen] = useState(false);
   const isLoggedIn = useSelector(selectLoggedIn);
-  const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
   const [userName, setUsername] = useState<string>('');
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
+  const [accessCode, accessState ] = useAuth(setTwoFaOpen);
   const navigate = useNavigate();
   let notConnected = true;
 
@@ -67,7 +56,10 @@ function App() {
   }
 
   useEffect(() => {
-    if (userName && notConnected) {
+    const { auth } = getState() as RootState;
+    if (isLoggedIn)
+      connectUser({ token: auth.accessToken.access_token });
+    else if (userName && notConnected) {
       sessionStorage.setItem('username', userName);
       connectUser({ username: userName });
       notConnected = false;
@@ -75,35 +67,10 @@ function App() {
     return () => {
       socket.disconnect()
     };
-  }, [userName]);
-
-  useEffect(() => {
-    const { user, auth } = getState() as RootState;
-    if (
-      !user.user
-      && storageToken.refreshToken !== ""
-      && user.status === 'idle'
-    ) {
-      dispatch(getUser());
-    }
-    if (accessCode) {
-      if (!isLoggedIn && auth.isTwoFAEnabled){
-        setOpen(true);
-      }
-      else if (!auth.isLoggedIn)
-        //@ts-ignore
-        dispatch(login({ accessCode, accessState }));
-      else
-        dispatch(getUser());
-    }
-    if (isLoggedIn)
-      connectUser({ token: auth.accessToken.access_token });
-  }, [accessCode, isLoggedIn, isTwoFAEnabled]);
-
+  }, [userName, isLoggedIn]);
 
   useEffect(() => {
     if (socket.connected){
-      console.log('socket invote set');
       socket.on("inviteToGame", (data) => {
         console.log('socket invote RUNNING');
         setInviteSender(data.sender);
@@ -113,6 +80,7 @@ function App() {
   }, [socket?.connected]);
 
   function onLogoutClick() {
+    console.log('onLOGOUT')
     dispatch(logout());
     window.location.reload();
   };
@@ -131,7 +99,7 @@ function App() {
     const { auth } = getState() as RootState;
     // @ts-ignore
     dispatch(login({ accessCode, accessState, twoFACode: inputValue, user: auth.username }));
-    setOpen(false);
+    setTwoFaOpen(false);
   }
 
   function accept() {
@@ -153,7 +121,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="landing-background">
-        <DialogSelect open={open} setOpen={setOpen} options>
+        <DialogSelect open={openTwoFa} setOpen={setTwoFaOpen} options>
           <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
             <DialogTitle>Enter 2fa code</DialogTitle>
             <TextField label={'otp code'} onChange={onChange} margin="dense"/>
@@ -207,9 +175,9 @@ function App() {
                       key={route.key}
                       path={route.path}
                       element={
-                        <PrivateRouteWrapper>
+                        // <PrivateRouteWrapper>
                           <route.component channels={channels} setChannels={setChannels}/>
-                        </PrivateRouteWrapper>
+                        // </PrivateRouteWrapper>
                       }
                     />
                 ))}

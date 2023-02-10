@@ -14,6 +14,7 @@ export function initSocket(
   ){
   socket.on("connectError", (err) => {
     if (err.message === "invalid username") {
+      console.log('socketLogout!')
       dispatch(logout());
     }
   });
