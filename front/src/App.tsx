@@ -10,7 +10,7 @@ import authHeader from "src/services/authHeader";
 import { authRefreshInterceptor } from "src/services/authRefreshInterceptor";
 import { RootState } from 'src/store/store'
 import { selectLoggedIn } from "src/store/authReducer";
-import { login, logout } from "src/store/authActions";
+import { logout } from "src/store/authActions";
 import DialogSelect from "./components/DialogSelect/DialogSelect";
 import socket, { initSocket } from "src/services/socket";
 import FormDialog from "src/components/FormDialog/FormDialog";
@@ -18,7 +18,8 @@ import { channelFromBackI } from "src/pages/Chat/ChatPage";
 import { useAppDispatch } from "src/app/hooks";
 import PrivateRouteWrapper from "src/components/Authentication/PrivateRouteWrapper";
 import { getAuthorizeHref } from 'src/utils/oauthConfig';
-import useAuth from "./hooks/useAuth";
+import useAuth from "src/hooks/useAuth";
+import useTwoFA from "src/hooks/useTwoFA";
 
 
 const theme = createTheme({
@@ -38,15 +39,13 @@ function App() {
   const [openNick, setOpenNick] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [inviteSender, setInviteSender] = useState('');
-  const [openTwoFa, setTwoFaOpen] = useState(false);
   const isLoggedIn = useSelector(selectLoggedIn);
   const [userName, setUsername] = useState<string>('');
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
   authHeader();
   authRefreshInterceptor();
-  const [accessCode, accessState ] = useAuth(
-    setTwoFaOpen
-  );
+  const [accessCode, accessState ] = useAuth();
+  const [openTwoFa, setTwoFaOpen, login2fa] = useTwoFA(accessCode, accessState, inputValue);
   const navigate = useNavigate();
   let notConnected = true;
 
@@ -97,12 +96,6 @@ function App() {
   function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
-  }
-
-  function login2fa(){
-    const { auth } = getState() as RootState;
-    dispatch(login({ accessCode, accessState, twoFACode: inputValue, user: auth.username }));
-    setTwoFaOpen(false);
   }
 
   function accept() {

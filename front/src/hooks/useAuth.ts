@@ -4,9 +4,8 @@ import { useAppDispatch } from 'src/app/hooks';
 import { RootState } from 'src/store/store';
 import { getUser } from 'src/store/userSlice';
 import { getSearchParams, removeAllParamsFromUrl } from 'src/utils/urlUtils';
-import socket, { initSocket } from "src/services/socket";
-import { login, loginSuccess } from 'src/store/authActions';
-import { selectIsTwoFAEnabled, selectLoggedIn } from 'src/store/authReducer';
+import { login } from 'src/store/authActions';
+import { selectIsTwoFAEnabled } from 'src/store/authReducer';
 
 const intraOAuthParams = getSearchParams();
 const accessCode = intraOAuthParams?.code;
@@ -15,7 +14,7 @@ removeAllParamsFromUrl();
 console.log(intraOAuthParams)
 
 
-export default function useAuth(setTwoFaOpen: (arg0: boolean) => void): [string, string] {
+export default function useAuth(): [string, string] {
   const { getState } = useStore();
   const dispatch = useAppDispatch();
   const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
@@ -43,13 +42,6 @@ export default function useAuth(setTwoFaOpen: (arg0: boolean) => void): [string,
     )
       dispatch(getUser());
   }, [auth.isLoggedIn]);
-
-  useEffect(() => {
-    if (accessCode) {
-      if (!auth.isLoggedIn && isTwoFAEnabled)
-        setTwoFaOpen(true);
-    }
-  }, [isTwoFAEnabled]);
 
   return [accessCode, accessState];
 }
