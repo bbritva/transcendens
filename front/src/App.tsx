@@ -2,7 +2,7 @@ import "src/App.css";
 import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box} from "@mui/material";
+import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box } from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
@@ -44,7 +44,7 @@ function App() {
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
   authHeader();
   authRefreshInterceptor();
-  const [accessCode, accessState ] = useAuth();
+  const [accessCode, accessState] = useAuth();
   const [openTwoFa, setTwoFaOpen, login2fa] = useTwoFA(accessCode, accessState, inputValue);
   const navigate = useNavigate();
   let notConnected = true;
@@ -58,7 +58,7 @@ function App() {
 
   useEffect(() => {
     const { auth } = getState() as RootState;
-    if (isLoggedIn){
+    if (isLoggedIn) {
       connectUser({ token: auth.accessToken.access_token });
     }
     else if (userName && notConnected) {
@@ -72,7 +72,7 @@ function App() {
   }, [userName, isLoggedIn]);
 
   useEffect(() => {
-    if (socket.connected){
+    if (socket.connected) {
       socket.on("inviteToGame", (data) => {
         console.log('socket invote RUNNING');
         setInviteSender(data.sender);
@@ -83,6 +83,7 @@ function App() {
 
   function onLogoutClick() {
     console.log('onLOGOUT')
+    sessionStorage.setItem('username', '');//testUserName
     dispatch(logout());
     window.location.reload();
   };
@@ -99,16 +100,16 @@ function App() {
   }
 
   function accept() {
-    if (socket.connected){
+    if (socket.connected) {
       setOpenNick(false);
       socket.emit("acceptInvite", { sender: inviteSender })
       sessionStorage.setItem("game", "true");
-      navigate('/game',  {replace: true});
+      navigate('/game', { replace: true });
     }
   }
 
   function decline() {
-    if (socket.connected){
+    if (socket.connected) {
       setOpenNick(false);
       socket.emit("declineInvite", { sender: inviteSender })
     }
@@ -118,68 +119,64 @@ function App() {
     <ThemeProvider theme={theme}>
       <div className="landing-background">
         <DialogSelect open={openTwoFa} setOpen={setTwoFaOpen} options>
-          <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
-            <DialogTitle>Enter 2fa code</DialogTitle>
-            <TextField label={'otp code'} onChange={onChange} margin="dense"/>
-            <Button
-              variant="outlined"
-              sx={{
-                alignSelf: 'end'
-              }}
-              onClick={login2fa}
-            >
-              Login
-            </Button>
-          </Box>
+          <DialogTitle>Enter 2fa code</DialogTitle>
+          <TextField label={'otp code'} onChange={onChange} margin="dense" />
+          <Button
+            variant="outlined"
+            sx={{
+              alignSelf: 'end'
+            }}
+            onClick={login2fa}
+          >
+            Login
+          </Button>
         </DialogSelect>
-      <FormDialog userName={userName} setUsername={setUsername } />
-          <Grid container spacing={2} justifyContent="center">
-            <Navbar
-              loginButtonText="login"
-              onLoginClick={onLoginClick}
-              onLogoutClick={onLogoutClick}
-            />
-            <Allerts />
-            <DialogSelect
-              options={{}}
-              open={openNick}
-              setOpen={setOpenNick}
-            >
-              <Box margin={'1rem'} display={'flex'} flexDirection={'column'} alignItems={'flex-start'}>
-                <DialogTitle>{inviteSender || 'NICKNAME'} invited you</DialogTitle>
-                <Button
-                  variant="outlined"
-                  sx={{alignSelf: 'end'}}
-                  onClick={decline}
-                >
-                  Decline
-                </Button>
-                <Button
-                  variant="contained"
-                  sx={{alignSelf: 'end'}}
-                  onClick={accept}
-                >
-                  Accept
-                </Button>
-              </Box>
-            </DialogSelect>
-            <Grid item xs={8} margin={10} sx={{
-            }}>
-              <Routes>
-                {appRoutes.map((route) => (
-                    <Route
-                      key={route.key}
-                      path={route.path}
-                      element={
-                        <PrivateRouteWrapper>
-                          <route.component channels={channels} setChannels={setChannels}/>
-                        </PrivateRouteWrapper>
-                      }
-                    />
-                ))}
-              </Routes>
-            </Grid>
+        <FormDialog userName={userName} setUsername={setUsername} />
+        <Grid container spacing={2} justifyContent="center">
+          <Navbar
+            loginButtonText="login"
+            onLoginClick={onLoginClick}
+            onLogoutClick={onLogoutClick}
+          />
+          <Allerts />
+          <DialogSelect
+            options={{}}
+            open={openNick}
+            setOpen={setOpenNick}
+          >
+              <DialogTitle>{inviteSender || 'NICKNAME'} invited you</DialogTitle>
+              <Button
+                variant="outlined"
+                sx={{ alignSelf: 'end' }}
+                onClick={decline}
+              >
+                Decline
+              </Button>
+              <Button
+                variant="contained"
+                sx={{ alignSelf: 'end' }}
+                onClick={accept}
+              >
+                Accept
+              </Button>
+          </DialogSelect>
+          <Grid item xs={8} margin={10} sx={{
+          }}>
+            <Routes>
+              {appRoutes.map((route) => (
+                <Route
+                  key={route.key}
+                  path={route.path}
+                  element={
+                    <PrivateRouteWrapper>
+                      <route.component channels={channels} setChannels={setChannels} />
+                    </PrivateRouteWrapper>
+                  }
+                />
+              ))}
+            </Routes>
           </Grid>
+        </Grid>
       </div>
     </ThemeProvider>
   );

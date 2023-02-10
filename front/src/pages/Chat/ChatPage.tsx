@@ -66,16 +66,14 @@ const ChatPage: FC<ChatPageProps> = ({
     }
     else if (destTaper === 'Users'){
       const privateChannel = {} as channelFromBackI;
-      privateChannel.name = `${destObject.name} ${testUsername} pm`;
+      privateChannel.name = `${destObject.name} ${testUsername || user.user?.name} pm`;
       privateChannel.users = [
         {name: destObject.name} as userFromBackI,
-        {name: testUsername} as userFromBackI,
+        {name: testUsername || user.user?.name} as userFromBackI,
       ];
       socket.emit('privateMessage', privateChannel);
       setChosenChannel(privateChannel)
     }
-    else
-    console.log("else", destination);
   }, [destination]);
 
   chatStyles
@@ -83,8 +81,6 @@ const ChatPage: FC<ChatPageProps> = ({
     .backgroundColor = theme.palette.primary.light;
 
   const onSubmit = () => {
-    if (!testUsername)
-      return;
     const [taper, destinationChannel] = destination;
     if ( !destinationChannel.name ){
       setValue('');
@@ -94,7 +90,7 @@ const ChatPage: FC<ChatPageProps> = ({
       id: null,
       channelName: destinationChannel.name,
       sentAt: null,
-      authorName: testUsername,
+      authorName: testUsername || user.user?.name || '',
       text: value,
     };
     socket.emit(

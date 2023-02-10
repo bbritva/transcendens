@@ -74,27 +74,27 @@ const OneColumnTable: FC<{
             loading
               ? 'LOADING'
               : elements.map((data) => {
-                return (taper === 'Users' && user?.name === data.name
-                  ? <></>
-                  : <Button
-                    key={data.name}
-                    variant={selectedElement == data ? 'contained' : 'text'}
-                    startIcon={data.connected && < AdjustOutlinedIcon fontSize="small" />}
-                    onClick={() => {
-                      setElement(data);
-                      setOpenDialog(true);
-                    }}
-                    size='small'
-                    sx={{
-                      textAlign: 'left',
-                      maxHeight: '2rem',
-                    }}
-                  >
-                    <Typography noWrap>
-                      {data.name}
-                    </Typography>
-                  </Button>
-                )
+                if (!(taper === 'Users' && user?.name === data.name))
+                  return (
+                    <Button
+                      key={data.name}
+                      variant={selectedElement == data ? 'contained' : 'text'}
+                      startIcon={data.connected && < AdjustOutlinedIcon fontSize="small" />}
+                      onClick={() => {
+                        setElement(data);
+                        setOpenDialog(true);
+                      }}
+                      size='small'
+                      sx={{
+                        textAlign: 'left',
+                        maxHeight: '2rem',
+                      }}
+                    >
+                      <Typography noWrap>
+                        {data.name}
+                      </Typography>
+                    </Button>
+                  )
               })
           }
           <div style={anchorStyle as CSSProperties} />
