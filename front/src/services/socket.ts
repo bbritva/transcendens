@@ -78,6 +78,10 @@ export function initSocket(
   socket.on("userStat",(data: fromBackI) => {
     console.log("userStat", data);
   })
+
+  socket.on("ladder",(data: fromBackI[]) => {
+    console.log("userStat", data);
+  })
   
   socket.on("newFriend",(data: fromBackI) => {
     console.log("newFriend", data);

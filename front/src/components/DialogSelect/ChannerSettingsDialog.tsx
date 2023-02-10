@@ -25,7 +25,7 @@ export interface SetPasswordI {
 
 export interface EventI {
   name: string;
-  data: any;
+  data?: any;
 }
 
 const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
