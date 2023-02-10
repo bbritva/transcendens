@@ -511,7 +511,7 @@ export class GatewayService {
       .getUserByName(data.targetUserName)
       .then(async (user) => {
         const stats = await this.userService.getStats(user.id);
-        if (stats) this.server.to(id).emit("usersStat", stats);
+        if (stats) this.server.to(id).emit("userStat", stats);
         else
           this.server
             .to(id)

@@ -34,6 +34,18 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       <Button
         onClick={() => {
           const event : EventI = {
+            name : "getUserStats",
+            data: {targetUserName : props.element.name},
+          }
+          props.setDestination(["Users", event]);
+          if (props?.setOpen) props.setOpen(false);
+        }}
+      >
+        Show user stats
+      </Button>
+      <Button
+        onClick={() => {
+          const event : EventI = {
             name : "addFriend",
             data: {targetUserName : props.element.name},
           }

@@ -33,8 +33,6 @@ export class Gateway implements OnModuleInit {
 
       //disconnection handler
       socket.on("disconnecting", async () => {
-        console.log("disconnected", socket);
-
         this.gatewayService.disconnectUser(socket);
       });
       socket.on("disconnect", async () => {});
