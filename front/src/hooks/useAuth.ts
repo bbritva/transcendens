@@ -18,7 +18,6 @@ console.log(intraOAuthParams)
 export default function useAuth(setTwoFaOpen: (arg0: boolean) => void): [string, string] {
   const { getState } = useStore();
   const dispatch = useAppDispatch();
-  const isLoggedIn = useSelector(selectLoggedIn);
   const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
   const storageToken = {
     refreshToken: localStorage.getItem('refreshToken') || ''
@@ -26,35 +25,31 @@ export default function useAuth(setTwoFaOpen: (arg0: boolean) => void): [string,
   const { user, auth } = getState() as RootState;
 
   if (
-    !isLoggedIn &&
+    !auth.isLoggedIn &&
     auth.status === 'idle'
   ) {
-    if (accessCode){
-      dispatch(login({ accessCode, accessState, twoFACode: undefined, user: undefined}));
-    }
+    if (accessCode)
+      dispatch(login({ accessCode, accessState, twoFACode: undefined, user: undefined }));
     if (
       storageToken.refreshToken &&
       user.status === 'idle'
-    ){
-      dispatch(getUser());
-    }
+    ) dispatch(getUser());
   }
 
   useEffect(() => {
     if (
-      isLoggedIn &&
+      auth.isLoggedIn &&
       user.status === 'idle'
     )
       dispatch(getUser());
-  }, [isLoggedIn]);
+  }, [auth.isLoggedIn]);
 
   useEffect(() => {
     if (accessCode) {
-      if (!auth.isLoggedIn && isTwoFAEnabled){
+      if (!auth.isLoggedIn && isTwoFAEnabled)
         setTwoFaOpen(true);
-      }
     }
-  }, [ isLoggedIn, isTwoFAEnabled]);
+  }, [isTwoFAEnabled]);
 
   return [accessCode, accessState];
 }
