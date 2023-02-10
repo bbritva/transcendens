@@ -114,12 +114,13 @@ export class UserController {
         throw new BadRequestException(e.message);
       });
   }
+  @Public()
 
   @ApiOkResponse({ type: UserEntity })
   @Get(":id")
-  async showUser(@Param("id") id: number): Promise<UserModel> {
+  async showUser(@Param("id") id: string): Promise<UserModel> {
     return this.userService
-      .getUser(id, true, true)
+      .getUser(parseInt(id), true, true)
       .then((user) => {
         return user;
       })

@@ -76,7 +76,7 @@ export class UserService {
     includeChannels = false
   ): Promise<User> {
     return this.prisma.user
-      .findFirst({
+      .findUnique({
         where: {
           id: userId,
         },
