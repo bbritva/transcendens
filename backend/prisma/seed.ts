@@ -10,7 +10,8 @@ async function main() {
     create: {
       id: 1,
       name: "Alice",
-      status: "OFFLINE"
+      status: "OFFLINE",
+      score: 44
     },
   });
   const bob = await prisma.user.upsert({
@@ -19,7 +20,8 @@ async function main() {
     create: {
       id: 2,
       name: "Bob",
-      status: "OFFLINE"
+      status: "OFFLINE",
+      score: 22
     },
   });
   const tom = await prisma.user.upsert({
@@ -28,7 +30,8 @@ async function main() {
     create: {
       id: 3,
       name: "Tom",
-      status: "OFFLINE"
+      status: "OFFLINE",
+      score: 3
     },
   });
   const banned = await prisma.user.upsert({
@@ -37,7 +40,8 @@ async function main() {
     create: {
       id: 4,
       name: "banned",
-      status: "OFFLINE"
+      status: "OFFLINE",
+      score: 17
     },
   });
   const mainChannel = await prisma.channel.upsert({
