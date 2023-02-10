@@ -64,6 +64,12 @@ const authReducer = createReducer(initialState, (builder) => {
       state.isLoggedIn = false;
       state.status = 'failed';
     })
+    .addCase(login.pending, (state, action) => {
+      return {
+        ...state,
+        status: 'loading'
+      };
+    })
     .addCase(logout, (state, action) => {
       state.isLoggedIn = false;
       state.accessToken = {
