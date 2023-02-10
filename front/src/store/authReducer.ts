@@ -38,7 +38,6 @@ const authReducer = createReducer(initialState, (builder) => {
     .addCase(refresh.fulfilled, (state, action) => {
       localStorage.setItem("access_token", JSON.stringify(action.payload.access_token));
       localStorage.setItem("refreshToken", JSON.stringify(action.payload.refreshToken));
-      state.accessToken = action.payload;
       return {
         ...state,
         accessToken: action.payload,
