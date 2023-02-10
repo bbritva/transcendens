@@ -10,6 +10,7 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async users(params: {
+    select? : Prisma.UserSelect,
     skip?: number;
     take?: number;
     cursor?: Prisma.UserWhereUniqueInput;

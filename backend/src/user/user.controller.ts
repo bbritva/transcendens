@@ -34,7 +34,6 @@ export const storage = {
     },
   }), //...
 };
-@Public()
 
 @Controller("user")
 @ApiTags("user")
@@ -95,9 +94,20 @@ export class UserController {
   @Get("ladder")
   async getLadder(): Promise<UserModel[]> {
     return this.userService
-      .users({})
+      .users({
+        orderBy : {
+          score : 'desc'
+        }
+      })
       .then((users) => {
-        users.sort((a, b) => b.score - a.score);
+        users.forEach((user) => {
+          user.friendIds = null;
+          user.bannedIds = null;
+          user.tokenId = null;
+          user.refreshToken = null;
+          user.twoFaSecret = null;
+          user.isTwoFaEnabled = null;
+        })
         return users;
       })
       .catch((e: any) => {
