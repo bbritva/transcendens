@@ -89,36 +89,21 @@ export class UserController {
       });
   }
 
-  @Public()
   @ApiOkResponse()
   @Get("ladder")
   async getLadder(): Promise<UserModel[]> {
-    return this.userService
-      .users({
-        orderBy: {
-          score: "desc",
-        },
-      })
-      .then((users) => {
-        users.forEach((user) => {
-          this.userService.filterUserdata(user);
-        });
-        return users;
-      })
+    return this.userService.getLadder()
+      .then((users) => users)
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
   }
-  @Public()
+
   @ApiOkResponse({ type: UserEntity })
   @Get("stats/:id")
   async getStats(@Param("id") id: string): Promise<UserModel> {
-    return this.userService
-      .getUser(parseInt(id), true)
-      .then((user) => {
-        this.userService.filterUserdata(user);
-        return user;
-      })
+    return this.userService.getStats(parseInt(id))
+      .then((user) => user)
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });

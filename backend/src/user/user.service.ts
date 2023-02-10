@@ -32,6 +32,34 @@ export class UserService {
       });
   }
 
+  async getLadder(): Promise<User[]> {
+    return this.users({
+        orderBy: {
+          score: "desc",
+        },
+      })
+      .then((users) => {
+        users.forEach((user) => {
+          this.filterUserdata(user);
+        });
+        return users;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async getStats(id: number): Promise<User> {
+    return this.getUser(id, true)
+      .then((user) => {
+        this.filterUserdata(user);
+        return user;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
   async createUser(data: CreateUserDto): Promise<User> {
     return this.prisma.user
       .create({
