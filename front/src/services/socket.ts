@@ -14,7 +14,6 @@ export function initSocket(
   ){
   socket.on("connectError", (err) => {
     if (err.message === "invalid username") {
-      console.log('socketLogout!')
       dispatch(logout());
     }
   });
@@ -39,7 +38,6 @@ export function initSocket(
   });
 
   socket.on("joinedToChannel", (channel: channelFromBackI) => {
-    console.log(channel);
     
     setChannels((prev: channelFromBackI[]) => {
       const ind = prev.findIndex((el) => el.name === channel.name)

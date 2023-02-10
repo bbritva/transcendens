@@ -74,7 +74,6 @@ function App() {
   useEffect(() => {
     if (socket.connected) {
       socket.on("inviteToGame", (data) => {
-        console.log('socket invote RUNNING');
         setInviteSender(data.sender);
         setOpenNick(true);
       })
@@ -82,7 +81,6 @@ function App() {
   }, [socket?.connected]);
 
   function onLogoutClick() {
-    console.log('onLOGOUT')
     sessionStorage.setItem('username', '');//testUserName
     dispatch(logout());
     window.location.reload();

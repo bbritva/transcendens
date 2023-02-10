@@ -11,7 +11,6 @@ const intraOAuthParams = getSearchParams();
 const accessCode = intraOAuthParams?.code;
 const accessState = intraOAuthParams?.state;
 removeAllParamsFromUrl();
-console.log(intraOAuthParams)
 
 
 export default function useAuth(): [string, string] {

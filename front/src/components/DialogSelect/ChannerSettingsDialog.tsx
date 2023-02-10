@@ -61,7 +61,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
       {showName && (
         <Button
           onClick={() => {
-            console.log(props.element);
             const event: EventI = {
               name: "changeChannelName",
               data: {channelName : props.element.name, newName: value},
@@ -153,7 +152,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
       {showPass && (
         <Button
           onClick={() => {
-            console.log(props.element);
             const event: EventI = {
               name: "setPassword",
               data: {channelName : props.element.name, password: value},
