@@ -9,7 +9,7 @@ import Allerts from "src/components/Allerts/Allerts";
 import authHeader from "src/services/authHeader";
 import { authRefreshInterceptor } from "src/services/authRefreshInterceptor";
 import { RootState } from 'src/store/store'
-import { selectIsTwoFAEnabled, selectLoggedIn } from "src/store/authReducer";
+import { selectLoggedIn } from "src/store/authReducer";
 import { login, logout } from "src/store/authActions";
 import DialogSelect from "./components/DialogSelect/DialogSelect";
 import socket, { initSocket } from "src/services/socket";
@@ -42,12 +42,14 @@ function App() {
   const isLoggedIn = useSelector(selectLoggedIn);
   const [userName, setUsername] = useState<string>('');
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
-  const [accessCode, accessState ] = useAuth(setTwoFaOpen);
+  authHeader();
+  authRefreshInterceptor();
+  const [accessCode, accessState ] = useAuth(
+    setTwoFaOpen
+  );
   const navigate = useNavigate();
   let notConnected = true;
 
-  authHeader();
-  authRefreshInterceptor();
 
   function connectUser(tokenConnect: {}) {
     socket.auth = tokenConnect;
@@ -57,8 +59,9 @@ function App() {
 
   useEffect(() => {
     const { auth } = getState() as RootState;
-    if (isLoggedIn)
+    if (isLoggedIn){
       connectUser({ token: auth.accessToken.access_token });
+    }
     else if (userName && notConnected) {
       sessionStorage.setItem('username', userName);
       connectUser({ username: userName });
@@ -95,9 +98,9 @@ function App() {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
   }
+
   function login2fa(){
     const { auth } = getState() as RootState;
-    // @ts-ignore
     dispatch(login({ accessCode, accessState, twoFACode: inputValue, user: auth.username }));
     setTwoFaOpen(false);
   }
@@ -175,9 +178,9 @@ function App() {
                       key={route.key}
                       path={route.path}
                       element={
-                        // <PrivateRouteWrapper>
+                        <PrivateRouteWrapper>
                           <route.component channels={channels} setChannels={setChannels}/>
-                        // </PrivateRouteWrapper>
+                        </PrivateRouteWrapper>
                       }
                     />
                 ))}

@@ -29,6 +29,8 @@ export const getUser = createAsyncThunk(
   'getUser',
   async ( _, thunkApi) => {
       const response = await userService.getMe()
+      if (response.status == 200)
+        setTimeout(() => thunkApi.dispatch(loginSuccess()), 350);
       return response.data;
   }
 )

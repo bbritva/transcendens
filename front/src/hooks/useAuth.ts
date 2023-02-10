@@ -9,51 +9,38 @@ import { login, loginSuccess } from 'src/store/authActions';
 import { selectIsTwoFAEnabled, selectLoggedIn } from 'src/store/authReducer';
 
 const intraOAuthParams = getSearchParams();
-const intraCode = intraOAuthParams?.code;
-const intraState = intraOAuthParams?.state;
+const accessCode = intraOAuthParams?.code;
+const accessState = intraOAuthParams?.state;
 removeAllParamsFromUrl();
 console.log(intraOAuthParams)
 
 
 export default function useAuth(setTwoFaOpen: (arg0: boolean) => void): [string, string] {
   const { getState } = useStore();
-  const [ accessCode ] = useState<string>(intraCode);
-  const [ accessState ] = useState<string>(intraState);
   const dispatch = useAppDispatch();
-  const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
   const isLoggedIn = useSelector(selectLoggedIn);
+  const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
   const storageToken = {
     refreshToken: localStorage.getItem('refreshToken') || ''
   };
+  const { user, auth } = getState() as RootState;
 
-  useEffect(() => {
-    const { user, auth } = getState() as RootState;
-    const storageToken = {
-      refreshToken: localStorage.getItem('refreshToken') || ''
-    };
-    if (
-      accessCode &&
-      !isLoggedIn &&
-      auth.status === 'idle'
-    ){
+  if (
+    !isLoggedIn &&
+    auth.status === 'idle'
+  ) {
+    if (accessCode){
       dispatch(login({ accessCode, accessState, twoFACode: undefined, user: undefined}));
     }
-  }, [accessCode]);
-
-  useEffect(() => {
-    const { user, auth } = getState() as RootState;
     if (
       storageToken.refreshToken &&
-      !isLoggedIn &&
-      auth.status === 'idle' &&
       user.status === 'idle'
     ){
       dispatch(getUser());
     }
-  }, [storageToken.refreshToken]);
+  }
 
   useEffect(() => {
-    const { user, auth } = getState() as RootState;
     if (
       isLoggedIn &&
       user.status === 'idle'
@@ -62,7 +49,6 @@ export default function useAuth(setTwoFaOpen: (arg0: boolean) => void): [string,
   }, [isLoggedIn]);
 
   useEffect(() => {
-    const { auth } = getState() as RootState;
     if (accessCode) {
       if (!auth.isLoggedIn && isTwoFAEnabled){
         setTwoFaOpen(true);

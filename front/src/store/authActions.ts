@@ -18,6 +18,7 @@ export const loginSuccess = createAction(
   'LOGIN_SUCCESS',
   () => {
   return {payload: {
+    isLoggedIn: true
   }};
 })
 
