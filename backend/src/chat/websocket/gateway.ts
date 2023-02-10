@@ -25,12 +25,16 @@ export class Gateway implements OnModuleInit {
     this.server.on("connection", async (socket) => {
       // check authorisation
       if (!(await this.gatewayService.connectUser(socket))) {
+        console.log("disconnected", socket);
+        
         socket.disconnect(true);
         return;
       }
 
       //disconnection handler
       socket.on("disconnecting", async () => {
+        console.log("disconnected", socket);
+
         this.gatewayService.disconnectUser(socket);
       });
       socket.on("disconnect", async () => {});
@@ -235,5 +239,20 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
   ) {
     this.gatewayService.getPersonallyBanned(socket.id);
+  }
+
+  @SubscribeMessage("getUserStats")
+  async onGetUserStats(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.getUserStat(socket.id, data);
+  }
+
+  @SubscribeMessage("getLadder")
+  async onGetLadder(
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.gatewayService.getLadder(socket.id);
   }
 }

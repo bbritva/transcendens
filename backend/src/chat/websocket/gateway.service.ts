@@ -328,13 +328,14 @@ export class GatewayService {
     this.userService
       .addFriend(this.connections.get(socketId).id, data.targetUserName)
       .then((newFriend) => {
-        if (newFriend) this.server.to(socketId).emit("newFriend", {
-          id : newFriend.id,
-          name : newFriend.name,
-          status : newFriend.status,
-          image : newFriend.image,
-          avatar : newFriend.avatar,
-        } );
+        if (newFriend)
+          this.server.to(socketId).emit("newFriend", {
+            id: newFriend.id,
+            name: newFriend.name,
+            status: newFriend.status,
+            image: newFriend.image,
+            avatar: newFriend.avatar,
+          });
         else
           this.server
             .to(socketId)
@@ -352,13 +353,14 @@ export class GatewayService {
     this.userService
       .removeFriend(this.connections.get(socketId).id, data.targetUserName)
       .then((exFriend) => {
-        if (exFriend) this.server.to(socketId).emit("exFriend", {
-          id : exFriend.id,
-          name : exFriend.name,
-          status : exFriend.status,
-          image : exFriend.image,
-          avatar : exFriend.avatar,
-        });
+        if (exFriend)
+          this.server.to(socketId).emit("exFriend", {
+            id: exFriend.id,
+            name: exFriend.name,
+            status: exFriend.status,
+            image: exFriend.image,
+            avatar: exFriend.avatar,
+          });
         else
           this.server
             .to(socketId)
@@ -382,7 +384,7 @@ export class GatewayService {
         console.log(e.message);
         this.server
           .to(socketId)
-          .emit("notAllowed", { eventName: "getFriends"});
+          .emit("notAllowed", { eventName: "getFriends" });
       });
   }
 
@@ -390,13 +392,14 @@ export class GatewayService {
     this.userService
       .banPersonally(this.connections.get(socketId).id, data.targetUserName)
       .then((newPersonnalyBanned) => {
-        if (newPersonnalyBanned) this.server.to(socketId).emit("newPersonnalyBanned", {
-          id : newPersonnalyBanned.id,
-          name : newPersonnalyBanned.name,
-          status : newPersonnalyBanned.status,
-          image : newPersonnalyBanned.image,
-          avatar : newPersonnalyBanned.avatar,
-        });
+        if (newPersonnalyBanned)
+          this.server.to(socketId).emit("newPersonnalyBanned", {
+            id: newPersonnalyBanned.id,
+            name: newPersonnalyBanned.name,
+            status: newPersonnalyBanned.status,
+            image: newPersonnalyBanned.image,
+            avatar: newPersonnalyBanned.avatar,
+          });
         else
           this.server
             .to(socketId)
@@ -407,20 +410,21 @@ export class GatewayService {
         this.server
           .to(socketId)
           .emit("notAllowed", { eventName: "banPersonnaly", data: data });
-        });
+      });
   }
 
   async unbanPersonally(socketId: string, data: DTO.ManageUserI) {
     this.userService
       .unbanPersonally(this.connections.get(socketId).id, data.targetUserName)
       .then((exPersonnalyBanned) => {
-        if (exPersonnalyBanned) this.server.to(socketId).emit("exPersonnalyBanned", {
-          id : exPersonnalyBanned.id,
-          name : exPersonnalyBanned.name,
-          status : exPersonnalyBanned.status,
-          image : exPersonnalyBanned.image,
-          avatar : exPersonnalyBanned.avatar,
-        });
+        if (exPersonnalyBanned)
+          this.server.to(socketId).emit("exPersonnalyBanned", {
+            id: exPersonnalyBanned.id,
+            name: exPersonnalyBanned.name,
+            status: exPersonnalyBanned.status,
+            image: exPersonnalyBanned.image,
+            avatar: exPersonnalyBanned.avatar,
+          });
         else
           this.server
             .to(socketId)
@@ -438,13 +442,15 @@ export class GatewayService {
     this.userService
       .getPersonallyBanned(this.connections.get(socketId).id)
       .then((personallyBannedList) => {
-        this.server.to(socketId).emit("personallyBannedList", personallyBannedList);
+        this.server
+          .to(socketId)
+          .emit("personallyBannedList", personallyBannedList);
       })
       .catch((e) => {
         console.log(e.message);
         this.server
           .to(socketId)
-          .emit("notAllowed", { eventName: "personallyBannedList"});
+          .emit("notAllowed", { eventName: "personallyBannedList" });
       });
   }
 
@@ -498,6 +504,35 @@ export class GatewayService {
     } catch (ex) {
       return null;
     }
+  }
+
+  async getUserStat(id: string, data: DTO.ManageUserI) {
+    return this.userService
+      .getUserByName(data.targetUserName)
+      .then(async (user) => {
+        const stats = await this.userService.getStats(user.id);
+        if (stats) this.server.to(id).emit("usersStat", stats);
+        else
+          this.server
+            .to(id)
+            .emit("notAllowed", { eventName: "getUserStats", data: data });
+      })
+      .catch((e) => {
+        this.server
+          .to(id)
+          .emit("notAllowed", { eventName: "getUserStats", data: data });
+      });
+  }
+
+  async getLadder(id: string) {
+    return this.userService
+      .getLadder()
+      .then(async (ladder) => {
+        this.server.to(id).emit("ladder", ladder);
+      })
+      .catch((e) => {
+        this.server.to(id).emit("notAllowed", { eventName: "getLadder" });
+      });
   }
 
   private async connectUserToChannels(socket: Socket) {
