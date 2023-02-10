@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User as UserModel } from "@prisma/client";
-import { CreateUserDto } from "./dto/create-user.dto";
+import { CreateUserDto, UserStatI } from "./dto/create-user.dto";
 import { ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { UserEntity } from "./entities/user.entity";
 import { GetMeUserDto } from "./dto/getMeUser.dto";
@@ -95,19 +95,14 @@ export class UserController {
   async getLadder(): Promise<UserModel[]> {
     return this.userService
       .users({
-        orderBy : {
-          score : 'desc'
-        }
+        orderBy: {
+          score: "desc",
+        },
       })
       .then((users) => {
         users.forEach((user) => {
-          user.friendIds = null;
-          user.bannedIds = null;
-          user.tokenId = null;
-          user.refreshToken = null;
-          user.twoFaSecret = null;
-          user.isTwoFaEnabled = null;
-        })
+          this.userService.filterUserdata(user);
+        });
         return users;
       })
       .catch((e: any) => {
@@ -115,7 +110,20 @@ export class UserController {
       });
   }
   @Public()
-
+  @ApiOkResponse({ type: UserEntity })
+  @Get("stats/:id")
+  async getStats(@Param("id") id: string): Promise<UserModel> {
+    return this.userService
+      .getUser(parseInt(id), true)
+      .then((user) => {
+        this.userService.filterUserdata(user);
+        return user;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+  
   @ApiOkResponse({ type: UserEntity })
   @Get(":id")
   async showUser(@Param("id") id: string): Promise<UserModel> {
@@ -149,6 +157,4 @@ export class UserController {
       path.join(process.cwd(), "uploads/avatars/" + avatarname)
     );
   }
-
-
 }

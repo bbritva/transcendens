@@ -337,4 +337,14 @@ export class UserService {
     });
     
   }
+
+  filterUserdata(user : User) {
+    delete user.friendIds;
+    delete user.bannedIds;
+    delete user.tokenId;
+    delete user.refreshToken;
+    delete user.twoFaSecret;
+    delete user.isTwoFaEnabled;
+    delete user.twoFaSecret;
+  }
 }
