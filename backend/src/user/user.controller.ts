@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User as UserModel } from "@prisma/client";
-import { CreateUserDto, UserStatI } from "./dto/create-user.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
 import { ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { UserEntity } from "./entities/user.entity";
 import { GetMeUserDto } from "./dto/getMeUser.dto";
@@ -21,7 +21,6 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { randomUUID } from "crypto";
 import * as path from "path";
-import { Public } from "src/auth/constants";
 
 export const storage = {
   storage: diskStorage({
