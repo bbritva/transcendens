@@ -65,14 +65,8 @@ const ChatPage: FC<ChatPageProps> = ({
       setChosenChannel(destObject as channelFromBackI);
     }
     else if (destTaper === 'Users'){
-      const privateChannel = {} as channelFromBackI;
-      privateChannel.name = `${destObject.name} ${testUsername || user.user?.name} pm`;
-      privateChannel.users = [
-        {name: destObject.name} as userFromBackI,
-        {name: testUsername || user.user?.name} as userFromBackI,
-      ];
-      socket.emit('privateMessage', privateChannel);
-      setChosenChannel(privateChannel)
+      socket.emit(destObject.name, destObject.data);
+      setChosenChannel(destObject.data)
     }
   }, [destination]);
 

@@ -1,5 +1,7 @@
 import { UserEntity } from "src/user/entities/user.entity";
 import { MessageEntity } from "src/chat/message/entities/message.entity";
+import { eStatus } from "@prisma/client";
+import { GameEntity } from "src/game/entities/game.entity";
 
 export interface ChannelInfoIn {
   name: string;
@@ -16,6 +18,16 @@ export interface ChannelInfoOut {
   hasPassword: boolean;
 }
 
+export interface UserInfoPublic {
+  id: number
+  name: string;
+  image?: string;
+  avatar?: string;
+  status: eStatus;
+  wins?: GameEntity;
+  loses?: GameEntity;
+}
+
 export class ClientInfo {
   readonly id: number;
   readonly name: string;
@@ -27,24 +39,28 @@ export interface NotAllowedI {
   data: any;
 }
 
-export interface UserManageI {
+export interface ManageChannelI {
   channelName: string;
+}
+
+export interface ManageUserInChannelI  extends ManageChannelI {
   targetUserName: string;
 }
 
-export interface ChangeChannelNameI {
-  channelName: string;
+export interface ChangeChannelNameI extends ManageChannelI {
   newName: string;
 }
 
-export interface SetPrivacyI {
-  channelName: string;
+export interface SetPrivacyI extends ManageChannelI {
   isPrivate: boolean;
 }
 
-export interface SetPasswordI {
-  channelName: string;
+export interface SetPasswordI extends ManageChannelI {
   password: string;
+}
+
+export interface ManageUserI {
+  targetUserName: string;
 }
 
 export interface InviteToGameI {

@@ -123,7 +123,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("addAdmin")
   async onAddAdmin(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.UserManageI
+    @MessageBody() data: DTO.ManageUserInChannelI
   ) {
     this.gatewayService.addAdmin(socket.id, data);
   }
@@ -155,7 +155,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("banUser")
   async onBanUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.UserManageI
+    @MessageBody() data: DTO.ManageUserInChannelI
   ) {
     this.gatewayService.banUser(socket.id, data);
   }
@@ -163,7 +163,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("muteUser")
   async onMuteUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.UserManageI
+    @MessageBody() data: DTO.ManageUserInChannelI
   ) {
     this.gatewayService.muteUser(socket.id, data);
   }
@@ -171,7 +171,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("unmuteUser")
   async onUnmuteUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.UserManageI
+    @MessageBody() data: DTO.ManageUserInChannelI
   ) {
     this.gatewayService.unmuteUser(socket, data);
   }
@@ -179,7 +179,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("unbanUser")
   async onUnbanUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.UserManageI
+    @MessageBody() data: DTO.ManageUserInChannelI
   ) {
     this.gatewayService.unbanUser(socket, data);
   }
@@ -187,8 +187,53 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("kickUser")
   async onKickUser(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.UserManageI
+    @MessageBody() data: DTO.ManageUserInChannelI
   ) {
     this.gatewayService.kickUser(socket.id, data);
+  }
+
+  @SubscribeMessage("addFriend")
+  async onAddFriend(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.addFriend(socket.id, data);
+  }
+
+  @SubscribeMessage("removeFriend")
+  async onRemoveFriend(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.removeFriend(socket.id, data);
+  }
+
+  @SubscribeMessage("getFriends")
+  async onGetFriends(
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.gatewayService.getFriends(socket.id);
+  }
+  @SubscribeMessage("banPersonally")
+  async onBanPersonally(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.banPersonally(socket.id, data);
+  }
+
+  @SubscribeMessage("unbanPersonally")
+  async onUnbanPersonally(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.unbanPersonally(socket.id, data);
+  }
+
+  @SubscribeMessage("getPersonallyBanned")
+  async onGetPersonallyBanned(
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.gatewayService.getPersonallyBanned(socket.id);
   }
 }
