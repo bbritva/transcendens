@@ -67,8 +67,6 @@ const ChatPage: FC<ChatPageProps> = ({
     else if (destTaper === 'Users'){
       socket.emit(destObject.name, destObject.data);
       setChosenChannel(destObject.data)
-      console.log(destObject);
-      
     }
     else
     console.log("else", destination);

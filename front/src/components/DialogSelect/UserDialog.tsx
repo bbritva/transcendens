@@ -5,9 +5,16 @@ import { channelFromBackI, userFromBackI } from "src/pages/Chat/ChatPage";
 import { EventI } from "./ChannerSettingsDialog";
 import { dialogProps } from "./ChooseDialogChildren";
 
-
-const userName = sessionStorage.getItem('username');
+const userName = sessionStorage.getItem("username");
 const UserDialog: FC<dialogProps> = (props: dialogProps) => {
+  function setStatEvent() {
+    const event: EventI = {
+      name: "getUserStats",
+      data: { targetUserName: props.element.name },
+    };
+    props.setDestination(["Users", event]);
+    if (props?.setOpen) props.setOpen(false);
+  }
   return (
     <Box>
       <DialogTitle>'User' actions</DialogTitle>
@@ -19,10 +26,10 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
             { name: props.element.name } as userFromBackI,
             { name: userName } as userFromBackI,
           ];
-          const event : EventI = {
-            name : "privateMessage",
+          const event: EventI = {
+            name: "privateMessage",
             data: privateChannel,
-          }
+          };
           props.setDestination(["Users", event]);
           if (props?.setOpen) props.setOpen(false);
         }}
@@ -31,24 +38,13 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       </Button>
       <Button>Pong's invite</Button>
       <Button>Profile</Button>
+      <Button onClick={setStatEvent}>Show user stats</Button>
       <Button
         onClick={() => {
-          const event : EventI = {
-            name : "getUserStats",
-            data: {targetUserName : props.element.name},
-          }
-          props.setDestination(["Users", event]);
-          if (props?.setOpen) props.setOpen(false);
-        }}
-      >
-        Show user stats
-      </Button>
-      <Button
-        onClick={() => {
-          const event : EventI = {
-            name : "addFriend",
-            data: {targetUserName : props.element.name},
-          }
+          const event: EventI = {
+            name: "addFriend",
+            data: { targetUserName: props.element.name },
+          };
           props.setDestination(["Users", event]);
           if (props?.setOpen) props.setOpen(false);
         }}
@@ -57,10 +53,10 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       </Button>
       <Button
         onClick={() => {
-          const event : EventI = {
-            name : "removeFriend",
-            data: {targetUserName : props.element.name},
-          }
+          const event: EventI = {
+            name: "removeFriend",
+            data: { targetUserName: props.element.name },
+          };
           props.setDestination(["Users", event]);
           if (props?.setOpen) props.setOpen(false);
         }}
@@ -69,10 +65,10 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       </Button>
       <Button
         onClick={() => {
-          const event : EventI = {
-            name : "getFriends",
+          const event: EventI = {
+            name: "getFriends",
             data: {},
-          }
+          };
           props.setDestination(["Users", event]);
           if (props?.setOpen) props.setOpen(false);
         }}
@@ -81,10 +77,10 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       </Button>
       <Button
         onClick={() => {
-          const event : EventI = {
-            name : "banPersonally",
-            data: {targetUserName : props.element.name},
-          }
+          const event: EventI = {
+            name: "banPersonally",
+            data: { targetUserName: props.element.name },
+          };
           props.setDestination(["Users", event]);
           if (props?.setOpen) props.setOpen(false);
         }}
@@ -93,10 +89,10 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       </Button>
       <Button
         onClick={() => {
-          const event : EventI = {
-            name : "unbanPersonally",
-            data: {targetUserName : props.element.name},
-          }
+          const event: EventI = {
+            name: "unbanPersonally",
+            data: { targetUserName: props.element.name },
+          };
           props.setDestination(["Users", event]);
           if (props?.setOpen) props.setOpen(false);
         }}
@@ -105,10 +101,10 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
       </Button>
       <Button
         onClick={() => {
-          const event : EventI = {
-            name : "getPersonallyBanned",
+          const event: EventI = {
+            name: "getPersonallyBanned",
             data: {},
-          }
+          };
           props.setDestination(["Users", event]);
           if (props?.setOpen) props.setOpen(false);
         }}
