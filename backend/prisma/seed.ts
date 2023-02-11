@@ -40,6 +40,67 @@ async function main() {
       status: "OFFLINE"
     },
   });
+
+  const tom2 = await prisma.user.upsert({
+    where: { id: 5 },
+    update: {},
+    create: {
+      id: 5,
+      name: "Tom2",
+      status: "OFFLINE"
+    },
+  });
+
+  const tom3
+   = await prisma.user.upsert({
+    where: { id: 6 },
+    update: {},
+    create: {
+      id: 6,
+      name: "Tom3",
+      status: "OFFLINE"
+    },
+  });
+
+  const tom7 = await prisma.user.upsert({
+    where: { id: 7 },
+    update: {},
+    create: {
+      id: 7,
+      name: "Tom7",
+      status: "OFFLINE"
+    },
+  });
+
+  const tom8 = await prisma.user.upsert({
+    where: { id: 8 },
+    update: {},
+    create: {
+      id: 8,
+      name: "Tom8",
+      status: "OFFLINE"
+    },
+  });
+
+  const tom9 = await prisma.user.upsert({
+    where: { id: 9 },
+    update: {},
+    create: {
+      id: 9,
+      name: "Tom9",
+      status: "OFFLINE"
+    },
+  });
+
+  const tom10 = await prisma.user.upsert({
+    where: { id: 10 },
+    update: {},
+    create: {
+      id: 10,
+      name: "Tom10",
+      status: "OFFLINE"
+    },
+  });
   const mainChannel = await prisma.channel.upsert({
     where: { name: "main" },
     update: {},

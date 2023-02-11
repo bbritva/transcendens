@@ -2,7 +2,7 @@ import "src/App.css";
 import { ReactEventHandler, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box} from "@mui/material";
+import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box, Stack} from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
@@ -155,7 +155,7 @@ function App() {
           </Box>
         </DialogSelect>
       <FormDialog userName={userName} setUsername={setUsername } />
-          <Grid container spacing={2} justifyContent="center">
+
             <Navbar
               loginButtonText="login"
               setAccessCode={setAccessCode}
@@ -194,13 +194,15 @@ function App() {
                     key={route.key}
                     path={route.path}
                     element={
-                      <route.component channels={channels} setChannels={setChannels}/>
+                      <Stack height='70vh' direction="row" spacing={2} justifyContent="space-between">
+                        <route.component channels={channels} setChannels={setChannels}/>
+                      </Stack>
                     }
                   />
                 ))}
               </Routes>
             </Grid>
-          </Grid>
+
       </div>
     </ThemeProvider>
   );

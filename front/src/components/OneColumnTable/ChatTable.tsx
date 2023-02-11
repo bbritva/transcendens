@@ -39,8 +39,7 @@ const ChatTable: FC<{
       ref={tableRef}
       component={Paper}
       sx={{
-        minHeight: '75%',
-        maxHeight: '85%',
+        height: '90%',
         marginBottom: "5px",
         ...chatStyles.borderStyle,
         ...chatStyles.scrollStyle

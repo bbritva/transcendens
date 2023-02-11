@@ -9,10 +9,8 @@ interface GridLogoProps {
 export const GridLogo = ({size}: GridLogoProps) => {
   const theme=useTheme()
   return (
-  <Grid item>
     <Box 
       display={'flex'}
-      alignItems={'center'}
       sx={{
         width: size*1.5,
         height: '170%',
@@ -22,6 +20,5 @@ export const GridLogo = ({size}: GridLogoProps) => {
       <Typography variant='h3'>
         PONG
       </Typography>
-    </Box>
-  </Grid>)
+    </Box>);
 }
