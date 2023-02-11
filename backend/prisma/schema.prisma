@@ -35,16 +35,17 @@ enum eStatus {
 }
 
 model Game {
-  id        Int     @default(autoincrement()) @id
-  winner    User    @relation("win", fields: [winnerId], references: [id])
-  winnerId  Int
-  loser     User    @relation("lose",fields: [loserId], references: [id])
-  loserId   Int     
-  result    Int[]
+  id          Int     @default(autoincrement()) @id
+  winner      User    @relation("win", fields: [winnerId], references: [id])
+  winnerId    Int
+  winnerScore Int
+  loser       User    @relation("lose",fields: [loserId], references: [id])
+  loserId     Int
+  loserScore  Int
 }
 
 model Token {
-  id        Int     @default(autoincrement()) @id
+  id            Int     @default(autoincrement()) @id
   access_token  String @unique
   token_type    String
   expires_in    Int 

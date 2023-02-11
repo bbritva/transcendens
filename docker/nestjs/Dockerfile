@@ -4,6 +4,6 @@ WORKDIR /usr/src/app/
 
 RUN npm install -g @nestjs/cli
 
-# COPY ../backendnpm i && tail -f
+CMD tail -f
 
-CMD /usr/src/app/start.sh
+# CMD /usr/src/app/start.sh

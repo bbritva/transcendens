@@ -3,6 +3,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class GameEntity implements Game {
   @ApiProperty()
+  winnerScore: number;
+
+  @ApiProperty()
+  loserScore: number;
+  
+  @ApiProperty()
   id: number;
   
   @ApiProperty()
@@ -11,6 +17,4 @@ export class GameEntity implements Game {
   @ApiProperty()
   loserId: number;
   
-  @ApiProperty()
-  result: number[];
 }

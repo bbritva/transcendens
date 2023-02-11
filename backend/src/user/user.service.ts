@@ -338,9 +338,7 @@ export class UserService {
   }
 
   async addScores(gameData: CreateGameDto) {
-    const diff =
-      (gameData.result[0] > gameData.result[1] ? 1 : -1) *
-      (gameData.result[0] - gameData.result[1]);
+    const diff = gameData.winnerScore - gameData.loserScore;
     this.prisma.user.update({
       where: {
         id: gameData.winnerId,
@@ -357,7 +355,7 @@ export class UserService {
         id: gameData.loserId,
       },
       data: {
-        score: { increment: -diff },
+        score: { decrement: diff },
       },
     }).then()
     .catch((e) => {

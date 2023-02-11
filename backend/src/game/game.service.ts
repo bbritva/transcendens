@@ -55,7 +55,8 @@ export class GameService {
           loser: {
             connect: { id: gameData.loserId },
           },
-          result: gameData.result,
+          winnerScore: gameData.winnerScore,
+          loserScore: gameData.loserScore,
         },
       })
       .then((ret) => ret)
