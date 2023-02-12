@@ -22,17 +22,13 @@ function Navbar({ loginButtonText, setAccessCode, setAccessState, onLogoutClick}
   const myHeight = '10vh';
   const navButtonStyle = {
     display: { xs: 'none', md: 'flex' },
-    fontSize: "large", marginLeft: "2rem",
+    fontSize: "large", marginLeft: "3rem",
     '&:hover': {
       backgroundColor: theme.palette.primary.light,
     }
   } as const;
   return (
-    <AppBar position="sticky"
-      // sx={{
-      //   background: alpha(theme.palette.secondary.light, 0.45)
-      // }}
-      >
+    <AppBar position="sticky">
         <Container>
       <Box sx={{ flexGrow: 1, display: { xs: 'flex' } }}>
       <GridLogo size={100}></GridLogo>
