@@ -178,7 +178,6 @@ function App() {
               ))}
             </Routes>
           </Grid>
-        </Grid>
       </div>
     </ThemeProvider>
   );
