@@ -44,7 +44,6 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
           name : "kickUser",
           data: {channelName : props.channel.name, targetUserName: props.element.name},
         }
-        console.log(event);
         
         props.setDestination(['Channels', event]);
         if (props?.setOpen)
