@@ -38,9 +38,11 @@ const ChatTable: FC<{
     <Grid container
       ref={tableRef}
       component={Paper}
+      color={theme.palette.primary.dark}
       sx={{
         height: '90%',
         marginBottom: "5px",
+        backgroundColor: theme.palette.secondary.main,
         ...chatStyles.borderStyle,
         ...chatStyles.scrollStyle
       }}

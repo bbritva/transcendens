@@ -40,11 +40,13 @@ const OneColumnTable: FC<{
     return (
       <Grid container
         component={Paper}
+        color={theme.palette.primary.dark}
         display="flex"
         justifyContent="center"
         sx={{
           height: '100%',
           ...chatStyles.borderStyle,
+          backgroundColor: theme.palette.secondary.main
         }}
       >
         <Grid

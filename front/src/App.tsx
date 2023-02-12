@@ -22,11 +22,14 @@ import { useAppDispatch } from "src/app/hooks";
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#283593',
+      main: '#56a2b8',
     },
     secondary: {
-      main: '#e91e63',
+      main: '#ecebd9',
     },
+    info: {
+      main: '#8bd4d1'
+    }
   },
 });
 

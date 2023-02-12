@@ -1,19 +1,12 @@
 import { useSelector } from "react-redux";
 import { NavLink } from 'react-router-dom';
-import { AppBar, Box, Grid, Button, alpha, useTheme } from '@mui/material';
+import { Typography, AppBar, Box, Grid, Button, alpha, useTheme } from '@mui/material';
 import { routes } from 'src/routes';
 import { GridLogo } from 'src/components/Logo/GridLogo';
 import { AuthorizationButton } from "src/features/authorization/AuthorizationButton";
 import { selectUser } from 'src/store/userSlice';
+import { Container } from "@mui/system";
 
-
-export const navButtonStyle = {
-  fontSize: "large", marginLeft: "2rem", color: 'white',
-  '&:hover': {
-    backgroundColor: '#fff',
-    color: '#3c52b2'
-  }
-} as const;
 
 interface NavbarProps {
   loginButtonText: string,
@@ -27,13 +20,22 @@ function Navbar({ loginButtonText, setAccessCode, setAccessState, onLogoutClick}
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
   const myHeight = '10vh';
+  const navButtonStyle = {
+    display: { xs: 'none', md: 'flex' },
+    fontSize: "large", marginLeft: "2rem",
+    '&:hover': {
+      backgroundColor: theme.palette.primary.light,
+    }
+  } as const;
   return (
     <AppBar position="sticky"
-      sx={{
-        background: alpha(theme.palette.secondary.light, 0.45),
-        height: myHeight
-      }}>
-      {/* <GridLogo size={100}></GridLogo> */}
+      // sx={{
+      //   background: alpha(theme.palette.secondary.light, 0.45)
+      // }}
+      >
+        <Container>
+      <Box sx={{ flexGrow: 1, display: { xs: 'flex' } }}>
+      <GridLogo size={100}></GridLogo>
       {routes.map((page) => (
           <Button
             key={page.key}
@@ -42,7 +44,9 @@ function Navbar({ loginButtonText, setAccessCode, setAccessState, onLogoutClick}
             variant={'text'}
             sx={navButtonStyle}
           >
-            {page.title == "Account" && user ? user.name : page.title}
+            <Typography  color="secondary">
+              {page.title == "Account" && user ? user.name : page.title}
+            </Typography>
           </Button>
 
       ))}
@@ -61,6 +65,8 @@ function Navbar({ loginButtonText, setAccessCode, setAccessState, onLogoutClick}
               Logout
             </Button>
 }
+</Box>
+      </Container>
     </AppBar>
   );
 }

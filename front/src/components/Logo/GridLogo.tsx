@@ -14,10 +14,10 @@ export const GridLogo = ({size}: GridLogoProps) => {
       sx={{
         width: size*1.5,
         height: '170%',
-        backgroundColor: theme.palette.primary.dark
+        backgroundColor: theme.palette.primary.main
       }}
     >
-      <Typography variant='h3'>
+      <Typography variant='h3' color="secondary">
         PONG
       </Typography>
     </Box>);

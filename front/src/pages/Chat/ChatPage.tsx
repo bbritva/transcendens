@@ -144,7 +144,7 @@ const ChatPage: FC<ChatPageProps> = ({
         </Box>
       </Box>
       
-      <Box flex={1} sx={{display: { xs: "none", sm: "block"}}}>
+      <Box flex={1} sx={{display: { xs: "none", sm: "block", md: "block"}}}>
         <OneColumnTable
           taper='Users'
           user={user.user}
