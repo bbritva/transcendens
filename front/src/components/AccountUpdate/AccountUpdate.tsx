@@ -17,6 +17,7 @@ import { DialogContentText, DialogTitle } from '@mui/material';
 import authService from 'src/services/auth.service';
 import ChooseTwoFA, { twoFAdialogProps } from './ChooseTwoFA';
 import { useAppDispatch } from "src/app/hooks";
+import socket from 'src/services/socket';
 
 
 function Copyright(props: any) {
@@ -96,6 +97,7 @@ export default function SignUp() {
   function nickChange (this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
+    socket.emit("checkNamePossibility", {targetUserName : event.currentTarget.value})
   }
 
   async function generateTwoFA() {
