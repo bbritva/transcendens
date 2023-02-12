@@ -88,25 +88,29 @@ export class GatewayService {
     this.connections.delete(socket.id);
   }
 
-  async connectToChannelPM(socket: Socket, channelIn: DTO.ChannelInfoIn) {
+  async connectToChannelPM(socket: Socket, data: DTO.ManageUserI) {
     if (
       await this.userService.isBanned(
         this.connections.get(socket.id).id,
-        channelIn.users[0].name
+        data.targetUserName
       )
     ) {
-      this.server.to(socket.id).emit("notAllowed", channelIn);
+      this.server
+        .to(socket.id)
+        .emit("notAllowed", { eventName: "privateMessage", data: data });
     } else {
+      const names = [
+        this.connections.get(socket.id).name,
+        data.targetUserName,
+      ].sort((a: string, b: string) => a.localeCompare(b));
       await this.connectUserToChannel(
-        channelIn,
+        { name: `${names[0]} ${names[1]} pm` },
         this.connections.get(socket.id)
       );
-      channelIn.users.forEach(async (user) => {
-        await this.connectUserToChannel(
-          channelIn,
-          await this.userService.getUserByName(user.name)
-        );
-      });
+      await this.connectUserToChannel(
+        { name: `${names[0]} ${names[1]} pm` },
+        await this.userService.getUserByName(data.targetUserName)
+      );
     }
   }
 

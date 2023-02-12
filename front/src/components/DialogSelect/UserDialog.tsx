@@ -1,7 +1,6 @@
 import { Button, DialogTitle } from "@mui/material";
 import { Box } from "@mui/system";
 import { FC } from "react";
-import { channelFromBackI, userFromBackI } from "src/pages/Chat/ChatPage";
 import { EventI } from "./ChannerSettingsDialog";
 import { dialogProps } from "./ChooseDialogChildren";
 
@@ -18,6 +17,10 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
 
   function createGetUserStatEvent() {
     createUserEvent("getUserStats");
+  }
+
+  function createPrivateMessageEvent() {
+    createUserEvent("privateMessage");
   }
 
   function createAddFriendEvent() {
@@ -42,24 +45,7 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
   return (
     <Box>
       <DialogTitle>'User' actions</DialogTitle>
-      <Button
-        onClick={() => {
-          const privateChannel = {} as channelFromBackI;
-          privateChannel.name = `${props.element.name} ${userName} pm`;
-          privateChannel.users = [
-            { name: props.element.name } as userFromBackI,
-            { name: userName } as userFromBackI,
-          ];
-          const event: EventI = {
-            name: "privateMessage",
-            data: privateChannel,
-          };
-          props.setDestination(["Users", event]);
-          if (props?.setOpen) props.setOpen(false);
-        }}
-      >
-        Message
-      </Button>
+      <Button onClick={createPrivateMessageEvent}>Message</Button>
       <Button>Pong's invite</Button>
       <Button>Profile</Button>
       <Button onClick={createGetUserStatEvent}>Show user stats</Button>
