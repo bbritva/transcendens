@@ -260,16 +260,19 @@ export class UserService {
   async getNamesSuggestion(name: string): Promise<string[]> {
     let names: string[] = [];
     try {
-      const users = await this.prisma.user.findMany({
-        where: {
-          name: {
-            contains: name,
+      if (!!name) {
+        const users = await this.prisma.user.findMany({
+          where: {
+            name: {
+              contains: name,
+              mode: 'insensitive'
+            },
           },
-        },
-      });
-      if (users) {
-        for (const user of users) {
-          names.push(user.name);
+        });
+        if (users) {
+          for (const user of users) {
+            names.push(user.name);
+          }
         }
       }
       return names;

@@ -260,7 +260,6 @@ export class Gateway implements OnModuleInit {
     this.gatewayService.checkNamePossibility(socket.id, data);
   }
 
-
   @SubscribeMessage("getNamesSuggestions")
   async onGetNamesSuggestions(
     @ConnectedSocket() socket: Socket,

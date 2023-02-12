@@ -115,6 +115,10 @@ export function initSocket(
     console.log("nameTaken", data);
   })
 
+  socket.on("nameSuggestions",(data: string[]) => {
+    console.log("nameSuggestions", data);
+  })
+
   socket.on("notAllowed", (data: {
     eventName: string;
     data: any;
