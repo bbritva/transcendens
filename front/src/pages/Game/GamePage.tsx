@@ -32,9 +32,8 @@ const GamePage: FC<any> = (): ReactElement => {
   const [loading, setLoading] = useState<boolean>(false);
   const [flag, setFlag] = useState<string>(sessionStorage.getItem("game") || '');
   const testUsername = sessionStorage.getItem('username');
-  const testGamename = 'gameOne';
   const { getState } = useStore();
-  const { user, auth } = getState() as RootState;
+  const { user } = getState() as RootState;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,10 +58,8 @@ const GamePage: FC<any> = (): ReactElement => {
     const canvas = canvasRef.current;
     if (canvas && stopGame){
       setStopGame(false);
-      if (gameData && testUsername)
-        game(canvas, setStopGame, {bricks: false}, gameData, testUsername);
-      else if (gameData && user.user?.name)
-        game(canvas, setStopGame, {bricks: false}, gameData, user.user.name);
+      if (gameData && (testUsername || user.user?.name))
+        game(canvas, setStopGame, {bricks: false}, gameData, testUsername || user.user?.name || '');
     }
   }
 
@@ -80,8 +77,8 @@ const GamePage: FC<any> = (): ReactElement => {
         setFlag('true');
         sessionStorage.setItem("game", "true");
         const game = {
-          name: testUsername + body.sender + "Game",
-          first: testUsername, 
+          name: testUsername || user.user?.name + body.sender + "Game",
+          first: testUsername || user.user?.name, 
           second: body.sender,
           guests: []
         }
