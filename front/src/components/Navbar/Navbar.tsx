@@ -3,19 +3,18 @@ import { NavLink } from 'react-router-dom';
 import { Typography, AppBar, Box, Grid, Button, alpha, useTheme } from '@mui/material';
 import { routes } from 'src/routes';
 import { GridLogo } from 'src/components/Logo/GridLogo';
-import { AuthorizationButton } from "src/features/authorization/AuthorizationButton";
 import { selectUser } from 'src/store/userSlice';
+import Protected from "../Authentication/Protected";
 import { Container } from "@mui/system";
 
 
 interface NavbarProps {
   loginButtonText: string,
-  setAccessCode: (code: string) => void,
-  setAccessState: (state: string) => void,
+  onLoginClick: () => void,
   onLogoutClick: () => void
 }
 
-function Navbar({ loginButtonText, setAccessCode, setAccessState, onLogoutClick}: NavbarProps) {
+function Navbar({ loginButtonText, onLoginClick, onLogoutClick}: NavbarProps) {
   // const [anchorNav, setAnchorNav] = useState(null); //will use it for menu
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
@@ -45,22 +44,31 @@ function Navbar({ loginButtonText, setAccessCode, setAccessState, onLogoutClick}
             </Typography>
           </Button>
 
-      ))}
-          {(!user)
-            ? <AuthorizationButton
-              text={loginButtonText}
-              setCode={setAccessCode}
-              setState={setAccessState}
-              styleProp={navButtonStyle}
-            />
-            : <Button
+      ))}{
+        <Protected
+          user={user}
+          render={() =>
+            <Button
               sx={navButtonStyle}
               variant={'outlined'}
               onClick={onLogoutClick}
             >
               Logout
             </Button>
-}
+          }
+          fail={() =>
+            <Button
+              sx={navButtonStyle}
+              variant={'contained'}
+              onClick={onLoginClick}
+            >
+              {loginButtonText}
+            </Button>
+          }
+        />
+        }
+
+
 </Box>
       </Container>
     </AppBar>

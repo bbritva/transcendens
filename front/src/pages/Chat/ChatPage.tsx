@@ -69,8 +69,6 @@ const ChatPage: FC<ChatPageProps> = ({
       socket.emit(destObject.name, destObject.data);
       setChosenChannel(destObject.data)
     }
-    else
-    console.log("else", destination);
   }, [destination]);
 
   chatStyles
@@ -78,8 +76,6 @@ const ChatPage: FC<ChatPageProps> = ({
     .backgroundColor = theme.palette.primary.light;
 
   const onSubmit = () => {
-    if (!testUsername)
-      return;
     const [taper, destinationChannel] = destination;
     if ( !destinationChannel.name ){
       setValue('');
@@ -89,7 +85,7 @@ const ChatPage: FC<ChatPageProps> = ({
       id: null,
       channelName: destinationChannel.name,
       sentAt: null,
-      authorName: testUsername,
+      authorName: testUsername || user.user?.name || '',
       text: value,
     };
     socket.emit(

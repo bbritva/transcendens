@@ -17,6 +17,9 @@ export class UserEntity implements User {
   @ApiProperty({ nullable: true})
   avatar: string;
 
+  @ApiProperty({ nullable: true})
+  score: number;
+
   @ApiProperty({isArray: true, type : "number"})
   friendIds: number[];
 

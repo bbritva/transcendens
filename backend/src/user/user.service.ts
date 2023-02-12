@@ -3,12 +3,14 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserInfoPublic } from "src/chat/websocket/websocket.dto";
+import { CreateGameDto } from "src/game/dto/create-game.dto";
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async users(params: {
+    select? : Prisma.UserSelect,
     skip?: number;
     take?: number;
     cursor?: Prisma.UserWhereUniqueInput;
@@ -25,6 +27,34 @@ export class UserService {
         orderBy,
       })
       .then((ret: any) => ret)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async getLadder(): Promise<User[]> {
+    return this.users({
+        orderBy: {
+          score: "desc",
+        },
+      })
+      .then((users) => {
+        users.forEach((user) => {
+          this.filterUserdata(user);
+        });
+        return users;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async getStats(id: number): Promise<User> {
+    return this.getUser(id, true)
+      .then((user) => {
+        this.filterUserdata(user);
+        return user;
+      })
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
@@ -74,7 +104,7 @@ export class UserService {
     includeChannels = false
   ): Promise<User> {
     return this.prisma.user
-      .findFirst({
+      .findUnique({
         where: {
           id: userId,
         },
@@ -143,7 +173,10 @@ export class UserService {
       .catch(() => false);
   }
 
-  async addFriend(userId: number, targetUserName: string): Promise<UserInfoPublic> {
+  async addFriend(
+    userId: number,
+    targetUserName: string
+  ): Promise<UserInfoPublic> {
     const user = await this.getUser(userId);
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
@@ -210,11 +243,11 @@ export class UserService {
         for (const friendId of user.friendIds) {
           const friend = await this.getUser(friendId);
           friendsList.push({
-            id : friend.id,
-            name : friend.name,
-            status : friend.status,
-            image : friend.image,
-            avatar : friend.avatar,
+            id: friend.id,
+            name: friend.name,
+            status: friend.status,
+            image: friend.image,
+            avatar: friend.avatar,
           });
         }
       }
@@ -290,11 +323,11 @@ export class UserService {
         for (const bannedId of user.bannedIds) {
           const banned = await this.getUser(bannedId);
           bannedList.push({
-            id : banned.id,
-            name : banned.name,
-            status : banned.status,
-            image : banned.image,
-            avatar : banned.avatar,
+            id: banned.id,
+            name: banned.name,
+            status: banned.status,
+            image: banned.image,
+            avatar: banned.avatar,
           });
         }
       }
@@ -302,5 +335,42 @@ export class UserService {
     } catch (e) {
       console.log("err", e.meta.cause);
     }
+  }
+
+  async addScores(gameData: CreateGameDto) {
+    const diff = gameData.winnerScore - gameData.loserScore;
+    this.prisma.user.update({
+      where: {
+        id: gameData.winnerId,
+      },
+      data: {
+        score: { increment: diff },
+      },
+    }).then()
+    .catch((e) => {
+      throw new BadRequestException(e.message);
+    });
+    this.prisma.user.update({
+      where: {
+        id: gameData.loserId,
+      },
+      data: {
+        score: { decrement: diff },
+      },
+    }).then()
+    .catch((e) => {
+      throw new BadRequestException(e.message);
+    });
+    
+  }
+
+  filterUserdata(user : User) {
+    delete user.friendIds;
+    delete user.bannedIds;
+    delete user.tokenId;
+    delete user.refreshToken;
+    delete user.twoFaSecret;
+    delete user.isTwoFaEnabled;
+    delete user.twoFaSecret;
   }
 }

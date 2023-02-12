@@ -10,17 +10,17 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
-} from '@nestjs/common';
-import { UserService } from './user.service';
-import { User as UserModel } from '@prisma/client';
-import { CreateUserDto } from './dto/create-user.dto';
-import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { UserEntity } from './entities/user.entity';
-import { GetMeUserDto } from './dto/getMeUser.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { randomUUID } from 'crypto';
-import * as path from 'path';
+} from "@nestjs/common";
+import { UserService } from "./user.service";
+import { User as UserModel } from "@prisma/client";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { ApiBody, ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import { UserEntity } from "./entities/user.entity";
+import { GetMeUserDto } from "./dto/getMeUser.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import { randomUUID } from "crypto";
+import * as path from "path";
 
 export const storage = {
   storage: diskStorage({
@@ -76,23 +76,54 @@ export class UserController {
     type: GetMeUserDto,
   })
   @ApiOkResponse({ type: UserEntity })
-  @Get('getMe')
-    async getMe( @Request() req : GetMeUserDto) {
-       return await this.userService.getUser(req.user.id);
-    }
+  @Get("getMe")
+  async getMe(@Request() req: GetMeUserDto): Promise<UserModel> {
+    return this.userService
+      .getUser(req.user.id)
+      .then((user) => {
+        return user;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  @ApiOkResponse()
+  @Get("ladder")
+  async getLadder(): Promise<UserModel[]> {
+    return this.userService.getLadder()
+      .then((users) => users)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
 
   @ApiOkResponse({ type: UserEntity })
-  @Get(':id')
-  async showUser(@Param('id') id: number): Promise<UserModel> {
-    return this.userService.getUser(id, true, true);
+  @Get("stats/:id")
+  async getStats(@Param("id") id: string): Promise<UserModel> {
+    return this.userService.getStats(parseInt(id))
+      .then((user) => user)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+  
+  @ApiOkResponse({ type: UserEntity })
+  @Get(":id")
+  async showUser(@Param("id") id: string): Promise<UserModel> {
+    return this.userService
+      .getUser(parseInt(id), true, true)
+      .then((user) => {
+        return user;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
   @Post("upload")
   @UseInterceptors(FileInterceptor("file", storage))
-  uploadFile(
-    @Request() req: GetMeUserDto,
-    @UploadedFile() file
-  ): Object {
+  uploadFile(@Request() req: GetMeUserDto, @UploadedFile() file): Object {
     this.userService.updateUser({
       where: {
         id: req.user.id,
@@ -101,11 +132,13 @@ export class UserController {
         avatar: file.filename,
       },
     });
-    return ({ avatar: file.filename });
+    return { avatar: file.filename };
   }
 
-  @Get('avatar/:avatarname')
-  findAvatar(@Param('avatarname') avatarname, @Res() res): Promise<any> {
-    return res.sendFile(path.join(process.cwd(), 'uploads/avatars/' + avatarname));
+  @Get("avatar/:avatarname")
+  findAvatar(@Param("avatarname") avatarname, @Res() res): Promise<any> {
+    return res.sendFile(
+      path.join(process.cwd(), "uploads/avatars/" + avatarname)
+    );
   }
 }

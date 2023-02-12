@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 import authHeader from 'src/services/authHeader';
-import { login, logout, refresh, twoFaResponseDataI } from 'src/store/authActions';
+import { login, loginSuccess, logout, refresh, twoFaResponseDataI } from 'src/store/authActions';
 import { RootState } from 'src/store/store'
 
 
@@ -25,6 +25,10 @@ const initialState: authState = {
 
 const authReducer = createReducer(initialState, (builder) => {
   builder
+    .addCase(loginSuccess, (state, action) => {
+      state.isLoggedIn = true;
+      state.status = 'succeeded';
+    })
     .addCase(refresh.pending, (state, action) => {
       return {
         ...state,
@@ -34,7 +38,6 @@ const authReducer = createReducer(initialState, (builder) => {
     .addCase(refresh.fulfilled, (state, action) => {
       localStorage.setItem("access_token", JSON.stringify(action.payload.access_token));
       localStorage.setItem("refreshToken", JSON.stringify(action.payload.refreshToken));
-      state.accessToken = action.payload;
       return {
         ...state,
         accessToken: action.payload,
@@ -59,6 +62,12 @@ const authReducer = createReducer(initialState, (builder) => {
       }
       state.isLoggedIn = false;
       state.status = 'failed';
+    })
+    .addCase(login.pending, (state, action) => {
+      return {
+        ...state,
+        status: 'loading'
+      };
     })
     .addCase(logout, (state, action) => {
       state.isLoggedIn = false;

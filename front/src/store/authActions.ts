@@ -16,10 +16,9 @@ export const userSuccess = createAction('USER_SUCCESS', ({user}) => {
 
 export const loginSuccess = createAction(
   'LOGIN_SUCCESS',
-  ({access_token, refreshToken}) => {
+  () => {
   return {payload: {
-    access_token,
-    refreshToken
+    isLoggedIn: true
   }};
 })
 
@@ -27,8 +26,13 @@ export const loginFail = createAction('LOGIN_FAIL');
 
 export const login = createAsyncThunk(
   'login',
-  async (data: {accessCode: string, accessState: string, twoFACode: string, user: string}, thunkApi) => {
-    if (data.twoFACode){
+  async (data: {
+    accessCode: string,
+    accessState: string,
+    twoFACode: string | undefined,
+    user: string | undefined
+  }, thunkApi) => {
+    if (data.twoFACode && data.user){
       const test = await AuthService.otpAuth(data.twoFACode, data.user);
       return test;
     }
