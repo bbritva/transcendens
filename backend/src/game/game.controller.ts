@@ -1,34 +1,36 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { GameService } from './game.service';
-import { Game as GameModel } from '@prisma/client';
-import { CreateGameDto } from './dto/create-game.dto';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { GameEntity } from './entities/game.entity';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  BadRequestException,
+} from "@nestjs/common";
+import { GameService } from "./game.service";
+import { Game as GameModel } from "@prisma/client";
+import { CreateGameDto } from "./dto/create-game.dto";
+import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import { GameEntity } from "./entities/game.entity";
 
-@Controller('game')
-@ApiTags('game')
+@Controller("game")
+@ApiTags("game")
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
-  @Post('add')
+  @Post("add")
   @ApiOkResponse({ type: GameEntity })
   async addGameResult(@Body() gameData: CreateGameDto): Promise<GameModel> {
-    const { winnerId, loserId, result } = gameData;
-
-    return await this.gameService.addGame({
-      winner: {
-        connect: { id: winnerId },
-      },
-      loser: {
-        connect: { id: loserId },
-      },
-      result,
-    });
+    return this.gameService
+      .addGame(gameData)
+      .then((ret) => ret)
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
-  @Get(':id')
+  @Get(":id")
   @ApiOkResponse({ type: GameEntity })
-  async showGame(@Param('id') id: number): Promise<GameModel> {
+  async showGame(@Param("id") id: number): Promise<GameModel> {
     return this.gameService.getGame(id);
   }
 }

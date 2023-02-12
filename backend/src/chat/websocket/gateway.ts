@@ -236,4 +236,19 @@ export class Gateway implements OnModuleInit {
   ) {
     this.gatewayService.getPersonallyBanned(socket.id);
   }
+
+  @SubscribeMessage("getUserStats")
+  async onGetUserStats(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.getUserStat(socket.id, data);
+  }
+
+  @SubscribeMessage("getLadder")
+  async onGetLadder(
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.gatewayService.getLadder(socket.id);
+  }
 }
