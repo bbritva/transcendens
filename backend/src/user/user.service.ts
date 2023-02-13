@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { User, Prisma } from "@prisma/client";
+import { User, Prisma, eStatus } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserInfoPublic } from "src/chat/websocket/websocket.dto";
 import { CreateGameDto } from "src/game/dto/create-game.dto";
+import { UserEntity } from "./entities/user.entity";
 
 @Injectable()
 export class UserService {
@@ -60,6 +61,17 @@ export class UserService {
       });
   }
 
+  async getStatsByName(name: string): Promise<User> {
+    return this.getUserByName(name, true)
+      .then((user) => {
+        this.filterUserdata(user);
+        return user;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
   async createUser(data: CreateUserDto): Promise<User> {
     return this.prisma.user
       .create({
@@ -82,14 +94,20 @@ export class UserService {
       });
   }
 
-  async getUserByName(userName: string): Promise<User> {
+  async getUserByName(
+    userName: string,
+    includeGames = false,
+    includeChannels = false
+  ): Promise<User> {
     return this.prisma.user
       .findUnique({
         where: {
           name: userName,
         },
         include: {
-          channels: true,
+          wins: includeGames,
+          loses: includeGames,
+          channels: includeChannels,
         },
       })
       .then((ret: any) => ret)
@@ -120,15 +138,35 @@ export class UserService {
       });
   }
 
+  async setUserStatus(userId: number, status: eStatus): Promise<UserEntity> {
+    return this.updateUser({
+      where: {
+        id: userId,
+      },
+      data : {
+        status: status,
+      }},
+      status == "OFFLINE"
+    )
+      .then((ret) => ret)
+      .catch((e) => {
+        console.log(e.message);
+        return null;
+      });
+  }
+
   async updateUser(params: {
     where: Prisma.UserWhereUniqueInput;
     data: Prisma.UserUpdateInput;
-  }): Promise<User> {
+  }, includeChannels = false): Promise<User> {
     const { where, data } = params;
     return this.prisma.user
       .update({
         data,
         where,
+        include: {
+          channels: includeChannels,
+        },
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
@@ -265,7 +303,7 @@ export class UserService {
           where: {
             name: {
               contains: name,
-              mode: 'insensitive'
+              mode: "insensitive",
             },
           },
         });
@@ -332,6 +370,7 @@ export class UserService {
                 throw new BadRequestException(e.message);
               });
         }
+        this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {

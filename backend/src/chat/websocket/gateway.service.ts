@@ -30,28 +30,22 @@ export class GatewayService {
     );
     if (authorizedUser || authName) {
       if (authorizedUser) {
-        this.connectionSet(authorizedUser, socket);
+        this.connections.set(socket.id, authorizedUser);
       } else if (authName) {
         const user = await this.userService.getUserByName(authName);
         if (!user) return false;
-        this.connectionSet(
-          {
-            id: user.id,
-            name: user.name,
-            socketId: socket.id,
-          },
-          socket
-        );
+        this.connections.set(socket.id, {
+          id: user.id,
+          name: user.name,
+          socketId: socket.id,
+        });
       }
       // set user status online
-      await this.userService.updateUser({
-        where: {
-          id: this.connections.get(socket.id).id,
-        },
-        data: {
-          status: "ONLINE",
-        },
-      });
+      // await?????
+      this.userService.setUserStatus(
+        this.connections.get(socket.id).id,
+        "ONLINE"
+      );
       //send to new user all channels
       this.server
         .to(socket.id)
@@ -65,26 +59,19 @@ export class GatewayService {
     return false;
   }
 
-  connectionSet(client: DTO.ClientInfo, socket: Socket) {
-    this.connections.set(socket.id, client);
-  }
-
   async disconnectUser(socket: Socket) {
-    const user = await this.userService.updateUser({
-      where: {
-        id: this.connections.get(socket.id).id,
-      },
-      data: {
-        status: "OFFLINE",
-      },
-    });
-    (
-      await this.userService.getChannels(this.connections.get(socket.id).id)
-    ).forEach((channelName) => {
-      this.server
-        .to(channelName)
-        .emit("userDisconnected", channelName, user.name);
-    });
+    this.userService
+      .setUserStatus(this.connections.get(socket.id).id, "OFFLINE")
+      .then((user) => {
+        user.channels.forEach((channel) => {
+          this.server
+            .to(channel.name)
+            .emit("userDisconnected", channel.name, user.name);
+        });
+      })
+      .catch((e) => {
+        console.log(e.message);
+      });
     this.connections.delete(socket.id);
   }
 
@@ -431,13 +418,9 @@ export class GatewayService {
       .unbanPersonally(this.connections.get(socketId).id, data.targetUserName)
       .then((exPersonnalyBanned) => {
         if (exPersonnalyBanned)
-          this.server.to(socketId).emit("exPersonnalyBanned", {
-            id: exPersonnalyBanned.id,
-            name: exPersonnalyBanned.name,
-            status: exPersonnalyBanned.status,
-            image: exPersonnalyBanned.image,
-            avatar: exPersonnalyBanned.avatar,
-          });
+          this.server
+            .to(socketId)
+            .emit("exPersonnalyBanned", exPersonnalyBanned);
         else
           this.server
             .to(socketId)
@@ -515,14 +498,9 @@ export class GatewayService {
 
   async getUserStat(id: string, data: DTO.ManageUserI) {
     return this.userService
-      .getUserByName(data.targetUserName)
-      .then(async (user) => {
-        const stats = await this.userService.getStats(user.id);
-        if (stats) this.server.to(id).emit("userStat", stats);
-        else
-          this.server
-            .to(id)
-            .emit("notAllowed", { eventName: "getUserStats", data: data });
+      .getStatsByName(data.targetUserName)
+      .then(async (stats) => {
+        this.server.to(id).emit("userStat", stats);
       })
       .catch((e) => {
         this.server
@@ -550,7 +528,9 @@ export class GatewayService {
         else this.server.to(id).emit("nameAvailable", data);
       })
       .catch((e) => {
-        this.server.to(id).emit("notAllowed", { eventName: "checkNamePossibility" });
+        this.server
+          .to(id)
+          .emit("notAllowed", { eventName: "checkNamePossibility" });
       });
   }
 
@@ -561,7 +541,9 @@ export class GatewayService {
         this.server.to(id).emit("nameSuggestions", names);
       })
       .catch((e) => {
-        this.server.to(id).emit("notAllowed", { eventName: "getNamesSuggestions", data : data });
+        this.server
+          .to(id)
+          .emit("notAllowed", { eventName: "getNamesSuggestions", data: data });
       });
   }
 
