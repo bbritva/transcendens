@@ -116,6 +116,21 @@ export class UserService {
       });
   }
 
+  async getUserPublic(
+    userId: number,
+    includeGames = false,
+    includeChannels = false
+  ): Promise<User> {
+    return this.getUser(userId, includeGames, includeChannels)
+      .then((user) => {
+        this.filterUserdata(user);
+        return user;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
   async getUser(
     userId: number,
     includeGames = false,
@@ -139,13 +154,15 @@ export class UserService {
   }
 
   async setUserStatus(userId: number, status: eStatus): Promise<UserEntity> {
-    return this.updateUser({
-      where: {
-        id: userId,
+    return this.updateUser(
+      {
+        where: {
+          id: userId,
+        },
+        data: {
+          status: status,
+        },
       },
-      data : {
-        status: status,
-      }},
       status == "OFFLINE"
     )
       .then((ret) => ret)
@@ -155,10 +172,13 @@ export class UserService {
       });
   }
 
-  async updateUser(params: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  }, includeChannels = false): Promise<User> {
+  async updateUser(
+    params: {
+      where: Prisma.UserWhereUniqueInput;
+      data: Prisma.UserUpdateInput;
+    },
+    includeChannels = false
+  ): Promise<User> {
     const { where, data } = params;
     return this.prisma.user
       .update({
@@ -211,10 +231,7 @@ export class UserService {
       .catch(() => false);
   }
 
-  async addFriend(
-    userId: number,
-    targetUserName: string
-  ): Promise<UserInfoPublic> {
+  async addFriend(userId: number, targetUserName: string): Promise<User> {
     const user = await this.getUser(userId);
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
@@ -237,7 +254,8 @@ export class UserService {
               });
           }
         }
-        return targetUser as UserInfoPublic;
+        this.filterUserdata(targetUser);
+        return targetUser;
       })
       .catch((e) => {
         throw new BadRequestException(e.message);
@@ -266,6 +284,7 @@ export class UserService {
                 throw new BadRequestException(e.message);
               });
         }
+        this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {
@@ -341,6 +360,7 @@ export class UserService {
                 throw new BadRequestException(e.message);
               });
         }
+        this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {

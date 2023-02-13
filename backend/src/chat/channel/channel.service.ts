@@ -5,6 +5,7 @@ import * as DTO from "src/chat/websocket/websocket.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import { ChannelEntity } from "./entities/channel.entity";
+import { channel } from "diagnostics_channel";
 
 @Injectable()
 export class ChannelService {
@@ -110,6 +111,24 @@ export class ChannelService {
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
+  }
+
+  async leaveChannel(userId : number, channelName : string) : Promise<Channel> {
+    return this.updateChannel({
+      where: {
+        name: channelName,
+      },
+      data: {
+        guests: {
+          disconnect: {
+            id: userId,
+          },
+        },
+      },
+    }).then((channel) => channel)
+    .catch((e) => {
+      throw new BadRequestException(e.message);
+    })
   }
 
   async getChannel(
