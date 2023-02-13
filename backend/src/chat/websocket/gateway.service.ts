@@ -89,28 +89,37 @@ export class GatewayService {
   }
 
   async connectToChannelPM(socket: Socket, data: DTO.ManageUserI) {
-    if (
-      await this.userService.isBanned(
-        this.connections.get(socket.id).id,
-        data.targetUserName
-      )
-    ) {
-      this.server
-        .to(socket.id)
-        .emit("notAllowed", { eventName: "privateMessage", data: data });
-    } else {
-      const names = [
-        this.connections.get(socket.id).name,
-        data.targetUserName,
-      ].sort((a: string, b: string) => a.localeCompare(b));
-      await this.connectUserToChannel(
-        { name: `${names[0]} ${names[1]} pm` },
-        this.connections.get(socket.id)
-      );
-      await this.connectUserToChannel(
-        { name: `${names[0]} ${names[1]} pm` },
-        await this.userService.getUserByName(data.targetUserName)
-      );
+    try {
+      if (
+        await this.userService.isBanned(
+          this.connections.get(socket.id).id,
+          data.targetUserName
+        )
+      ) {
+        this.server
+          .to(socket.id)
+          .emit("notAllowed", { eventName: "privateMessage", data: data });
+      } else {
+        const names = [
+          this.connections.get(socket.id).name,
+          data.targetUserName,
+        ].sort((a: string, b: string) => a.localeCompare(b));
+        const channelIn: DTO.ChannelInfoIn = {
+          name: `${names[0]} ${names[1]} pm`,
+          isPrivate: true,
+          type: "PRIVATE_MESSAGING",
+        };
+        await this.connectUserToChannel(
+          channelIn,
+          this.connections.get(socket.id)
+        );
+        await this.connectUserToChannel(
+          channelIn,
+          await this.userService.getUserByName(data.targetUserName)
+        );
+      }
+    } catch (e) {
+      console.log(e.message);
     }
   }
 
@@ -555,37 +564,42 @@ export class GatewayService {
     channelIn: DTO.ChannelInfoIn,
     user: DTO.ClientInfo
   ) {
-    // if (!user) return;
-    const channel = await this.channelService.connectToChannel({
-      name: channelIn.name,
-      ownerId: user.id,
-      isPrivate: channelIn.isPrivate,
-      password: channelIn.password,
-    });
+    return this.channelService
+      .connectToChannel({
+        name: channelIn.name,
+        ownerId: user.id,
+        isPrivate: channelIn.isPrivate,
+        password: channelIn.password,
+        type: channelIn.type,
+      })
+      .then(async (channel) => {
+        // notice users in channel about new client
+        this.server
+          .to(channelIn.name)
+          .emit(
+            "userConnected",
+            channel.name,
+            await this.userService.getUser(user.id, false, true)
+          );
 
-    // notice users in channel about new client
-    this.server
-      .to(channelIn.name)
-      .emit(
-        "userConnected",
-        channel.name,
-        await this.userService.getUser(user.id, false, true)
-      );
-
-    // send to user channel info
-    const channelInfo: DTO.ChannelInfoOut = {
-      name: channel.name,
-      users: channel.guests,
-      messages: channel.messages,
-      isPrivate: channel.isPrivate,
-      hasPassword: !!channel.password,
-    };
-    this.connections.forEach((client: DTO.ClientInfo, socketId: string) => {
-      if (client.name == user.name) {
-        this.server.to(socketId).emit("joinedToChannel", channelInfo);
-        this.server.in(socketId).socketsJoin(channelIn.name);
-      }
-    });
+        // send to user channel info
+        const channelInfo: DTO.ChannelInfoOut = {
+          name: channel.name,
+          users: channel.guests,
+          messages: channel.messages,
+          isPrivate: channel.isPrivate,
+          hasPassword: !!channel.password,
+        };
+        this.connections.forEach((client: DTO.ClientInfo, socketId: string) => {
+          if (client.name == user.name) {
+            this.server.to(socketId).emit("joinedToChannel", channelInfo);
+            this.server.in(socketId).socketsJoin(channelIn.name);
+          }
+        });
+      })
+      .catch((e) => {
+        throw e;
+      });
   }
 
   // user can connect to channel:
