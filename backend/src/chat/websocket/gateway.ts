@@ -56,9 +56,9 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("privateMessage")
   async onPrivateMessage(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() channelIn: DTO.ChannelInfoIn
+    @MessageBody() data: DTO.ManageUserI
   ) {
-    this.gatewayService.connectToChannelPM(socket, channelIn);
+    this.gatewayService.connectToChannelPM(socket, data);
   }
 
   @SubscribeMessage("inviteToGame")
