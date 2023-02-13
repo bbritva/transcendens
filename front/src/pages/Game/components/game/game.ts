@@ -4,7 +4,6 @@ import Bricks from "./Bricks";
 import Paddle from "./Paddle";
 import { gameChannelDataI } from "src/pages/Game/GamePage";
 
-
 function game(
   canvas: HTMLCanvasElement,
   setStopGame: Function,
@@ -17,44 +16,43 @@ function game(
   const right = isLeader ? game?.first : game?.second;
 
   function drawScore(
-    ctx:CanvasRenderingContext2D,
+    ctx: CanvasRenderingContext2D,
     leftPaddle: Paddle,
     rightPaddle: Paddle
   ) {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
-    ctx.fillText(`Score: ${left} ${leftPaddle.score} : ${rightPaddle.score} ${right}`, canvas.width / 2 - 70, 20);
+    ctx.fillText(
+      `Score: ${left} ${leftPaddle.score} : ${rightPaddle.score} ${right}`,
+      canvas.width / 2 - 70,
+      20
+    );
   }
 
-  function translateToPercent(
-    big: number,
-    little:number
-  ){
-    return (little / big);
+  function translateToPercent(big: number, little: number) {
+    return little / big;
   }
 
-  function translateFromPercent(
-    big: number, percent: number
-  ){
-    return (big - big * percent);
+  function translateFromPercent(big: number, percent: number) {
+    return big - big * percent;
   }
 
   function emitCoord(
     canvas: HTMLCanvasElement,
     paddle: Paddle,
     ball: Ball | null
-  ){
+  ) {
     const newCoordinates = {
       game: game.name,
       playerY: translateToPercent(canvas.height, paddle.paddleY),
       ball: ball
-            ? {
-                x: translateToPercent(canvas.width, ball.x),
-                y: translateToPercent(canvas.height, ball.y),
-              }
-            : ball
-    }
-    socket.volatile.emit('coordinates', newCoordinates);
+        ? {
+            x: translateToPercent(canvas.width, ball.x),
+            y: translateToPercent(canvas.height, ball.y),
+          }
+        : ball,
+    };
+    socket.volatile.emit("coordinates", newCoordinates);
   }
 
   function draw(
@@ -76,11 +74,7 @@ function game(
     ctx.lineTo(canvas.width - 2, 2);
     ctx.lineTo(2, 2);
     ctx.stroke();
-    emitCoord(
-      canvas,
-      rightPaddle,
-      isLeader ? ball : null
-    );
+    emitCoord(canvas, rightPaddle, isLeader ? ball : null);
     mods.bricks && bricks.drawBricks(ctx);
     ball.drawBall(ctx);
     rightPaddle.drawPaddle(ctx);
@@ -88,50 +82,54 @@ function game(
     mods.bricks && bricks.bricksCollision(ball);
     drawScore(ctx, leftPaddle, rightPaddle);
 
-    if(isLeader){
+    if (game.name == "single") {
+      leftPaddle.upPressed = leftPaddle.paddleY + 40 > ball.y;
+      leftPaddle.downPressed = leftPaddle.paddleY +40 < ball.y;
+    }
+
+    if (isLeader) {
       ball.verticalCollision();
       if (ball.leftCollision(leftPaddle)) {
-        if (ball.x + ball.dx < ball.ballRadius){
-          if (rightPaddle.makeScore()){
+        if (ball.x + ball.dx < ball.ballRadius) {
+          if (rightPaddle.makeScore()) {
             alert(`${rightPaddle.name} WINS`);
             document.location.reload();
-          };
-          socket.emit('score', {
+          }
+          socket.emit("score", {
             game: game.name,
             playerOne: {
               name: game.first,
-              score: rightPaddle.score
+              score: rightPaddle.score,
             },
             playerTwo: {
               name: game.second,
-              score: leftPaddle.score
-            }
+              score: leftPaddle.score,
+            },
           });
           ball.reset(-1);
-          leftPaddle.reset();
-          rightPaddle.reset();
+          // leftPaddle.reset();
+          // rightPaddle.reset();
         }
-      }
-      else if (ball.rightCollision(rightPaddle)) {
-        if(ball.x + ball.dx > canvas.width){
-          if (leftPaddle.makeScore()){
+      } else if (ball.rightCollision(rightPaddle)) {
+        if (ball.x + ball.dx > canvas.width) {
+          if (leftPaddle.makeScore()) {
             alert(`${leftPaddle.name} WINS`);
             document.location.reload();
-          };
-          socket.emit('score', {
+          }
+          socket.emit("score", {
             game: game.name,
             playerOne: {
               name: game.first,
-              score: rightPaddle.score
+              score: rightPaddle.score,
             },
             playerTwo: {
               name: game.second,
-              score: leftPaddle.score
-            }
+              score: leftPaddle.score,
+            },
           });
           ball.reset(1);
-          leftPaddle.reset();
-          rightPaddle.reset();
+          // leftPaddle.reset();
+          // rightPaddle.reset();
         }
       }
     }
@@ -141,15 +139,17 @@ function game(
     ball.moveBall();
 
     setStopGame((prev: boolean) => {
-      if (prev){
+      if (prev) {
         return prev;
       }
-      requestAnimationFrame(() => {draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx)});
+      requestAnimationFrame(() => {
+        draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
+      });
       return prev;
     });
   }
 
-  function initGame(){
+  function initGame() {
     const paddleHeight = 10;
     const paddleWidth = 75;
     const ballRadius = 10;
@@ -162,18 +162,18 @@ function game(
       paddleHeight,
       paddleWidth,
       paddleOffsetX,
-      'right',
+      "right",
       game
     );
     const leftPaddle = new Paddle(
       0 + paddleOffsetX,
-      (canvas.height - paddleWidth) / 2,
-      true,
+      canvas.height / 2,
+      game.name != "single",
       canvas,
       paddleHeight,
       paddleWidth,
       paddleOffsetX,
-      'left',
+      "left",
       game
     );
     const ball = new Ball(
@@ -185,31 +185,49 @@ function game(
       1.3
     );
 
-    if (socket.connected){
-      socket.on('coordinates', (data) => {
-        if (data.player === myName)
-          return;
-        leftPaddle.remoteY = leftPaddle.remote ? translateFromPercent(canvas.height, data.playerY) : 0;
-        if (! isLeader){
-          ball.remoteX = translateFromPercent(canvas.width, data.ball.x)
-          ball.remoteY = translateFromPercent(canvas.height, data.ball.y)
+    if (socket.connected) {
+      socket.on("coordinates", (data) => {
+        if (data.player === myName) return;
+        leftPaddle.remoteY = leftPaddle.remote
+          ? translateFromPercent(canvas.height, data.playerY)
+          : 0;
+        if (!isLeader) {
+          ball.remoteX = translateFromPercent(canvas.width, data.ball.x);
+          ball.remoteY = translateFromPercent(canvas.height, data.ball.y);
         }
       });
-      if (!isLeader){
-        socket.on('gameScore', (data) => {
+      if (!isLeader) {
+        socket.on("gameScore", (data) => {
           leftPaddle.score = data.playerOne.score;
           rightPaddle.score = data.playerTwo.score;
-        })
+        });
       }
     }
 
     const bricks = new Bricks();
-    document.addEventListener("keydown", (e) => {leftPaddle.keyDownHandler(e)}, false);
-    document.addEventListener("keyup", (e) => {leftPaddle.keyUpHandler(e)}, false);
-    document.addEventListener("mousemove", (e) => {rightPaddle.mouseMoveHandler(e)}, false);
+    document.addEventListener(
+      "keydown",
+      (e) => {
+        leftPaddle.keyDownHandler(e);
+      },
+      false
+    );
+    document.addEventListener(
+      "keyup",
+      (e) => {
+        leftPaddle.keyUpHandler(e);
+      },
+      false
+    );
+    document.addEventListener(
+      "mousemove",
+      (e) => {
+        rightPaddle.mouseMoveHandler(e);
+      },
+      false
+    );
     const ctx = canvas.getContext("2d");
-    if (ctx)
-      draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
+    if (ctx) draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
   }
 
   initGame();

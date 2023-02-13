@@ -35,7 +35,7 @@ class Paddle{
     this.paddleHeight = height;
     this.paddleWidth = width;
     this.paddleOffsetX = offsetX;
-    this.paddleSpeed = 5;
+    this.paddleSpeed = 1;
     this.score = 0;
     this.name = name;
     this.game = game;
@@ -105,7 +105,7 @@ class Paddle{
 
   makeScore(): boolean{
     this.score++;
-    return (this.score > 9);
+    return false;
   }
 
   reset() {

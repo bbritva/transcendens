@@ -62,7 +62,7 @@ const GamePage: FC<any> = (): ReactElement => {
     }
   }, [socket.connected, flag]);
 
-  function startGame(gameData?: gameChannelDataI) {
+  function startGame(gameData: gameChannelDataI) {
     const canvas = canvasRef.current;
     if (canvas && stopGame) {
       setStopGame(false);
@@ -168,7 +168,12 @@ const GamePage: FC<any> = (): ReactElement => {
           children={"Single player"}
           variant={"outlined"}
           size="large"
-          onClick={() => startGame()}
+          onClick={() => startGame({
+            name: "single",
+            first: testUsername || user.user?.name || "",
+            second: "nobody",
+            guests: [],
+          })}
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>

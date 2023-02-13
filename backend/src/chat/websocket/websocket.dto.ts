@@ -5,6 +5,7 @@ import { GameEntity } from "src/game/entities/game.entity";
 
 export interface ChannelInfoIn {
   name: string;
+  ownerId?: number;
   isPrivate?: boolean;
   password?: string;
   users?: { name: string }[];
