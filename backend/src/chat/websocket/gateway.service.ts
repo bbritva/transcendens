@@ -539,6 +539,29 @@ export class GatewayService {
       });
   }
 
+  async checkNamePossibility(id: string, data: DTO.ManageUserI) {
+    return this.userService
+      .getUserByName(data.targetUserName)
+      .then((user) => {
+        if (user) this.server.to(id).emit("nameTaken", data);
+        else this.server.to(id).emit("nameAvailable", data);
+      })
+      .catch((e) => {
+        this.server.to(id).emit("notAllowed", { eventName: "checkNamePossibility" });
+      });
+  }
+
+  async getNamesSuggestions(id: string, data: DTO.ManageUserI) {
+    return this.userService
+      .getNamesSuggestion(data.targetUserName)
+      .then((names) => {
+        this.server.to(id).emit("nameSuggestions", names);
+      })
+      .catch((e) => {
+        this.server.to(id).emit("notAllowed", { eventName: "getNamesSuggestions", data : data });
+      });
+  }
+
   private async connectUserToChannels(socket: Socket) {
     const client = this.connections.get(socket.id);
     const channels = await this.userService.getChannels(client.id);

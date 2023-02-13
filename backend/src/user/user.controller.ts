@@ -21,6 +21,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { randomUUID } from "crypto";
 import * as path from "path";
+import { ManageUserI } from "src/chat/websocket/websocket.dto";
 
 export const storage = {
   storage: diskStorage({
@@ -96,6 +97,19 @@ export class UserController {
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
+  }
+
+  @ApiOkResponse()
+  @Get("checkNamePossibility")
+  async checkNamePossibility(@Request() req: ManageUserI): Promise<boolean> {
+    return this.userService
+    .getUserByName(req.targetUserName)
+    .then((user) => {
+      return !user;
+    })
+    .catch((e) => {
+      throw new BadRequestException(e.message);
+    });
   }
 
   @ApiOkResponse({ type: UserEntity })

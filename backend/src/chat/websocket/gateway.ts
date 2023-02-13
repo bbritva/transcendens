@@ -251,4 +251,20 @@ export class Gateway implements OnModuleInit {
   ) {
     this.gatewayService.getLadder(socket.id);
   }
+
+  @SubscribeMessage("checkNamePossibility")
+  async onCheckNamePossibility(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.checkNamePossibility(socket.id, data);
+  }
+
+  @SubscribeMessage("getNamesSuggestions")
+  async onGetNamesSuggestions(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserI
+  ) {
+    this.gatewayService.getNamesSuggestions(socket.id, data);
+  }
 }

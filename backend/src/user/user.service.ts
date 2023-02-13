@@ -10,7 +10,7 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async users(params: {
-    select? : Prisma.UserSelect,
+    select?: Prisma.UserSelect;
     skip?: number;
     take?: number;
     cursor?: Prisma.UserWhereUniqueInput;
@@ -34,10 +34,10 @@ export class UserService {
 
   async getLadder(): Promise<User[]> {
     return this.users({
-        orderBy: {
-          score: "desc",
-        },
-      })
+      orderBy: {
+        score: "desc",
+      },
+    })
       .then((users) => {
         users.forEach((user) => {
           this.filterUserdata(user);
@@ -257,6 +257,30 @@ export class UserService {
     }
   }
 
+  async getNamesSuggestion(name: string): Promise<string[]> {
+    let names: string[] = [];
+    try {
+      if (!!name) {
+        const users = await this.prisma.user.findMany({
+          where: {
+            name: {
+              contains: name,
+              mode: 'insensitive'
+            },
+          },
+        });
+        if (users) {
+          for (const user of users) {
+            names.push(user.name);
+          }
+        }
+      }
+      return names;
+    } catch (e) {
+      console.log("err", e.meta.cause);
+    }
+  }
+
   async banPersonally(userId: number, targetUserName: string): Promise<User> {
     const user = await this.getUser(userId);
     return this.getUserByName(targetUserName)
@@ -339,32 +363,35 @@ export class UserService {
 
   async addScores(gameData: CreateGameDto) {
     const diff = gameData.winnerScore - gameData.loserScore;
-    this.prisma.user.update({
-      where: {
-        id: gameData.winnerId,
-      },
-      data: {
-        score: { increment: diff },
-      },
-    }).then()
-    .catch((e) => {
-      throw new BadRequestException(e.message);
-    });
-    this.prisma.user.update({
-      where: {
-        id: gameData.loserId,
-      },
-      data: {
-        score: { decrement: diff },
-      },
-    }).then()
-    .catch((e) => {
-      throw new BadRequestException(e.message);
-    });
-    
+    this.prisma.user
+      .update({
+        where: {
+          id: gameData.winnerId,
+        },
+        data: {
+          score: { increment: diff },
+        },
+      })
+      .then()
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
+    this.prisma.user
+      .update({
+        where: {
+          id: gameData.loserId,
+        },
+        data: {
+          score: { decrement: diff },
+        },
+      })
+      .then()
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
-  filterUserdata(user : User) {
+  filterUserdata(user: User) {
     delete user.friendIds;
     delete user.bannedIds;
     delete user.tokenId;

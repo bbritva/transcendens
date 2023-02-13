@@ -20,7 +20,6 @@ function HomePage() {
     ) {
       return;
     }
-
     setOpen(false);
   };
 
@@ -99,7 +98,7 @@ function HomePage() {
                   >
                     <MenuItem onClick={handleClose}>Profile</MenuItem>
                     <MenuItem onClick={handleClose}>My account</MenuItem>
-                    <MenuItem onClick={handleClose}>Logout</MenuItem>
+                    <MenuItem onClick={handleClose}>GetNameSuggestions</MenuItem>
                     <MenuItem onClick={() => {
                       const event : EventI = {
                         name : "getLadder",
