@@ -77,32 +77,25 @@ export class GatewayService {
 
   async connectToChannelPM(socket: Socket, data: DTO.ManageUserI) {
     try {
-      if (
-        await this.userService.isBanned(
-          this.connections.get(socket.id).id,
-          data.targetUserName
-        )
-      ) {
+      const targetUser = await this.userService.getUserByName(
+        data.targetUserName
+      );
+      if (targetUser.bannedIds.includes(this.connections.get(socket.id).id)) {
         this.server
           .to(socket.id)
           .emit("notAllowed", { eventName: "privateMessage", data: data });
       } else {
-        const names = [
+        const channelIn = this.createPMChannelName([
           this.connections.get(socket.id).name,
           data.targetUserName,
-        ].sort((a: string, b: string) => a.localeCompare(b));
-        const channelIn: DTO.ChannelInfoIn = {
-          name: `${names[0]} ${names[1]} pm`,
-          isPrivate: true,
-          type: "PRIVATE_MESSAGING",
-        };
+        ]);
         await this.connectUserToChannel(
           channelIn,
           this.connections.get(socket.id)
         );
-        await this.connectUserToChannel(
+        this.connectUserToChannel(
           channelIn,
-          await this.userService.getUserByName(data.targetUserName)
+          targetUser
         );
       }
     } catch (e) {
@@ -627,5 +620,14 @@ export class GatewayService {
       }
     }
     return null;
+  }
+
+  private createPMChannelName(names: string[]): DTO.ChannelInfoIn {
+    names.sort((a: string, b: string) => a.localeCompare(b));
+    return {
+      name: `${names[0]} ${names[1]} pm`,
+      isPrivate: true,
+      type: "PRIVATE_MESSAGING",
+    };
   }
 }
