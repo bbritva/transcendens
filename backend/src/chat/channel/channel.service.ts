@@ -59,8 +59,6 @@ export class ChannelService {
         },
       })
       .then((res: ChannelEntity[]) => {
-        console.log(res);
-        
         res.forEach((channel) => {
           channelList.push({
             name: channel.name,
