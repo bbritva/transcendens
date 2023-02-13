@@ -1,6 +1,6 @@
 import { UserEntity } from "src/user/entities/user.entity";
 import { MessageEntity } from "src/chat/message/entities/message.entity";
-import { eStatus } from "@prisma/client";
+import { eChannelType, eStatus } from "@prisma/client";
 import { GameEntity } from "src/game/entities/game.entity";
 
 export interface ChannelInfoIn {
@@ -8,6 +8,7 @@ export interface ChannelInfoIn {
   isPrivate?: boolean;
   password?: string;
   users?: { name: string }[];
+  type?: eChannelType;
 }
 
 export interface ChannelInfoOut {
