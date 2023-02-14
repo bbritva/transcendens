@@ -11,6 +11,7 @@ export const GridLogo = ({size}: GridLogoProps) => {
   const theme=useTheme()
   return (
     <Box 
+      marginLeft={'2rem'}
       display={'flex'}
       alignItems='center'
       gap={1}
