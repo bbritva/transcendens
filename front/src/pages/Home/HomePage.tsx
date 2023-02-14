@@ -1,11 +1,20 @@
-import {Box, Button, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper, Stack, Typography} from '@mui/material'
+import { Box, Button, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper, Stack, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react';
 import { EventI } from 'src/components/DialogSelect/ChannerSettingsDialog';
 import socket from 'src/services/socket';
+import gifPlaneLong from 'src/assets/output.gif'
+import gifPlaneFrame from 'src/assets/output-frame.gif'
+import gifCrowdFrame from 'src/assets/output-crowd-frame.gif'
+import gifCrowdLong from 'src/assets/output-crowd.gif'
+import { useNavigate } from 'react-router-dom';
+
 
 function HomePage() {
   const [open, setOpen] = useState(false);
   const [event, setEvent] = useState<EventI>({} as EventI);
+  const [planeImage, setPlaneImage] = useState(gifPlaneFrame)
+  const [crowdImage, setCrowdImage] = useState(gifCrowdFrame)
+  const navigate = useNavigate();
 
   const anchorRef = useRef<HTMLButtonElement>(null);
 
@@ -49,74 +58,95 @@ function HomePage() {
 
   return (
     <Box sx={{
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        verticalAlign: 'center'
+      flexGrow: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      verticalAlign: 'center'
     }}>
-        <Typography variant="h4" color={'lightsalmon'}>
-          Ultimate 42
-        </Typography>
-        <Typography variant="h2" color={'lightgoldenrodyellow'}>
-          Most Popular
-        </Typography>
-        <Stack direction="row" spacing={2}>
-      <div>
-        <Button
-          ref={anchorRef}
-          id="composition-button"
-          aria-controls={open ? 'composition-menu' : undefined}
-          aria-expanded={open ? 'true' : undefined}
-          aria-haspopup="true"
-          onClick={handleToggle}
+      <Typography variant="h4" color={'lightsalmon'}>
+        Ultimate 42
+      </Typography>
+      <Typography variant="h2" color={'lightgoldenrodyellow'}>
+        Most Popular
+      </Typography>
+      <Box position={'relative'}>
+        <Box component={'img'} src={planeImage}
+          onMouseOver={() => setPlaneImage(gifPlaneLong)}
+          onMouseLeave={() => setPlaneImage(gifPlaneFrame)}
+          onClick={() => {navigate('/game', { replace: true })}}
+          position={'absolute'}
+          top={0}
+          left={0}
         >
-          Dashboard
-        </Button>
-        <Popper
-          open={open}
-          anchorEl={anchorRef.current}
-          role={undefined}
-          placement="bottom-start"
-          transition
-          disablePortal
+        </Box>
+        <Box component={'img'} src={crowdImage}
+          onMouseOver={() => setCrowdImage(gifCrowdLong)}
+          onMouseLeave={() => setCrowdImage(gifCrowdFrame)}
+          onClick={() => {navigate('/chat', { replace: true })}}
+          zIndex={9}
+          position={'absolute'}
+          top={418}
+          left={1005}
         >
-          {({ TransitionProps, placement }) => (
-            <Grow
-              {...TransitionProps}
-              style={{
-                transformOrigin:
-                  placement === 'bottom-start' ? 'left top' : 'left bottom',
-              }}
-            >
-              <Paper>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList
-                    autoFocusItem={open}
-                    id="composition-menu"
-                    aria-labelledby="composition-button"
-                    onKeyDown={handleListKeyDown}
-                  >
-                    <MenuItem onClick={handleClose}>Profile</MenuItem>
-                    <MenuItem onClick={handleClose}>My account</MenuItem>
-                    <MenuItem onClick={handleClose}>GetNameSuggestions</MenuItem>
-                    <MenuItem onClick={() => {
-                      const event : EventI = {
-                        name : "getLadder",
+        </Box>
+      </Box>
+      <Stack direction="row" spacing={2}>
+        <div>
+          <Button
+            ref={anchorRef}
+            id="composition-button"
+            aria-controls={open ? 'composition-menu' : undefined}
+            aria-expanded={open ? 'true' : undefined}
+            aria-haspopup="true"
+            onClick={handleToggle}
+          >
+            Dashboard
+          </Button>
+          <Popper
+            open={open}
+            anchorEl={anchorRef.current}
+            role={undefined}
+            placement="bottom-start"
+            transition
+            disablePortal
+          >
+            {({ TransitionProps, placement }) => (
+              <Grow
+                {...TransitionProps}
+                style={{
+                  transformOrigin:
+                    placement === 'bottom-start' ? 'left top' : 'left bottom',
+                }}
+              >
+                <Paper>
+                  <ClickAwayListener onClickAway={handleClose}>
+                    <MenuList
+                      autoFocusItem={open}
+                      id="composition-menu"
+                      aria-labelledby="composition-button"
+                      onKeyDown={handleListKeyDown}
+                    >
+                      <MenuItem onClick={handleClose}>Profile</MenuItem>
+                      <MenuItem onClick={handleClose}>My account</MenuItem>
+                      <MenuItem onClick={handleClose}>GetNameSuggestions</MenuItem>
+                      <MenuItem onClick={() => {
+                        const event: EventI = {
+                          name: "getLadder",
+                        }
+                        setEvent(event);
+                        setOpen(false);
                       }
-                      setEvent(event);
-                      setOpen(false);
-                    }
-                    }>Get Ladder</MenuItem>
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
-      </div>
-    </Stack>
+                      }>Get Ladder</MenuItem>
+                    </MenuList>
+                  </ClickAwayListener>
+                </Paper>
+              </Grow>
+            )}
+          </Popper>
+        </div>
+      </Stack>
     </Box>
-    
+
   );
 }
 
