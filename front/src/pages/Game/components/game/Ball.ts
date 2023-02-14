@@ -11,6 +11,7 @@ class Ball{
   ballSpeed: number;
   remoteX: number = 0;
   remoteY: number = 0;
+  lastUpdateTime: Date = new Date()
 
   constructor(
     initX: number, initY: number, 
@@ -74,8 +75,9 @@ class Ball{
       this.y = this.remoteY;
     }
     else {
-      this.x += this.dx;
-      this.y += this.dy;
+      const k = new Date(this.lastUpdateTime).getMilliseconds() / (this.ballSpeed * 500)
+      this.x += this.dx * k;
+      this.y += this.dy * k;
     }
   }
 

@@ -185,7 +185,7 @@ const GamePage: FC<any> = (): ReactElement => {
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
-        <Canvas ref={canvasRef} {...canvasProps} />
+        <Canvas ref={canvasRef} {...canvasProps}/>
       </Grid>
     </Grid>
   );
