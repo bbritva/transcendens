@@ -15,8 +15,6 @@ export const GridLogo = ({size}: GridLogoProps) => {
       alignItems='center'
       gap={1}
       sx={{
-        width: size*1.5,
-        height: '170%',
         backgroundColor: theme.palette.primary.main
       }}
     >

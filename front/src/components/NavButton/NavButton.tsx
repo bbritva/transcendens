@@ -1,4 +1,4 @@
-import { Button, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import { Route } from "src/routes";
 import { StyledNavButton } from "./StyledNavButton";
