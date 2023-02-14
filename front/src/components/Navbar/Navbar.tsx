@@ -4,9 +4,6 @@ import {
   Typography,
   AppBar,
   Box,
-  Grid,
-  Button,
-  alpha,
   useTheme,
 } from "@mui/material";
 import { routes } from "src/routes";
@@ -16,10 +13,12 @@ import Protected from "../Authentication/Protected";
 import { Container } from "@mui/system";
 import { StyledNavButton } from "../NavButton/StyledNavButton";
 import NavButton from "../NavButton/NavButton";
+import BasicMenu from "../BasicMenu/BasicMenu";
+
 
 interface NavbarProps {
   loginButtonText: string;
-  onLoginClick: () => void;
+  onLoginClick: React.MouseEventHandler;
   onLogoutClick: () => void;
 }
 
@@ -28,14 +27,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
   const myHeight = "10vh";
-  const navButtonStyle = {
-    display: { xs: "none", md: "flex" },
-    fontSize: "large",
-    marginLeft: "3rem",
-    "&:hover": {
-      backgroundColor: theme.palette.primary.light,
-    },
-  } as const;
+
   return (
     <AppBar position="sticky">
       <Container>
@@ -49,23 +41,16 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
           <Protected
             user={user}
             render={() => (
-              //TODO: MENU instead of logout
-              <Button
-                sx={navButtonStyle}
-                variant={"text"}
-                onClick={onLogoutClick}
-              >
-                <Typography color="secondary">Logout</Typography>
-              </Button>
+              <BasicMenu/>
+  
             )}
             fail={() => (
-              <Button
-                sx={navButtonStyle}
+              <StyledNavButton 
                 variant={"text"}
                 onClick={onLoginClick}
               >
                 <Typography color="secondary">{loginButtonText}</Typography>
-              </Button>
+              </StyledNavButton>
             )}
           />
         </Box>

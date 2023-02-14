@@ -2,8 +2,10 @@ import { Button, ButtonProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 interface styledNavButtonProps extends ButtonProps {
-  component: any;
-  to: any;
+  component?: any ;
+  to?: any;
+  children: React.ReactNode | React.ReactNode[];
+  onClick?: React.MouseEventHandler
 }
 
 export const StyledNavButton = styled(Button)<styledNavButtonProps>(

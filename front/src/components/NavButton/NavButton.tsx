@@ -5,7 +5,7 @@ import { StyledNavButton } from "./StyledNavButton";
 
 interface navButtonProps {
   page: Route;
-  children: React.ReactNode;
+  children: React.ReactNode | React.ReactNode[];
 }
 
 function NavButton({ children, page }: navButtonProps) {
