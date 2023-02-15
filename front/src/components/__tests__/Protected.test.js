@@ -6,29 +6,6 @@ import {act} from 'react-dom/test-utils'
 let container = null;
 let root = null
 
-const localStorageMock = (() => {
-  let store = {};
-
-  return {
-    getItem(key) {
-      return store[key] || null;
-    },
-    setItem(key, value) {
-      store[key] = value.toString();
-    },
-    removeItem(key) {
-      delete store[key];
-    },
-    clear() {
-      store = {};
-    }
-  };
-})();
-
-Object.defineProperty(window, 'sessionStorage', {
-  value: localStorageMock
-});
-
 beforeEach(() => {
   // подготавливаем DOM-элемент, куда будем рендерить
   container = document.createElement("div");
