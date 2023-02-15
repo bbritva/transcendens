@@ -69,12 +69,12 @@ function game(
       game
     );
     const ball = new Ball(
-      rightPaddle.paddleX - 30,
+      canvas.width / 2,
       canvas.height / 2,
-      false,
+      game.name != "single",
       canvas,
       ballRadius,
-      1
+      .5
     );
 
     if (socket.connected) {
@@ -139,7 +139,7 @@ function game(
     if (isLeader) {
       ball.verticalCollision();
       if (ball.leftCollision(leftPaddle)) {
-        if (ball.x + ball.dx < ball.ballRadius) {
+        if (ball.x + ball.speedX < ball.ballRadius) {
           if (rightPaddle.makeScore()) {
             alert(`${rightPaddle.name} WINS`);
             document.location.reload();
@@ -158,7 +158,7 @@ function game(
           ball.reset(-1);
         }
       } else if (ball.rightCollision(rightPaddle)) {
-        if (ball.x + ball.dx > canvas.width) {
+        if (ball.x + ball.speedX > canvas.width) {
           if (leftPaddle.makeScore()) {
             alert(`${leftPaddle.name} WINS`);
             document.location.reload();

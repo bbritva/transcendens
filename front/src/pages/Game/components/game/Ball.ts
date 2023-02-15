@@ -5,13 +5,13 @@ class Ball {
   x: number;
   y: number;
   remote: boolean;
-  dx: number;
-  dy: number;
+  speedX: number;
+  speedY: number;
   ballRadius: number;
   ballSpeed: number;
   remoteX: number = 0;
   remoteY: number = 0;
-  lastUpdateTime: Date = new Date();
+  lastUpdateTime: number = Date.now();
 
   constructor(
     initX: number,
@@ -25,43 +25,45 @@ class Ball {
     this.x = initX;
     this.y = initY;
     this.remote = remote;
-    this.dx = -speed;
-    this.dy = speed;
+    this.speedX = -speed;
+    this.speedY = speed;
     this.ballRadius = radius;
     this.ballSpeed = speed;
   }
 
   verticalCollision() {
-    if(this.y + this.dy > this.canvas.height - this.ballRadius || this.y + this.dy < this.ballRadius) {
-      this.dy = -this.dy;
-    }
+    if (this.y > this.canvas.height - this.ballRadius)
+      this.speedY = -this.ballSpeed;
+    else if (this.y < this.ballRadius)
+      this.speedY = this.ballSpeed;
   }
 
-  hitDirection(paddle: Paddle) {
+  hitDirection(paddle: Paddle, isLeft = false) : boolean {
     const whereHit = paddle.ballCollision(this);
-    if (whereHit){
-      this.dx = -this.dx;
-      if (whereHit == 2)
-        this.dy = 0;
-      else if (this.dy <= 0 && whereHit < 0 || this.dy >= 0 && whereHit > 0)
-        this.dy = this.ballSpeed * -whereHit;
+    if (whereHit) {
+      if (whereHit == 2) {
+        this.speedY = 0;
+        this.speedX =
+          (isLeft ? this.ballSpeed : -this.ballSpeed) * Math.sqrt(2);
+      } else {
+        this.speedY = this.ballSpeed * -whereHit;
+        this.speedX = isLeft ? this.ballSpeed : -this.ballSpeed;
+      }
+      return true;
     }
+    return false;
   }
 
   leftCollision(leftPaddle: Paddle): boolean {
-    const res = (this.x + this.dx < this.ballRadius + leftPaddle.paddleHeight + leftPaddle.paddleOffsetX);
-    if (res){
-      this.hitDirection(leftPaddle);
-    }
-    return res;
+    return (this.x <
+      this.ballRadius + leftPaddle.paddleHeight + leftPaddle.paddleOffsetX)  && 
+      !this.hitDirection(leftPaddle, true)
   }
 
   rightCollision(rightPaddle: Paddle): boolean {
-    const res = (this.x + this.dx > this.canvas.width - this.ballRadius - rightPaddle.paddleOffsetX);
-    if (res){
-      this.hitDirection(rightPaddle);
-    }
-    return res;
+    return ( this.x >
+      this.canvas.width - this.ballRadius - rightPaddle.paddleOffsetX - rightPaddle.paddleHeight) &&
+      !this.hitDirection(rightPaddle);
   }
 
   drawBall(ctx: CanvasRenderingContext2D) {
@@ -76,19 +78,20 @@ class Ball {
     if (this.remoteX || this.remoteY) {
       this.x = this.remoteX;
       this.y = this.remoteY;
-    }
-    else {
-      const k = new Date(this.lastUpdateTime).getMilliseconds() / (this.ballSpeed * 500)
-      this.x += this.dx * k;
-      this.y += this.dy * k;
+    } else {
+      const now = Date.now();
+      const k = (now - this.lastUpdateTime) * this.ballSpeed;
+      this.x += this.speedX * k;
+      this.y += this.speedY * k;
+      this.lastUpdateTime = now;
     }
   }
 
   reset(side: number) {
     this.y = this.canvas.height / 2;
     this.x = this.canvas.width / 2;
-    this.dx = -this.ballSpeed * side;
-    this.dy = this.ballSpeed * side;
+    this.speedX = -this.ballSpeed * side;
+    this.speedY = this.ballSpeed * side;
   }
 }
 
