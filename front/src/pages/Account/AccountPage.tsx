@@ -1,14 +1,19 @@
 import {ReactElement, FC} from "react";
-import {Box, Typography} from "@mui/material";
+import {Box, Typography, Paper, useTheme} from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
 import { selectUser } from "src/store/userSlice";
 
 const AccountPage: FC<any> = (): ReactElement => {
   const {user, status, error} = useSelector(selectUser);
+  const theme = useTheme();
 
   return (
-    <Box sx={{
+    <Box
+      component={Paper} 
+
+      sx={{
+        backgroundColor: theme.palette.secondary.light,
       flexGrow: 1,
       display: 'flex',
       justifyContent: 'center',
