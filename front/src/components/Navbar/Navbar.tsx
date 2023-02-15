@@ -10,21 +10,18 @@ import NavButton from "../NavButton/NavButton";
 import BasicMenu from "../BasicMenu/BasicMenu";
 
 interface NavbarProps {
-  loginButtonText: string;
   onLoginClick: React.MouseEventHandler;
   onLogoutClick: () => void;
 }
 
-function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
+function Navbar({ onLoginClick, onLogoutClick }: NavbarProps) {
   // const [anchorNav, setAnchorNav] = useState(null); //will use it for menu
-  const { user, status, error } = useSelector(selectUser);
-  const theme = useTheme();
-  const myHeight = "10vh";
+  const { user } = useSelector(selectUser);
 
   return (
     <AppBar position="sticky">
       <Box sx={{ flexGrow: 1, display: { xs: "flex" } }}>
-        <GridLogo size={100}></GridLogo>
+        <GridLogo />
         {routes.map(
           (page) =>
             page.title !== "Account" && (
@@ -37,7 +34,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
             render={() => <BasicMenu onLogout={onLogoutClick} />}
             fail={() => (
               <StyledNavButton variant={"text"} onClick={onLoginClick}>
-                <Typography color="secondary">{loginButtonText}</Typography>
+                <Typography color="secondary">LOGIN</Typography>
               </StyledNavButton>
             )}
           />

@@ -134,7 +134,6 @@ function App() {
         </DialogSelect>
         <FormDialog userName={userName} setUsername={setUsername} />
           <Navbar
-            loginButtonText="login"
             onLoginClick={onLoginClick}
             onLogoutClick={onLogoutClick}
           />

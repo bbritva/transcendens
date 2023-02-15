@@ -3,11 +3,8 @@ import { color } from '@mui/system';
 import Typography from '@mui/material/Typography';
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
 
-interface GridLogoProps {
-  size: number;
-}
 
-export const GridLogo = ({size}: GridLogoProps) => {
+export const GridLogo = () => {
   const theme=useTheme()
   return (
     <Box 
