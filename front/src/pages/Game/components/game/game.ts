@@ -26,7 +26,7 @@ function game(
     ctx: CanvasRenderingContext2D
   ) {
     moveElements(ball, rightPaddle, leftPaddle);
-    checkGoal(ball, rightPaddle, leftPaddle);
+    checkCollisions(ball, rightPaddle, leftPaddle);
     emitCoord(canvas, rightPaddle, isLeader ? ball : null);
     draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
     // SETTING MAIN GAME CYCLE
@@ -134,7 +134,7 @@ function game(
     ball.moveBall();
   }
 
-  function checkGoal(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle){
+  function checkCollisions(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle){
     // mods.bricks && bricks.bricksCollision(ball);
     if (isLeader) {
       ball.verticalCollision();

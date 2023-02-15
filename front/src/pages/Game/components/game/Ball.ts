@@ -1,6 +1,6 @@
 import Paddle from "./Paddle";
 
-class Ball{
+class Ball {
   canvas: HTMLCanvasElement;
   x: number;
   y: number;
@@ -11,13 +11,16 @@ class Ball{
   ballSpeed: number;
   remoteX: number = 0;
   remoteY: number = 0;
-  lastUpdateTime: Date = new Date()
+  lastUpdateTime: Date = new Date();
 
   constructor(
-    initX: number, initY: number, 
-    remote:boolean ,canvas: HTMLCanvasElement,
-    radius: number, speed: number,
-  ){
+    initX: number,
+    initY: number,
+    remote: boolean,
+    canvas: HTMLCanvasElement,
+    radius: number,
+    speed: number
+  ) {
     this.canvas = canvas;
     this.x = initX;
     this.y = initY;
@@ -60,7 +63,7 @@ class Ball{
     }
     return res;
   }
-  
+
   drawBall(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.ballRadius, 0, Math.PI * 2);
@@ -70,7 +73,7 @@ class Ball{
   }
 
   moveBall() {
-    if (this.remoteX || this.remoteY){
+    if (this.remoteX || this.remoteY) {
       this.x = this.remoteX;
       this.y = this.remoteY;
     }

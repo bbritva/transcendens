@@ -2,7 +2,7 @@ import socket from "src/services/socket";
 import Ball from "./Ball";
 import { gameChannelDataI } from "../../GamePage";
 
-class Paddle{
+class Paddle {
   canvas: HTMLCanvasElement;
   initX: number;
   initY: number;
@@ -20,10 +20,17 @@ class Paddle{
   remoteY: number = 0;
   game: gameChannelDataI;
 
-  constructor(initX: number, initY: number,
-            remote: boolean, canvas: HTMLCanvasElement,
-            height: number, width:number, offsetX: number,
-            name: string, game: gameChannelDataI){
+  constructor(
+    initX: number,
+    initY: number,
+    remote: boolean,
+    canvas: HTMLCanvasElement,
+    height: number,
+    width: number,
+    offsetX: number,
+    name: string,
+    game: gameChannelDataI
+  ) {
     this.canvas = canvas;
     this.initX = initX;
     this.initY = initY;
@@ -44,17 +51,15 @@ class Paddle{
   keyDownHandler(e: KeyboardEvent) {
     if (e.code == "ArrowDown") {
       this.downPressed = true;
-    }
-    else if (e.code == 'ArrowUp') {
+    } else if (e.code == "ArrowUp") {
       this.upPressed = true;
     }
   }
 
   keyUpHandler(e: KeyboardEvent) {
-    if (e.code == 'ArrowDown') {
+    if (e.code == "ArrowDown") {
       this.downPressed = false;
-    }
-    else if (e.code == 'ArrowUp') {
+    } else if (e.code == "ArrowUp") {
       this.upPressed = false;
     }
   }
@@ -68,42 +73,38 @@ class Paddle{
 
   drawPaddle(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
-    ctx.rect(this.paddleX, this.paddleY, this.paddleHeight ,this.paddleWidth);
+    ctx.rect(this.paddleX, this.paddleY, this.paddleHeight, this.paddleWidth);
     ctx.fillStyle = "#0096DD";
     ctx.fill();
     ctx.closePath();
   }
 
-  movePaddle(){
-    if (this.remote){
+  movePaddle() {
+    if (this.remote) {
       this.paddleY = this.remoteY - this.paddleWidth;
-      return ;
-    }
-    else {
-      if (this.downPressed && this.paddleY < this.canvas.height - this.paddleWidth) {
+      return;
+    } else {
+      if (
+        this.downPressed &&
+        this.paddleY < this.canvas.height - this.paddleWidth
+      ) {
         this.paddleY += this.paddleSpeed;
-      }
-      else if (this.upPressed && this.paddleY > 0) {
+      } else if (this.upPressed && this.paddleY > 0) {
         this.paddleY -= this.paddleSpeed;
       }
     }
   }
 
-  ballCollision(ball: Ball): number{
-    const middle = this.paddleWidth / 2;
-    const topHit = ball.y > this.paddleY && ball.y < this.paddleY + middle;
-    const bottomHit = ball.y > this.paddleY + middle && ball.y < this.paddleY + this.paddleWidth;
-    const middleHit = ball.y > this.paddleY + middle - 3 && ball.y < this.paddleY + middle + 3;
-    if (middleHit)
-      return 2;
-    if (topHit)
-      return 1;
-    if (bottomHit)
-      return -1;
+  ballCollision(ball: Ball): number {
+    const hit = ball.y - this.paddleY;
+    if (hit < 0 || hit > this.paddleWidth) return 0;
+    if (hit < this.paddleWidth / 3) return 1;
+    if (hit < 2 * this.paddleWidth / 3) return 2;
+    if (hit < this.paddleWidth) return -1;
     return 0;
   }
 
-  makeScore(): boolean{
+  makeScore(): boolean {
     this.score++;
     return false;
   }
