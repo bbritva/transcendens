@@ -19,6 +19,7 @@ class Paddle {
   name: string;
   remoteY: number = 0;
   game: gameChannelDataI;
+  lastUpdateTime: number = Date.now();
 
   constructor(
     initX: number,
@@ -42,7 +43,7 @@ class Paddle {
     this.paddleHeight = height;
     this.paddleWidth = width;
     this.paddleOffsetX = offsetX;
-    this.paddleSpeed = 1;
+    this.paddleSpeed = .5;
     this.score = 0;
     this.name = name;
     this.game = game;
@@ -84,13 +85,16 @@ class Paddle {
       this.paddleY = this.remoteY - this.paddleWidth;
       return;
     } else {
+      const now = Date.now();
+      const k = (now - this.lastUpdateTime) * this.paddleSpeed;
+      this.lastUpdateTime = now;
       if (
         this.downPressed &&
         this.paddleY < this.canvas.height - this.paddleWidth
       ) {
-        this.paddleY += this.paddleSpeed;
+        this.paddleY += this.paddleSpeed * k;
       } else if (this.upPressed && this.paddleY > 0) {
-        this.paddleY -= this.paddleSpeed;
+        this.paddleY -= this.paddleSpeed * k;
       }
     }
   }

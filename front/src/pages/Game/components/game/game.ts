@@ -126,8 +126,8 @@ function game(
 
   function moveElements(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
     if (game.name == "single") {
-      leftPaddle.upPressed = leftPaddle.paddleY + 40 > ball.y;
-      leftPaddle.downPressed = leftPaddle.paddleY + 40 < ball.y;
+      leftPaddle.upPressed = leftPaddle.paddleY + 10 > ball.y;
+      leftPaddle.downPressed = leftPaddle.paddleY + 70 < ball.y;
     }
     rightPaddle.movePaddle();
     leftPaddle.movePaddle();
