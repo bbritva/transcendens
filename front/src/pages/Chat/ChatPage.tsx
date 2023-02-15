@@ -9,6 +9,7 @@ import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildr
 import { chatStyles } from "./chatStyles";
 import socket from "src/services/socket";
 import { useAppDispatch } from "src/app/hooks";
+import { Box } from "@mui/system";
 
 
 export interface fromBackI{
@@ -96,11 +97,7 @@ const ChatPage: FC<ChatPageProps> = ({
 
   return (
   <>
-    <Grid container spacing={1}
-      height={'60vh'}
-      padding={'6px'}
-    >
-      <Grid item xs={2} height={'100%'}>
+      <Box flex={1} sx={{display: { xs: "none", sm: "none", md: "block"}}}>
         <OneColumnTable
           taper='Channels'
           user={user.user}
@@ -121,8 +118,9 @@ const ChatPage: FC<ChatPageProps> = ({
             />
           }
         />
-      </Grid>
-      <Grid container item xs={7} height={'100%'} >
+        </Box>
+      
+      <Box flex={4}>
         <ChatTable
           name={'Chat'}
           loading={loading}
@@ -132,20 +130,17 @@ const ChatPage: FC<ChatPageProps> = ({
           user={user.user}
         />
         <Divider />
-        <Grid item xs={12} component={Paper} display='flex' 
-            minHeight='5%'
-            maxHeight='25%'
-            borderColor= {theme.palette.secondary.light
-        }>
-        <ChatInput
-          chatStyles={chatStyles}
-          value={value}
-          setValue={setValue}
-          onSubmit={onSubmit}
+        <Box>
+          <ChatInput
+            chatStyles={chatStyles}
+            value={value}
+            setValue={setValue}
+            onSubmit={onSubmit}
         />
-        </Grid>
-      </Grid>
-      <Grid item xs={2} height={'100%'}>
+        </Box>
+      </Box>
+      
+      <Box flex={1} sx={{display: { xs: "none", sm: "block", md: "block"}}}>
         <OneColumnTable
           taper='Users'
           user={user.user}
@@ -164,9 +159,8 @@ const ChatPage: FC<ChatPageProps> = ({
             />
           }
         />
-      </Grid>
-    </Grid>
-  </>
+      </Box>
+    </>
   );
 };
 

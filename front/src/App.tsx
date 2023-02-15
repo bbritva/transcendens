@@ -2,7 +2,7 @@ import "src/App.css";
 import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box } from "@mui/material";
+import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box, Stack} from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
@@ -25,11 +25,14 @@ import useTwoFA from "src/hooks/useTwoFA";
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#283593',
+      main: '#56a2b8',
     },
     secondary: {
-      main: '#e91e63',
+      main: '#ecebd9',
     },
+    info: {
+      main: '#8bd4d1'
+    }
   },
 });
 
@@ -130,7 +133,6 @@ function App() {
           </Button>
         </DialogSelect>
         <FormDialog userName={userName} setUsername={setUsername} />
-        <Grid container spacing={2} justifyContent="center">
           <Navbar
             loginButtonText="login"
             onLoginClick={onLoginClick}
@@ -166,15 +168,16 @@ function App() {
                   key={route.key}
                   path={route.path}
                   element={
+                    <Stack height='70vh' direction="row" spacing={2} justifyContent="space-between">
                     <PrivateRouteWrapper>
                       <route.component channels={channels} setChannels={setChannels} />
                     </PrivateRouteWrapper>
+                    </Stack>
                   }
                 />
               ))}
             </Routes>
           </Grid>
-        </Grid>
       </div>
     </ThemeProvider>
   );

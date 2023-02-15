@@ -8,7 +8,7 @@ export interface protectedProps {
 
 const Protected: FC<protectedProps> = (props: protectedProps) => {
   const testUsername = sessionStorage.getItem('username');
-  if (!props.user || !testUsername) {
+  if (!props.user && !testUsername) {
       if (props.fail) {
           return props.fail();
       }
