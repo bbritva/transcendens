@@ -1,5 +1,4 @@
 import { useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
 import { Typography, AppBar, Box, useTheme } from "@mui/material";
 import { routes } from "src/routes";
 import { GridLogo } from "src/components/Logo/GridLogo";

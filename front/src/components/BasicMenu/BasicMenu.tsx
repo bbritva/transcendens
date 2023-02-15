@@ -1,6 +1,4 @@
 import * as React from "react";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import { StyledNavButton } from "../NavButton/StyledNavButton";
 import { Avatar } from "@mui/material";
 import MoreVert from "@mui/icons-material/MoreVert";
@@ -8,6 +6,7 @@ import fakeAvatar from "src/assets/logo192.png";
 import { RootState } from "src/store/store";
 import { useStore } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { StyledMenu, StyledMenuItem } from "./StyledMenu";
 
 interface basicMenuI {
   onLogout: Function;
@@ -38,10 +37,7 @@ export default function BasicMenu({ onLogout }: basicMenuI) {
         <Avatar src={user.user?.avatar || user.user?.image || fakeAvatar} />
         <MoreVert color="secondary" />
       </StyledNavButton>
-      <Menu
-        sx={{
-          backgroundColor: "secondary",
-        }}
+      <StyledMenu 
         id="basic-menu"
         anchorEl={anchorEl}
         open={open}
@@ -50,23 +46,24 @@ export default function BasicMenu({ onLogout }: basicMenuI) {
           "aria-labelledby": "basic-button",
         }}
       >
-        <MenuItem
+       
+        <StyledMenuItem
           onClick={() => {
             navigate("/account", { replace: true });
             handleClose();
           }}
         >
           {user.user?.name || "Profile"}
-        </MenuItem>
-        <MenuItem
+        </StyledMenuItem>
+        <StyledMenuItem
           onClick={() => {
             onLogout();
             handleClose();
           }}
         >
           Logout
-        </MenuItem>
-      </Menu>
+        </StyledMenuItem>
+      </StyledMenu>
     </>
   );
 }
