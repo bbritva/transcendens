@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { EventI } from 'src/components/DialogSelect/ChannerSettingsDialog';
 import socket from 'src/services/socket';
 import gifPlaneLong from 'src/assets/output.gif'
-import gifPlaneFrame from 'src/assets/output-frame.gif'
-import gifCrowdFrame from 'src/assets/output-crowd-frame.gif'
+import gifPlaneFrame from 'src/assets/output-frame-bw.gif'
+import gifCrowdFrame from 'src/assets/output-crowd-frame-bw.gif'
 import gifCrowdLong from 'src/assets/output-crowd.gif'
 import { useNavigate } from 'react-router-dom';
 
