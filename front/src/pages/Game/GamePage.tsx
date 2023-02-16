@@ -13,6 +13,23 @@ import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import socket from "src/services/socket";
 import { useStore } from "react-redux";
 import { RootState } from "src/store/store";
+import Webcam from "react-webcam";
+import { Hands } from "@mediapipe/hands";
+import * as Cam from "@mediapipe/camera_utils";
+
+export interface point {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export class HandY {
+  y: number = 0;
+}
+
+export interface handData {
+  multiHandLandmarks: point[][];
+}
 
 export interface coordinateDataI {
   game: string;
@@ -43,6 +60,49 @@ const GamePage: FC<any> = (): ReactElement => {
   const { getState } = useStore();
   const { user } = getState() as RootState;
 
+  const webcamRef = useRef<Webcam>(null);
+  var camera = null;
+  const handY: HandY = { y: 0 };
+
+  function onResults(results: handData) {
+    if (
+      results &&
+      results.multiHandLandmarks &&
+      results.multiHandLandmarks[0] &&
+      results.multiHandLandmarks[0][0]
+    )
+    handY.y = results.multiHandLandmarks[0][0].y;
+    console.log("y = ", handY.y);
+  }
+
+  useEffect(() => {
+    const handsMesh = new Hands({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      },
+    });
+    handsMesh.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 0,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    handsMesh.onResults(onResults);
+
+    if (webcamRef.current != null && webcamRef.current.video != null) {
+      camera = new Cam.Camera(webcamRef.current.video, {
+        onFrame: async () => {
+          if (webcamRef.current != null && webcamRef.current.video != null)
+            await handsMesh.send({ image: webcamRef.current.video });
+        },
+        width: 640,
+        height: 480,
+      });
+      camera.start();
+    }
+  });
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -72,7 +132,8 @@ const GamePage: FC<any> = (): ReactElement => {
           setStopGame,
           { bricks: false },
           gameData,
-          testUsername || user.user?.name || ""
+          testUsername || user.user?.name || "",
+          handY
         );
     }
   }
@@ -168,12 +229,14 @@ const GamePage: FC<any> = (): ReactElement => {
           children={"Single player"}
           variant={"outlined"}
           size="large"
-          onClick={() => startGame({
-            name: "single",
-            first: testUsername || user.user?.name || "",
-            second: "nobody",
-            guests: [],
-          })}
+          onClick={() =>
+            startGame({
+              name: "single",
+              first: testUsername || user.user?.name || "",
+              second: "nobody",
+              guests: [],
+            })
+          }
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
@@ -185,7 +248,22 @@ const GamePage: FC<any> = (): ReactElement => {
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
-        <Canvas ref={canvasRef} {...canvasProps}/>
+        <Canvas ref={canvasRef} {...canvasProps} />
+        <Webcam
+          ref={webcamRef}
+          style={{
+            position: "absolute",
+            marginRight: "auto",
+            marginLeft: "5%",
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            zIndex: 9,
+            width: 640,
+            height: 480,
+            visibility: "hidden",
+          }}
+        />
       </Grid>
     </Grid>
   );

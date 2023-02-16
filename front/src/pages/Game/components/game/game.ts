@@ -2,7 +2,7 @@ import socket from "src/services/socket";
 import Ball from "./Ball";
 import Bricks from "./Bricks";
 import Paddle from "./Paddle";
-import { gameChannelDataI } from "src/pages/Game/GamePage";
+import { gameChannelDataI, HandY } from "src/pages/Game/GamePage";
 
 export interface GameResultDto {
   name: string;
@@ -17,11 +17,13 @@ function game(
   setStopGame: Function,
   mods: { bricks: boolean },
   game: gameChannelDataI,
-  myName: string
+  myName: string,
+  handYref: HandY
 ) {
   const isLeader = game?.first === myName;
   const left = isLeader ? game?.second : game?.first;
   const right = isLeader ? game?.first : game?.second;
+  const handY = handYref;
 
   initGame();
 
@@ -33,6 +35,7 @@ function game(
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
   ) {
+    getHandPosition();
     moveElements(ball, rightPaddle, leftPaddle);
     checkCollisions(ball, rightPaddle, leftPaddle);
     emitCoord(canvas, rightPaddle, isLeader ? ball : null);
@@ -47,6 +50,10 @@ function game(
       });
       return prev;
     });
+  }
+
+  function getHandPosition() {
+    console.log("in game", handY);
   }
 
   function initGame() {
@@ -142,6 +149,10 @@ function game(
       leftPaddle.upPressed = leftPaddle.paddleY + 10 > ball.y;
       leftPaddle.downPressed = leftPaddle.paddleY + 70 < ball.y;
     }
+    // if (game.name == "single") {
+    //   leftPaddle.upPressed = handY.y > 0.6;
+    //   leftPaddle.downPressed = handY.y < 0.0;
+    // }
     rightPaddle.movePaddle();
     leftPaddle.movePaddle();
     ball.moveBall();
@@ -158,7 +169,7 @@ function game(
       if (ball.leftCollision(leftPaddle)) {
         if (ball.x + ball.speedX < ball.ballRadius) {
           if (rightPaddle.makeScore()) {
-            finishGame(rightPaddle.score, leftPaddle.score)
+            finishGame(rightPaddle.score, leftPaddle.score);
             alert(`${rightPaddle.name} WINS`);
 
             // document.location.reload();
@@ -179,7 +190,7 @@ function game(
       } else if (ball.rightCollision(rightPaddle)) {
         if (ball.x + ball.speedX > canvas.width) {
           if (leftPaddle.makeScore()) {
-            finishGame(rightPaddle.score, leftPaddle.score)
+            finishGame(rightPaddle.score, leftPaddle.score);
             alert(`${leftPaddle.name} WINS`);
             return;
 
@@ -271,15 +282,9 @@ function game(
     socket.volatile.emit("coordinates", newCoordinates);
   }
 
-  function finishGame(
-    rightScore: number,
-    leftScore: number
-  ) {
+  function finishGame(rightScore: number, leftScore: number) {
     setStopGame(true);
-    const result = emitGameResults(
-      rightScore,
-      leftScore
-    );
+    const result = emitGameResults(rightScore, leftScore);
     alert(`${result.winnerName} WINS`);
     // document.location.reload();
   }
@@ -300,7 +305,7 @@ function game(
       result.loserName = game.first;
       result.loserScore = rightScore;
     }
-    socket.emit("endGame", result);
+    if (game.name != "single") socket.emit("endGame", result);
     return result;
   }
 }
