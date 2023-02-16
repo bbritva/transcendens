@@ -2,7 +2,21 @@ import socket from "src/services/socket";
 import Ball from "./Ball";
 import Bricks from "./Bricks";
 import Paddle from "./Paddle";
-import { gameChannelDataI, HandY } from "src/pages/Game/GamePage";
+import { gameChannelDataI } from "src/pages/Game/GamePage";
+import Webcam from "react-webcam";
+import { Hands } from "@mediapipe/hands";
+import {Camera} from "@mediapipe/camera_utils";
+
+
+export interface point {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface handData {
+  multiHandLandmarks: point[][];
+}
 
 export interface GameResultDto {
   name: string;
@@ -18,12 +32,53 @@ function game(
   mods: { bricks: boolean },
   game: gameChannelDataI,
   myName: string,
-  handYref: HandY
+  camRef: React.RefObject<Webcam>
 ) {
   const isLeader = game?.first === myName;
   const left = isLeader ? game?.second : game?.first;
   const right = isLeader ? game?.first : game?.second;
-  const handY = handYref;
+
+  const webcamRef = camRef;
+  var camera = null;
+  var y = 0;
+
+  const handsMesh = new Hands({
+    locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+    },
+  });
+  handsMesh.setOptions({
+    maxNumHands: 1,
+    modelComplexity: 0,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5,
+  });
+
+  handsMesh.onResults(onResults);
+
+  if (webcamRef.current != null && webcamRef.current.video != null) {
+    camera = new Camera(webcamRef.current.video, {
+      onFrame: async () => {
+        if (webcamRef.current != null && webcamRef.current.video != null)
+          await handsMesh.send({ image: webcamRef.current.video });
+      },
+      width: 640,
+      height: 480,
+    });
+    camera.start();
+  }
+
+  function onResults(results: handData) {
+    if (
+      results &&
+      results.multiHandLandmarks &&
+      results.multiHandLandmarks[0] &&
+      results.multiHandLandmarks[0][0] &&
+      results.multiHandLandmarks[0][0].y
+    )
+      y = results.multiHandLandmarks[0][0].y;
+    console.log("onRes: y = ", y);
+  }
 
   initGame();
 
@@ -53,7 +108,7 @@ function game(
   }
 
   function getHandPosition() {
-    console.log("in game", handY);
+    console.log("in game", y);
   }
 
   function initGame() {
@@ -145,16 +200,16 @@ function game(
   }
 
   function moveElements(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
-    if (game.name == "single") {
-      leftPaddle.upPressed = leftPaddle.paddleY + 10 > ball.y;
-      leftPaddle.downPressed = leftPaddle.paddleY + 70 < ball.y;
-    }
     // if (game.name == "single") {
-    //   leftPaddle.upPressed = handY.y > 0.6;
-    //   leftPaddle.downPressed = handY.y < 0.0;
+    //   leftPaddle.upPressed = leftPaddle.paddleY + 10 > ball.y;
+    //   leftPaddle.downPressed = leftPaddle.paddleY + 70 < ball.y;
+    // }
+    // if (game.name == "single") {
+    //   leftPaddle.upPressed = y < 0.4;
+    //   leftPaddle.downPressed = y > 0.6;
     // }
     rightPaddle.movePaddle();
-    leftPaddle.movePaddle();
+    leftPaddle.paddleY = canvas.height * y;
     ball.moveBall();
   }
 

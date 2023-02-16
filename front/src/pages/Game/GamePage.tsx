@@ -14,17 +14,11 @@ import socket from "src/services/socket";
 import { useStore } from "react-redux";
 import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
-import { Hands } from "@mediapipe/hands";
-import * as Cam from "@mediapipe/camera_utils";
 
 export interface point {
   x: number;
   y: number;
   z: number;
-}
-
-export class HandY {
-  y: number = 0;
 }
 
 export interface handData {
@@ -61,47 +55,6 @@ const GamePage: FC<any> = (): ReactElement => {
   const { user } = getState() as RootState;
 
   const webcamRef = useRef<Webcam>(null);
-  var camera = null;
-  const handY: HandY = { y: 0 };
-
-  function onResults(results: handData) {
-    if (
-      results &&
-      results.multiHandLandmarks &&
-      results.multiHandLandmarks[0] &&
-      results.multiHandLandmarks[0][0]
-    )
-    handY.y = results.multiHandLandmarks[0][0].y;
-    console.log("y = ", handY.y);
-  }
-
-  useEffect(() => {
-    const handsMesh = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      },
-    });
-    handsMesh.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 0,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-
-    handsMesh.onResults(onResults);
-
-    if (webcamRef.current != null && webcamRef.current.video != null) {
-      camera = new Cam.Camera(webcamRef.current.video, {
-        onFrame: async () => {
-          if (webcamRef.current != null && webcamRef.current.video != null)
-            await handsMesh.send({ image: webcamRef.current.video });
-        },
-        width: 640,
-        height: 480,
-      });
-      camera.start();
-    }
-  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -133,7 +86,7 @@ const GamePage: FC<any> = (): ReactElement => {
           { bricks: false },
           gameData,
           testUsername || user.user?.name || "",
-          handY
+          webcamRef
         );
     }
   }
