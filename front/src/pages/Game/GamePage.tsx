@@ -94,7 +94,7 @@ const GamePage: FC<any> = (): ReactElement => {
         setFlag("true");
         sessionStorage.setItem("game", "true");
         const game = {
-          name: testUsername || user.user?.name + body.sender + "Game",
+          name: (testUsername || user.user?.name) + body.sender + "Game",
           first: testUsername || user.user?.name,
           second: body.sender,
           guests: [],

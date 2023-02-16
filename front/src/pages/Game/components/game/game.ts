@@ -4,6 +4,14 @@ import Bricks from "./Bricks";
 import Paddle from "./Paddle";
 import { gameChannelDataI } from "src/pages/Game/GamePage";
 
+export interface GameResultDto {
+  name: string;
+  winnerName: string;
+  loserName: string;
+  winnerScore: number;
+  loserScore: number;
+}
+
 function game(
   canvas: HTMLCanvasElement,
   setStopGame: Function,
@@ -74,7 +82,7 @@ function game(
       game.name != "single",
       canvas,
       ballRadius,
-      .5
+      0.5
     );
 
     if (socket.connected) {
@@ -92,6 +100,11 @@ function game(
         socket.on("gameScore", (data) => {
           leftPaddle.score = data.playerOne.score;
           rightPaddle.score = data.playerTwo.score;
+        });
+        socket.on("gameFinished", (result: GameResultDto) => {
+          alert(`${result.winnerName} WINS`);
+          setStopGame(true);
+          // document.location.reload();
         });
       }
     }
@@ -134,15 +147,21 @@ function game(
     ball.moveBall();
   }
 
-  function checkCollisions(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle){
+  function checkCollisions(
+    ball: Ball,
+    rightPaddle: Paddle,
+    leftPaddle: Paddle
+  ) {
     // mods.bricks && bricks.bricksCollision(ball);
     if (isLeader) {
       ball.verticalCollision();
       if (ball.leftCollision(leftPaddle)) {
         if (ball.x + ball.speedX < ball.ballRadius) {
           if (rightPaddle.makeScore()) {
+            finishGame(rightPaddle.score, leftPaddle.score)
             alert(`${rightPaddle.name} WINS`);
-            document.location.reload();
+
+            // document.location.reload();
           }
           socket.emit("score", {
             game: game.name,
@@ -160,8 +179,11 @@ function game(
       } else if (ball.rightCollision(rightPaddle)) {
         if (ball.x + ball.speedX > canvas.width) {
           if (leftPaddle.makeScore()) {
+            finishGame(rightPaddle.score, leftPaddle.score)
             alert(`${leftPaddle.name} WINS`);
-            document.location.reload();
+            return;
+
+            // document.location.reload();
           }
           socket.emit("score", {
             game: game.name,
@@ -247,6 +269,39 @@ function game(
         : ball,
     };
     socket.volatile.emit("coordinates", newCoordinates);
+  }
+
+  function finishGame(
+    rightScore: number,
+    leftScore: number
+  ) {
+    setStopGame(true);
+    const result = emitGameResults(
+      rightScore,
+      leftScore
+    );
+    alert(`${result.winnerName} WINS`);
+    // document.location.reload();
+  }
+
+  function emitGameResults(
+    rightScore: number,
+    leftScore: number
+  ): GameResultDto {
+    let result: GameResultDto = {
+      name: game.name,
+      winnerName: game.first,
+      loserName: game.second,
+      winnerScore: 10,
+      loserScore: leftScore,
+    };
+    if (leftScore > rightScore) {
+      result.winnerName = game.second;
+      result.loserName = game.first;
+      result.loserScore = rightScore;
+    }
+    socket.emit("endGame", result);
+    return result;
   }
 }
 

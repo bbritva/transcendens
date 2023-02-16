@@ -6,12 +6,15 @@ import { ChannelService } from "src/chat/channel/channel.service";
 import { ChannelEntity } from "src/chat/channel/entities/channel.entity";
 import { JwtService } from "@nestjs/jwt";
 import { Injectable } from "@nestjs/common";
+import { GameResultDto } from "src/game/dto/create-game.dto";
+import { GameService } from "src/game/game.service";
 
 @Injectable()
 export class GatewayService {
   constructor(
     private readonly userService: UserService,
     private readonly channelService: ChannelService,
+    private readonly gameService: GameService,
     private readonly jwtService: JwtService
   ) {}
 
@@ -41,7 +44,6 @@ export class GatewayService {
         });
       }
       // set user status online
-      // await?????
       this.userService.setUserStatus(
         this.connections.get(socket.id).id,
         "ONLINE"
@@ -391,6 +393,20 @@ export class GatewayService {
     this.server
       .to(data.game)
       .volatile.emit("coordinates", { player: userName, ...data });
+  }
+
+  async addGameResult(socket: Socket, data: GameResultDto) {
+    this.gameService
+      .addGame(data)
+      .then(() => {
+        this.server.to(data.name).emit("gameFinished", data);
+        this.gameRooms.delete(data.name);
+        this.server.socketsLeave(data.name);
+      })
+      .catch((e) => {
+        console.log("Exception", e.message);
+        this.emitNotAllowed(socket.id, "endGame", data);
+      });
   }
 
   async getUserStat(socketId: string, data: DTO.ManageUserI) {

@@ -10,6 +10,7 @@ import { Server, Socket } from "socket.io";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import * as DTO from "./websocket.dto";
 import { GatewayService } from "./gateway.service";
+import { GameResultDto } from "src/game/dto/create-game.dto";
 
 @WebSocketGateway({
   cors: true,
@@ -110,6 +111,14 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.coordinateDataI
   ) {
     this.gatewayService.getCoordinates(socket, data);
+  }
+
+  @SubscribeMessage("endGame")
+  async onEndGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: GameResultDto
+  ) {
+    this.gatewayService.addGameResult(socket, data);
   }
 
   @SubscribeMessage("newMessage")

@@ -3,7 +3,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma, eStatus } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserInfoPublic } from "src/chat/websocket/websocket.dto";
-import { CreateGameDto } from "src/game/dto/create-game.dto";
+import { CreateGameDto, GameResultDto } from "src/game/dto/create-game.dto";
 import { UserEntity } from "./entities/user.entity";
 
 @Injectable()
@@ -420,34 +420,45 @@ export class UserService {
     }
   }
 
-  async addScores(gameData: CreateGameDto) {
-    const diff = gameData.winnerScore - gameData.loserScore;
-    this.prisma.user
+  async addScores(gameResult: GameResultDto): Promise<CreateGameDto> {
+    const diff = gameResult.winnerScore - gameResult.loserScore;
+    let game = {
+      winnerId: 0,
+      loserId: 0,
+      winnerScore: gameResult.winnerScore,
+      loserScore: gameResult.loserScore,
+    };
+    await this.prisma.user
       .update({
         where: {
-          id: gameData.winnerId,
+          name: gameResult.winnerName,
         },
         data: {
           score: { increment: diff },
         },
       })
-      .then()
+      .then((user) => {
+        game.winnerId = user.id;
+      })
       .catch((e) => {
         throw new BadRequestException(e.message);
       });
-    this.prisma.user
+    await this.prisma.user
       .update({
         where: {
-          id: gameData.loserId,
+          name: gameResult.loserName,
         },
         data: {
           score: { decrement: diff },
         },
       })
-      .then()
+      .then((user) => {
+        game.loserId = user.id;
+      })
       .catch((e) => {
         throw new BadRequestException(e.message);
       });
+    return game;
   }
 
   filterUserdata(user: User) {
