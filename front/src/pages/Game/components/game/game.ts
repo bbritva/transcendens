@@ -77,7 +77,6 @@ function game(
       results.multiHandLandmarks[0][0].y
     )
       y = results.multiHandLandmarks[0][0].y;
-    console.log("onRes: y = ", y);
   }
 
   initGame();
@@ -90,7 +89,6 @@ function game(
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
   ) {
-    getHandPosition();
     moveElements(ball, rightPaddle, leftPaddle);
     checkCollisions(ball, rightPaddle, leftPaddle);
     emitCoord(canvas, rightPaddle, isLeader ? ball : null);
@@ -105,10 +103,6 @@ function game(
       });
       return prev;
     });
-  }
-
-  function getHandPosition() {
-    console.log("in game", y);
   }
 
   function initGame() {
