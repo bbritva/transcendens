@@ -5,9 +5,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { Box } from "@mui/system";
-import { Typography } from "@mui/material";
+import { Box, BoxProps, Typography } from "@mui/material";
+import { styledTableI } from "./StyledTable";
 
 export interface rowI {
   id: number;
@@ -28,7 +27,7 @@ export interface settingsRowI extends rowI {
   button: string;
 }
 
-export interface basicTableI {
+export interface basicTableI extends BoxProps {
   title: string;
   tableHeadArray: string[] | null;
   tableRowArray: rowI[];
@@ -53,9 +52,14 @@ function drawRow(row: rowI) {
   );
 }
 
-export default function BasicTable(props: basicTableI) {
+export default function BasicTable(props: styledTableI) {
   return (
-    <Box>
+    <Box
+      {...props}
+      sx={{
+        backgroundColor: props.myBackColor,
+      }}
+    >
       <Typography
         sx={{ flex: "1 1 100%" }}
         variant="h6"
@@ -64,7 +68,7 @@ export default function BasicTable(props: basicTableI) {
       >
         {props.title}
       </Typography>
-      <TableContainer component={Paper}>
+      <TableContainer>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           {props.tableHeadArray && (
             <TableHead>
