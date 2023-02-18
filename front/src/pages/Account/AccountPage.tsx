@@ -57,7 +57,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         width: "80vw",
       }}
     >
-      <Box flex={1}>
+      <Box flex={1} justifyContent='end' display='grid'>
         <SignUp />
         <StyledTable
           title="Settings"
@@ -66,7 +66,7 @@ const AccountPage: FC<any> = (): ReactElement => {
           myBackColor={"info.main"}
         />
       </Box>
-      <Box flex={1}>
+      <Box flex={1} justifyContent='start' display='grid'>
         <StyledTable
           title="Player stats"
           tableHeadArray={null}
