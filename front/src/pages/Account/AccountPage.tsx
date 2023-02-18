@@ -9,7 +9,7 @@ import BasicTable, {
   playerStatisticsRowI,
   rowI,
 } from "src/components/BasicTable/BasicTable";
-import  StyledTable  from "src/components/BasicTable/StyledTable";
+import StyledTable from "src/components/BasicTable/StyledTable";
 
 function createHistoryData(
   score: string,
@@ -50,37 +50,34 @@ const AccountPage: FC<any> = (): ReactElement => {
   return (
     <Box
       component={Paper}
+      display="flex"
+      flexWrap="wrap"
       sx={{
         backgroundColor: theme.palette.secondary.light,
-        flexGrow: 1,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "row",
-        // display: {sm: 'flex'}
+        width: "80vw",
       }}
     >
-      <Box>
+      <Box flex={1}>
         <SignUp />
         <StyledTable
           title="Settings"
           tableHeadArray={null}
           tableRowArray={playerRows}
-          myBackColor={'info.main'}
+          myBackColor={"info.main"}
         />
       </Box>
-      <Box>
+      <Box flex={1}>
         <StyledTable
           title="Player stats"
           tableHeadArray={null}
           tableRowArray={playerRows}
-          myBackColor={'info.main'}
+          myBackColor={"info.main"}
         />
         <StyledTable
           title="Match history"
           tableHeadArray={header}
           tableRowArray={historyRows}
-          myBackColor={'primary.main'}
+          myBackColor={"primary.main"}
         />
       </Box>
     </Box>
@@ -88,9 +85,3 @@ const AccountPage: FC<any> = (): ReactElement => {
 };
 
 export default AccountPage;
-
-
-// sx={{
-//   width: '50%',
-//   height: '65vh'
-// }}>

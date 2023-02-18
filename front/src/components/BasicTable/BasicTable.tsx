@@ -69,7 +69,7 @@ export default function BasicTable(props: styledTableI) {
         {props.title}
       </Typography>
       <TableContainer>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table aria-label="simple table">
           {props.tableHeadArray && (
             <TableHead>
               <TableRow>{props.tableHeadArray.map(drawHeader)}</TableRow>
