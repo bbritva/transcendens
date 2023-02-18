@@ -20,6 +20,7 @@ import PrivateRouteWrapper from "src/components/Authentication/PrivateRouteWrapp
 import { getAuthorizeHref } from 'src/utils/oauthConfig';
 import useAuth from "src/hooks/useAuth";
 import useTwoFA from "src/hooks/useTwoFA";
+import { gameChannelDataI } from "./pages/Game/GamePage";
 
 
 const theme = createTheme({
@@ -42,6 +43,10 @@ function App() {
   const isLoggedIn = useSelector(selectLoggedIn);
   const [userName, setUsername] = useState<string>('');
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
+  const [gameData, setGameData] = useState<gameChannelDataI>({
+    name: "", first: "", second : "", guests : []
+  });
+
   authHeader();
   authRefreshInterceptor();
   const [accessCode, accessState] = useAuth();
@@ -53,7 +58,7 @@ function App() {
   function connectUser(tokenConnect: {}) {
     socket.auth = tokenConnect;
     socket.connect();
-    initSocket(setChannels, dispatch);
+    initSocket(navigate, setGameData, gameData, setChannels, dispatch);
   }
 
   useEffect(() => {
@@ -101,8 +106,8 @@ function App() {
     if (socket.connected) {
       setOpenNick(false);
       socket.emit("acceptInvite", { sender: inviteSender })
-      sessionStorage.setItem("game", "true");
-      navigate('/game', { replace: true });
+      // sessionStorage.setItem("game", "true");
+      // navigate('/game', { replace: true });
     }
   }
 
@@ -167,7 +172,7 @@ function App() {
                   path={route.path}
                   element={
                     <PrivateRouteWrapper>
-                      <route.component channels={channels} setChannels={setChannels} />
+                      <route.component channels={channels} setChannels={setChannels} gameData={gameData}/>
                     </PrivateRouteWrapper>
                   }
                 />

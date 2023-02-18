@@ -1,14 +1,18 @@
 import { Dispatch } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
+import { gameChannelDataI } from 'src/pages/Game/GamePage';
 import { logout } from 'src/store/authActions';
-import { userI } from 'src/store/userSlice';
 
 
 const URL = process.env.REACT_APP_AUTH_URL || '';
 const socket = io(URL, { autoConnect: false });
 
+
 export function initSocket(
+    navigate: Function,
+    setGameData: Function,
+    gameData: gameChannelDataI,
     setChannels: Function,
     dispatch: Dispatch,
   ){
@@ -61,6 +65,15 @@ export function initSocket(
     });
   });
 
+  socket.on("connectToGame", (game) => {
+    if (socket.connected) {
+      setGameData(game);
+      console.log(game, gameData);
+      
+      navigate('/game', { replace: true });
+    }
+  })
+
   socket.on("connect", () => {
 
   });
@@ -73,7 +86,6 @@ export function initSocket(
     console.log("received", data);
     
   })
-
 
   socket.on("userStat",(data: fromBackI) => {
     console.log("userStat", data);

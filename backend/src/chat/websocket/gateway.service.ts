@@ -362,34 +362,54 @@ export class GatewayService {
       });
   }
 
+  async startGame(socket: Socket, data: DTO.AcceptInviteI ) {
+    const acceptorName = this.connections.get(socket.id).name;
+    const game = {
+      name: data.sender + acceptorName + "Game",
+      first: data.sender,
+      second: acceptorName,
+      guests: [],
+    };
+    console.log(game);
+    this.connectToGame(game)
+  }
+
+
+  async inviteToGame(socket: Socket, data: DTO.InviteToGameI ) {
+    const executorName = this.connections.get(socket.id).name;
+    console.log(data.recipient, "is invited by", executorName);
+    const recipientConnection = this.connectionByName(data.recipient);
+    if (recipientConnection)
+      this.server.to(recipientConnection).emit("inviteToGame", { sender: executorName });
+    else
+      this.server.to(socket.id).emit("userOffline", data)
+  }
+
   async emitToRecipient(event: string, socket: Socket, recipient: string) {
     const executorName = this.connections.get(socket.id).name;
     console.log({ executorName, event, recipient });
-    const recipientUser = await this.userService.getUserByName(recipient);
-    const recipientConnection = this.connectionByName(recipientUser?.name);
+    const recipientConnection = this.connectionByName(recipient);
     if (recipientConnection)
       this.server.to(recipientConnection).emit(event, { sender: executorName });
     else return null;
   }
 
-  async connectToGame(socket: Socket, data: DTO.gameChannelDataI) {
-    console.log("connectToGame data", data);
-
+  async connectToGame(data: DTO.gameChannelDataI) {
     const game = this.gameRooms.set(data.name, data).get(data.name);
     console.log("connectToGame", game);
 
     // send to users game info
-    this.connections.forEach((value: DTO.ClientInfo, key: string) => {
-      if (game.first === value.name || game.second === value.name) {
-        console.log("Joined", value.name);
-        this.server.to(key).emit("joinedToGame", game);
-        this.server.in(key).socketsJoin(game.name);
+    for (const el of this.connections.entries()) {
+      if (el[1].name == game.first || game.second === el[1].name) {
+        this.server.in(el[0]).socketsJoin(game.name);
       }
-    });
+    }
+    this.server.to(game.name).emit("connectToGame", game);
+    console.log("connectToGame", game);
   }
 
   async getCoordinates(socket: Socket, data: any) {
-    const userName = this.connections.get(socket.id).name;
+    const userName = this.connections.get(socket.id)?.name;
     this.server
       .to(data.game)
       .volatile.emit("coordinates", { player: userName, ...data });

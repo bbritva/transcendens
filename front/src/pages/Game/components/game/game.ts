@@ -40,33 +40,10 @@ function game(
 
   const webcamRef = camRef;
   var camera = null;
-  var y = 0;
+  let y = 0;
 
-  const handsMesh = new Hands({
-    locateFile: (file) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-    },
-  });
-  handsMesh.setOptions({
-    maxNumHands: 1,
-    modelComplexity: 0,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5,
-  });
-
-  handsMesh.onResults(onResults);
-
-  if (webcamRef.current != null && webcamRef.current.video != null) {
-    camera = new Camera(webcamRef.current.video, {
-      onFrame: async () => {
-        if (webcamRef.current != null && webcamRef.current.video != null)
-          await handsMesh.send({ image: webcamRef.current.video });
-      },
-      width: 640,
-      height: 480,
-    });
-    camera.start();
-  }
+  let handsMesh : Hands;
+  
 
   function onResults(results: handData) {
     if (
@@ -74,8 +51,7 @@ function game(
       results.multiHandLandmarks &&
       results.multiHandLandmarks[0] &&
       results.multiHandLandmarks[0][0] &&
-      results.multiHandLandmarks[0][0].y
-    )
+      results.multiHandLandmarks[0][0].y)
       y = results.multiHandLandmarks[0][0].y;
   }
 
@@ -163,6 +139,32 @@ function game(
           // document.location.reload();
         });
       }
+
+    }
+    handsMesh = new Hands({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      },
+    });
+    handsMesh.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 0,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+  
+    handsMesh.onResults(onResults);
+  
+    if (webcamRef.current != null && webcamRef.current.video != null) {
+      camera = new Camera(webcamRef.current.video, {
+        onFrame: async () => {
+          if (webcamRef.current != null && webcamRef.current.video != null)
+            await handsMesh.send({ image: webcamRef.current.video });
+        },
+        width: 640,
+        height: 480,
+      });
+      camera.start();
     }
 
     const bricks = new Bricks();
@@ -204,6 +206,7 @@ function game(
     // }
     rightPaddle.movePaddle();
     leftPaddle.paddleY = canvas.height * y;
+    // leftPaddle.paddleX = canvas.width * (1-x);
     ball.moveBall();
   }
 
@@ -216,7 +219,7 @@ function game(
     if (isLeader) {
       ball.verticalCollision();
       if (ball.leftCollision(leftPaddle)) {
-        if (ball.x + ball.speedX < ball.ballRadius) {
+        if (ball.x < ball.ballRadius) {
           if (rightPaddle.makeScore()) {
             finishGame(rightPaddle.score, leftPaddle.score);
             alert(`${rightPaddle.name} WINS`);
@@ -237,7 +240,7 @@ function game(
           ball.reset(-1);
         }
       } else if (ball.rightCollision(rightPaddle)) {
-        if (ball.x + ball.speedX > canvas.width) {
+        if (ball.x > canvas.width) {
           if (leftPaddle.makeScore()) {
             finishGame(rightPaddle.score, leftPaddle.score);
             alert(`${leftPaddle.name} WINS`);

@@ -39,7 +39,17 @@ export interface gameChannelDataI {
   guests: string[];
 }
 
-const GamePage: FC<any> = (): ReactElement => {
+export interface GamePageProps {
+  gameData: gameChannelDataI;
+}
+
+export enum e_gameState {
+  OFF_GAME = 0,
+  WAITING,
+  ON_GAME,
+}
+
+const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
@@ -47,6 +57,7 @@ const GamePage: FC<any> = (): ReactElement => {
   const [open, setOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [gameState, setGameState] = useState<e_gameState>(0);
   const [flag, setFlag] = useState<string>(
     sessionStorage.getItem("game") || ""
   );
@@ -66,14 +77,18 @@ const GamePage: FC<any> = (): ReactElement => {
   }, []);
 
   useEffect(() => {
-    if (socket.connected && flag == "true") {
+    console.log("work", gameData);
+
+    if (socket.connected) {
+      console.log("work2");
+
       setFlag("");
-      socket.on("joinedToGame", (game: gameChannelDataI) => {
-        setStopGame(true);
-        startGame(game);
-      });
+      setStopGame(true);
+      startGame(gameData);
+      setFlag("true");
+      sessionStorage.setItem("game", "true");
     }
-  }, [socket.connected, flag]);
+  }, [gameData]);
 
   function startGame(gameData: gameChannelDataI) {
     const canvas = canvasRef.current;
@@ -101,10 +116,48 @@ const GamePage: FC<any> = (): ReactElement => {
 
   async function sendInvite() {
     if (socket.connected) {
-      setLoading(true);
-      setInvitedUser(inputValue ? inputValue : "");
+      console.log(inputValue);
+
+      // setLoading(true);
+      // setInvitedUser(inputValue ? inputValue : "");
       socket.emit("inviteToGame", { recipient: inputValue });
-      socket.on("acceptInvite", (body) => {
+      setInputValue(undefined);
+      console.log(inputValue);
+
+      // socket.on("acceptInvite", (body) => {
+      //   setFlag("true");
+      //   sessionStorage.setItem("game", "true");
+      //   const game = {
+      //     name: (testUsername || user.user?.name) + body.sender + "Game",
+      //     first: testUsername || user.user?.name,
+      //     second: body.sender,
+      //     guests: [],
+      //   };
+      //   console.log(game);
+      //   socket.emit("connectToGame", game);
+      // });
+      socket.on("declineInvite", () => {
+        setDeclined(true);
+        setOpen(true);
+        sessionStorage.setItem("game", "false");
+        setFlag("");
+      });
+      socket.on("userOffline", () => {
+        setDeclined(true);
+        setOpen(true);
+        sessionStorage.setItem("game", "false");
+        setFlag("");
+        console.log("User offline");
+      });
+    }
+    setOpen(false);
+  }
+
+  async function standInLine() {
+    if (socket.connected) {
+      setLoading(true);
+      socket.emit("standInLine", {});
+      socket.on("opponentFounded", (body) => {
         setFlag("true");
         sessionStorage.setItem("game", "true");
         const game = {
@@ -174,6 +227,15 @@ const GamePage: FC<any> = (): ReactElement => {
             >
               Pong's invite
             </Button>
+            <Button
+              variant="outlined"
+              sx={{
+                alignSelf: "center",
+              }}
+              // onClick={standInLine}
+            >
+              Stand in line
+            </Button>
           </Box>
         )}
       </DialogSelect>
@@ -197,7 +259,10 @@ const GamePage: FC<any> = (): ReactElement => {
           children={"Multi player"}
           variant={"outlined"}
           size="large"
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setDeclined(false);
+            setOpen(true);
+          }}
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>

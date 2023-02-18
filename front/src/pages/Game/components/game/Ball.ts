@@ -32,9 +32,9 @@ class Ball {
   }
 
   verticalCollision() {
-    if (this.y > this.canvas.height - this.ballRadius)
+    if (this.y + this.speedY > this.canvas.height - this.ballRadius)
       this.speedY = -this.ballSpeed;
-    else if (this.y < this.ballRadius) this.speedY = this.ballSpeed;
+    else if (this.y + this.speedY< this.ballRadius) this.speedY = this.ballSpeed;
   }
 
   hitDirection(paddle: Paddle, isLeft = false): boolean {
@@ -42,8 +42,8 @@ class Ball {
     if (whereHit) {
       if (whereHit == 2) {
         this.speedY = 0;
-        this.speedX =
-          (isLeft ? this.ballSpeed : -this.ballSpeed) * Math.sqrt(2);
+        // this.speedX = 0;
+          this.speedX = (isLeft ? this.ballSpeed : -this.ballSpeed) * Math.sqrt(2);
       } else {
         this.speedY = this.ballSpeed * -whereHit;
         this.speedX = isLeft ? this.ballSpeed : -this.ballSpeed;
@@ -55,7 +55,7 @@ class Ball {
 
   leftCollision(leftPaddle: Paddle): boolean {
     return (
-      this.x <
+      this.x + this.speedX <
         this.ballRadius + leftPaddle.paddleHeight + leftPaddle.paddleOffsetX &&
       !this.hitDirection(leftPaddle, true)
     );
@@ -63,7 +63,7 @@ class Ball {
 
   rightCollision(rightPaddle: Paddle): boolean {
     return (
-      this.x >
+      this.x + this.speedX >
         this.canvas.width -
           this.ballRadius -
           rightPaddle.paddleOffsetX -
