@@ -57,6 +57,30 @@ export default function BasicMenu({ onLogout }: basicMenuI) {
         </StyledMenuItem>
         <StyledMenuItem
           onClick={() => {
+            navigate("/", { replace: true });
+            handleClose();
+          }}
+        >
+          {"Home"}
+        </StyledMenuItem>
+        <StyledMenuItem
+          onClick={() => {
+            navigate("/game", { replace: true });
+            handleClose();
+          }}
+        >
+          {"Game"}
+        </StyledMenuItem>
+        <StyledMenuItem
+          onClick={() => {
+            navigate("/chat", { replace: true });
+            handleClose();
+          }}
+        >
+          {"Chat"}
+        </StyledMenuItem>
+        <StyledMenuItem
+          onClick={() => {
             onLogout();
             handleClose();
           }}
