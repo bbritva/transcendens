@@ -1,14 +1,14 @@
-import { Box, Button, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material";
+import { Box, Button, DialogContentText, DialogTitle, TextField } from "@mui/material";
 import { ChangeEventHandler, FC } from "react";
 import Link from '@mui/material/Link';
 
 export interface twoFAdialogProps {
     title: string 
     urlQR: string
-    isEnabled: boolean
-    onClick: () => {}
-    onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
+    enabledTwoFA: boolean
+    setEnabledTwoFa: () => {}
     value: string
+    setValue: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
     error: boolean
 }
 
@@ -20,7 +20,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
     paddingTop={'1rem'}
   >
     <DialogTitle>{props.title} 2FA</DialogTitle>
-    { props.isEnabled && <>
+    { props.enabledTwoFA && <>
       <DialogContentText>1. Scan QR code with auth app</DialogContentText>
       <Link href='https://apps.apple.com/fr/app/google-authenticator/id388497605'
         marginLeft={'1rem'}
@@ -46,10 +46,10 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
       error={props.error}
       helperText={props.error ? 'Wrong authentication code' : ''}
       label={'otp code'}
-      onChange={props.onChange}
+      onChange={props.setValue}
       onKeyUp={(e) => {
         if (e.key === 'Enter')
-          props.onClick();
+          props.setEnabledTwoFa();
       }}
       margin="dense"/>
     <Button
@@ -57,7 +57,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
       sx={{
         alignSelf: 'end'
       }}
-      onClick={props.onClick}
+      onClick={props.setEnabledTwoFa}
       disabled={!props.value}
     >
       {props.title} 2FA

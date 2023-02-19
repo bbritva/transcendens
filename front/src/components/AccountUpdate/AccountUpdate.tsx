@@ -153,9 +153,9 @@ export default function SignUp() {
   const enableProps: twoFAdialogProps = {
     title: 'Enable', 
     urlQR: urlQR,
-    isEnabled: true,
-    onClick: enableTwoFA,
-    onChange: onChange,
+    enabledTwoFA: true,
+    setEnabledTwoFa: enableTwoFA,
+    setValue: onChange,
     value: otpValue,
     error: otpError
   }
@@ -163,9 +163,9 @@ export default function SignUp() {
   const disableProps: twoFAdialogProps = {
     title: 'Disable', 
     urlQR: urlQR,
-    isEnabled: false,
-    onClick: disableTwoFA,
-    onChange: onChange,
+    enabledTwoFA: false,
+    setEnabledTwoFa: disableTwoFA,
+    setValue: onChange,
     value: otpValue,
     error: otpError
   }
