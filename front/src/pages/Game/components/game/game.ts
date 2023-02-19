@@ -5,8 +5,7 @@ import Paddle from "./Paddle";
 import { gameChannelDataI } from "src/pages/Game/GamePage";
 import Webcam from "react-webcam";
 import { Hands } from "@mediapipe/hands";
-import {Camera} from "@mediapipe/camera_utils";
-
+import { Camera } from "@mediapipe/camera_utils";
 
 export interface point {
   x: number;
@@ -34,6 +33,9 @@ function game(
   myName: string,
   camRef: React.RefObject<Webcam>
 ) {
+  let counterStartTime: number;
+  let isCounter: boolean;
+
   const isLeader = game?.first === myName;
   const left = isLeader ? game?.second : game?.first;
   const right = isLeader ? game?.first : game?.second;
@@ -42,16 +44,18 @@ function game(
   var camera = null;
   let y = 0;
 
-  let handsMesh : Hands;
-  
+  let handsMesh: Hands;
 
   function onResults(results: handData) {
+    // console.log(y);
+
     if (
       results &&
       results.multiHandLandmarks &&
       results.multiHandLandmarks[0] &&
       results.multiHandLandmarks[0][0] &&
-      results.multiHandLandmarks[0][0].y)
+      results.multiHandLandmarks[0][0].y
+    )
       y = results.multiHandLandmarks[0][0].y;
   }
 
@@ -65,6 +69,10 @@ function game(
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
   ) {
+    if (isCounter) {
+      drawCounter(canvas, ctx);
+      // isCounter = checkCounter();
+    }
     moveElements(ball, rightPaddle, leftPaddle);
     checkCollisions(ball, rightPaddle, leftPaddle);
     emitCoord(canvas, rightPaddle, isLeader ? ball : null);
@@ -81,7 +89,50 @@ function game(
     });
   }
 
+  function drawCounter(
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D
+  ) {
+    ctx.clearRect(
+      canvas.width / 2 - 50,
+      canvas.height / 2 - 50,
+      canvas.width,
+      canvas.height
+    );
+  }
+
+  function initCamera() {
+    handsMesh = new Hands({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      },
+    });
+    handsMesh.setOptions({
+      maxNumHands: 1,
+      modelComplexity: 0,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+
+    handsMesh.onResults(onResults);
+
+    if (webcamRef.current != null && webcamRef.current.video != null) {
+      camera = new Camera(webcamRef.current.video, {
+        onFrame: async () => {
+          if (webcamRef.current != null && webcamRef.current.video != null)
+            await handsMesh.send({ image: webcamRef.current.video });
+        },
+        width: 640,
+        height: 480,
+      });
+      camera.start();
+    }
+  }
+
   function initGame() {
+    if (game.second == "hand") initCamera();
+    isCounter = true;
+    counterStartTime = Date.now();
     const paddleHeight = 10;
     const paddleWidth = 75;
     const ballRadius = 10;
@@ -139,32 +190,6 @@ function game(
           // document.location.reload();
         });
       }
-
-    }
-    handsMesh = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      },
-    });
-    handsMesh.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 0,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-  
-    handsMesh.onResults(onResults);
-  
-    if (webcamRef.current != null && webcamRef.current.video != null) {
-      camera = new Camera(webcamRef.current.video, {
-        onFrame: async () => {
-          if (webcamRef.current != null && webcamRef.current.video != null)
-            await handsMesh.send({ image: webcamRef.current.video });
-        },
-        width: 640,
-        height: 480,
-      });
-      camera.start();
     }
 
     const bricks = new Bricks();
@@ -196,16 +221,14 @@ function game(
   }
 
   function moveElements(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
-    // if (game.name == "single") {
-    //   leftPaddle.upPressed = leftPaddle.paddleY + 10 > ball.y;
-    //   leftPaddle.downPressed = leftPaddle.paddleY + 70 < ball.y;
-    // }
-    // if (game.name == "single") {
-    //   leftPaddle.upPressed = y < 0.4;
-    //   leftPaddle.downPressed = y > 0.6;
-    // }
     rightPaddle.movePaddle();
-    leftPaddle.paddleY = canvas.height * y;
+    if (game.name == "single") {
+      if (game.second == "AI") {
+        leftPaddle.upPressed = leftPaddle.paddleY + 10 > ball.y;
+        leftPaddle.downPressed = leftPaddle.paddleY + 70 < ball.y;
+      } else leftPaddle.paddleY = canvas.height * y;
+    }
+    leftPaddle.movePaddle();
     // leftPaddle.paddleX = canvas.width * (1-x);
     ball.moveBall();
   }

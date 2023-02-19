@@ -11,7 +11,7 @@ class Ball {
   ballSpeed: number;
   remoteX: number = 0;
   remoteY: number = 0;
-  lastUpdateTime: number = Date.now();
+  lastUpdateTime: number;
 
   constructor(
     initX: number,
@@ -29,6 +29,8 @@ class Ball {
     this.speedY = speed;
     this.ballRadius = radius;
     this.ballSpeed = speed;
+    this.lastUpdateTime = Date.now();
+
   }
 
   verticalCollision() {

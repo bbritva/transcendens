@@ -53,6 +53,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
+  const [singlePlayerOpponent, setSinglePlayerOpponent] = useState<string>("AI");
   const [invitedUser, setInvitedUser] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>();
@@ -77,11 +78,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }, []);
 
   useEffect(() => {
-    console.log("work", gameData);
-
-    if (socket.connected) {
-      console.log("work2");
-
+    if (socket.connected && !!gameData.name) {
       setFlag("");
       setStopGame(true);
       startGame(gameData);
@@ -116,26 +113,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
 
   async function sendInvite() {
     if (socket.connected) {
-      console.log(inputValue);
-
-      // setLoading(true);
-      // setInvitedUser(inputValue ? inputValue : "");
       socket.emit("inviteToGame", { recipient: inputValue });
       setInputValue(undefined);
-      console.log(inputValue);
-
-      // socket.on("acceptInvite", (body) => {
-      //   setFlag("true");
-      //   sessionStorage.setItem("game", "true");
-      //   const game = {
-      //     name: (testUsername || user.user?.name) + body.sender + "Game",
-      //     first: testUsername || user.user?.name,
-      //     second: body.sender,
-      //     guests: [],
-      //   };
-      //   console.log(game);
-      //   socket.emit("connectToGame", game);
-      // });
       socket.on("declineInvite", () => {
         setDeclined(true);
         setOpen(true);
@@ -157,24 +136,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     if (socket.connected) {
       setLoading(true);
       socket.emit("standInLine", {});
-      socket.on("opponentFounded", (body) => {
-        setFlag("true");
-        sessionStorage.setItem("game", "true");
-        const game = {
-          name: (testUsername || user.user?.name) + body.sender + "Game",
-          first: testUsername || user.user?.name,
-          second: body.sender,
-          guests: [],
-        };
-        console.log(game);
-        socket.emit("connectToGame", game);
-      });
-      socket.on("declineInvite", () => {
-        setDeclined(true);
-        setOpen(true);
-        sessionStorage.setItem("game", "false");
-        setFlag("");
-      });
     }
     setOpen(false);
   }
@@ -241,18 +202,36 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       </DialogSelect>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
-          children={"Single player"}
+          children={"play VS AI"}
           variant={"outlined"}
+          disabled={singlePlayerOpponent=="AI"}
           size="large"
           onClick={() =>
-            startGame({
-              name: "single",
-              first: testUsername || user.user?.name || "",
-              second: "nobody",
-              guests: [],
-            })
+            setSinglePlayerOpponent("AI")
           }
         />
+        <Button
+          children={"play VS hand"}
+          variant={"outlined"}
+          size="large"
+          disabled={singlePlayerOpponent=="hand"}
+          onClick={() =>
+            setSinglePlayerOpponent("hand")
+          }
+        />
+        <Button
+        children={"Single player"}
+        variant={"outlined"}
+        size="large"
+        onClick={() =>
+          startGame({
+            name: "single",
+            first: testUsername || user.user?.name || "",
+            second: singlePlayerOpponent,
+            guests: [],
+          })
+        }
+      />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
