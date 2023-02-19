@@ -279,11 +279,11 @@ function game(
         //try to hit paddle
         if (!ball.hitPaddle(rightPaddle, false)) {
           if (ball.x > canvas.width - ball.ballRadius) {
-            if (rightPaddle.makeScore()) {
+            if (leftPaddle.makeScore()) {
               finishGame(rightPaddle.score, leftPaddle.score);
             }
             emitScore(rightPaddle, leftPaddle);
-            ball.reset(-1);
+            ball.reset(1);
           }
         }
       }

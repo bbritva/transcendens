@@ -187,7 +187,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         <Button
           children={"play VS AI"}
           variant={"outlined"}
-          disabled={singlePlayerOpponent=="AI"}
+          disabled={singlePlayerOpponent=="AI" || !stopGame}
           size="large"
           onClick={() =>
             setSinglePlayerOpponent("AI")
@@ -197,7 +197,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           children={"play VS hand"}
           variant={"outlined"}
           size="large"
-          disabled={singlePlayerOpponent=="hand"}
+          disabled={singlePlayerOpponent=="hand" || !stopGame}
           onClick={() =>
             setSinglePlayerOpponent("hand")
           }
@@ -205,6 +205,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         <Button
         children={"Single player"}
         variant={"outlined"}
+        disabled={!stopGame}
         size="large"
         onClick={() =>
           startGame({
@@ -220,6 +221,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         <Button
           children={"Multi player"}
           variant={"outlined"}
+          disabled={!stopGame}
           size="large"
           onClick={() => {
             setDeclined(false);
