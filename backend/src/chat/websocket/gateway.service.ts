@@ -20,6 +20,7 @@ export class GatewayService {
 
   gameRooms: Map<string, DTO.gameChannelDataI> = new Map();
   connections: Map<string, DTO.ClientInfo> = new Map();
+  readyToPlayUsers: DTO.ClientInfo[] = [];
   server: Server;
 
   setServer(server: Server) {
@@ -74,6 +75,9 @@ export class GatewayService {
       .catch((e) => {
         console.log(e.message);
       });
+    this.readyToPlayUsers.filter((
+      (user) => user.name != this.connections.get(socket.id).name
+    ));
     this.connections.delete(socket.id);
   }
 
@@ -374,6 +378,23 @@ export class GatewayService {
     this.connectToGame(game)
   }
 
+  async standInLine(socket: Socket) {
+    const user = this.connections.get(socket.id);
+    this.readyToPlayUsers.push(user);
+    console.log("new in line", user);
+    while (this.readyToPlayUsers.length > 1) {
+      const first = this.readyToPlayUsers.pop();
+      const second = this.readyToPlayUsers.pop();
+      const game = {
+        name: first.name + second.name + "Game",
+        first: first.name,
+        second: second.name,
+        guests: [],
+      }
+      console.log(game);
+      this.connectToGame(game);
+    }
+  }
 
   async inviteToGame(socket: Socket, data: DTO.InviteToGameI ) {
     const executorName = this.connections.get(socket.id).name;
@@ -392,20 +413,6 @@ export class GatewayService {
     if (recipientConnection)
       this.server.to(recipientConnection).emit(event, { sender: executorName });
     else return null;
-  }
-
-  async connectToGame(data: DTO.gameChannelDataI) {
-    const game = this.gameRooms.set(data.name, data).get(data.name);
-    console.log("connectToGame", game);
-
-    // send to users game info
-    for (const el of this.connections.entries()) {
-      if (el[1].name == game.first || game.second === el[1].name) {
-        this.server.in(el[0]).socketsJoin(game.name);
-      }
-    }
-    this.server.to(game.name).emit("connectToGame", game);
-    console.log("connectToGame", game);
   }
 
   async getCoordinates(socket: Socket, data: any) {
@@ -485,6 +492,20 @@ export class GatewayService {
     } catch (ex) {
       return null;
     }
+  }
+
+  private async connectToGame(data: DTO.gameChannelDataI) {
+    const game = this.gameRooms.set(data.name, data).get(data.name);
+    console.log("connectToGame", game);
+
+    // send to users game info
+    for (const el of this.connections.entries()) {
+      if (el[1].name == game.first || game.second === el[1].name) {
+        this.server.in(el[0]).socketsJoin(game.name);
+      }
+    }
+    this.server.to(game.name).emit("connectToGame", game);
+    console.log("connectToGame", game);
   }
 
   private async connectUserToChannels(socket: Socket) {

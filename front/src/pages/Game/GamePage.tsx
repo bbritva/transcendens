@@ -193,7 +193,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
               sx={{
                 alignSelf: "center",
               }}
-              // onClick={standInLine}
+              onClick={standInLine}
             >
               Stand in line
             </Button>

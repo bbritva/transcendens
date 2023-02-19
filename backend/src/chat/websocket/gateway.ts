@@ -218,12 +218,19 @@ export class Gateway implements OnModuleInit {
     this.gatewayService.getNamesSuggestions(socket.id, data);
   }
 
+
+  @SubscribeMessage("standInLine")
+  async standInLine(
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.gatewayService.standInLine(socket);
+  }
+
   @SubscribeMessage("inviteToGame")
   async inviteToGame(
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.InviteToGameI
   ) {
-    console.log("Invite to game");
     this.gatewayService.inviteToGame(socket, data);
   }
 
@@ -232,9 +239,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.AcceptInviteI
   ) {
-    console.log("accepted Invite");
     this.gatewayService.startGame(socket, data);
-    // this.gatewayService.emitToRecipient("acceptInvite", socket, data.sender);
   }
 
   @SubscribeMessage("declineInvite")
@@ -242,17 +247,8 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.AcceptInviteI
   ) {
-    console.log("DECLINE Invite");
     this.gatewayService.emitToRecipient("declineInvite", socket, data.sender);
   }
-
-  // @SubscribeMessage("connectToGame")
-  // async connectToGame(
-  //   @ConnectedSocket() socket: Socket,
-  //   @MessageBody() data: DTO.gameChannelDataI
-  // ) {
-  //   this.gatewayService.connectToGame(socket, data);
-  // }
 
   @SubscribeMessage("score")
   async getScore(
