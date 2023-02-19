@@ -13,7 +13,7 @@ import { updateUser, userI } from 'src/store/userSlice';
 import userService from 'src/services/user.service';
 import { RootState } from 'src/store/store';
 import DialogSelect from 'src/components/DialogSelect/DialogSelect';
-import { DialogContentText, DialogTitle } from '@mui/material';
+import { DialogContentText, DialogTitle, useTheme } from '@mui/material';
 import authService from 'src/services/auth.service';
 import ChooseTwoFA, { twoFAdialogProps } from './ChooseTwoFA';
 import { useAppDispatch } from "src/app/hooks";
@@ -45,6 +45,7 @@ export default function SignUp() {
   const { user } = getState() as RootState;
   const dispatch = useAppDispatch();
   const [otpError, setOtpError] = React.useState<boolean>(false);
+  const theme = useTheme();
 
 
   React.useEffect(() => {
@@ -162,7 +163,14 @@ export default function SignUp() {
   }
 
   return (
-      <Container component="main" maxWidth="xs">
+      <Box sx={{
+        borderRadius: 7,
+        boxShadow: "0 3px 5px 2px rgba(0, 1, 1, .3)",
+        padding: "2rem",
+        margin: "1rem",
+        width: '30vw',
+        [theme.breakpoints.down("md")]: { width: "55vw"}
+      }}>
         <CssBaseline />
         <DialogSelect options open={open} setOpen={setOpen}>
         <ChooseTwoFA {
@@ -242,6 +250,6 @@ export default function SignUp() {
           </Box>
         </Box>
         <Copyright sx={{ mt: 5 }} />
-      </Container>
+      </Box>
   );
 }

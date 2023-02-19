@@ -51,23 +51,26 @@ const AccountPage: FC<any> = (): ReactElement => {
     <Box
       component={Paper}
       display="flex"
+      alignContent='center'
+      justifyContent='center'
       flexWrap="wrap"
       sx={{
         backgroundColor: theme.palette.secondary.light,
         width: "80vw",
+        height: "80vh",
+        [theme.breakpoints.down("md")]: { alignContent: 'flex-start'},
       }}
     >
-      <Box flex={1} justifyContent='end' display='grid'>
         <SignUp />
         <StyledTable
+          flexDirection='column'
           title="Settings"
           tableHeadArray={null}
           tableRowArray={playerRows}
           myBackColor={"info.main"}
         />
-      </Box>
-      <Box flex={1} justifyContent='start' display='grid'>
         <StyledTable
+          flexDirection='column'
           title="Player stats"
           tableHeadArray={null}
           tableRowArray={playerRows}
@@ -79,7 +82,6 @@ const AccountPage: FC<any> = (): ReactElement => {
           tableRowArray={historyRows}
           myBackColor={"primary.main"}
         />
-      </Box>
     </Box>
   );
 };
