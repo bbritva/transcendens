@@ -1,4 +1,4 @@
-import { fireEvent, getByLabelText } from '@testing-library/react';
+import { fireEvent, getByLabelText, getByText } from '@testing-library/react';
 import { Root, createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils'
 import ChooseTwoFA, { twoFAdialogProps } from 'src/components/AccountUpdate/ChooseTwoFA';
@@ -42,9 +42,11 @@ it("should render twoFA dialog and display user input", () => {
     );
   });
 
+  const title = container.querySelector(".MuiDialogTitle-root");
+  expect(title?.textContent).toBe(`${enableProps.title} 2FA`);
   const textField = getByLabelText(container, 'otp code') as HTMLInputElement;
   fireEvent.change(textField, {target: {value: '654321'}});
-  expect(textField?.value).toBe('654321')
+  expect(textField?.value).toBe('654321');
 
   // expect(
   //   container?.querySelector("[data-testid='success']")
