@@ -30,22 +30,23 @@ class Ball {
     this.ballRadius = radius;
     this.ballSpeed = speed;
     this.lastUpdateTime = Date.now();
-
   }
 
   verticalCollision() {
     if (this.y + this.speedY > this.canvas.height - this.ballRadius)
       this.speedY = -this.ballSpeed;
-    else if (this.y + this.speedY< this.ballRadius) this.speedY = this.ballSpeed;
+    else if (this.y + this.speedY < this.ballRadius)
+      this.speedY = this.ballSpeed;
   }
 
-  hitDirection(paddle: Paddle, isLeft = false): boolean {
+  hitPaddle(paddle: Paddle, isLeft = false): boolean {
     const whereHit = paddle.ballCollision(this);
     if (whereHit) {
       if (whereHit == 2) {
         this.speedY = 0;
         // this.speedX = 0;
-          this.speedX = (isLeft ? this.ballSpeed : -this.ballSpeed) * Math.sqrt(2);
+        this.speedX =
+          (isLeft ? this.ballSpeed : -this.ballSpeed) * Math.sqrt(2);
       } else {
         this.speedY = this.ballSpeed * -whereHit;
         this.speedX = isLeft ? this.ballSpeed : -this.ballSpeed;
@@ -53,24 +54,6 @@ class Ball {
       return true;
     }
     return false;
-  }
-
-  leftCollision(leftPaddle: Paddle): boolean {
-    return (
-      this.x + this.speedX <
-        this.ballRadius + leftPaddle.paddleHeight + leftPaddle.paddleOffsetX &&
-      !this.hitDirection(leftPaddle, true)
-    );
-  }
-
-  rightCollision(rightPaddle: Paddle): boolean {
-    return (
-      this.x + this.speedX >
-        this.canvas.width -
-          this.ballRadius -
-          rightPaddle.paddleOffsetX -
-          rightPaddle.paddleHeight && !this.hitDirection(rightPaddle)
-    );
   }
 
   drawBall(ctx: CanvasRenderingContext2D) {

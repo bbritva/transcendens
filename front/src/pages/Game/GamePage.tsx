@@ -43,25 +43,13 @@ export interface GamePageProps {
   gameData: gameChannelDataI;
 }
 
-export enum e_gameState {
-  OFF_GAME = 0,
-  WAITING,
-  ON_GAME,
-}
-
 const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
   const [singlePlayerOpponent, setSinglePlayerOpponent] = useState<string>("AI");
-  const [invitedUser, setInvitedUser] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [gameState, setGameState] = useState<e_gameState>(0);
-  const [flag, setFlag] = useState<string>(
-    sessionStorage.getItem("game") || ""
-  );
   const testUsername = sessionStorage.getItem("username");
   const { getState } = useStore();
   const { user } = getState() as RootState;
@@ -79,10 +67,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
 
   useEffect(() => {
     if (socket.connected && !!gameData.name) {
-      setFlag("");
       setStopGame(true);
       startGame(gameData);
-      setFlag("true");
       sessionStorage.setItem("game", "true");
     }
   }, [gameData]);
@@ -119,13 +105,11 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         setDeclined(true);
         setOpen(true);
         sessionStorage.setItem("game", "false");
-        setFlag("");
       });
       socket.on("userOffline", () => {
         setDeclined(true);
         setOpen(true);
         sessionStorage.setItem("game", "false");
-        setFlag("");
         console.log("User offline");
       });
     }
@@ -134,7 +118,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
 
   async function standInLine() {
     if (socket.connected) {
-      setLoading(true);
       socket.emit("standInLine", {});
     }
     setOpen(false);

@@ -36,6 +36,7 @@ function game(
   let counterStartTime: number;
   let isCounter: boolean;
 
+  const ctx = canvas.getContext("2d");
   const isLeader = game?.first === myName;
   const left = isLeader ? game?.second : game?.first;
   const right = isLeader ? game?.first : game?.second;
@@ -45,19 +46,6 @@ function game(
   let y = 0;
 
   let handsMesh: Hands;
-
-  function onResults(results: handData) {
-    // console.log(y);
-
-    if (
-      results &&
-      results.multiHandLandmarks &&
-      results.multiHandLandmarks[0] &&
-      results.multiHandLandmarks[0][0] &&
-      results.multiHandLandmarks[0][0].y
-    )
-      y = results.multiHandLandmarks[0][0].y;
-  }
 
   initGame();
 
@@ -99,6 +87,17 @@ function game(
       canvas.width,
       canvas.height
     );
+  }
+
+  function onResults(results: handData) {
+    if (
+      results &&
+      results.multiHandLandmarks &&
+      results.multiHandLandmarks[0] &&
+      results.multiHandLandmarks[0][0] &&
+      results.multiHandLandmarks[0][0].y
+    )
+      y = results.multiHandLandmarks[0][0].y;
   }
 
   function initCamera() {
@@ -214,7 +213,6 @@ function game(
       },
       false
     );
-    const ctx = canvas.getContext("2d");
     if (ctx) {
       mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
     }
@@ -224,13 +222,28 @@ function game(
     rightPaddle.movePaddle();
     if (game.name == "single") {
       if (game.second == "AI") {
-        leftPaddle.upPressed = leftPaddle.paddleY + 10 > ball.y;
-        leftPaddle.downPressed = leftPaddle.paddleY + 70 < ball.y;
+        leftPaddle.upPressed =
+          ball.speedX < 0 && leftPaddle.paddleY + 10 > ball.y;
+        leftPaddle.downPressed =
+          ball.speedX < 0 && leftPaddle.paddleY + 70 < ball.y;
       } else leftPaddle.paddleY = canvas.height * y;
     }
     leftPaddle.movePaddle();
-    // leftPaddle.paddleX = canvas.width * (1-x);
     ball.moveBall();
+  }
+
+  function emitScore(rightPaddle: Paddle, leftPaddle: Paddle) {
+    socket.emit("score", {
+      game: game.name,
+      playerOne: {
+        name: game.first,
+        score: rightPaddle.score,
+      },
+      playerTwo: {
+        name: game.second,
+        score: leftPaddle.score,
+      },
+    });
   }
 
   function checkCollisions(
@@ -241,48 +254,37 @@ function game(
     // mods.bricks && bricks.bricksCollision(ball);
     if (isLeader) {
       ball.verticalCollision();
-      if (ball.leftCollision(leftPaddle)) {
-        if (ball.x < ball.ballRadius) {
-          if (rightPaddle.makeScore()) {
-            finishGame(rightPaddle.score, leftPaddle.score);
-            alert(`${rightPaddle.name} WINS`);
-
-            // document.location.reload();
+      //check left side
+      if (
+        ball.x <
+        ball.ballRadius + leftPaddle.paddleOffsetX + leftPaddle.paddleHeight
+      ) {
+        //try to hit paddle
+        if (!ball.hitPaddle(leftPaddle, true)) {
+          if (ball.x < ball.ballRadius) {
+            if (rightPaddle.makeScore()) {
+              finishGame(rightPaddle.score, leftPaddle.score);
+            }
+            emitScore(rightPaddle, leftPaddle);
+            ball.reset(-1);
           }
-          socket.emit("score", {
-            game: game.name,
-            playerOne: {
-              name: game.first,
-              score: rightPaddle.score,
-            },
-            playerTwo: {
-              name: game.second,
-              score: leftPaddle.score,
-            },
-          });
-          ball.reset(-1);
         }
-      } else if (ball.rightCollision(rightPaddle)) {
-        if (ball.x > canvas.width) {
-          if (leftPaddle.makeScore()) {
-            finishGame(rightPaddle.score, leftPaddle.score);
-            alert(`${leftPaddle.name} WINS`);
-            return;
-
-            // document.location.reload();
+      } else if (
+        ball.x >
+        canvas.width -
+          ball.ballRadius -
+          leftPaddle.paddleOffsetX -
+          leftPaddle.paddleHeight
+      ) {
+        //try to hit paddle
+        if (!ball.hitPaddle(rightPaddle, false)) {
+          if (ball.x > canvas.width - ball.ballRadius) {
+            if (rightPaddle.makeScore()) {
+              finishGame(rightPaddle.score, leftPaddle.score);
+            }
+            emitScore(rightPaddle, leftPaddle);
+            ball.reset(-1);
           }
-          socket.emit("score", {
-            game: game.name,
-            playerOne: {
-              name: game.first,
-              score: rightPaddle.score,
-            },
-            playerTwo: {
-              name: game.second,
-              score: leftPaddle.score,
-            },
-          });
-          ball.reset(1);
         }
       }
     }
@@ -358,9 +360,11 @@ function game(
   }
 
   function finishGame(rightScore: number, leftScore: number) {
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     setStopGame(true);
     const result = emitGameResults(rightScore, leftScore);
-    alert(`${result.winnerName} WINS`);
+    // alert(`${result.winnerName} WINS`);
     // document.location.reload();
   }
 

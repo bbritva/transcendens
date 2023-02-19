@@ -75,9 +75,9 @@ export class GatewayService {
       .catch((e) => {
         console.log(e.message);
       });
-    this.readyToPlayUsers.filter((
+    this.readyToPlayUsers.filter(
       (user) => user.name != this.connections.get(socket.id).name
-    ));
+    );
     this.connections.delete(socket.id);
   }
 
@@ -366,7 +366,7 @@ export class GatewayService {
       });
   }
 
-  async startGame(socket: Socket, data: DTO.AcceptInviteI ) {
+  async startGame(socket: Socket, data: DTO.AcceptInviteI) {
     const acceptorName = this.connections.get(socket.id).name;
     const game = {
       name: data.sender + acceptorName + "Game",
@@ -375,35 +375,40 @@ export class GatewayService {
       guests: [],
     };
     console.log(game);
-    this.connectToGame(game)
+    this.connectToGame(game);
   }
 
   async standInLine(socket: Socket) {
     const user = this.connections.get(socket.id);
-    this.readyToPlayUsers.push(user);
-    console.log("new in line", user);
-    while (this.readyToPlayUsers.length > 1) {
-      const first = this.readyToPlayUsers.pop();
-      const second = this.readyToPlayUsers.pop();
-      const game = {
-        name: first.name + second.name + "Game",
-        first: first.name,
-        second: second.name,
-        guests: [],
+    if (this.readyToPlayUsers.findIndex((value) => value.id == user.id) == -1) {
+      this.readyToPlayUsers.push(user);
+      console.log("new in line", user);
+      while (this.readyToPlayUsers.length > 1) {
+        const first = this.readyToPlayUsers.pop();
+        const second = this.readyToPlayUsers.pop();
+        const game = {
+          name: first.name + second.name + "Game",
+          first: first.name,
+          second: second.name,
+          guests: [],
+        };
+        console.log(game);
+        this.connectToGame(game);
       }
-      console.log(game);
-      this.connectToGame(game);
     }
+    console.log(this.readyToPlayUsers);
+    
   }
 
-  async inviteToGame(socket: Socket, data: DTO.InviteToGameI ) {
+  async inviteToGame(socket: Socket, data: DTO.InviteToGameI) {
     const executorName = this.connections.get(socket.id).name;
     console.log(data.recipient, "is invited by", executorName);
     const recipientConnection = this.connectionByName(data.recipient);
     if (recipientConnection)
-      this.server.to(recipientConnection).emit("inviteToGame", { sender: executorName });
-    else
-      this.server.to(socket.id).emit("userOffline", data)
+      this.server
+        .to(recipientConnection)
+        .emit("inviteToGame", { sender: executorName });
+    else this.server.to(socket.id).emit("userOffline", data);
   }
 
   async emitToRecipient(event: string, socket: Socket, recipient: string) {
