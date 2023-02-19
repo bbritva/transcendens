@@ -186,6 +186,9 @@ function game(
         socket.on("gameFinished", (result: GameResultDto) => {
           alert(`${result.winnerName} WINS`);
           setStopGame(true);
+          socket.off("gameScore");
+          socket.off("coordinates");
+          socket.off("gameFinished");
           // document.location.reload();
         });
       }
@@ -385,6 +388,9 @@ function game(
       result.loserScore = rightScore;
     }
     if (game.name != "single") socket.emit("endGame", result);
+    socket.off("gameScore");
+    socket.off("coordinates");
+    socket.off("gameFinished");
     return result;
   }
 }

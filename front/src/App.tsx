@@ -43,9 +43,7 @@ function App() {
   const isLoggedIn = useSelector(selectLoggedIn);
   const [userName, setUsername] = useState<string>('');
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
-  const [gameData, setGameData] = useState<gameChannelDataI>({
-    name: "", first: "", second : "", guests : []
-  });
+  const [gameData, setGameData] = useState<gameChannelDataI | null>(null);
 
   authHeader();
   authRefreshInterceptor();

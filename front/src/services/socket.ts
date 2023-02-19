@@ -12,7 +12,7 @@ const socket = io(URL, { autoConnect: false });
 export function initSocket(
     navigate: Function,
     setGameData: Function,
-    gameData: gameChannelDataI,
+    gameData: gameChannelDataI | null,
     setChannels: Function,
     dispatch: Dispatch,
   ){
@@ -68,8 +68,6 @@ export function initSocket(
   socket.on("connectToGame", (game) => {
     if (socket.connected) {
       setGameData(game);
-      console.log(game, gameData);
-      
       navigate('/game', { replace: true });
     }
   })
@@ -81,11 +79,6 @@ export function initSocket(
   socket.on("disconnect", () => {
 
   });
-
-  socket.onAny((data: any) => {
-    console.log("received", data);
-    
-  })
 
   socket.on("userStat",(data: fromBackI) => {
     console.log("userStat", data);

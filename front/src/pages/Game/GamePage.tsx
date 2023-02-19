@@ -40,7 +40,7 @@ export interface gameChannelDataI {
 }
 
 export interface GamePageProps {
-  gameData: gameChannelDataI;
+  gameData: gameChannelDataI | null;
 }
 
 const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
@@ -66,10 +66,13 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }, []);
 
   useEffect(() => {
-    if (socket.connected && !!gameData.name) {
+    if (socket.connected && !!gameData) {
       setStopGame(true);
       startGame(gameData);
+      console.log(gameData);
       sessionStorage.setItem("game", "true");
+    } else {
+      sessionStorage.setItem("game", "false");
     }
   }, [gameData]);
 
