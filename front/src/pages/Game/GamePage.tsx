@@ -40,8 +40,11 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
-  const [singlePlayerOpponent, setSinglePlayerOpponent] = useState<string>("AI");
-  const [open, setOpen] = useState<boolean>(false);
+  const [singlePlayerOpponent, setSinglePlayerOpponent] =
+    useState<string>("AI");
+  const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
+  const [openSpectatorDialog, setOpenSpectatorDialog] =
+    useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>();
   const testUsername = sessionStorage.getItem("username");
   const { getState } = useStore();
@@ -99,30 +102,41 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       setInputValue(undefined);
       socket.on("declineInvite", () => {
         setDeclined(true);
-        setOpen(true);
+        setOpenMPDialog(true);
         sessionStorage.setItem("game", "false");
       });
       socket.on("userOffline", () => {
         setDeclined(true);
-        setOpen(true);
+        setOpenMPDialog(true);
         sessionStorage.setItem("game", "false");
         console.log("User offline");
       });
     }
-    setOpen(false);
+    setOpenMPDialog(false);
   }
 
   async function standInLine() {
     if (socket.connected) {
       socket.emit("standInLine", {});
     }
-    setOpen(false);
+    setOpenMPDialog(false);
   }
 
   async function getActiveGames() {
+    console.log("getGames");
+    
     if (socket.connected) {
       socket.emit("getActiveGames", {});
     }
+  }
+
+  async function spectateGame() {
+    if (socket.connected) {
+      socket.emit("spectateGame", {
+        gameName: inputValue
+      });
+    }
+    setOpenSpectatorDialog(false);
   }
 
   const canvasProps = {
@@ -132,7 +146,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
 
   return (
     <Grid container component={Paper} display={"table-row"}>
-      <DialogSelect options={{}} open={open} setOpen={setOpen}>
+      <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
         {declined ? (
           <Box
             margin={"1rem"}
@@ -146,7 +160,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
               sx={{
                 alignSelf: "end",
               }}
-              onClick={() => setOpen(false)}
+              onClick={() => setOpenMPDialog(false)}
             >
               OK
             </Button>
@@ -185,39 +199,59 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           </Box>
         )}
       </DialogSelect>
+      <DialogSelect
+        options={{}}
+        open={openSpectatorDialog}
+        setOpen={setOpenSpectatorDialog}
+      >
+        <Box
+          margin={"1rem"}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"flex-start"}
+        >
+          <DialogTitle>Connect to game</DialogTitle>
+          <TextField label={"Game name"} onChange={onChange} margin="dense" />
+          <Button
+            variant="outlined"
+            sx={{
+              alignSelf: "end",
+            }}
+            onClick={spectateGame}
+          >
+            Connect to game
+          </Button>
+        </Box>
+      </DialogSelect>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"play VS AI"}
           variant={"outlined"}
-          disabled={singlePlayerOpponent=="AI" || !stopGame}
+          disabled={singlePlayerOpponent == "AI" || !stopGame}
           size="large"
-          onClick={() =>
-            setSinglePlayerOpponent("AI")
-          }
+          onClick={() => setSinglePlayerOpponent("AI")}
         />
         <Button
           children={"play VS hand"}
           variant={"outlined"}
           size="large"
-          disabled={singlePlayerOpponent=="hand" || !stopGame}
-          onClick={() =>
-            setSinglePlayerOpponent("hand")
-          }
+          disabled={singlePlayerOpponent == "hand" || !stopGame}
+          onClick={() => setSinglePlayerOpponent("hand")}
         />
         <Button
-        children={"Single player"}
-        variant={"outlined"}
-        disabled={!stopGame}
-        size="large"
-        onClick={() =>
-          startGame({
-            name: "single",
-            first: testUsername || user.user?.name || "",
-            second: singlePlayerOpponent,
-            guests: [],
-          })
-        }
-      />
+          children={"Single player"}
+          variant={"outlined"}
+          disabled={!stopGame}
+          size="large"
+          onClick={() =>
+            startGame({
+              name: "single",
+              first: testUsername || user.user?.name || "",
+              second: singlePlayerOpponent,
+              guests: [],
+            })
+          }
+        />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
@@ -227,7 +261,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           size="large"
           onClick={() => {
             setDeclined(false);
-            setOpen(true);
+            setOpenMPDialog(true);
           }}
         />
         <Button
@@ -235,7 +269,10 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           variant={"outlined"}
           disabled={!stopGame}
           size="large"
-          onClick={() => getActiveGames()}
+          onClick={() => {
+            getActiveGames();
+            setOpenSpectatorDialog(true);
+          }}
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>

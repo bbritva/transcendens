@@ -493,6 +493,13 @@ export class GatewayService {
     this.server.to(socketId).emit("activeGames", activeGames);
   }
 
+  async connectSpectator(socketId: string, data: DTO.SpectateGameI) {
+    const game = this.gameRooms.get(data.gameName);
+    console.log("connectSpectator", game);
+    this.server.to(socketId).emit("connectToGame", game);
+    this.server.in(socketId).socketsJoin(game.name);
+  }
+
   // PRIVATE FUNCTIONS
   private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
     try {
@@ -517,7 +524,6 @@ export class GatewayService {
       }
     }
     this.server.to(game.name).emit("connectToGame", game);
-    console.log("connectToGame", game);
   }
 
   private async connectUserToChannels(socket: Socket) {

@@ -255,6 +255,7 @@ function game(
       },
       false
     );
+    if (myRole != role.SPECTATOR) 
     document.addEventListener(
       "mousemove",
       (e) => {

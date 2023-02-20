@@ -97,3 +97,7 @@ export interface gameChannelDataI{
   second: string
   guests: string[]
 }
+
+export interface SpectateGameI {
+  gameName: string;
+}

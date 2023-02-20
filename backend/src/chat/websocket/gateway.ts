@@ -278,4 +278,14 @@ export class Gateway implements OnModuleInit {
   ) {
     this.gatewayService.getActiveGames(socket.id);
   }
+
+
+  @SubscribeMessage("spectateGame")
+  async onSpectateGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.SpectateGameI
+
+  ) {
+    this.gatewayService.connectSpectator(socket.id, data);
+  }
 }
