@@ -200,7 +200,6 @@ function game(
       0.5
     );
     updateGameState(ball, rightPaddle, leftPaddle);
-    console.log(gameState);
 
     if (socket.connected) {
       if (myRole == role.FIRST) {
@@ -371,8 +370,6 @@ function game(
   }
 
   function emitData(paddle: Paddle) {
-    console.log(myRole);
-
     if (myRole == role.FIRST) socket.volatile.emit("gameState", gameState);
     else if (myRole == role.SECOND)
       socket.volatile.emit("paddleState", {
