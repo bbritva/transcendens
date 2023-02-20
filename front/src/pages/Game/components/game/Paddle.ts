@@ -110,8 +110,8 @@ class Paddle {
 
   makeScore(): boolean {
     ++this.score
-    return this.score  >= 2;
-    // return false;
+    // return this.score  >= 2;
+    return false;
   }
 
   reset() {

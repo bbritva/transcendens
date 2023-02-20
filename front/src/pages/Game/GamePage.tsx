@@ -119,6 +119,12 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     setOpen(false);
   }
 
+  async function getActiveGames() {
+    if (socket.connected) {
+      socket.emit("getActiveGames", {});
+    }
+  }
+
   const canvasProps = {
     width: "720",
     height: "480",
@@ -223,6 +229,13 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
             setDeclined(false);
             setOpen(true);
           }}
+        />
+        <Button
+          children={"Watch games"}
+          variant={"outlined"}
+          disabled={!stopGame}
+          size="large"
+          onClick={() => getActiveGames()}
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>

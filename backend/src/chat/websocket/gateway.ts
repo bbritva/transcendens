@@ -269,7 +269,13 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: GameResultDto
   ) {
-    console.log("endGame");
     this.gatewayService.addGameResult(socket, data);
+  }
+
+  @SubscribeMessage("getActiveGames")
+  async onGetActiveGames(
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.gatewayService.getActiveGames(socket.id);
   }
 }

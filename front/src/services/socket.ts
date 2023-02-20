@@ -124,6 +124,10 @@ export function initSocket(
     console.log("nameSuggestions", data);
   })
 
+  socket.on("activeGames",(data: gameChannelDataI[]) => {
+    console.log("activeGames", data);
+  })
+
   socket.on("notAllowed", (data: {
     eventName: string;
     data: any;

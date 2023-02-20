@@ -485,6 +485,14 @@ export class GatewayService {
       });
   }
 
+  async getActiveGames(socketId: string) {
+    const activeGames : DTO.gameChannelDataI[] = []
+    for (const el of this.gameRooms.values()) {
+      activeGames.push(el)
+    }
+    this.server.to(socketId).emit("activeGames", activeGames);
+  }
+
   // PRIVATE FUNCTIONS
   private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
     try {
