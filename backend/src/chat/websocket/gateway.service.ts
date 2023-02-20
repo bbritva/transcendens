@@ -420,11 +420,10 @@ export class GatewayService {
     else return null;
   }
 
-  async getCoordinates(socket: Socket, data: any) {
-    const userName = this.connections.get(socket.id)?.name;
+  async emitGameState(data : DTO.gameStateDataI) {
     this.server
-      .to(data.game)
-      .volatile.emit("coordinates", { player: userName, ...data });
+      .to(data.gameName)
+      .volatile.emit("gameState", data);
   }
 
   async addGameResult(socket: Socket, data: GameResultDto) {

@@ -25,6 +25,25 @@ export interface GameResultDto {
   loserScore: number;
 }
 
+export interface playerDataI {
+  name: string;
+  score: number;
+  paddleY: number;
+}
+
+export interface gameStateDataI {
+  gameName: string;
+  playerFirst: playerDataI;
+  playerSecond: playerDataI;
+  ball: { x: number; y: number };
+}
+
+enum role {
+  FIRST,
+  SECOND,
+  SPECTATOR,
+}
+
 function game(
   canvas: HTMLCanvasElement,
   setStopGame: Function,
@@ -33,13 +52,16 @@ function game(
   myName: string,
   camRef: React.RefObject<Webcam>
 ) {
-  let counterStartTime: number;
-  let isCounter: boolean;
-
   const ctx = canvas.getContext("2d");
-  const isLeader = game?.first === myName;
-  const left = isLeader ? game?.second : game?.first;
-  const right = isLeader ? game?.first : game?.second;
+  let myRole: role;
+  let left : string;
+  let right : string;
+  const gameState: gameStateDataI = {
+    gameName: game.name,
+    playerFirst: { name: game.first, score: 0, paddleY: 0 },
+    playerSecond: { name: game.second, score: 0, paddleY: 0 },
+    ball: { x: 0, y: 0 },
+  };
 
   const webcamRef = camRef;
   var camera = null;
@@ -57,13 +79,10 @@ function game(
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
   ) {
-    if (isCounter) {
-      drawCounter(canvas, ctx);
-      // isCounter = checkCounter();
-    }
     moveElements(ball, rightPaddle, leftPaddle);
     checkCollisions(ball, rightPaddle, leftPaddle);
-    emitCoord(canvas, rightPaddle, isLeader ? ball : null);
+    updateGameState(ball, rightPaddle, leftPaddle);
+    emitData(rightPaddle);
     draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
     // SETTING MAIN GAME CYCLE
     setStopGame((prev: boolean) => {
@@ -77,16 +96,24 @@ function game(
     });
   }
 
-  function drawCounter(
-    canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D
+  function updateGameState(
+    ball: Ball,
+    rightPaddle: Paddle,
+    leftPaddle: Paddle
   ) {
-    ctx.clearRect(
-      canvas.width / 2 - 50,
-      canvas.height / 2 - 50,
-      canvas.width,
-      canvas.height
+    if (myRole != role.FIRST) return;
+    gameState.ball.x = translateToPercent(canvas.width, ball.x);
+    gameState.ball.y = translateToPercent(canvas.height, ball.y);
+    gameState.playerFirst.paddleY = translateToPercent(
+      canvas.height,
+      rightPaddle.paddleY
     );
+    gameState.playerFirst.score = rightPaddle.score;
+    gameState.playerSecond.paddleY = translateToPercent(
+      canvas.height,
+      leftPaddle.paddleY
+    );
+    gameState.playerSecond.score = leftPaddle.score;
   }
 
   function onResults(results: handData) {
@@ -130,8 +157,14 @@ function game(
 
   function initGame() {
     if (game.second == "hand") initCamera();
-    isCounter = true;
-    counterStartTime = Date.now();
+    myRole =
+      game.first === myName
+        ? role.FIRST
+        : game.second === myName
+        ? role.SECOND
+        : role.SPECTATOR;
+    left = myRole != role.SECOND ? game?.second : game?.first;
+    right = myRole != role.SECOND ? game?.first : game?.second;
     const paddleHeight = 10;
     const paddleWidth = 75;
     const ballRadius = 10;
@@ -161,35 +194,48 @@ function game(
     const ball = new Ball(
       canvas.width / 2,
       canvas.height / 2,
-      game.name != "single",
+      myRole != role.FIRST,
       canvas,
       ballRadius,
       0.5
     );
+    updateGameState(ball, rightPaddle, leftPaddle);
+    console.log(gameState);
 
     if (socket.connected) {
-      socket.on("coordinates", (data) => {
-        if (data.player === myName) return;
-        leftPaddle.remoteY = leftPaddle.remote
-          ? translateFromPercent(canvas.height, data.playerY)
-          : 0;
-        if (!isLeader) {
+      if (myRole == role.FIRST) {
+        socket.on("paddleState", (data) => {
+          leftPaddle.remoteY = leftPaddle.remote
+            ? translateFromPercent(canvas.height, data.paddleY)
+            : leftPaddle.initY;
+        });
+      } else {
+        socket.on("gameState", (data: gameStateDataI) => {
+         if (myRole == role.SECOND) {
+            leftPaddle.remoteY = translateFromPercent(
+              canvas.height,
+              data.playerFirst.paddleY
+            );
+          } else {
+            leftPaddle.remoteY = translateFromPercent(
+              canvas.height,
+              data.playerSecond.paddleY
+            );
+            rightPaddle.remoteY = translateFromPercent(
+              canvas.height,
+              data.playerFirst.paddleY
+            );
+          }
           ball.remoteX = translateFromPercent(canvas.width, data.ball.x);
           ball.remoteY = translateFromPercent(canvas.height, data.ball.y);
-        }
-      });
-      if (!isLeader) {
-        socket.on("gameScore", (data) => {
-          leftPaddle.score = data.playerOne.score;
-          rightPaddle.score = data.playerTwo.score;
+          leftPaddle.score = data.playerFirst.score;
+          rightPaddle.score = data.playerSecond.score;
         });
         socket.on("gameFinished", (result: GameResultDto) => {
           alert(`${result.winnerName} WINS`);
           setStopGame(true);
-          socket.off("gameScore");
-          socket.off("coordinates");
+          socket.off("gameState");
           socket.off("gameFinished");
-          // document.location.reload();
         });
       }
     }
@@ -235,40 +281,25 @@ function game(
     ball.moveBall();
   }
 
-  function emitScore(rightPaddle: Paddle, leftPaddle: Paddle) {
-    socket.emit("score", {
-      game: game.name,
-      playerOne: {
-        name: game.first,
-        score: rightPaddle.score,
-      },
-      playerTwo: {
-        name: game.second,
-        score: leftPaddle.score,
-      },
-    });
-  }
-
   function checkCollisions(
     ball: Ball,
     rightPaddle: Paddle,
     leftPaddle: Paddle
   ) {
     // mods.bricks && bricks.bricksCollision(ball);
-    if (isLeader) {
+    if (myRole == role.FIRST) {
       ball.verticalCollision();
       //check left side
       if (
         ball.x <
         ball.ballRadius + leftPaddle.paddleOffsetX + leftPaddle.paddleHeight
       ) {
-        //try to hit paddle
+        //try to hit left paddle
         if (!ball.hitPaddle(leftPaddle, true)) {
           if (ball.x < ball.ballRadius) {
             if (rightPaddle.makeScore()) {
               finishGame(rightPaddle.score, leftPaddle.score);
             }
-            emitScore(rightPaddle, leftPaddle);
             ball.reset(-1);
           }
         }
@@ -279,13 +310,12 @@ function game(
           leftPaddle.paddleOffsetX -
           leftPaddle.paddleHeight
       ) {
-        //try to hit paddle
+        //try to hit right paddle
         if (!ball.hitPaddle(rightPaddle, false)) {
           if (ball.x > canvas.width - ball.ballRadius) {
             if (leftPaddle.makeScore()) {
               finishGame(rightPaddle.score, leftPaddle.score);
             }
-            emitScore(rightPaddle, leftPaddle);
             ball.reset(1);
           }
         }
@@ -344,22 +374,15 @@ function game(
     return big - big * percent;
   }
 
-  function emitCoord(
-    canvas: HTMLCanvasElement,
-    paddle: Paddle,
-    ball: Ball | null
-  ) {
-    const newCoordinates = {
-      game: game.name,
-      playerY: translateToPercent(canvas.height, paddle.paddleY),
-      ball: ball
-        ? {
-            x: translateToPercent(canvas.width, ball.x),
-            y: translateToPercent(canvas.height, ball.y),
-          }
-        : ball,
-    };
-    socket.volatile.emit("coordinates", newCoordinates);
+  function emitData(paddle: Paddle) {
+    console.log(myRole);
+
+    if (myRole == role.FIRST) socket.volatile.emit("gameState", gameState);
+    else if (myRole == role.SECOND)
+      socket.volatile.emit("paddleState", {
+        gameName: game.name,
+        paddleY: translateToPercent(canvas.height, paddle.paddleY),
+      });
   }
 
   function finishGame(rightScore: number, leftScore: number) {
@@ -388,9 +411,7 @@ function game(
       result.loserScore = rightScore;
     }
     if (game.name != "single") socket.emit("endGame", result);
-    socket.off("gameScore");
-    socket.off("coordinates");
-    socket.off("gameFinished");
+    socket.off("paddleState");
     return result;
   }
 }

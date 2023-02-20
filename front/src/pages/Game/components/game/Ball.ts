@@ -65,7 +65,7 @@ class Ball {
   }
 
   moveBall() {
-    if (this.remoteX || this.remoteY) {
+    if (this.remote) {
       this.x = this.remoteX;
       this.y = this.remoteY;
     } else {
@@ -74,6 +74,8 @@ class Ball {
       this.x += this.speedX * k;
       this.y += this.speedY * k;
       this.lastUpdateTime = now;
+      // this.x += this.speedX;
+      // this.y += this.speedY;
     }
   }
 

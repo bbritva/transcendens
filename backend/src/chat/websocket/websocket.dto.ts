@@ -73,22 +73,22 @@ export interface AcceptInviteI {
   sender: string;
 }
 
-export interface scoreDataI{
-  game: string,
-  playerOne: {
-    name: string, 
-    score: number
-  },
-  playerTwo: {
-    name: string, 
-    score: number
-  },
+export interface paddleStateI {
+  gameName: string;
+  paddleY: number;
 }
 
-export interface coordinateDataI{
-  game: string,
-  playerY: number,
-  ball: {x: number, y: number}
+export interface playerDataI {
+  name: string;
+  score: number;
+  paddleY: number;
+}
+
+export interface gameStateDataI {
+  gameName: string;
+  playerFirst: playerDataI;
+  playerSecond: playerDataI;
+  ball: { x: number; y: number };
 }
 
 export interface gameChannelDataI{

@@ -250,20 +250,18 @@ export class Gateway implements OnModuleInit {
     this.gatewayService.emitToRecipient("declineInvite", socket, data.sender);
   }
 
-  @SubscribeMessage("score")
+  @SubscribeMessage("paddleState")
   async getScore(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.scoreDataI
+    @MessageBody() data: DTO.paddleStateI
   ) {
-    this.server.to(data.game).emit("gameScore", { ...data });
+    this.server.to(data.gameName).emit("paddleState", data);
   }
 
-  @SubscribeMessage("coordinates")
+  @SubscribeMessage("gameState")
   async getCoordinates(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.coordinateDataI
+    @MessageBody() data: DTO.gameStateDataI
   ) {
-    this.gatewayService.getCoordinates(socket, data);
+    this.gatewayService.emitGameState(data);
   }
 
   @SubscribeMessage("endGame")

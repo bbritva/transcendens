@@ -25,13 +25,6 @@ export interface handData {
   multiHandLandmarks: point[][];
 }
 
-export interface coordinateDataI {
-  game: string;
-  playerY: number;
-  ball?: { x: number; y: number };
-  player?: string;
-}
-
 export interface gameChannelDataI {
   name: string;
   first: string;
