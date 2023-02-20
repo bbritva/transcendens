@@ -54,8 +54,8 @@ function game(
 ) {
   const ctx = canvas.getContext("2d");
   let myRole: role;
-  let left : string;
-  let right : string;
+  let left: string;
+  let right: string;
   const gameState: gameStateDataI = {
     gameName: game.name,
     playerFirst: { name: game.first, score: 0, paddleY: 0 },
@@ -163,8 +163,8 @@ function game(
         : game.second === myName
         ? role.SECOND
         : role.SPECTATOR;
-    left = myRole != role.SECOND ? game?.second : game?.first;
-    right = myRole != role.SECOND ? game?.first : game?.second;
+    left = myRole == role.FIRST ? game?.second : game?.first;
+    right = myRole == role.FIRST ? game?.first : game?.second;
     const paddleHeight = 10;
     const paddleWidth = 75;
     const ballRadius = 10;
@@ -172,7 +172,7 @@ function game(
     const rightPaddle = new Paddle(
       canvas.width - paddleHeight - paddleOffsetX,
       (canvas.height - paddleWidth) / 2,
-      false,
+      myRole == role.SPECTATOR,
       canvas,
       paddleHeight,
       paddleWidth,
@@ -211,21 +211,16 @@ function game(
         });
       } else {
         socket.on("gameState", (data: gameStateDataI) => {
-         if (myRole == role.SECOND) {
-            leftPaddle.remoteY = translateFromPercent(
-              canvas.height,
-              data.playerFirst.paddleY
-            );
-          } else {
-            leftPaddle.remoteY = translateFromPercent(
+          if (myRole == role.SPECTATOR) {
+            rightPaddle.remoteY = translateFromPercent(
               canvas.height,
               data.playerSecond.paddleY
             );
-            rightPaddle.remoteY = translateFromPercent(
-              canvas.height,
-              data.playerFirst.paddleY
-            );
           }
+          leftPaddle.remoteY = translateFromPercent(
+            canvas.height,
+            data.playerFirst.paddleY
+          );
           ball.remoteX = translateFromPercent(canvas.width, data.ball.x);
           ball.remoteY = translateFromPercent(canvas.height, data.ball.y);
           leftPaddle.score = data.playerFirst.score;
@@ -255,14 +250,14 @@ function game(
       },
       false
     );
-    if (myRole != role.SPECTATOR) 
-    document.addEventListener(
-      "mousemove",
-      (e) => {
-        rightPaddle.mouseMoveHandler(e);
-      },
-      false
-    );
+    if (myRole != role.SPECTATOR)
+      document.addEventListener(
+        "mousemove",
+        (e) => {
+          rightPaddle.mouseMoveHandler(e);
+        },
+        false
+      );
     if (ctx) {
       mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
     }
