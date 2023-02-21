@@ -76,7 +76,7 @@ export class GatewayService {
       .catch((e) => {
         console.log(e.message);
       });
-    this.readyToPlayUsers.filter(
+    this.readyToPlayUsers = this.readyToPlayUsers.filter(
       (user) => user.name != this.connections.get(socket.id).name
     );
     this.connections.delete(socket.id);
@@ -638,7 +638,6 @@ export class GatewayService {
       }
     }
     this.server.to(socket.id).emit("gameLine", { inLine: true });
-
   }
 
   private async leaveLine(socket: Socket) {
@@ -649,7 +648,6 @@ export class GatewayService {
       this.readyToPlayUsers.splice(userIndex, 1);
     }
     this.server.to(socket.id).emit("gameLine", { inLine: false });
-
   }
 
   private emitNotAllowed(socketId: string, eventName: string, data: any) {

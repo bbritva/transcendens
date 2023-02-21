@@ -383,8 +383,6 @@ function game(
 
     setStopGame(true);
     const result = emitGameResults(rightScore, leftScore);
-    // alert(`${result.winnerName} WINS`);
-    // document.location.reload();
   }
 
   function emitGameResults(
