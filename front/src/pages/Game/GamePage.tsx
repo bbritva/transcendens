@@ -25,6 +25,10 @@ export interface handData {
   multiHandLandmarks: point[][];
 }
 
+export interface gameLineI {
+  inLine: boolean;
+}
+
 export interface gameChannelDataI {
   name: string;
   first: string;
@@ -40,6 +44,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [declinedCause, setDeclinedCause] = useState<string>("");
+  const [inLine, setInLine] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
     useState<string>("AI");
@@ -61,12 +66,15 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       };
     }
   }, []);
+  socket.off("gameLine");
+  socket.on("gameLine", (data: gameLineI) => {
+    setInLine(data.inLine);
+  });
 
   useEffect(() => {
     if (socket.connected && !!gameData) {
       setStopGame(true);
       startGame(gameData);
-      console.log(gameData);
       sessionStorage.setItem("game", "true");
     } else {
       sessionStorage.setItem("game", "false");
@@ -102,32 +110,23 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       socket.emit("inviteToGame", { recipient: inputValue });
       setInputValue(undefined);
       socket.on("declineInvite", (data) => {
-        console.log(data);
         setDeclined(true);
         setDeclinedCause(data.cause);
         setOpenMPDialog(true);
         sessionStorage.setItem("game", "false");
       });
-      socket.on("userOffline", () => {
-        setDeclined(true);
-        setOpenMPDialog(true);
-        sessionStorage.setItem("game", "false");
-        console.log("User offline");
-      });
     }
     setOpenMPDialog(false);
   }
 
-  async function standInLine() {
+  async function getInLine(inLine: boolean) {
     if (socket.connected) {
-      socket.emit("standInLine", {});
+      socket.emit("gameLine", { inLine: inLine });
     }
     setOpenMPDialog(false);
   }
 
   async function getActiveGames() {
-    console.log("getGames");
-    
     if (socket.connected) {
       socket.emit("getActiveGames", {});
     }
@@ -136,7 +135,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   async function spectateGame() {
     if (socket.connected) {
       socket.emit("spectateGame", {
-        gameName: inputValue
+        gameName: inputValue,
       });
     }
     setOpenSpectatorDialog(false);
@@ -157,7 +156,9 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
             flexDirection={"column"}
             alignItems={"flex-start"}
           >
-            <DialogTitle>{inputValue} declined! {declinedCause}</DialogTitle>
+            <DialogTitle>
+              {inputValue} declined! {declinedCause}
+            </DialogTitle>
             <Button
               variant="outlined"
               sx={{
@@ -190,15 +191,31 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
             >
               Pong's invite
             </Button>
-            <Button
-              variant="outlined"
-              sx={{
-                alignSelf: "center",
-              }}
-              onClick={standInLine}
-            >
-              Stand in line
-            </Button>
+            {!inLine ? (
+              <Button
+                variant="outlined"
+                sx={{
+                  alignSelf: "center",
+                }}
+                onClick={() => {
+                  getInLine(true);
+                }}
+              >
+                Get in line
+              </Button>
+            ) : (
+              <Button
+                variant="outlined"
+                sx={{
+                  alignSelf: "center",
+                }}
+                onClick={() => {
+                  getInLine(false);
+                }}
+              >
+                Leave line
+              </Button>
+            )}
           </Box>
         )}
       </DialogSelect>

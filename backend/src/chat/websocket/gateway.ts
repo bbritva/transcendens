@@ -219,11 +219,12 @@ export class Gateway implements OnModuleInit {
   }
 
 
-  @SubscribeMessage("standInLine")
+  @SubscribeMessage("gameLine")
   async standInLine(
     @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.gameLineI
   ) {
-    this.gatewayService.standInLine(socket);
+    this.gatewayService.gameLine(socket, data);
   }
 
   @SubscribeMessage("inviteToGame")
@@ -283,7 +284,7 @@ export class Gateway implements OnModuleInit {
   @SubscribeMessage("spectateGame")
   async onSpectateGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.SpectateGameI
+    @MessageBody() data: DTO.spectateGameI
 
   ) {
     this.gatewayService.connectSpectator(socket.id, data);

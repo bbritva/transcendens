@@ -375,29 +375,15 @@ export class GatewayService {
       second: acceptorName,
       guests: [],
     };
-    console.log(game);
     this.connectToGame(game);
   }
 
-  async standInLine(socket: Socket) {
-    const user = this.connections.get(socket.id);
-    if (this.readyToPlayUsers.findIndex((value) => value.id == user.id) == -1) {
-      this.readyToPlayUsers.push(user);
-      console.log("new in line", user);
-      while (this.readyToPlayUsers.length > 1) {
-        const first = this.readyToPlayUsers.pop();
-        const second = this.readyToPlayUsers.pop();
-        const game = {
-          name: first.name + second.name + "Game",
-          first: first.name,
-          second: second.name,
-          guests: [],
-        };
-        console.log(game);
-        this.connectToGame(game);
-      }
+  async gameLine(socket: Socket, data: DTO.gameLineI) {
+    if (data.inLine) {
+      this.getInLine(socket);
+    } else {
+      this.leaveLine(socket);
     }
-    console.log(this.readyToPlayUsers);
   }
 
   async inviteToGame(socket: Socket, data: DTO.InviteToGameI) {
@@ -407,7 +393,7 @@ export class GatewayService {
       if (
         await this.userService.isBanned(
           executor.id,
-          this.connections.get(recipientSocket).name,
+          this.connections.get(recipientSocket).name
         )
       )
         this.server
@@ -513,9 +499,8 @@ export class GatewayService {
     this.server.to(socketId).emit("activeGames", activeGames);
   }
 
-  async connectSpectator(socketId: string, data: DTO.SpectateGameI) {
+  async connectSpectator(socketId: string, data: DTO.spectateGameI) {
     const game = this.gameRooms.get(data.gameName);
-    console.log("connectSpectator", game);
     this.server.to(socketId).emit("connectToGame", game);
     this.server.in(socketId).socketsJoin(game.name);
   }
@@ -535,8 +520,6 @@ export class GatewayService {
 
   private async connectToGame(data: DTO.gameChannelDataI) {
     const game = this.gameRooms.set(data.name, data).get(data.name);
-    console.log("connectToGame", game);
-
     // send to users game info
     for (const el of this.connections.entries()) {
       if (el[1].name == game.first || game.second === el[1].name) {
@@ -636,6 +619,37 @@ export class GatewayService {
       isPrivate: true,
       type: "PRIVATE_MESSAGING",
     };
+  }
+
+  private async getInLine(socket: Socket) {
+    const user = this.connections.get(socket.id);
+    if (this.readyToPlayUsers.findIndex((value) => value.id == user.id) == -1) {
+      this.readyToPlayUsers.push(user);
+      while (this.readyToPlayUsers.length > 1) {
+        const first = this.readyToPlayUsers.pop();
+        const second = this.readyToPlayUsers.pop();
+        const game = {
+          name: first.name + second.name + "Game",
+          first: first.name,
+          second: second.name,
+          guests: [],
+        };
+        this.connectToGame(game);
+      }
+    }
+    this.server.to(socket.id).emit("gameLine", { inLine: true });
+
+  }
+
+  private async leaveLine(socket: Socket) {
+    const userIndex = this.readyToPlayUsers.findIndex(
+      (value) => value.id == this.connections.get(socket.id).id
+    );
+    if (userIndex != -1) {
+      this.readyToPlayUsers.splice(userIndex, 1);
+    }
+    this.server.to(socket.id).emit("gameLine", { inLine: false });
+
   }
 
   private emitNotAllowed(socketId: string, eventName: string, data: any) {

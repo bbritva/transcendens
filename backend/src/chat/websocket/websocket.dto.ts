@@ -99,6 +99,10 @@ export interface gameChannelDataI{
   guests: string[]
 }
 
-export interface SpectateGameI {
+export interface spectateGameI {
   gameName: string;
+}
+
+export interface gameLineI {
+  inLine: boolean;
 }
