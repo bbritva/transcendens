@@ -373,7 +373,7 @@ export class UserService {
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
         if (targetUser) {
-          if (user.bannedIds.includes(userId))
+          if (user.bannedIds.includes(targetUser.id))
             this.prisma.user
               .update({
                 where: {

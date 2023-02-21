@@ -42,6 +42,7 @@ export class GatewayService {
           id: user.id,
           name: user.name,
           socketId: socket.id,
+          inGame: false,
         });
       }
       // set user status online
@@ -397,39 +398,58 @@ export class GatewayService {
       }
     }
     console.log(this.readyToPlayUsers);
-    
   }
 
   async inviteToGame(socket: Socket, data: DTO.InviteToGameI) {
-    const executorName = this.connections.get(socket.id).name;
-    console.log(data.recipient, "is invited by", executorName);
-    const recipientConnection = this.connectionByName(data.recipient);
-    if (recipientConnection)
+    const executor = this.connections.get(socket.id);
+    const recipientSocket = this.connectionByName(data.recipient);
+    if (recipientSocket) {
+      if (
+        await this.userService.isBanned(
+          executor.id,
+          this.connections.get(recipientSocket).name,
+        )
+      )
+        this.server
+          .to(socket.id)
+          .emit("declineInvite", { cause: "you banned" });
+      else if (this.connections.get(recipientSocket).inGame)
+        this.server
+          .to(socket.id)
+          .emit("declineInvite", { cause: "user in game" });
+      else
+        this.server
+          .to(recipientSocket)
+          .emit("inviteToGame", { sender: executor.name });
+    } else
       this.server
-        .to(recipientConnection)
-        .emit("inviteToGame", { sender: executorName });
-    else this.server.to(socket.id).emit("userOffline", data);
+        .to(socket.id)
+        .emit("declineInvite", { cause: "user offline" });
   }
 
-  async emitToRecipient(event: string, socket: Socket, recipient: string) {
+  async sendDecline(socket: Socket, recipient: string) {
     const executorName = this.connections.get(socket.id).name;
-    console.log({ executorName, event, recipient });
-    const recipientConnection = this.connectionByName(recipient);
-    if (recipientConnection)
-      this.server.to(recipientConnection).emit(event, { sender: executorName });
+    const recipientSocket = this.connectionByName(recipient);
+    if (recipientSocket)
+      this.server
+        .to(recipientSocket)
+        .emit("declineInvite", { cause: `${executorName} hates you =)` });
     else return null;
   }
 
-  async emitGameState(data : DTO.gameStateDataI) {
-    this.server
-      .to(data.gameName)
-      .volatile.emit("gameState", data);
+  async emitGameState(data: DTO.gameStateDataI) {
+    this.server.to(data.gameName).volatile.emit("gameState", data);
   }
 
   async addGameResult(socket: Socket, data: GameResultDto) {
     this.gameService
       .addGame(data)
       .then(() => {
+        this.connections.forEach((client: DTO.ClientInfo) => {
+          if (client.name == data.winnerName || client.name == data.loserName) {
+            client.inGame = false;
+          }
+        });
         this.server.to(data.name).emit("gameFinished", data);
         this.gameRooms.delete(data.name);
         this.server.socketsLeave(data.name);
@@ -486,9 +506,9 @@ export class GatewayService {
   }
 
   async getActiveGames(socketId: string) {
-    const activeGames : DTO.gameChannelDataI[] = []
+    const activeGames: DTO.gameChannelDataI[] = [];
     for (const el of this.gameRooms.values()) {
-      activeGames.push(el)
+      activeGames.push(el);
     }
     this.server.to(socketId).emit("activeGames", activeGames);
   }
@@ -520,6 +540,7 @@ export class GatewayService {
     // send to users game info
     for (const el of this.connections.entries()) {
       if (el[1].name == game.first || game.second === el[1].name) {
+        el[1].inGame = true;
         this.server.in(el[0]).socketsJoin(game.name);
       }
     }

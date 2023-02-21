@@ -39,6 +39,7 @@ export interface GamePageProps {
 const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
+  const [declinedCause, setDeclinedCause] = useState<string>("");
   const [stopGame, setStopGame] = useState<boolean>(true);
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
     useState<string>("AI");
@@ -100,8 +101,10 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     if (socket.connected) {
       socket.emit("inviteToGame", { recipient: inputValue });
       setInputValue(undefined);
-      socket.on("declineInvite", () => {
+      socket.on("declineInvite", (data) => {
+        console.log(data);
         setDeclined(true);
+        setDeclinedCause(data.cause);
         setOpenMPDialog(true);
         sessionStorage.setItem("game", "false");
       });
@@ -154,7 +157,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
             flexDirection={"column"}
             alignItems={"flex-start"}
           >
-            <DialogTitle>{inputValue} declined!</DialogTitle>
+            <DialogTitle>{inputValue} declined! {declinedCause}</DialogTitle>
             <Button
               variant="outlined"
               sx={{

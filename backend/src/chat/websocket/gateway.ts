@@ -247,7 +247,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.AcceptInviteI
   ) {
-    this.gatewayService.emitToRecipient("declineInvite", socket, data.sender);
+    this.gatewayService.sendDecline(socket, data.sender);
   }
 
   @SubscribeMessage("paddleState")

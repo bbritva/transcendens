@@ -34,6 +34,7 @@ export class ClientInfo {
   readonly id: number;
   readonly name: string;
   readonly socketId?: string;
+  inGame?: boolean;
 }
 
 export interface NotAllowedI {
