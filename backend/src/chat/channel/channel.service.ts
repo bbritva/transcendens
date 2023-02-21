@@ -5,7 +5,6 @@ import * as DTO from "src/chat/websocket/websocket.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import { ChannelEntity } from "./entities/channel.entity";
-import { channel } from "diagnostics_channel";
 
 @Injectable()
 export class ChannelService {
