@@ -97,6 +97,7 @@ export interface gameChannelDataI{
   first: string,
   second: string
   guests: string[]
+  gameState?: gameStateDataI
 }
 
 export interface spectateGameI {

@@ -424,6 +424,7 @@ export class GatewayService {
   }
 
   async emitGameState(data: DTO.gameStateDataI) {
+    this.gameRooms.get(data.gameName).gameState = data;
     this.server.to(data.gameName).volatile.emit("gameState", data);
   }
 
