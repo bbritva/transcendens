@@ -46,6 +46,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
     useState<string>("AI");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
@@ -59,6 +60,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const webcamRef = useRef<Webcam>(null);
 
   useEffect(() => {
+    console.log("useeff1");
+    
     const canvas = canvasRef.current;
     if (canvas) {
       return () => {
@@ -72,6 +75,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   });
 
   useEffect(() => {
+    console.log("useeff2");
+
     if (socket.connected && !!gameData) {
       setStopGame(true);
       startGame(gameData);
@@ -82,6 +87,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }, [gameData]);
 
   function startGame(gameData: gameChannelDataI) {
+    console.log("startGame");
+
     const canvas = canvasRef.current;
     if (canvas && stopGame) {
       setStopGame(false);
@@ -102,10 +109,14 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     event: React.ChangeEvent<HTMLTextAreaElement>
   ): void {
     // event.preventDefault();
+    console.log("onChange");
+
     setInputValue(event.currentTarget.value);
   }
 
   async function sendInvite() {
+    console.log("sendInvite");
+    
     if (socket.connected) {
       socket.emit("inviteToGame", { recipient: inputValue });
       setInputValue(undefined);
@@ -120,6 +131,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }
 
   async function getInLine(inLine: boolean) {
+    console.log("getInLine");
+
     if (socket.connected) {
       socket.emit("gameLine", { inLine: inLine });
     }
@@ -127,12 +140,16 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }
 
   async function getActiveGames() {
+    console.log("getActiveGames");
+
     if (socket.connected) {
       socket.emit("getActiveGames", {});
     }
   }
 
   async function spectateGame() {
+    console.log("spectateGame");
+
     if (socket.connected) {
       socket.emit("spectateGame", {
         gameName: inputValue,
@@ -146,6 +163,9 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     height: "480",
   } as canvasPropsI;
 
+
+  console.log("render");
+  
   return (
     <Grid container component={Paper} display={"table-row"}>
       <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
@@ -247,7 +267,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         <Button
           children={"play VS AI"}
           variant={"outlined"}
-          disabled={singlePlayerOpponent == "AI" || !stopGame}
+          // disabled={singlePlayerOpponent == "AI" || !stopGame}
           size="large"
           onClick={() => setSinglePlayerOpponent("AI")}
         />
@@ -255,7 +275,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           children={"play VS hand"}
           variant={"outlined"}
           size="large"
-          disabled={singlePlayerOpponent == "hand" || !stopGame}
+          // disabled={singlePlayerOpponent == "hand" || !stopGame}
           onClick={() => setSinglePlayerOpponent("hand")}
         />
         <Button
@@ -312,6 +332,15 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
             visibility: "hidden",
           }}
         />
+      </Grid>
+      <Grid item display={"flex"} justifyContent={"center"}>
+          <Button
+            children={isPaused ? "Continue" : "Pause"}
+            variant={"outlined"}
+            // disabled={stopGame}
+            size="large"
+            onClick={() => setIsPaused((prev) => !prev)}
+          />
       </Grid>
     </Grid>
   );

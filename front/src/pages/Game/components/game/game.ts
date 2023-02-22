@@ -370,7 +370,7 @@ function game(
   }
 
   function emitData(paddle: Paddle) {
-    if (myRole == role.FIRST) socket.volatile.emit("gameState", gameState);
+    if (myRole == role.FIRST && game.name != "single") socket.volatile.emit("gameState", gameState);
     else if (myRole == role.SECOND)
       socket.volatile.emit("paddleState", {
         gameName: game.name,
