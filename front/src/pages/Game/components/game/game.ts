@@ -47,6 +47,7 @@ enum role {
 function game(
   canvas: HTMLCanvasElement,
   setStopGame: Function,
+  // setGameStarted: Function,
   mods: { bricks: boolean },
   game: gameChannelDataI,
   myName: string,
@@ -227,6 +228,7 @@ function game(
         });
         socket.on("gameFinished", (result: GameResultDto) => {
           alert(`${result.winnerName} WINS`);
+          // setGameStarted(false);
           setStopGame(true);
           socket.off("gameState");
           socket.off("gameFinished");
@@ -382,6 +384,7 @@ function game(
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     setStopGame(true);
+    // setGameStarted(false);
     const result = emitGameResults(rightScore, leftScore);
   }
 

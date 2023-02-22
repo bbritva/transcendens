@@ -46,6 +46,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
     useState<string>("AI");
@@ -68,11 +69,13 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         setStopGame(true);
       };
     }
+    if (socket.connected) {
+      socket.off("gameLine");
+      socket.on("gameLine", (data: gameLineI) => {
+        setInLine(data.inLine);
+      });
+    }
   }, []);
-  socket.off("gameLine");
-  socket.on("gameLine", (data: gameLineI) => {
-    setInLine(data.inLine);
-  });
 
   useEffect(() => {
     console.log("useeff2");
@@ -96,6 +99,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         game(
           canvas,
           setStopGame,
+          // setGameStarted,
           { bricks: false },
           gameData,
           testUsername || user.user?.name || "",
@@ -116,7 +120,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
 
   async function sendInvite() {
     console.log("sendInvite");
-    
+
     if (socket.connected) {
       socket.emit("inviteToGame", { recipient: inputValue });
       setInputValue(undefined);
@@ -163,9 +167,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     height: "480",
   } as canvasPropsI;
 
-
   console.log("render");
-  
   return (
     <Grid container component={Paper} display={"table-row"}>
       <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
@@ -334,13 +336,13 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
-          <Button
-            children={isPaused ? "Continue" : "Pause"}
-            variant={"outlined"}
-            // disabled={stopGame}
-            size="large"
-            onClick={() => setIsPaused((prev) => !prev)}
-          />
+        <Button
+          children={isPaused ? "Continue" : "Pause"}
+          variant={"outlined"}
+          // disabled={stopGame}
+          size="large"
+          onClick={() => setIsPaused((prev) => !prev)}
+        />
       </Grid>
     </Grid>
   );
