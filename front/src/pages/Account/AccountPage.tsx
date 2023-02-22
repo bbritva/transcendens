@@ -63,29 +63,25 @@ const AccountPage: FC<any> = (): ReactElement => {
       }}
     >
       <SignUp />
-      {/* <StyledTable
-        title="Player stats"
-        tableHeadArray={null}
-        tableRowArray={playerRows}
-        myBackColor={"info.main"}
-      /> */}
       <StyledTable
         title="Player stats"
         tableHeadArray={null}
         tableRowArray={playerRows}
-        myBackColor={"info.main"}
+        myBackColor={theme.palette.info.main}
+        myAlign='end'
       />
       <StyledTable
         title="Settings"
         tableHeadArray={null}
         tableRowArray={playerRows}
-        myBackColor={"info.main"}
+        myBackColor={theme.palette.info.main}
+        myAlign='start'
       />
       <StyledTable
         title="Match history"
         tableHeadArray={header}
         tableRowArray={historyRows}
-        myBackColor={"primary.main"}
+        myBackColor={theme.palette.primary.main}
       />
     </Box>
   );

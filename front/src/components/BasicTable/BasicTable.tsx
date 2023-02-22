@@ -1,4 +1,3 @@
-import * as React from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -56,9 +55,6 @@ export default function BasicTable(props: styledTableI) {
   return (
     <Box
       {...props}
-      sx={{
-        backgroundColor: props.myBackColor,
-      }}
     >
       <Typography
         sx={{ flex: "1 1 100%" }}

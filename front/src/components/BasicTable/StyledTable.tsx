@@ -7,11 +7,13 @@ import BasicTable, { basicTableI } from "./BasicTable";
 // Define the component using the props interface
 export interface styledTableI extends basicTableI {
   myBackColor?: string;
+  myAlign?: string;
+
 }
 
 // Use the styled function to create a customized version of the component
 const StyledTable = styled(BasicTable)<styledTableI>(
-  ({ theme, myBackColor }: { theme: Theme; myBackColor?: string }) => {
+  ({ theme, myBackColor, myAlign }: { theme: Theme; myBackColor?: string; myAlign?: string }) => {
     return {
       display: 'flex',
       alignItems: 'center',
@@ -21,6 +23,8 @@ const StyledTable = styled(BasicTable)<styledTableI>(
       padding: "2rem",
       margin: "2rem",
       width: '25vw',
+      backgroundColor: myBackColor,
+      alignSelf: myAlign,
       [theme.breakpoints.down("lg")]: { width: "55vw"},
     };
   }
