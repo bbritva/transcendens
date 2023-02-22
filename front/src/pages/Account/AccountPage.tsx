@@ -52,36 +52,41 @@ const AccountPage: FC<any> = (): ReactElement => {
       component={Paper}
       display="flex"
       alignContent='center'
-      justifyContent='center'
+      alignItems="center"
+      justifyContent="center"
       flexWrap="wrap"
       sx={{
         backgroundColor: theme.palette.secondary.light,
-        width: "80vw",
+        width: "65vw",
         height: "80vh",
-        [theme.breakpoints.down("md")]: { alignContent: 'flex-start'},
+        [theme.breakpoints.down("lg")]: { overflowY: 'scroll', alignContent: "flex-start" },
       }}
     >
-        <SignUp />
-        <StyledTable
-          flexDirection='column'
-          title="Settings"
-          tableHeadArray={null}
-          tableRowArray={playerRows}
-          myBackColor={"info.main"}
-        />
-        <StyledTable
-          flexDirection='column'
-          title="Player stats"
-          tableHeadArray={null}
-          tableRowArray={playerRows}
-          myBackColor={"info.main"}
-        />
-        <StyledTable
-          title="Match history"
-          tableHeadArray={header}
-          tableRowArray={historyRows}
-          myBackColor={"primary.main"}
-        />
+      <SignUp />
+      {/* <StyledTable
+        title="Player stats"
+        tableHeadArray={null}
+        tableRowArray={playerRows}
+        myBackColor={"info.main"}
+      /> */}
+      <StyledTable
+        title="Player stats"
+        tableHeadArray={null}
+        tableRowArray={playerRows}
+        myBackColor={"info.main"}
+      />
+      <StyledTable
+        title="Settings"
+        tableHeadArray={null}
+        tableRowArray={playerRows}
+        myBackColor={"info.main"}
+      />
+      <StyledTable
+        title="Match history"
+        tableHeadArray={header}
+        tableRowArray={historyRows}
+        myBackColor={"primary.main"}
+      />
     </Box>
   );
 };

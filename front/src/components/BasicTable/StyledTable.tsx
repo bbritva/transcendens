@@ -13,12 +13,15 @@ export interface styledTableI extends basicTableI {
 const StyledTable = styled(BasicTable)<styledTableI>(
   ({ theme, myBackColor }: { theme: Theme; myBackColor?: string }) => {
     return {
+      display: 'flex',
+      alignItems: 'center',
+      flexWrap: 'wrap',
       borderRadius: 20,
       boxShadow: "0 3px 5px 2px rgba(0, 1, 1, .3)",
       padding: "2rem",
-      margin: "1rem",
-      width: '30vw',
-      [theme.breakpoints.down("md")]: { width: "55vw"},
+      margin: "2rem",
+      width: '25vw',
+      [theme.breakpoints.down("lg")]: { width: "55vw"},
     };
   }
 );

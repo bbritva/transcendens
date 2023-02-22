@@ -168,11 +168,9 @@ function App() {
                   key={route.key}
                   path={route.path}
                   element={
-                    <Stack height='70vh' direction="row" spacing={2} justifyContent="space-between">
                     <PrivateRouteWrapper>
                       <route.component channels={channels} setChannels={setChannels} />
                     </PrivateRouteWrapper>
-                    </Stack>
                   }
                 />
               ))}

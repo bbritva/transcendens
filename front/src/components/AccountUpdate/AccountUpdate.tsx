@@ -165,11 +165,14 @@ export default function SignUp() {
   return (
       <Box sx={{
         borderRadius: 7,
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
         boxShadow: "0 3px 5px 2px rgba(0, 1, 1, .3)",
         padding: "2rem",
-        margin: "1rem",
-        width: '30vw',
-        [theme.breakpoints.down("md")]: { width: "55vw"}
+        margin: "2rem",
+        width: '25vw',
+        [theme.breakpoints.down("lg")]: { width: "55vw"},
       }}>
         <CssBaseline />
         <DialogSelect options open={open} setOpen={setOpen}>
