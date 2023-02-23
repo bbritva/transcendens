@@ -7,9 +7,7 @@ import BasicTable, {
   basicTableI,
   matchHistoryRowI,
   playerStatisticsRowI,
-  rowI,
 } from "src/components/BasicTable/BasicTable";
-import StyledTable from "src/components/BasicTable/StyledTable";
 
 function createHistoryData(
   score: string,
@@ -63,21 +61,21 @@ const AccountPage: FC<any> = (): ReactElement => {
       }}
     >
       <SignUp />
-      <StyledTable
+      <BasicTable
         title="Player stats"
         tableHeadArray={null}
         tableRowArray={playerRows}
         myBackColor={theme.palette.info.main}
         myAlign='end'
       />
-      <StyledTable
+      <BasicTable
         title="Settings"
         tableHeadArray={null}
         tableRowArray={playerRows}
         myBackColor={theme.palette.info.main}
         myAlign='start'
       />
-      <StyledTable
+      <BasicTable
         title="Match history"
         tableHeadArray={header}
         tableRowArray={historyRows}

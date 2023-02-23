@@ -7,16 +7,16 @@ import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import { useStore } from 'react-redux';
 import { updateUser, userI } from 'src/store/userSlice';
 import userService from 'src/services/user.service';
 import { RootState } from 'src/store/store';
 import DialogSelect from 'src/components/DialogSelect/DialogSelect';
-import { DialogContentText, DialogTitle, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import authService from 'src/services/auth.service';
 import ChooseTwoFA, { twoFAdialogProps } from './ChooseTwoFA';
 import { useAppDispatch } from "src/app/hooks";
+import StyledBox, { styledBox } from '../BasicTable/StyledBox';
 
 
 function Copyright(props: any) {
@@ -32,7 +32,7 @@ function Copyright(props: any) {
   );
 }
 
-export default function SignUp() {
+export default function SignUp(props: styledBox) {
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
   const [urlQR, setUrlQR] = React.useState<any>();
@@ -163,17 +163,18 @@ export default function SignUp() {
   }
 
   return (
-      <Box sx={{
-        borderRadius: 7,
-        display: 'flex',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        boxShadow: "0 3px 5px 2px rgba(0, 1, 1, .3)",
-        padding: "2rem",
-        margin: "2rem",
-        width: '25vw',
-        [theme.breakpoints.down("lg")]: { width: "55vw"},
-      }}>
+      // <Box sx={{
+      //   borderRadius: 7,
+      //   display: 'flex',
+      //   alignItems: 'center',
+      //   flexWrap: 'wrap',
+      //   boxShadow: "0 3px 5px 2px rgba(0, 1, 1, .3)",
+      //   padding: "2rem",
+      //   margin: "2rem",
+      //   width: '25vw',
+      //   [theme.breakpoints.down("lg")]: { width: "55vw"},
+      // }}>
+      <StyledBox {...props}>
         <CssBaseline />
         <DialogSelect options open={open} setOpen={setOpen}>
         <ChooseTwoFA {
@@ -253,6 +254,6 @@ export default function SignUp() {
           </Box>
         </Box>
         <Copyright sx={{ mt: 5 }} />
-      </Box>
+      </StyledBox>
   );
 }

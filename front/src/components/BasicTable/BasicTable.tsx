@@ -4,8 +4,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Box, BoxProps, Typography } from "@mui/material";
-import { styledTableI } from "./StyledTable";
+import { Typography } from "@mui/material";
+import StyledBox, { styledBox } from "./StyledBox";
 
 export interface rowI {
   id: number;
@@ -26,11 +26,12 @@ export interface settingsRowI extends rowI {
   button: string;
 }
 
-export interface basicTableI extends BoxProps {
+export interface basicTableI extends styledBox {
   title: string;
   tableHeadArray: string[] | null;
   tableRowArray: rowI[];
 }
+
 
 function drawHeader(element: string) {
   return <TableCell key={element}> {element} </TableCell>;
@@ -51,9 +52,9 @@ function drawRow(row: rowI) {
   );
 }
 
-export default function BasicTable(props: styledTableI) {
+export default function BasicTable(props: basicTableI) {
   return (
-    <Box
+    <StyledBox
       {...props}
     >
       <Typography
@@ -74,6 +75,6 @@ export default function BasicTable(props: styledTableI) {
           <TableBody>{props.tableRowArray.map(drawRow)}</TableBody>
         </Table>
       </TableContainer>
-    </Box>
+    </StyledBox>
   );
 }
