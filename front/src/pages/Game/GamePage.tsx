@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
-import game from "./components/game/game";
+import Game, { InitialGameDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import socket from "src/services/socket";
 import { useStore } from "react-redux";
@@ -29,15 +29,8 @@ export interface gameLineI {
   inLine: boolean;
 }
 
-export interface gameChannelDataI {
-  name: string;
-  first: string;
-  second: string;
-  guests: string[];
-}
-
 export interface GamePageProps {
-  gameData: gameChannelDataI | null;
+  gameData: InitialGameDataI | null;
 }
 
 const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
@@ -46,7 +39,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [stopGame, setStopGame] = useState<boolean>(true);
-  const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
     useState<string>("AI");
@@ -58,17 +50,10 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const { getState } = useStore();
   const { user } = getState() as RootState;
 
-  // const webcamRef = useRef<Webcam>(null);
-  // const gameRef = Game.getInstance(
-  //   canvasRef.current,
-  //   setStopGame,
-  //   testUsername || user.user?.name || "",
-  //   null
-  // );
+  const webcamRef = useRef<Webcam>(null);
+  Game.startGame(canvasRef.current, testUsername || user.user?.name || "", null);
 
   useEffect(() => {
-    console.log("useeff1");
-
     const canvas = canvasRef.current;
     if (canvas) {
       return () => {
@@ -95,21 +80,14 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     }
   }, [gameData]);
 
-  function startGame(gameData: gameChannelDataI) {
+  function startGame(gameData: InitialGameDataI) {
     console.log("startGame");
 
     const canvas = canvasRef.current;
     if (canvas && stopGame) {
       setStopGame(false);
       if (gameData && (testUsername || user.user?.name)) {
-        game
-          .getInstance(
-            canvas,
-            setStopGame,
-            testUsername || user.user?.name || "",
-            null
-          )
-          .initGame(gameData, canvas);
+        Game.startGame(canvasRef.current, testUsername || user.user?.name || "", gameData);
       }
     }
   }
@@ -293,10 +271,9 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           size="large"
           onClick={() =>
             startGame({
-              name: "single",
-              first: testUsername || user.user?.name || "",
-              second: singlePlayerOpponent,
-              guests: [],
+              gameName: "single",
+              playerFirstName: testUsername || user.user?.name || "",
+              playerSecondName: singlePlayerOpponent,
             })
           }
         />
