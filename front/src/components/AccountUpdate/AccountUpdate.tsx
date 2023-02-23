@@ -17,27 +17,15 @@ import authService from 'src/services/auth.service';
 import ChooseTwoFA, { twoFAdialogProps } from './ChooseTwoFA';
 import { useAppDispatch } from "src/app/hooks";
 import StyledBox, { styledBox } from '../BasicTable/StyledBox';
-
-
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 
 export default function SignUp(props: styledBox) {
+  const username = sessionStorage.getItem('username');
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
   const [urlQR, setUrlQR] = React.useState<any>();
   const [inputError, setInputError] = React.useState<boolean>(false);
-  const [inputValue, setInputValue] = React.useState<string>();
+  const [inputValue, setInputValue] = React.useState<string>(username || '');
   const [otpValue, setOtpValue] = React.useState<string>('');
   const [avatarSource, setAvatarSource] = React.useState<string>('');
   const [open, setOpen] = React.useState<boolean>(false);
@@ -46,6 +34,7 @@ export default function SignUp(props: styledBox) {
   const dispatch = useAppDispatch();
   const [otpError, setOtpError] = React.useState<boolean>(false);
   const theme = useTheme();
+ 
 
 
   React.useEffect(() => {
@@ -230,12 +219,13 @@ export default function SignUp(props: styledBox) {
                     onChange={onFileChange}/>
                 </Button>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} display="flex" alignItems='flex-start'>
+              <AlternateEmailIcon fontSize='large' sx={{ color: theme.palette.primary.dark, mr: 1, my: 1.5 }} />
                 <TextField
                   name="nickname"
                   fullWidth
                   id="nickname"
-                  label="nickname"
+                  value={inputValue}
                   autoFocus
                   error={inputError}
                   helperText={inputError? 'This nickname is taken' : ''}
@@ -253,7 +243,6 @@ export default function SignUp(props: styledBox) {
             </Button>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </StyledBox>
   );
 }
