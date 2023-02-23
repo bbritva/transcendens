@@ -58,7 +58,13 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const { getState } = useStore();
   const { user } = getState() as RootState;
 
-  const webcamRef = useRef<Webcam>(null);
+  // const webcamRef = useRef<Webcam>(null);
+  // const gameRef = Game.getInstance(
+  //   canvasRef.current,
+  //   setStopGame,
+  //   testUsername || user.user?.name || "",
+  //   null
+  // );
 
   useEffect(() => {
     console.log("useeff1");
@@ -96,16 +102,14 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     if (canvas && stopGame) {
       setStopGame(false);
       if (gameData && (testUsername || user.user?.name)) {
-        const gameRef = new game(
-          canvas,
-          setStopGame,
-          // setGameStarted,
-          { bricks: false },
-          gameData,
-          testUsername || user.user?.name || "",
-          webcamRef
-        );
-        gameRef.initGame(gameData);
+        game
+          .getInstance(
+            canvas,
+            setStopGame,
+            testUsername || user.user?.name || "",
+            null
+          )
+          .initGame(gameData, canvas);
       }
     }
   }
@@ -321,7 +325,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Canvas ref={canvasRef} {...canvasProps} />
-        <Webcam
+        {/* <Webcam
           ref={webcamRef}
           style={{
             position: "absolute",
@@ -335,7 +339,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
             height: 480,
             visibility: "hidden",
           }}
-        />
+        /> */}
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
