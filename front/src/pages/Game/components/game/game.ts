@@ -230,7 +230,7 @@ class Game {
       },
       false
     );
-    if (this.myRole != role.SPECTATOR)
+    if (this.myRole != role.SPECTATOR && this.gameState.gameName != "demo") 
       document.addEventListener(
         "mousemove",
         (e) => {
@@ -344,9 +344,18 @@ class Game {
   private moveElements(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
     if (!this.canvas) return;
 
+    if (this.gameState.gameName == "demo" ) {
+      if (this.gameState.playerFirst.name.endsWith("AI")) {
+        rightPaddle.upPressed =
+          ball.speedX > 0 && rightPaddle.paddleY + 10 > ball.y;
+          rightPaddle.downPressed =
+          ball.speedX > 0 && rightPaddle.paddleY + 70 < ball.y;
+      } else rightPaddle.paddleY = this.canvas.height * this.y;
+    }
     rightPaddle.movePaddle();
-    if (this.gameState.gameName == "single") {
-      if (this.gameState.playerSecond.name == "AI") {
+
+    if (this.gameState.gameName == "single" || this.gameState.gameName == "demo") {
+      if (this.gameState.playerSecond.name.endsWith("AI")) {
         leftPaddle.upPressed =
           ball.speedX < 0 && leftPaddle.paddleY + 10 > ball.y;
         leftPaddle.downPressed =
