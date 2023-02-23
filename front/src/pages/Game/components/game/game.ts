@@ -51,6 +51,7 @@ enum role {
 
 class Game {
   private static instance: Game;
+  private static flag: boolean;
   private static defaultGameData: InitialGameDataI = {
     gameName: "demo",
     playerFirstName: "AlexaAI",
@@ -94,6 +95,7 @@ class Game {
     myName: string,
     initialGameData: InitialGameDataI | null
   ) {
+    Game.flag = false;
     if (!Game.instance) {
       Game.instance = new Game(canvas, myName);
     }
@@ -122,7 +124,8 @@ class Game {
     this.ctx = this.canvas.getContext("2d");
 
     this.myRole =
-      this.gameState.playerFirst.name === this.myName || this.gameState.gameName == "demo"
+      this.gameState.playerFirst.name === this.myName ||
+      this.gameState.gameName == "demo"
         ? role.FIRST
         : this.gameState.playerSecond.name === this.myName
         ? role.SECOND
@@ -173,9 +176,10 @@ class Game {
         socket.on("paddleState", (data) => {
           if (!this.canvas) return;
 
-          leftPaddle.remoteY = leftPaddle.control == ControlE.REMOTE
-            ? this.translateFromPercent(this.canvas.height, data.paddleY)
-            : leftPaddle.initY;
+          leftPaddle.remoteY =
+            leftPaddle.control == ControlE.REMOTE
+              ? this.translateFromPercent(this.canvas.height, data.paddleY)
+              : leftPaddle.initY;
         });
       } else {
         socket.off("gameState");
@@ -230,7 +234,7 @@ class Game {
       },
       false
     );
-    if (this.myRole != role.SPECTATOR && this.gameState.gameName != "demo") 
+    if (this.myRole != role.SPECTATOR && this.gameState.gameName != "demo")
       document.addEventListener(
         "mousemove",
         (e) => {
@@ -239,6 +243,7 @@ class Game {
         false
       );
     if (this.ctx) {
+      Game.flag = true;
       this.mainGameCycle(
         ball,
         rightPaddle,
@@ -268,9 +273,10 @@ class Game {
     //   if (prev) {
     //     return prev;
     //   }
-    requestAnimationFrame(() => {
-      this.mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
-    });
+    if (Game.flag)
+      requestAnimationFrame(() => {
+        this.mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
+      });
     // return prev;
     // });
   }
@@ -344,17 +350,20 @@ class Game {
   private moveElements(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
     if (!this.canvas) return;
 
-    if (this.gameState.gameName == "demo" ) {
+    if (this.gameState.gameName == "demo") {
       if (this.gameState.playerFirst.name.endsWith("AI")) {
         rightPaddle.upPressed =
           ball.speedX > 0 && rightPaddle.paddleY + 10 > ball.y;
-          rightPaddle.downPressed =
+        rightPaddle.downPressed =
           ball.speedX > 0 && rightPaddle.paddleY + 70 < ball.y;
       } else rightPaddle.paddleY = this.canvas.height * this.y;
     }
     rightPaddle.movePaddle();
 
-    if (this.gameState.gameName == "single" || this.gameState.gameName == "demo") {
+    if (
+      this.gameState.gameName == "single" ||
+      this.gameState.gameName == "demo"
+    ) {
       if (this.gameState.playerSecond.name.endsWith("AI")) {
         leftPaddle.upPressed =
           ball.speedX < 0 && leftPaddle.paddleY + 10 > ball.y;
@@ -426,7 +435,7 @@ class Game {
 
   private drawBorder(ctx: CanvasRenderingContext2D) {
     if (!this.canvas) return;
-
+    ctx.beginPath();
     ctx.strokeStyle = "#0090DD";
     ctx.lineWidth = 2;
     ctx.moveTo(2, 2);
@@ -435,6 +444,8 @@ class Game {
     ctx.lineTo(this.canvas.width - 2, 2);
     ctx.lineTo(2, 2);
     ctx.stroke();
+    ctx.closePath();
+
   }
 
   private drawScore(
