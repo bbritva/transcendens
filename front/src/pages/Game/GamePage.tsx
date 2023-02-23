@@ -81,7 +81,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }, [gameData]);
 
   function startGame(gameData: InitialGameDataI) {
-    console.log("startGame");
+    console.log("startGame", gameData);
 
     const canvas = canvasRef.current;
     if (canvas && stopGame) {

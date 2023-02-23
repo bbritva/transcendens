@@ -149,7 +149,7 @@ class Game {
       this.canvas.height / 2,
       this.gameState.playerSecond.name == this.myName
         ? ControlE.MOUSE
-        : this.gameState.playerFirst.name.endsWith("AI")
+        : this.gameState.playerSecond.name.endsWith("AI")
         ? ControlE.AI
         : ControlE.REMOTE,
       this.canvas,
