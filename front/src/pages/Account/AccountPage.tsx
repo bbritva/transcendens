@@ -49,7 +49,6 @@ const AccountPage: FC<any> = (): ReactElement => {
     <Box
       component={Paper}
       display="flex"
-      alignContent='center'
       alignItems="center"
       justifyContent="center"
       flexWrap="wrap"
@@ -57,7 +56,12 @@ const AccountPage: FC<any> = (): ReactElement => {
         backgroundColor: theme.palette.secondary.light,
         width: "65vw",
         height: "80vh",
-        [theme.breakpoints.down("lg")]: { overflowY: 'scroll', alignContent: "flex-start" },
+        overflow: 'scroll',
+        overflowX: 'hidden',
+        "&::-webkit-scrollbar": {
+          display: 'none'
+        },
+        [theme.breakpoints.down("md")]: { overflowY: 'scroll', alignContent: "flex-start" },
       }}
     >
       <SignUp />
@@ -69,7 +73,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         myAlign='end'
       />
       <BasicTable
-        title="Settings"
+        title=""
         tableHeadArray={null}
         tableRowArray={playerRows}
         myBackColor={theme.palette.info.main}

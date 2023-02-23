@@ -57,7 +57,8 @@ export default function BasicTable(props: basicTableI) {
     <StyledBox
       {...props}
     >
-      <Typography
+      {props.title &&
+        <Typography
         sx={{ flex: "1 1 100%" }}
         variant="h6"
         id="tableTitle"
@@ -65,6 +66,7 @@ export default function BasicTable(props: basicTableI) {
       >
         {props.title}
       </Typography>
+      }
       <TableContainer>
         <Table aria-label="simple table">
           {props.tableHeadArray && (
