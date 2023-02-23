@@ -44,35 +44,54 @@ enum role {
   SPECTATOR,
 }
 
-function game(
-  canvas: HTMLCanvasElement,
-  setStopGame: Function,
-  // setGameStarted: Function,
-  mods: { bricks: boolean },
-  game: gameChannelDataI,
-  myName: string,
-  camRef: React.RefObject<Webcam>
-) {
-  const ctx = canvas.getContext("2d");
-  let myRole: role;
-  let left: string;
-  let right: string;
-  const gameState: gameStateDataI = {
-    gameName: game.name,
-    playerFirst: { name: game.first, score: 0, paddleY: 0 },
-    playerSecond: { name: game.second, score: 0, paddleY: 0 },
-    ball: { x: 0, y: 0 },
-  };
+class game {
+  // private static instance: game;
+  ctx : CanvasRenderingContext2D | null
+  canvas : HTMLCanvasElement
+  myRole: role;
+  myName: string;
+  left: string;
+  right: string;
+  gameState: gameStateDataI; 
+  webcamRef: React.RefObject<Webcam>;
+  setStopGame: Function;
+  // var camera = null;
+  y :number = 0;
+  handsMesh: Hands | null = null;
+  camera: Camera | null = null;
 
-  const webcamRef = camRef;
-  var camera = null;
-  let y = 0;
 
-  let handsMesh: Hands;
+  constructor(
+    canvas: HTMLCanvasElement,
+    setStopGame: Function,
+    // setGameStarted: Function,
+    mods: { bricks: boolean },
+    game: gameChannelDataI,
+    myName: string,
+    camRef: React.RefObject<Webcam>
+  ) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d");
+    this.myName = myName
+    this.myRole =
+      game.first === myName
+        ? role.FIRST
+        : game.second === myName
+        ? role.SECOND
+        : role.SPECTATOR;
 
-  initGame();
+    this.left = this.myRole == role.FIRST ? game?.second : game?.first;
+    this.right = this.myRole == role.FIRST ? game?.first : game?.second;
+    this.gameState = {
+      gameName: game.name,
+      playerFirst: { name: game.first, score: 0, paddleY: 0 },
+      playerSecond: { name: game.second, score: 0, paddleY: 0 },
+      ball: { x: 0, y: 0 },}
+      this.webcamRef = camRef;
+    this.setStopGame = setStopGame;
+  }
 
-  function mainGameCycle(
+  mainGameCycle(
     ball: Ball,
     rightPaddle: Paddle,
     leftPaddle: Paddle,
@@ -80,44 +99,44 @@ function game(
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
   ) {
-    moveElements(ball, rightPaddle, leftPaddle);
-    checkCollisions(ball, rightPaddle, leftPaddle);
-    updateGameState(ball, rightPaddle, leftPaddle);
-    emitData(rightPaddle);
-    draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
+    this.moveElements(ball, rightPaddle, leftPaddle);
+    this.checkCollisions(ball, rightPaddle, leftPaddle);
+    this.updateGameState(ball, rightPaddle, leftPaddle);
+    this.emitData(rightPaddle);
+    this.draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
     // SETTING MAIN GAME CYCLE
-    setStopGame((prev: boolean) => {
+    this.setStopGame((prev: boolean) => {
       if (prev) {
         return prev;
       }
       requestAnimationFrame(() => {
-        mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
+        this.mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
       });
       return prev;
     });
   }
 
-  function updateGameState(
+  updateGameState(
     ball: Ball,
     rightPaddle: Paddle,
     leftPaddle: Paddle
   ) {
-    if (myRole != role.FIRST) return;
-    gameState.ball.x = translateToPercent(canvas.width, ball.x);
-    gameState.ball.y = translateToPercent(canvas.height, ball.y);
-    gameState.playerFirst.paddleY = translateToPercent(
-      canvas.height,
+    if (this.myRole != role.FIRST) return;
+    this.gameState.ball.x = this.translateToPercent(this.canvas.width, ball.x);
+    this.gameState.ball.y = this.translateToPercent(this.canvas.height, ball.y);
+    this.gameState.playerFirst.paddleY = this.translateToPercent(
+      this.canvas.height,
       rightPaddle.paddleY
     );
-    gameState.playerFirst.score = rightPaddle.score;
-    gameState.playerSecond.paddleY = translateToPercent(
-      canvas.height,
+    this.gameState.playerFirst.score = rightPaddle.score;
+    this.gameState.playerSecond.paddleY = this.translateToPercent(
+      this.canvas.height,
       leftPaddle.paddleY
     );
-    gameState.playerSecond.score = leftPaddle.score;
+    this.gameState.playerSecond.score = leftPaddle.score;
   }
 
-  function onResults(results: handData) {
+  onResults(results: handData) {
     if (
       results &&
       results.multiHandLandmarks &&
@@ -125,56 +144,55 @@ function game(
       results.multiHandLandmarks[0][0] &&
       results.multiHandLandmarks[0][0].y
     )
-      y = results.multiHandLandmarks[0][0].y;
+    this.y = results.multiHandLandmarks[0][0].y;
   }
 
-  function initCamera() {
-    handsMesh = new Hands({
+  initCamera() {
+    this.handsMesh = new Hands({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
       },
     });
-    handsMesh.setOptions({
+    this.handsMesh.setOptions({
       maxNumHands: 1,
       modelComplexity: 0,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
 
-    handsMesh.onResults(onResults);
+    this.handsMesh.onResults(this.onResults);
 
-    if (webcamRef.current != null && webcamRef.current.video != null) {
-      camera = new Camera(webcamRef.current.video, {
+    if (this.webcamRef.current != null && this.webcamRef.current.video != null) {
+      this.camera = new Camera(this.webcamRef.current.video, {
         onFrame: async () => {
-          if (webcamRef.current != null && webcamRef.current.video != null)
-            await handsMesh.send({ image: webcamRef.current.video });
+          if (this.webcamRef.current != null && this.webcamRef.current.video != null && this.handsMesh)
+            await this.handsMesh.send({ image: this.webcamRef.current.video });
         },
         width: 640,
         height: 480,
       });
-      camera.start();
+      this.camera.start();
     }
   }
 
-  function initGame() {
-    if (game.second == "hand") initCamera();
-    myRole =
-      game.first === myName
+  initGame(game : gameChannelDataI) {
+    this.myRole =
+      game.first === this.myName
         ? role.FIRST
-        : game.second === myName
+        : game.second === this.myName
         ? role.SECOND
         : role.SPECTATOR;
-    left = myRole == role.FIRST ? game?.second : game?.first;
-    right = myRole == role.FIRST ? game?.first : game?.second;
+        this.left = this.myRole == role.FIRST ? game?.second : game?.first;
+        this.right = this.myRole == role.FIRST ? game?.first : game?.second;
     const paddleHeight = 10;
     const paddleWidth = 75;
     const ballRadius = 10;
     const paddleOffsetX = 2;
     const rightPaddle = new Paddle(
-      canvas.width - paddleHeight - paddleOffsetX,
-      (canvas.height - paddleWidth) / 2,
-      myRole == role.SPECTATOR,
-      canvas,
+      this.canvas.width - paddleHeight - paddleOffsetX,
+      (this.canvas.height - paddleWidth) / 2,
+      this.myRole == role.SPECTATOR,
+      this.canvas,
       paddleHeight,
       paddleWidth,
       paddleOffsetX,
@@ -183,9 +201,9 @@ function game(
     );
     const leftPaddle = new Paddle(
       0 + paddleOffsetX,
-      canvas.height / 2,
+      this.canvas.height / 2,
       game.name != "single",
-      canvas,
+      this.canvas,
       paddleHeight,
       paddleWidth,
       paddleOffsetX,
@@ -193,43 +211,43 @@ function game(
       game
     );
     const ball = new Ball(
-      canvas.width / 2,
-      canvas.height / 2,
-      myRole != role.FIRST,
-      canvas,
+      this.canvas.width / 2,
+      this.canvas.height / 2,
+      this.myRole != role.FIRST,
+      this.canvas,
       ballRadius,
       0.5
     );
-    updateGameState(ball, rightPaddle, leftPaddle);
+    this.updateGameState(ball, rightPaddle, leftPaddle);
 
     if (socket.connected) {
-      if (myRole == role.FIRST) {
+      if (this.myRole == role.FIRST) {
         socket.on("paddleState", (data) => {
           leftPaddle.remoteY = leftPaddle.remote
-            ? translateFromPercent(canvas.height, data.paddleY)
+            ? this.translateFromPercent(this.canvas.height, data.paddleY)
             : leftPaddle.initY;
         });
       } else {
         socket.on("gameState", (data: gameStateDataI) => {
-          if (myRole == role.SPECTATOR) {
-            rightPaddle.remoteY = translateFromPercent(
-              canvas.height,
+          if (this.myRole == role.SPECTATOR) {
+            rightPaddle.remoteY = this.translateFromPercent(
+              this.canvas.height,
               data.playerSecond.paddleY
             );
           }
-          leftPaddle.remoteY = translateFromPercent(
-            canvas.height,
+          leftPaddle.remoteY = this.translateFromPercent(
+            this.canvas.height,
             data.playerFirst.paddleY
           );
-          ball.remoteX = translateFromPercent(canvas.width, data.ball.x);
-          ball.remoteY = translateFromPercent(canvas.height, data.ball.y);
+          ball.remoteX = this.translateFromPercent(this.canvas.width, data.ball.x);
+          ball.remoteY = this.translateFromPercent(this.canvas.height, data.ball.y);
           leftPaddle.score = data.playerFirst.score;
           rightPaddle.score = data.playerSecond.score;
         });
         socket.on("gameFinished", (result: GameResultDto) => {
           alert(`${result.winnerName} WINS`);
           // setGameStarted(false);
-          setStopGame(true);
+          this.setStopGame(true);
           socket.off("gameState");
           socket.off("gameFinished");
         });
@@ -251,7 +269,7 @@ function game(
       },
       false
     );
-    if (myRole != role.SPECTATOR)
+    if (this.myRole != role.SPECTATOR)
       document.addEventListener(
         "mousemove",
         (e) => {
@@ -259,32 +277,32 @@ function game(
         },
         false
       );
-    if (ctx) {
-      mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
+    if (this.ctx) {
+      this.mainGameCycle(ball, rightPaddle, leftPaddle, bricks, this.canvas, this.ctx);
     }
   }
 
-  function moveElements(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
+  moveElements(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
     rightPaddle.movePaddle();
-    if (game.name == "single") {
-      if (game.second == "AI") {
+    if (this.gameState.gameName == "single") {
+      if (this.gameState.playerSecond.name == "AI") {
         leftPaddle.upPressed =
           ball.speedX < 0 && leftPaddle.paddleY + 10 > ball.y;
         leftPaddle.downPressed =
           ball.speedX < 0 && leftPaddle.paddleY + 70 < ball.y;
-      } else leftPaddle.paddleY = canvas.height * y;
+      } else leftPaddle.paddleY = this.canvas.height * this.y;
     }
     leftPaddle.movePaddle();
     ball.moveBall();
   }
 
-  function checkCollisions(
+  checkCollisions(
     ball: Ball,
     rightPaddle: Paddle,
     leftPaddle: Paddle
   ) {
     // mods.bricks && bricks.bricksCollision(ball);
-    if (myRole == role.FIRST) {
+    if (this.myRole == role.FIRST) {
       ball.verticalCollision();
       //check left side
       if (
@@ -295,23 +313,23 @@ function game(
         if (!ball.hitPaddle(leftPaddle, true)) {
           if (ball.x < ball.ballRadius) {
             if (rightPaddle.makeScore()) {
-              finishGame(rightPaddle.score, leftPaddle.score);
+              this.finishGame(rightPaddle.score, leftPaddle.score);
             }
             ball.reset(-1);
           }
         }
       } else if (
         ball.x >
-        canvas.width -
+        this.canvas.width -
           ball.ballRadius -
           leftPaddle.paddleOffsetX -
           leftPaddle.paddleHeight
       ) {
         //try to hit right paddle
         if (!ball.hitPaddle(rightPaddle, false)) {
-          if (ball.x > canvas.width - ball.ballRadius) {
+          if (ball.x > this.canvas.width - ball.ballRadius) {
             if (leftPaddle.makeScore()) {
-              finishGame(rightPaddle.score, leftPaddle.score);
+              this.finishGame(rightPaddle.score, leftPaddle.score);
             }
             ball.reset(1);
           }
@@ -320,7 +338,7 @@ function game(
     }
   }
 
-  function draw(
+  draw(
     ball: Ball,
     rightPaddle: Paddle,
     leftPaddle: Paddle,
@@ -329,27 +347,27 @@ function game(
     ctx: CanvasRenderingContext2D
   ) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBorder(ctx);
+    this.drawBorder(ctx);
 
-    mods.bricks && bricks.drawBricks(ctx);
+    // mods.bricks && bricks.drawBricks(ctx);
     ball.drawBall(ctx);
     rightPaddle.drawPaddle(ctx);
     leftPaddle.drawPaddle(ctx);
-    drawScore(ctx, leftPaddle, rightPaddle);
+    this.drawScore(ctx, leftPaddle, rightPaddle);
   }
 
-  function drawBorder(ctx: CanvasRenderingContext2D) {
+  drawBorder(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = "#0090DD";
     ctx.lineWidth = 2;
     ctx.moveTo(2, 2);
-    ctx.lineTo(2, canvas.height - 2);
-    ctx.lineTo(canvas.width - 2, canvas.height - 2);
-    ctx.lineTo(canvas.width - 2, 2);
+    ctx.lineTo(2, this.canvas.height - 2);
+    ctx.lineTo(this.canvas.width - 2, this.canvas.height - 2);
+    ctx.lineTo(this.canvas.width - 2, 2);
     ctx.lineTo(2, 2);
     ctx.stroke();
   }
 
-  function drawScore(
+  drawScore(
     ctx: CanvasRenderingContext2D,
     leftPaddle: Paddle,
     rightPaddle: Paddle
@@ -357,51 +375,51 @@ function game(
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText(
-      `Score: ${left} ${leftPaddle.score} : ${rightPaddle.score} ${right}`,
-      canvas.width / 2 - 70,
+      `Score: ${this.left} ${leftPaddle.score} : ${rightPaddle.score} ${this.right}`,
+      this.canvas.width / 2 - 70,
       20
     );
   }
 
-  function translateToPercent(big: number, little: number) {
+  translateToPercent(big: number, little: number) {
     return little / big;
   }
 
-  function translateFromPercent(big: number, percent: number) {
+  translateFromPercent(big: number, percent: number) {
     return big - big * percent;
   }
 
-  function emitData(paddle: Paddle) {
-    if (myRole == role.FIRST && game.name != "single") socket.volatile.emit("gameState", gameState);
-    else if (myRole == role.SECOND)
+  emitData(paddle: Paddle) {
+    if (this.myRole == role.FIRST && game.name != "single") socket.volatile.emit("gameState", this.gameState);
+    else if (this.myRole == role.SECOND)
       socket.volatile.emit("paddleState", {
         gameName: game.name,
-        paddleY: translateToPercent(canvas.height, paddle.paddleY),
+        paddleY: this.translateToPercent(this.canvas.height, paddle.paddleY),
       });
   }
 
-  function finishGame(rightScore: number, leftScore: number) {
-    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  finishGame(rightScore: number, leftScore: number) {
+    if (this.ctx) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); //doesnt work
 
-    setStopGame(true);
+    this.setStopGame(true);
     // setGameStarted(false);
-    const result = emitGameResults(rightScore, leftScore);
+    const result = this.emitGameResults(rightScore, leftScore);
   }
 
-  function emitGameResults(
+  emitGameResults(
     rightScore: number,
     leftScore: number
   ): GameResultDto {
     let result: GameResultDto = {
       name: game.name,
-      winnerName: game.first,
-      loserName: game.second,
+      winnerName: this.right,
+      loserName: this.left,
       winnerScore: 10,
       loserScore: leftScore,
     };
     if (leftScore > rightScore) {
-      result.winnerName = game.second;
-      result.loserName = game.first;
+      result.winnerName = this.left;
+      result.loserName = this.right;
       result.loserScore = rightScore;
     }
     if (game.name != "single") socket.emit("endGame", result);

@@ -62,7 +62,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
 
   useEffect(() => {
     console.log("useeff1");
-    
+
     const canvas = canvasRef.current;
     if (canvas) {
       return () => {
@@ -95,8 +95,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     const canvas = canvasRef.current;
     if (canvas && stopGame) {
       setStopGame(false);
-      if (gameData && (testUsername || user.user?.name))
-        game(
+      if (gameData && (testUsername || user.user?.name)) {
+        const gameRef = new game(
           canvas,
           setStopGame,
           // setGameStarted,
@@ -105,6 +105,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           testUsername || user.user?.name || "",
           webcamRef
         );
+        gameRef.initGame(gameData);
+      }
     }
   }
 
