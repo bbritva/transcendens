@@ -50,7 +50,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const { getState } = useStore();
   const { user } = getState() as RootState;
 
-  const webcamRef = useRef<Webcam>(null);
+  // const webcamRef = useRef<Webcam>(null);
  
   useEffect(()=> {
     console.log("useeff canvas");
@@ -78,8 +78,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }, []);
 
   useEffect(() => {
-    console.log("useeff2");
-
+    console.log("gameData", gameData);
     if (socket.connected && !!gameData) {
       setStopGame(true);
       startGame(gameData);

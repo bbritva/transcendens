@@ -69,7 +69,6 @@ class Game {
   paddleOffsetX = 2;
   paddleSpeed = 0.5;
   ballSpeed = 0.5;
-  // setStopGame: Function;
   // var camera = null;
   y: number = 0;
   handsMesh: Hands | null = null;
@@ -266,6 +265,7 @@ class Game {
       requestAnimationFrame(() => {
         this.mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
       });
+    else Game.startGame(this.canvas, this.myName, Game.defaultGameData);
     // return prev;
     // });
   }
@@ -461,9 +461,14 @@ class Game {
   }
 
   private emitData(paddle: Paddle) {
-    if (!this.canvas) return;
+    if (
+      !this.canvas ||
+      this.gameState.gameName == "single" ||
+      this.gameState.gameName == "demo"
+    )
+      return;
 
-    if (this.myRole == role.FIRST && Game.name != "single")
+    if (this.myRole == role.FIRST)
       socket.volatile.emit("gameState", this.gameState);
     else if (this.myRole == role.SECOND)
       socket.volatile.emit("paddleState", {
@@ -478,7 +483,7 @@ class Game {
     if (this.ctx)
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); //doesnt work
 
-    // this.setStopGame(true);
+    Game.flag = false;
     // setGameStarted(false);
     const result = this.emitGameResults(rightScore, leftScore);
   }
@@ -499,7 +504,11 @@ class Game {
       result.loserName = this.gameState.playerFirst.name;
       result.loserScore = rightScore;
     }
-    if (Game.name != "single") socket.emit("endGame", result);
+    if (
+      this.gameState.gameName != "single" &&
+      this.gameState.gameName != "demo"
+    )
+      socket.emit("endGame", result);
     socket.off("paddleState");
     return result;
   }
