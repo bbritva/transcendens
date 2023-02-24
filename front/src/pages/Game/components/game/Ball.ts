@@ -1,3 +1,4 @@
+import Game from "./game";
 import Paddle from "./Paddle";
 
 class Ball {
@@ -13,22 +14,17 @@ class Ball {
   remoteY: number = 0;
   lastUpdateTime: number;
 
-  constructor(
-    initX: number,
-    initY: number,
-    remote: boolean,
-    canvas: HTMLCanvasElement,
-    radius: number,
-    speed: number
+  constructor( game :Game,
+       remote: boolean
   ) {
-    this.canvas = canvas;
-    this.x = initX;
-    this.y = initY;
+    this.canvas = game.canvas;
+    this.x = this.canvas.width / 2;
+    this.y = this.canvas.height / 2;
     this.remote = remote;
-    this.speedX = -speed;
-    this.speedY = speed;
-    this.ballRadius = radius;
-    this.ballSpeed = speed;
+    this.ballSpeed = game.ballSpeed;
+    this.speedX = -this.ballSpeed;
+    this.speedY = this.ballSpeed;
+    this.ballRadius = game.ballRadius;
     this.lastUpdateTime = Date.now();
   }
 

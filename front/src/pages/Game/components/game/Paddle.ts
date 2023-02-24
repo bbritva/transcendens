@@ -1,4 +1,5 @@
 import Ball from "./Ball";
+import Game from "./game";
 
 export enum ControlE {
   REMOTE,
@@ -24,28 +25,23 @@ class Paddle {
   remoteY: number = 0;
   lastUpdateTime: number = Date.now();
 
-  constructor(
-    initX: number,
-    initY: number,
-    control: ControlE,
-    canvas: HTMLCanvasElement,
-    height: number,
-    width: number,
-    offsetX: number
+  constructor( game : Game,
+    isLeft: boolean,
+    control: ControlE
   ) {
-    this.canvas = canvas;
-    this.initX = initX;
-    this.initY = initY;
-    this.paddleX = initX;
-    this.paddleY = initY;
-    this.control = control;
+    this.canvas = game.canvas;
     this.downPressed = false;
     this.upPressed = false;
-    this.paddleHeight = height;
-    this.paddleWidth = width;
-    this.paddleOffsetX = offsetX;
-    this.paddleSpeed = 0.5;
+    this.paddleHeight = game.paddleHeight;
+    this.paddleWidth = game.paddleWidth;
+    this.paddleOffsetX = game.paddleOffsetX;
+    this.paddleSpeed = game.paddleSpeed;
     this.score = 0;
+    this.initX = isLeft ? this.paddleOffsetX : this.canvas.width - this.paddleHeight - this.paddleOffsetX;
+    this.initY =  (this.canvas.height - this.paddleWidth) / 2;
+    this.paddleX = this.initX;
+    this.paddleY = this.initY;
+    this.control = control;
   }
 
   keyDownHandler(e: KeyboardEvent) {

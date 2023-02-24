@@ -51,9 +51,18 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const { user } = getState() as RootState;
 
   const webcamRef = useRef<Webcam>(null);
-  Game.startGame(canvasRef.current, testUsername || user.user?.name || "", null);
+ 
+  useEffect(()=> {
+    console.log("useeff canvas");
+    const canvas = canvasRef.current;
+    if (canvas)
+    Game.startGame(canvas, testUsername || user.user?.name || "", null);
+  }, [canvasRef])
+
 
   useEffect(() => {
+    console.log("useeff1");
+
     const canvas = canvasRef.current;
     if (canvas) {
       return () => {
@@ -87,7 +96,11 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     if (canvas && stopGame) {
       setStopGame(false);
       if (gameData && (testUsername || user.user?.name)) {
-        Game.startGame(canvasRef.current, testUsername || user.user?.name || "", gameData);
+        Game.startGame(
+          canvasRef.current,
+          testUsername || user.user?.name || "",
+          gameData
+        );
       }
     }
   }
@@ -253,7 +266,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         <Button
           children={"play VS AI"}
           variant={"outlined"}
-          // disabled={singlePlayerOpponent == "AI" || !stopGame}
+          disabled={singlePlayerOpponent == "AI" || !stopGame}
           size="large"
           onClick={() => setSinglePlayerOpponent("AI")}
         />
@@ -261,7 +274,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           children={"play VS hand"}
           variant={"outlined"}
           size="large"
-          // disabled={singlePlayerOpponent == "hand" || !stopGame}
+          disabled={singlePlayerOpponent == "hand" || !stopGame}
           onClick={() => setSinglePlayerOpponent("hand")}
         />
         <Button

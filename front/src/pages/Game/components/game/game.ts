@@ -58,18 +58,24 @@ class Game {
     playerSecondName: "SiriAI",
   };
   ctx: CanvasRenderingContext2D | null = null;
-  canvas: HTMLCanvasElement | null;
+  canvas: HTMLCanvasElement;
   myRole: role;
   myName: string;
   gameState: GameStateDataI;
   webcamRef: React.RefObject<Webcam> | null;
+  paddleHeight = 10;
+  paddleWidth = 75;
+  ballRadius = 10;
+  paddleOffsetX = 2;
+  paddleSpeed = 0.5;
+  ballSpeed = 0.5;
   // setStopGame: Function;
   // var camera = null;
   y: number = 0;
   handsMesh: Hands | null = null;
   camera: Camera | null = null;
 
-  private constructor(canvas: HTMLCanvasElement | null, myName: string) {
+  private constructor(canvas: HTMLCanvasElement, myName: string) {
     this.canvas = canvas;
     this.myName = myName;
     this.myRole = role.FIRST;
@@ -91,7 +97,7 @@ class Game {
   }
 
   public static startGame(
-    canvas: HTMLCanvasElement | null,
+    canvas: HTMLCanvasElement,
     myName: string,
     initialGameData: InitialGameDataI | null
   ) {
@@ -130,44 +136,27 @@ class Game {
         : this.gameState.playerSecond.name === this.myName
         ? role.SECOND
         : role.SPECTATOR;
-    const paddleHeight = 10;
-    const paddleWidth = 75;
-    const ballRadius = 10;
-    const paddleOffsetX = 2;
+
     const rightPaddle = new Paddle(
-      this.canvas.width - paddleHeight - paddleOffsetX,
-      (this.canvas.height - paddleWidth) / 2,
+      this,
+      false,
       this.gameState.playerFirst.name == this.myName
         ? ControlE.MOUSE
         : this.gameState.playerFirst.name.endsWith("AI")
         ? ControlE.AI
-        : ControlE.REMOTE,
-      this.canvas,
-      paddleHeight,
-      paddleWidth,
-      paddleOffsetX
+        : ControlE.REMOTE
     );
     const leftPaddle = new Paddle(
-      0 + paddleOffsetX,
-      this.canvas.height / 2,
+      this,
+      true,
       this.gameState.playerSecond.name == this.myName
         ? ControlE.MOUSE
         : this.gameState.playerSecond.name.endsWith("AI")
         ? ControlE.AI
-        : ControlE.REMOTE,
-      this.canvas,
-      paddleHeight,
-      paddleWidth,
-      paddleOffsetX
+        : ControlE.REMOTE
     );
-    const ball = new Ball(
-      this.canvas.width / 2,
-      this.canvas.height / 2,
-      this.myRole != role.FIRST,
-      this.canvas,
-      ballRadius,
-      0.5
-    );
+    const ball = new Ball(this, this.myRole != role.FIRST);
+
     this.updateGameState(ball, rightPaddle, leftPaddle);
 
     if (socket.connected) {
@@ -445,7 +434,6 @@ class Game {
     ctx.lineTo(2, 2);
     ctx.stroke();
     ctx.closePath();
-
   }
 
   private drawScore(
