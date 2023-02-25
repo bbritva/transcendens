@@ -1,18 +1,17 @@
-import React, { ReactElement, FC } from "react";
+import { ReactElement, FC } from "react";
 import { Box, Paper, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
-import { selectUser, updateUser } from "src/store/userSlice";
+import { selectUser} from "src/store/userSlice";
 import BasicTable, {
-  basicTableI,
   matchHistoryRowI,
   playerStatisticsRowI,
 } from "src/components/BasicTable/BasicTable";
 import ButtonTable from "src/components/AccountUpdate/ButtonTable";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
-import ChooseTwoFA, { twoFAdialogProps } from "src/components/AccountUpdate/ChooseTwoFA";
-import authService from "src/services/auth.service";
-import { useAppDispatch } from "src/app/hooks";
+import ChooseTwoFA from "src/components/AccountUpdate/ChooseTwoFA";
+
+import useEnableTwoFA from "src/hooks/useEnableTwoFA";
 
 function createHistoryData(
   score: string,
@@ -46,71 +45,8 @@ const header = ["Score", "Win/Lose", "Rivals"];
 const AccountPage: FC<any> = (): ReactElement => {
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
-  const [open, setOpen] = React.useState<boolean>(false);
-  const [urlQR, setUrlQR] = React.useState<any>();
-  const [otpValue, setOtpValue] = React.useState<string>("");
-  const [otpError, setOtpError] = React.useState<boolean>(false);
-  const dispatch = useAppDispatch();
-
-  const props = {
-    tableHeadArray: header,
-  } as basicTableI;
-
-  async function enableTwoFA() {
-    setOtpError(false);
-    const userEnable = await authService.otpTurnOn(otpValue);
-    if (!userEnable?.isTwoFaEnabled) {
-      setOtpError(true);
-      return;
-    }
-    setOpen(false);
-    setTimeout(() => {
-      dispatch(updateUser({ ...userEnable }));
-    }, 140);
-  }
-
-  async function disableTwoFA() {
-    setOtpError(false);
-    const userDisable = await authService.otpTurnOff(otpValue);
-    if (userDisable.isTwoFaEnabled) {
-      setOtpError(true);
-      return;
-    }
-    setOpen(false);
-    setTimeout(() => {
-      dispatch(updateUser({ ...userDisable }));
-    }, 140);
-  }
-
-  function onChange(
-    this: any,
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ): void {
-    // event.preventDefault();
-    setOtpValue(event.currentTarget.value);
-  }
-
-
-  const enableProps: twoFAdialogProps = {
-    title: "Enable",
-    urlQR: urlQR,
-    isEnabled: true,
-    onClick: enableTwoFA,
-    onChange: onChange,
-    value: otpValue,
-    error: otpError,
-  };
-
-  const disableProps: twoFAdialogProps = {
-    title: "Disable",
-    urlQR: urlQR,
-    isEnabled: false,
-    onClick: disableTwoFA,
-    onChange: onChange,
-    value: otpValue,
-    error: otpError,
-  };
-
+  const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user);
+  
   return (
     <Box
       component={Paper}
@@ -135,7 +71,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     >
       <DialogSelect options open={open} setOpen={setOpen}>
         <ChooseTwoFA
-          {...(user?.isTwoFaEnabled ? disableProps : enableProps)}
+          {...twoFaProps}
         />
       </DialogSelect>
       <SignUp />

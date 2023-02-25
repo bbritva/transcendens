@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close';
 interface props {
   options: {},
   open: boolean,
-  setOpen: (open: boolean) => void,
+  setOpen: Function,
   children: React.ReactNode
 }
 
