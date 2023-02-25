@@ -1,47 +1,58 @@
-import { Grid } from "@mui/material";
-import React from "react";
 import { useStore } from "react-redux";
 import authService from "src/services/auth.service";
 import { RootState } from "src/store/store";
 import StyledBox, { styledBox } from "../BasicTable/StyledBox";
 import AccountButton from "./StyledButton";
+import GppGoodIcon from "@mui/icons-material/GppGood";
+import RemoveModeratorIcon from "@mui/icons-material/RemoveModerator";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 
 export interface buttonTableI extends styledBox {
-  setOpen: Function,
-  setUrlQR: Function
+  setOpen: Function;
+  setUrlQR: Function;
+  setSlideFriends: Function;
 }
-
 
 export default function ButtonTable(props: buttonTableI) {
   const { getState } = useStore();
   const { user } = getState() as RootState;
-  const {setOpen, setUrlQR, ...styledProps} = props;
+  const { setOpen, setUrlQR, setSlideFriends, ...styledProps } = props;
   async function generateTwoFA() {
     const src = await authService.otpGenerateQR();
-    if (src){
-      
+    props.setSlideFriends(false);
+    if (src) {
       props.setUrlQR(src);
       props.setOpen(true);
-    }
-    else
-      props.setOpen(false);
+    } else props.setOpen(false);
   }
 
   return (
     <StyledBox {...styledProps}>
-        {user.user?.isTwoFaEnabled ? (
-          <AccountButton
-            onClick={() => {
-              props.setOpen(true);
-            }}
-          >
-            Disable two factor auth
-          </AccountButton>
-        ) : (
-          <AccountButton onClick={generateTwoFA}>
-            Enable two factor auth
-          </AccountButton>
-        )}
+      {user.user?.isTwoFaEnabled ? (
+        <AccountButton
+          onClick={() => {
+            props.setSlideFriends(false);
+            props.setOpen(true);
+          }}
+        >
+          <RemoveModeratorIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
+          Disable two factor auth
+        </AccountButton>
+      ) : (
+        <AccountButton onClick={generateTwoFA}>
+          <GppGoodIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
+          Enable two factor auth
+        </AccountButton>
+      )}
+      <AccountButton
+        onClick={() => {
+          props.setSlideFriends(true);
+          props.setOpen(true);
+        }}
+      >
+        <PeopleOutlineIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
+        FRIENDS
+      </AccountButton>
     </StyledBox>
   );
 }

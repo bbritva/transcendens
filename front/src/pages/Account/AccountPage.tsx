@@ -1,17 +1,21 @@
-import { ReactElement, FC } from "react";
-import { Box, Paper, useTheme } from "@mui/material";
+import { ReactElement, FC, forwardRef, ForwardedRef, useState } from "react";
+import { Box, IconButton, Paper, Slide, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
-import { selectUser} from "src/store/userSlice";
+import { selectUser } from "src/store/userSlice";
 import BasicTable, {
+  basicTableI,
   matchHistoryRowI,
   playerStatisticsRowI,
+  settingsRowI,
 } from "src/components/BasicTable/BasicTable";
 import ButtonTable from "src/components/AccountUpdate/ButtonTable";
-import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import ChooseTwoFA from "src/components/AccountUpdate/ChooseTwoFA";
 
 import useEnableTwoFA from "src/hooks/useEnableTwoFA";
+import CloseIcon from "@mui/icons-material/Close";
+import StyledBox from "src/components/BasicTable/StyledBox";
+import BasicMenu from "src/components/BasicMenu/BasicMenu";
 
 function createHistoryData(
   score: string,
@@ -46,7 +50,21 @@ const AccountPage: FC<any> = (): ReactElement => {
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user);
-  
+  const [slideFriends, setSlideFriends] = useState<boolean>(false);
+  const createFriendElem = (id: number, name: string): settingsRowI => {
+    const FriendComponent = (
+      <BasicMenu title={name} onLogout={() => {}}></BasicMenu>
+    );
+    return { id, button: FriendComponent };
+  };
+
+  const MyTable = forwardRef(function MyTable(
+    props: basicTableI,
+    ref: ForwardedRef<HTMLDivElement>
+  ) {
+    return <BasicTable myRef={ref} {...props} />;
+  });
+
   return (
     <Box
       component={Paper}
@@ -69,11 +87,6 @@ const AccountPage: FC<any> = (): ReactElement => {
         },
       }}
     >
-      <DialogSelect options open={open} setOpen={setOpen}>
-        <ChooseTwoFA
-          {...twoFaProps}
-        />
-      </DialogSelect>
       <SignUp />
       <BasicTable
         title="Player stats"
@@ -82,12 +95,49 @@ const AccountPage: FC<any> = (): ReactElement => {
         mybackcolor={theme.palette.info.main}
         myalign="end"
       />
-      <ButtonTable
-        setOpen={setOpen}
-        setUrlQR={setUrlQR}
-        mybackcolor={theme.palette.info.main}
-        myalign="start"
-      />
+      {open ? (
+        <Slide direction="right" in={open}>
+          {slideFriends ? (
+            <MyTable
+              title="Friends"
+              tableHeadArray={null}
+              mybackcolor={theme.palette.info.main}
+              myalign="start"
+              flexDirection={"column"}
+              tableRowArray={[createFriendElem(111, "Vasya")]}
+              onClose={() => {
+                setOpen(false);
+              }}
+            />
+          ) : (
+            <StyledBox
+              flexDirection={"column"}
+              mybackcolor={theme.palette.info.main}
+            >
+              <IconButton
+                aria-label="close"
+                onClick={() => setOpen(false)}
+                sx={{
+                  alignSelf: "end",
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+              <ChooseTwoFA {...twoFaProps} />
+            </StyledBox>
+          )}
+        </Slide>
+      ) : (
+        <ButtonTable
+          setOpen={setOpen}
+          setUrlQR={setUrlQR}
+          setSlideFriends={setSlideFriends}
+          mybackcolor={theme.palette.info.main}
+          myalign="start"
+          flexDirection={"column"}
+        />
+      )}
       <BasicTable
         title="Match history"
         tableHeadArray={header}

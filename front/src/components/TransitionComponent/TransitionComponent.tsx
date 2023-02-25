@@ -44,7 +44,7 @@ const TransitionComponent: React.FC<transitionComponentI> = ({
           label={title}
         />
        
-          <Slide direction="up" in={checked} mountOnEnter unmountOnExit>
+          <Slide direction='right' in={checked} mountOnEnter unmountOnExit>
             {
               icon
               //children

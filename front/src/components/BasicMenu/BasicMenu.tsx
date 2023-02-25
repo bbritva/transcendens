@@ -10,9 +10,10 @@ import { StyledMenu, StyledMenuItem } from "./StyledMenu";
 
 interface basicMenuI {
   onLogout: Function;
+  title?: string
 }
 
-export default function BasicMenu({ onLogout }: basicMenuI) {
+export default function BasicMenu({ onLogout, title }: basicMenuI) {
   const { getState } = useStore();
   const navigate = useNavigate();
   const { user } = getState() as RootState;
@@ -34,7 +35,7 @@ export default function BasicMenu({ onLogout }: basicMenuI) {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        <Avatar src={user.user?.avatar || user.user?.image || fakeAvatar} />
+        {title || <Avatar src={user.user?.avatar || user.user?.image || fakeAvatar} />}
         <MoreVert color="secondary" />
       </StyledNavButton>
       <StyledMenu 

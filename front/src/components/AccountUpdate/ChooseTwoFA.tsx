@@ -1,4 +1,4 @@
-import { Box, Button, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material";
+import { Box, Button, DialogContentText, DialogTitle, TextField } from "@mui/material";
 import { ChangeEventHandler, FC } from "react";
 import Link from '@mui/material/Link';
 
@@ -15,9 +15,9 @@ export interface twoFAdialogProps {
 const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
   return (
     <Box
-    display={'grid'}
-    padding={'2rem'}
-    paddingTop={'1rem'}
+    display={'flex'}
+    flexDirection={'column'}
+    padding={'0'}
   >
     <DialogTitle>{props.title} 2FA</DialogTitle>
     { props.isEnabled && <>

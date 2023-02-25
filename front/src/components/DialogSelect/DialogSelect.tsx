@@ -10,28 +10,25 @@ interface props {
   options: {},
   open: boolean,
   setOpen: Function,
-  children: React.ReactNode
+  children: React.ReactNode,
+  myRef?: React.ForwardedRef<HTMLDivElement>
 }
 
-const DialogSelect: FC<props> = ({ options, open, setOpen, children }) => {
+const DialogSelect: FC<props> = ({ options, open, setOpen, children, myRef }) => {
   const [age, setAge] = React.useState<number | string>('');
 
   const handleChange = (event: SelectChangeEvent<typeof age>) => {
     setAge(Number(event.target.value) || '');
   };
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = (event: React.SyntheticEvent<unknown>, reason?: string) => {
     if (reason !== 'backdropClick') {
       setOpen(false);
     }
   };
-
   return (
-    <Dialog disableEscapeKeyDown={false} open={open} onClose={handleClose}>
+    <Dialog ref={myRef || null} disableEscapeKeyDown={false} open={open} onClose={handleClose}>
       <IconButton
         aria-label="close"
         onClick={handleClose}

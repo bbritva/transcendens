@@ -4,8 +4,10 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { Typography } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
 import StyledBox, { styledBox } from "./StyledBox";
+import { ForwardedRef, ReactNode } from "react";
+import CloseIcon from "@mui/icons-material/Close";
 
 export interface rowI {
   id: number;
@@ -23,15 +25,16 @@ export interface playerStatisticsRowI extends rowI {
 }
 
 export interface settingsRowI extends rowI {
-  button: string;
+  button: ReactNode;
 }
 
 export interface basicTableI extends styledBox {
   title: string;
   tableHeadArray: string[] | null;
   tableRowArray: rowI[];
+  onClose?: Function;
+  myRef?: ForwardedRef<HTMLDivElement>
 }
-
 
 function drawHeader(element: string) {
   return <TableCell key={element}> {element} </TableCell>;
@@ -44,30 +47,40 @@ function drawRow(row: rowI) {
       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
     >
       {keys.map(
-        (cellData) =>
+        (cellData, index) =>
           //@ts-ignore
-          cellData !== "id" && <TableCell key={row.id + cellData}>{row[cellData]}</TableCell>
+          cellData !== "id" && (<TableCell key={row.id + String(index)}>{row[cellData]}</TableCell>)
       )}
     </TableRow>
   );
 }
 
 export default function BasicTable(props: basicTableI) {
-  const {tableHeadArray, tableRowArray, ...styledProps} = props;
+  const { tableHeadArray, tableRowArray, ...styledProps } = props;
   return (
-    <StyledBox
-      {...styledProps}
-    >
-      {props.title &&
+    <StyledBox {...styledProps} ref={props.myRef}>
+      {props.onClose && (
+        <IconButton
+          aria-label="close"
+          onClick={() => props.onClose && props.onClose()}
+          sx={{
+            alignSelf: "end",
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
+      {props.title && (
         <Typography
-        sx={{ flex: "1 1 100%" }}
-        variant="h6"
-        id="tableTitle"
-        component="div"
-      >
-        {props.title}
-      </Typography>
-      }
+          sx={{ flex: "1 1 100%" }}
+          variant="h6"
+          id="tableTitle"
+          component="div"
+        >
+          {props.title}
+        </Typography>
+      )}
       <TableContainer>
         <Table aria-label="simple table">
           {props.tableHeadArray && (
