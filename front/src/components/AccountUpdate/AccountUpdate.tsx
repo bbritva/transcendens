@@ -1,64 +1,58 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import { useStore } from 'react-redux';
-import { updateUser, userI } from 'src/store/userSlice';
-import userService from 'src/services/user.service';
-import { RootState } from 'src/store/store';
-import DialogSelect from 'src/components/DialogSelect/DialogSelect';
-import { useTheme } from '@mui/material';
-import authService from 'src/services/auth.service';
-import ChooseTwoFA, { twoFAdialogProps } from './ChooseTwoFA';
+import * as React from "react";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import { useStore } from "react-redux";
+import { updateUser, userI } from "src/store/userSlice";
+import userService from "src/services/user.service";
+import { RootState } from "src/store/store";
+import { useTheme } from "@mui/material";
 import { useAppDispatch } from "src/app/hooks";
-import StyledBox, { styledBox } from '../BasicTable/StyledBox';
-import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
+import StyledBox, { styledBox } from "../BasicTable/StyledBox";
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
+import AccountButton from "./StyledButton";
+import CloudSyncIcon from "@mui/icons-material/CloudSync";
 
 export default function SignUp(props: styledBox) {
-  const username = sessionStorage.getItem('username');
+  const username = sessionStorage.getItem("username");
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
-  const [urlQR, setUrlQR] = React.useState<any>();
   const [inputError, setInputError] = React.useState<boolean>(false);
-  const [inputValue, setInputValue] = React.useState<string>(username || '');
-  const [otpValue, setOtpValue] = React.useState<string>('');
-  const [avatarSource, setAvatarSource] = React.useState<string>('');
-  const [open, setOpen] = React.useState<boolean>(false);
+  const [inputValue, setInputValue] = React.useState<string>(username || "");
+
+  const [avatarSource, setAvatarSource] = React.useState<string>("");
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const dispatch = useAppDispatch();
-  const [otpError, setOtpError] = React.useState<boolean>(false);
-  const theme = useTheme();
- 
 
+  const theme = useTheme();
 
   React.useEffect(() => {
-    if (file?.name){
+    if (file?.name) {
       setImageUrl(URL.createObjectURL(file));
     }
-  }, [file, file?.name])
+  }, [file, file?.name]);
 
   React.useEffect(() => {
     imageUrl
-    ? setAvatarSource(imageUrl)
-    : user.user?.avatar
-      ? setAvatarSource(process.env.REACT_APP_USERS_URL + `/avatar/${user.user.avatar}`)
-      : setAvatarSource(user.user?.image || '')
-  }, [imageUrl, user.user?.avatar])
+      ? setAvatarSource(imageUrl)
+      : user.user?.avatar
+      ? setAvatarSource(
+          process.env.REACT_APP_USERS_URL + `/avatar/${user.user.avatar}`
+        )
+      : setAvatarSource(user.user?.image || "");
+  }, [imageUrl, user.user?.avatar]);
 
   React.useEffect(() => {
     const timeOutId = setTimeout(() => {
-        if (inputValue !== user.user?.name){
-          setInputError(true);
-        }
-        else {
-          setInputError(false);
-        }
+      if (inputValue !== user.user?.name) {
+        setInputError(true);
+      } else {
+        setInputError(false);
+      }
     }, 500);
     return () => clearTimeout(timeOutId);
   }, [inputValue, user.user?.name]);
@@ -72,177 +66,88 @@ export default function SignUp(props: styledBox) {
       dispatch(updateUser({...user.user, avatar: res?.avatar}));
     }
     setFile(null);
-    setImageUrl('');
+    setImageUrl("");
   };
 
   const onFileChange = async (iFile: React.ChangeEvent) => {
-      iFile.preventDefault();
-      const target = iFile.target as HTMLInputElement;
-      if (target.files && target.files.length !== 0) {
-        setFile(target.files[0]);
-      }
-  }
+    iFile.preventDefault();
+    const target = iFile.target as HTMLInputElement;
+    if (target.files && target.files.length !== 0) {
+      setFile(target.files[0]);
+    }
+  };
 
-  function nickChange (this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
+  function nickChange(
+    this: any,
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ): void {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
   }
 
-  async function generateTwoFA() {
-    const src = await authService.otpGenerateQR();
-    if (src){
-      setUrlQR(src);
-      setOpen(true);
-    }
-    else
-      setOpen(false);
-  }
 
-  async function enableTwoFA() {
-    setOtpError(false)
-    const userEnable = await authService.otpTurnOn(otpValue);
-    if (!userEnable?.isTwoFaEnabled){
-      setOtpError(true);
-      return;
-    }
-    setOpen(false);
-    setTimeout(
-      () => {dispatch(updateUser({...userEnable}));},
-      140
-    );
-  }
 
-  async function disableTwoFA() {
-    setOtpError(false)
-    const userDisable = await authService.otpTurnOff(otpValue);
-    if (userDisable.isTwoFaEnabled){
-      setOtpError(true);
-      return;
-    }
-    setOpen(false);
-    setTimeout(
-      () => {dispatch(updateUser({...userDisable}))},
-      140
-    );
-  }
-
-  function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
-    // event.preventDefault();
-    setOtpValue(event.currentTarget.value);
-  }
-
-  const enableProps: twoFAdialogProps = {
-    title: 'Enable', 
-    urlQR: urlQR,
-    isEnabled: true,
-    onClick: enableTwoFA,
-    onChange: onChange,
-    value: otpValue,
-    error: otpError
-  }
-
-  const disableProps: twoFAdialogProps = {
-    title: 'Disable', 
-    urlQR: urlQR,
-    isEnabled: false,
-    onClick: disableTwoFA,
-    onChange: onChange,
-    value: otpValue,
-    error: otpError
-  }
 
   return (
-      // <Box sx={{
-      //   borderRadius: 7,
-      //   display: 'flex',
-      //   alignItems: 'center',
-      //   flexWrap: 'wrap',
-      //   boxShadow: "0 3px 5px 2px rgba(0, 1, 1, .3)",
-      //   padding: "2rem",
-      //   margin: "2rem",
-      //   width: '25vw',
-      //   [theme.breakpoints.down("lg")]: { width: "55vw"},
-      // }}>
-      <StyledBox {...props}>
-        <CssBaseline />
-        <DialogSelect options open={open} setOpen={setOpen}>
-        <ChooseTwoFA {
-                ...(user.user?.isTwoFaEnabled
-                ? disableProps
-                : enableProps)
-          }/>
-        </DialogSelect>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          {/* <Typography component="h1" variant="h5">
-            Update your account
-          </Typography> */}
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-              {
-                user.user?.isTwoFaEnabled
-                ?
-                <Button variant="contained" component="label" onClick={() => {setOpen(true)}}>
-                  Disable two factor auth
-                </Button>
-                :
-                <Button variant="contained" component="label" onClick={generateTwoFA}>
-                  Enable two factor auth
-                </Button>
-              }
-              </Grid>
-              <Grid item xs={6}>
-                <Avatar
-                  alt={user.user?.name}
-                  src={avatarSource}
-                  sx={{
-                    width: 100,
-                    height: 100,
-                    m: 1,
-                    bgcolor: 'secondary.main'
-                  }}
-                />
-              </Grid>
-              <Grid item xs={6} display={'flex'} alignItems={'center'}>
-                <Button variant="contained" component="label">
-                  Upload photo
-                  <input 
-                    hidden id="uploaded-photo" 
-                    accept="image/*" 
-                    multiple type="file" 
-                    onChange={onFileChange}/>
-                </Button>
-              </Grid>
-              <Grid item xs={12} display="flex" alignItems='flex-start'>
-              <AlternateEmailIcon fontSize='large' sx={{ color: theme.palette.primary.dark, mr: 1, my: 1.5 }} />
-                <TextField
-                  name="nickname"
-                  fullWidth
-                  id="nickname"
-                  value={inputValue}
-                  autoFocus
-                  error={inputError}
-                  helperText={inputError? 'This nickname is taken' : ''}
-                  onChange={nickChange}
-                />
-              </Grid>
+    <StyledBox {...props}>
+      <CssBaseline />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Avatar
+                alt={user.user?.name}
+                src={avatarSource}
+                sx={{
+                  width: 100,
+                  height: 100,
+                  m: 1,
+                  bgcolor: "secondary.main",
+                }}
+              />
             </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Update
-            </Button>
-          </Box>
+            <Grid item xs={6} display={"flex"} alignItems={"center"}>
+              <Button variant="contained" component="label">
+                Upload photo
+                <input
+                  hidden
+                  id="uploaded-photo"
+                  accept="image/*"
+                  multiple
+                  type="file"
+                  onChange={onFileChange}
+                />
+              </Button>
+            </Grid>
+            <Grid item xs={12} display="flex" alignItems="flex-start">
+              <AlternateEmailIcon
+                fontSize="large"
+                sx={{ color: theme.palette.primary.dark, mr: 1, my: 1.5 }}
+              />
+              <TextField
+                name="nickname"
+                fullWidth
+                id="nickname"
+                value={inputValue}
+                autoFocus
+                error={inputError}
+                helperText={inputError ? "This nickname is taken" : ""}
+                onChange={nickChange}
+              />
+            </Grid>
+          </Grid>
+          <AccountButton type="submit">
+            <CloudSyncIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
+            Update
+          </AccountButton>
         </Box>
-      </StyledBox>
+      </Box>
+    </StyledBox>
   );
 }

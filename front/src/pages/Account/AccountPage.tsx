@@ -1,13 +1,18 @@
-import { ReactElement, FC } from "react";
+import React, { ReactElement, FC } from "react";
 import { Box, Paper, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
-import { selectUser } from "src/store/userSlice";
+import { selectUser, updateUser } from "src/store/userSlice";
 import BasicTable, {
   basicTableI,
   matchHistoryRowI,
   playerStatisticsRowI,
 } from "src/components/BasicTable/BasicTable";
+import ButtonTable from "src/components/AccountUpdate/ButtonTable";
+import DialogSelect from "src/components/DialogSelect/DialogSelect";
+import ChooseTwoFA, { twoFAdialogProps } from "src/components/AccountUpdate/ChooseTwoFA";
+import authService from "src/services/auth.service";
+import { useAppDispatch } from "src/app/hooks";
 
 function createHistoryData(
   score: string,
@@ -41,9 +46,70 @@ const header = ["Score", "Win/Lose", "Rivals"];
 const AccountPage: FC<any> = (): ReactElement => {
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
+  const [open, setOpen] = React.useState<boolean>(false);
+  const [urlQR, setUrlQR] = React.useState<any>();
+  const [otpValue, setOtpValue] = React.useState<string>("");
+  const [otpError, setOtpError] = React.useState<boolean>(false);
+  const dispatch = useAppDispatch();
+
   const props = {
     tableHeadArray: header,
   } as basicTableI;
+
+  async function enableTwoFA() {
+    setOtpError(false);
+    const userEnable = await authService.otpTurnOn(otpValue);
+    if (!userEnable?.isTwoFaEnabled) {
+      setOtpError(true);
+      return;
+    }
+    setOpen(false);
+    setTimeout(() => {
+      dispatch(updateUser({ ...userEnable }));
+    }, 140);
+  }
+
+  async function disableTwoFA() {
+    setOtpError(false);
+    const userDisable = await authService.otpTurnOff(otpValue);
+    if (userDisable.isTwoFaEnabled) {
+      setOtpError(true);
+      return;
+    }
+    setOpen(false);
+    setTimeout(() => {
+      dispatch(updateUser({ ...userDisable }));
+    }, 140);
+  }
+
+  function onChange(
+    this: any,
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ): void {
+    // event.preventDefault();
+    setOtpValue(event.currentTarget.value);
+  }
+
+
+  const enableProps: twoFAdialogProps = {
+    title: "Enable",
+    urlQR: urlQR,
+    isEnabled: true,
+    onClick: enableTwoFA,
+    onChange: onChange,
+    value: otpValue,
+    error: otpError,
+  };
+
+  const disableProps: twoFAdialogProps = {
+    title: "Disable",
+    urlQR: urlQR,
+    isEnabled: false,
+    onClick: disableTwoFA,
+    onChange: onChange,
+    value: otpValue,
+    error: otpError,
+  };
 
   return (
     <Box
@@ -56,28 +122,35 @@ const AccountPage: FC<any> = (): ReactElement => {
         backgroundColor: theme.palette.secondary.light,
         width: "65vw",
         height: "80vh",
-        overflow: 'scroll',
-        overflowX: 'hidden',
+        overflow: "scroll",
+        overflowX: "hidden",
         "&::-webkit-scrollbar": {
-          display: 'none'
+          display: "none",
         },
-        [theme.breakpoints.down("md")]: { overflowY: 'scroll', alignContent: "flex-start" },
+        [theme.breakpoints.down("md")]: {
+          overflowY: "scroll",
+          alignContent: "flex-start",
+        },
       }}
     >
+      <DialogSelect options open={open} setOpen={setOpen}>
+        <ChooseTwoFA
+          {...(user?.isTwoFaEnabled ? disableProps : enableProps)}
+        />
+      </DialogSelect>
       <SignUp />
       <BasicTable
         title="Player stats"
         tableHeadArray={null}
         tableRowArray={playerRows}
         myBackColor={theme.palette.info.main}
-        myAlign='end'
+        myAlign="end"
       />
-      <BasicTable
-        title=""
-        tableHeadArray={null}
-        tableRowArray={playerRows}
+      <ButtonTable
+        setOpen={setOpen}
+        setUrlQR={setUrlQR}
         myBackColor={theme.palette.info.main}
-        myAlign='start'
+        myAlign="start"
       />
       <BasicTable
         title="Match history"
