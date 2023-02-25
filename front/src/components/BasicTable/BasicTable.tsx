@@ -46,16 +46,17 @@ function drawRow(row: rowI) {
       {keys.map(
         (cellData) =>
           //@ts-ignore
-          cellData !== "id" && <TableCell>{row[cellData]}</TableCell>
+          cellData !== "id" && <TableCell key={row.id + cellData}>{row[cellData]}</TableCell>
       )}
     </TableRow>
   );
 }
 
 export default function BasicTable(props: basicTableI) {
+  const {tableHeadArray, tableRowArray, ...styledProps} = props;
   return (
     <StyledBox
-      {...props}
+      {...styledProps}
     >
       {props.title &&
         <Typography

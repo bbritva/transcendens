@@ -15,6 +15,7 @@ export interface buttonTableI extends styledBox {
 export default function ButtonTable(props: buttonTableI) {
   const { getState } = useStore();
   const { user } = getState() as RootState;
+  const {setOpen, setUrlQR, ...styledProps} = props;
   async function generateTwoFA() {
     const src = await authService.otpGenerateQR();
     if (src){
@@ -27,7 +28,7 @@ export default function ButtonTable(props: buttonTableI) {
   }
 
   return (
-    <StyledBox {...props}>
+    <StyledBox {...styledProps}>
         {user.user?.isTwoFaEnabled ? (
           <AccountButton
             onClick={() => {

@@ -23,9 +23,9 @@ function createHistoryData(
 }
 
 const historyRows = [
-  createHistoryData("Frozen yoghurt", "159", "6.0", 24),
+  createHistoryData("Frozen yoghurt", "159", "6.0", 15),
   createHistoryData("Ice cream sandwich", "237", "9.0", 37),
-  createHistoryData("Eclair", "262", "16.0", 24),
+  createHistoryData("Eclair", "262", "16.0", 13),
   createHistoryData("Cupcake", "305", "3.7", 67),
   createHistoryData("Gingerbread", "356", "16.", 49),
 ];
@@ -35,7 +35,7 @@ function createPlayerData(data: string, rank: string, id: number) {
 }
 
 const playerRows = [
-  createPlayerData("Game level: ", "159", 24),
+  createPlayerData("Game level: ", "159", 35),
   createPlayerData("Total wins: ", "237", 37),
   createPlayerData("Total losses: ", "262", 24),
 ];
@@ -79,20 +79,20 @@ const AccountPage: FC<any> = (): ReactElement => {
         title="Player stats"
         tableHeadArray={null}
         tableRowArray={playerRows}
-        myBackColor={theme.palette.info.main}
-        myAlign="end"
+        mybackcolor={theme.palette.info.main}
+        myalign="end"
       />
       <ButtonTable
         setOpen={setOpen}
         setUrlQR={setUrlQR}
-        myBackColor={theme.palette.info.main}
-        myAlign="start"
+        mybackcolor={theme.palette.info.main}
+        myalign="start"
       />
       <BasicTable
         title="Match history"
         tableHeadArray={header}
         tableRowArray={historyRows}
-        myBackColor={theme.palette.primary.main}
+        mybackcolor={theme.palette.primary.main}
       />
     </Box>
   );

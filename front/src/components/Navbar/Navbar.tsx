@@ -27,7 +27,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
         {routes.map(
           (page) =>
             page.title !== "Account" && (
-              <NavButton page={page}>{page.title}</NavButton>
+              <NavButton key={page.key} page={page}>{page.title}</NavButton>
             )
         )}
         <Box marginLeft={"auto"} marginRight={'2rem'} display='flex'>

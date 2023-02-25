@@ -7,13 +7,13 @@ import { Box, BoxProps } from "@mui/material";
 
 // Define the component using the props interface
 export interface styledBox extends BoxProps {
-  myBackColor?: string;
-  myAlign?: string;
+  mybackcolor?: string;
+  myalign?: string;
 }
 
 // Use the styled function to create a customized version of the component
 const StyledBox = styled(Box)<styledBox>(
-  ({ theme, myBackColor, myAlign }: { theme: Theme; myBackColor?: string; myAlign?: string }) => {
+  ({ theme, mybackcolor, myalign }: { theme: Theme; mybackcolor?: string; myalign?: string }) => {
     return {
       display: 'flex',
       alignItems: 'center',
@@ -23,8 +23,8 @@ const StyledBox = styled(Box)<styledBox>(
       padding: "2rem",
       margin: "2rem",
       width: '25vw',
-      backgroundColor: myBackColor,
-      alignSelf: myAlign,
+      backgroundColor: mybackcolor,
+      alignSelf: myalign,
       [theme.breakpoints.down("lg")]: { width: "55vw"},
     };
   }
