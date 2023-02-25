@@ -51,7 +51,9 @@ enum role {
 
 class Game {
   private static instance: Game;
-  private static flag: boolean;
+  private static count: number = 0;
+  private static hasNewData: boolean;
+  private static setGameOngoing: Function | null;
   private static defaultGameData: InitialGameDataI = {
     gameName: "demo",
     playerFirstName: "AlexaAI",
@@ -61,8 +63,10 @@ class Game {
   canvas: HTMLCanvasElement;
   myRole: role;
   myName: string;
+  gameData: InitialGameDataI | null = null;
   gameState: GameStateDataI;
   webcamRef: React.RefObject<Webcam> | null;
+  winScore = 2;
   paddleHeight = 10;
   paddleWidth = 75;
   ballRadius = 10;
@@ -74,7 +78,13 @@ class Game {
   handsMesh: Hands | null = null;
   camera: Camera | null = null;
 
+  rightPaddle : Paddle;
+  leftPaddle : Paddle;
+  ball : Ball;
+
   private constructor(canvas: HTMLCanvasElement, myName: string) {
+    Game.count++;
+
     this.canvas = canvas;
     this.myName = myName;
     this.myRole = role.FIRST;
@@ -93,40 +103,83 @@ class Game {
       ball: { x: 0, y: 0 },
     };
     this.webcamRef = null;
+    this.gameData = Game.defaultGameData;
+
+    this.rightPaddle = new Paddle(
+      this,
+      false,
+      this.gameState.playerFirst.name == this.myName
+        ? ControlE.MOUSE
+        : this.gameState.playerFirst.name.endsWith("AI")
+        ? ControlE.AI
+        : ControlE.REMOTE
+    );
+    this.leftPaddle = new Paddle(
+      this,
+      true,
+      this.gameState.playerSecond.name == this.myName
+        ? ControlE.MOUSE
+        : this.gameState.playerSecond.name.endsWith("AI")
+        ? ControlE.AI
+        : ControlE.REMOTE
+    );
+    this.ball = new Ball(this, this.myRole != role.FIRST);
+  }
+
+  public static isGameOngoing(): boolean {
+    return Game.instance.gameState.gameName != "demo";
   }
 
   public static startGame(
     canvas: HTMLCanvasElement,
     myName: string,
-    initialGameData: InitialGameDataI | null
+    initialGameData: InitialGameDataI | null,
+    setGameOngoing: Function | null
   ) {
-    Game.flag = false;
+    Game.setGameData(canvas, myName, initialGameData, setGameOngoing);
+    Game.instance.initGame();
+  }
+
+  public static setGameData(
+    canvas: HTMLCanvasElement,
+    myName: string,
+    initialGameData: InitialGameDataI | null,
+    setGameOngoing: Function | null
+  ) {
+    if (!Game.setGameOngoing) Game.setGameOngoing = setGameOngoing;
     if (!Game.instance) {
       Game.instance = new Game(canvas, myName);
     }
     Game.instance.canvas = canvas;
-    if (initialGameData) {
+    Game.instance.gameData = initialGameData
+      ? initialGameData
+      : Game.defaultGameData;
+    Game.hasNewData = true;
+  }
+
+  private initGame() {
+    if (!this.canvas) return;
+    this.ctx = this.canvas.getContext("2d");
+    Game.instance.gameData = Game.instance.gameData
+    ? Game.instance.gameData
+    : Game.defaultGameData;
+    if (Game.instance.gameData) {
       Game.instance.gameState = {
-        gameName: initialGameData.gameName,
+        gameName: Game.instance.gameData.gameName,
         playerFirst: {
-          name: initialGameData.playerFirstName,
+          name: Game.instance.gameData.playerFirstName,
           score: 0,
           paddleY: 0,
         },
         playerSecond: {
-          name: initialGameData.playerSecondName,
+          name: Game.instance.gameData.playerSecondName,
           score: 0,
           paddleY: 0,
         },
         ball: { x: 0, y: 0 },
       };
     }
-    Game.instance.initGame();
-  }
-
-  private initGame() {
-    if (!this.canvas) return;
-    this.ctx = this.canvas.getContext("2d");
+    console.log(Game.count, Game.instance.gameState);
 
     this.myRole =
       this.gameState.playerFirst.name === this.myName ||
@@ -136,27 +189,22 @@ class Game {
         ? role.SECOND
         : role.SPECTATOR;
 
-    const rightPaddle = new Paddle(
-      this,
-      false,
-      this.gameState.playerFirst.name == this.myName
-        ? ControlE.MOUSE
-        : this.gameState.playerFirst.name.endsWith("AI")
-        ? ControlE.AI
-        : ControlE.REMOTE
-    );
-    const leftPaddle = new Paddle(
-      this,
-      true,
-      this.gameState.playerSecond.name == this.myName
+      this.rightPaddle.reset();
+      this.rightPaddle.control = (this.gameState.playerFirst.name == this.myName)
+      ? ControlE.MOUSE
+      : this.gameState.playerFirst.name.endsWith("AI")
+      ? ControlE.AI
+      : ControlE.REMOTE;
+    this.leftPaddle.reset();
+    this.leftPaddle.control = (this.gameState.playerSecond.name == this.myName)
         ? ControlE.MOUSE
         : this.gameState.playerSecond.name.endsWith("AI")
         ? ControlE.AI
-        : ControlE.REMOTE
-    );
-    const ball = new Ball(this, this.myRole != role.FIRST);
+        : ControlE.REMOTE;
+    this.ball.remote = this.myRole != role.FIRST;
+    this.ball.reset(1);
 
-    this.updateGameState(ball, rightPaddle, leftPaddle);
+    this.updateGameState();
 
     if (socket.connected) {
       if (this.myRole == role.FIRST) {
@@ -164,10 +212,10 @@ class Game {
         socket.on("paddleState", (data) => {
           if (!this.canvas) return;
 
-          leftPaddle.remoteY =
-            leftPaddle.control == ControlE.REMOTE
+          this.leftPaddle.remoteY =
+            this.leftPaddle.control == ControlE.REMOTE
               ? this.translateFromPercent(this.canvas.height, data.paddleY)
-              : leftPaddle.initY;
+              : this.leftPaddle.initY;
         });
       } else {
         socket.off("gameState");
@@ -175,50 +223,49 @@ class Game {
           if (!this.canvas) return;
 
           if (this.myRole == role.SPECTATOR) {
-            rightPaddle.remoteY = this.translateFromPercent(
+            this.rightPaddle.remoteY = this.translateFromPercent(
               this.canvas.height,
               data.playerSecond.paddleY
             );
           }
-          leftPaddle.remoteY = this.translateFromPercent(
+          this.leftPaddle.remoteY = this.translateFromPercent(
             this.canvas.height,
             data.playerFirst.paddleY
           );
-          ball.remoteX = this.translateFromPercent(
+          this.ball.remoteX = this.translateFromPercent(
             this.canvas.width,
             data.ball.x
           );
-          ball.remoteY = this.translateFromPercent(
+          this.ball.remoteY = this.translateFromPercent(
             this.canvas.height,
             data.ball.y
           );
-          leftPaddle.score = data.playerFirst.score;
-          rightPaddle.score = data.playerSecond.score;
+          this.leftPaddle.score = data.playerFirst.score;
+          this.rightPaddle.score = data.playerSecond.score;
         });
         socket.off("gameFinished");
         socket.on("gameFinished", (result: GameResultDto) => {
           alert(`${result.winnerName} WINS`);
-          // setGameStarted(false);
-          // this.setStopGame(true);
+          if (Game.setGameOngoing) Game.setGameOngoing(false);
           socket.off("gameState");
           socket.off("gameFinished");
         });
       }
     }
 
-    const bricks = new Bricks();
+    // const bricks = new Bricks();
     // document.removeEventListener("keydown");
     document.addEventListener(
       "keydown",
       (e) => {
-        leftPaddle.keyDownHandler(e);
+        this.leftPaddle.keyDownHandler(e);
       },
       false
     );
     document.addEventListener(
       "keyup",
       (e) => {
-        leftPaddle.keyUpHandler(e);
+        this.leftPaddle.keyUpHandler(e);
       },
       false
     );
@@ -226,17 +273,15 @@ class Game {
       document.addEventListener(
         "mousemove",
         (e) => {
-          rightPaddle.mouseMoveHandler(e);
+          this.rightPaddle.mouseMoveHandler(e);
         },
         false
       );
     if (this.ctx) {
-      Game.flag = true;
+      if (Game.setGameOngoing) Game.setGameOngoing(Game.isGameOngoing)
+      Game.hasNewData = false;
       this.mainGameCycle(
-        ball,
-        rightPaddle,
-        leftPaddle,
-        bricks,
+        // bricks,
         this.canvas,
         this.ctx
       );
@@ -244,48 +289,40 @@ class Game {
   }
 
   private mainGameCycle(
-    ball: Ball,
-    rightPaddle: Paddle,
-    leftPaddle: Paddle,
-    bricks: Bricks,
+    // bricks: Bricks,
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
   ) {
-    this.moveElements(ball, rightPaddle, leftPaddle);
-    this.checkCollisions(ball, rightPaddle, leftPaddle);
-    this.updateGameState(ball, rightPaddle, leftPaddle);
-    this.emitData(rightPaddle);
-    this.draw(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
-    // SETTING MAIN GAME CYCLE
-    // this.setStopGame((prev: boolean) => {
-    //   if (prev) {
-    //     return prev;
-    //   }
-    if (Game.flag)
+    this.moveElements();
+    this.checkCollisions();
+    this.updateGameState();
+    this.emitData(this.rightPaddle);
+    this.draw(canvas, ctx);
+    if (!Game.hasNewData) {
       requestAnimationFrame(() => {
-        this.mainGameCycle(ball, rightPaddle, leftPaddle, bricks, canvas, ctx);
+        this.mainGameCycle(canvas, ctx);
       });
-    else Game.startGame(this.canvas, this.myName, Game.defaultGameData);
-    // return prev;
-    // });
+    } else {
+      this.initGame();
+    }
   }
 
-  private updateGameState(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
+  private updateGameState() {
     if (!this.canvas) return;
 
     if (this.myRole != role.FIRST) return;
-    this.gameState.ball.x = this.translateToPercent(this.canvas.width, ball.x);
-    this.gameState.ball.y = this.translateToPercent(this.canvas.height, ball.y);
+    this.gameState.ball.x = this.translateToPercent(this.canvas.width, this.ball.x);
+    this.gameState.ball.y = this.translateToPercent(this.canvas.height, this.ball.y);
     this.gameState.playerFirst.paddleY = this.translateToPercent(
       this.canvas.height,
-      rightPaddle.paddleY
+      this.rightPaddle.paddleY
     );
-    this.gameState.playerFirst.score = rightPaddle.score;
+    this.gameState.playerFirst.score = this.rightPaddle.score;
     this.gameState.playerSecond.paddleY = this.translateToPercent(
       this.canvas.height,
-      leftPaddle.paddleY
+      this.leftPaddle.paddleY
     );
-    this.gameState.playerSecond.score = leftPaddle.score;
+    this.gameState.playerSecond.score = this.leftPaddle.score;
   }
 
   private onResults(results: HandDataI) {
@@ -336,68 +373,72 @@ class Game {
     }
   }
 
-  private moveElements(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
+  private moveElements() {
     if (!this.canvas) return;
 
     if (this.gameState.gameName == "demo") {
       if (this.gameState.playerFirst.name.endsWith("AI")) {
-        rightPaddle.upPressed =
-          ball.speedX > 0 && rightPaddle.paddleY + 10 > ball.y;
-        rightPaddle.downPressed =
-          ball.speedX > 0 && rightPaddle.paddleY + 70 < ball.y;
-      } else rightPaddle.paddleY = this.canvas.height * this.y;
+        this.rightPaddle.upPressed =
+        this.ball.speedX > 0 && this.rightPaddle.paddleY + 10 > this.ball.y;
+        this.rightPaddle.downPressed =
+        this.ball.speedX > 0 && this.rightPaddle.paddleY + 70 < this.ball.y;
+      } else this.rightPaddle.paddleY = this.canvas.height * this.y;
     }
-    rightPaddle.movePaddle();
+    this.rightPaddle.movePaddle();
 
     if (
       this.gameState.gameName == "single" ||
       this.gameState.gameName == "demo"
     ) {
       if (this.gameState.playerSecond.name.endsWith("AI")) {
-        leftPaddle.upPressed =
-          ball.speedX < 0 && leftPaddle.paddleY + 10 > ball.y;
-        leftPaddle.downPressed =
-          ball.speedX < 0 && leftPaddle.paddleY + 70 < ball.y;
-      } else leftPaddle.paddleY = this.canvas.height * this.y;
+        this.leftPaddle.upPressed =
+        this.ball.speedX < 0 && this.leftPaddle.paddleY + 10 > this.ball.y;
+        this.leftPaddle.downPressed =
+        this.ball.speedX < 0 && this.leftPaddle.paddleY + 70 < this.ball.y;
+      } else this.leftPaddle.paddleY = this.canvas.height * this.y;
     }
-    leftPaddle.movePaddle();
-    ball.moveBall();
+    this.leftPaddle.movePaddle();
+    this.ball.moveBall();
   }
 
-  private checkCollisions(ball: Ball, rightPaddle: Paddle, leftPaddle: Paddle) {
+  private checkCollisions() {
     if (!this.canvas) return;
 
     // mods.bricks && bricks.bricksCollision(ball);
     if (this.myRole == role.FIRST) {
-      ball.verticalCollision();
+      this.ball.verticalCollision();
       //check left side
       if (
-        ball.x <
-        ball.ballRadius + leftPaddle.paddleOffsetX + leftPaddle.paddleHeight
+        this.ball.x <
+        this.ball.ballRadius + this.leftPaddle.paddleOffsetX + this.leftPaddle.paddleHeight
       ) {
         //try to hit left paddle
-        if (!ball.hitPaddle(leftPaddle, true)) {
-          if (ball.x < ball.ballRadius) {
-            if (rightPaddle.makeScore()) {
-              this.finishGame(rightPaddle.score, leftPaddle.score);
+        if (!this.ball.hitPaddle(this.leftPaddle, true)) {
+          if (this.ball.x < this.ball.ballRadius) {
+            console.log(this.ball.myNum, this.ball.x, this.ball.y);
+
+            if (this.rightPaddle.makeScore()) {
+              this.finishGame(this.rightPaddle.score, this.leftPaddle.score);
             }
-            ball.reset(-1);
           }
+          this.ball.reset(-1);
         }
       } else if (
-        ball.x >
+        this.ball.x >
         this.canvas.width -
-          ball.ballRadius -
-          leftPaddle.paddleOffsetX -
-          leftPaddle.paddleHeight
+        this.ball.ballRadius -
+        this.leftPaddle.paddleOffsetX -
+        this.leftPaddle.paddleHeight
       ) {
         //try to hit right paddle
-        if (!ball.hitPaddle(rightPaddle, false)) {
-          if (ball.x > this.canvas.width - ball.ballRadius) {
-            if (leftPaddle.makeScore()) {
-              this.finishGame(rightPaddle.score, leftPaddle.score);
+        if (!this.ball.hitPaddle(this.rightPaddle, false)) {
+          if (this.ball.x > this.canvas.width - this.ball.ballRadius) {
+            console.log(this.ball.myNum, this.ball.x, this.ball.y);
+
+            if (this.leftPaddle.makeScore()) {
+              this.finishGame(this.rightPaddle.score, this.leftPaddle.score);
             }
-            ball.reset(1);
+            this.ball.reset(1);
           }
         }
       }
@@ -405,10 +446,6 @@ class Game {
   }
 
   private draw(
-    ball: Ball,
-    rightPaddle: Paddle,
-    leftPaddle: Paddle,
-    bricks: Bricks,
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
   ) {
@@ -416,10 +453,10 @@ class Game {
     this.drawBorder(ctx);
 
     // mods.bricks && bricks.drawBricks(ctx);
-    ball.drawBall(ctx);
-    rightPaddle.drawPaddle(ctx);
-    leftPaddle.drawPaddle(ctx);
-    this.drawScore(ctx, leftPaddle, rightPaddle);
+    this.ball.drawBall(ctx);
+    this.rightPaddle.drawPaddle(ctx);
+    this.leftPaddle.drawPaddle(ctx);
+    this.drawScore(ctx);
   }
 
   private drawBorder(ctx: CanvasRenderingContext2D) {
@@ -438,15 +475,13 @@ class Game {
 
   private drawScore(
     ctx: CanvasRenderingContext2D,
-    leftPaddle: Paddle,
-    rightPaddle: Paddle
   ) {
     if (!this.canvas) return;
 
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText(
-      `Score: ${this.gameState.playerFirst.name} ${leftPaddle.score} : ${rightPaddle.score} ${this.gameState.playerSecond.name}`,
+      `Score: ${this.gameState.playerFirst.name} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.gameState.playerSecond.name}`,
       this.canvas.width / 2 - 70,
       20
     );
@@ -478,13 +513,12 @@ class Game {
   }
 
   private finishGame(rightScore: number, leftScore: number) {
-    if (!this.canvas) return;
-
-    if (this.ctx)
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); //doesnt work
-
-    Game.flag = false;
-    // setGameStarted(false);
+    this.gameData = null;
+    Game.hasNewData = true;
+    if (Game.setGameOngoing) {
+      console.log("setGameOngoing in game");
+      Game.setGameOngoing(false);
+    }
     const result = this.emitGameResults(rightScore, leftScore);
   }
 

@@ -2,6 +2,8 @@ import Game from "./game";
 import Paddle from "./Paddle";
 
 class Ball {
+  public static count = 0;
+  myNum : number;
   canvas: HTMLCanvasElement;
   x: number;
   y: number;
@@ -17,6 +19,7 @@ class Ball {
   constructor( game :Game,
        remote: boolean
   ) {
+    this.myNum = Ball.count++;
     this.canvas = game.canvas;
     this.x = this.canvas.width / 2;
     this.y = this.canvas.height / 2;

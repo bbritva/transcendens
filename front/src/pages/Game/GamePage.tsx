@@ -38,7 +38,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const [declined, setDeclined] = useState<boolean>(false);
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
-  const [stopGame, setStopGame] = useState<boolean>(true);
+  const [gameOngoing, setGameOngoing] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
     useState<string>("AI");
@@ -56,19 +56,23 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     console.log("useeff canvas");
     const canvas = canvasRef.current;
     if (canvas)
-    Game.startGame(canvas, testUsername || user.user?.name || "", null);
+    Game.startGame(canvas, testUsername || user.user?.name || "", null, setGameOngoing);
   }, [canvasRef])
+
+  useEffect(() => {
+    console.log("setstop", gameOngoing);
+  }, [gameOngoing])
 
 
   useEffect(() => {
     console.log("useeff1");
 
     const canvas = canvasRef.current;
-    if (canvas) {
-      return () => {
-        setStopGame(true);
-      };
-    }
+    // if (canvas) {
+    //   return () => {
+    //     setStopGame(true);
+    //   };
+    // }
     if (socket.connected) {
       socket.off("gameLine");
       socket.on("gameLine", (data: gameLineI) => {
@@ -80,7 +84,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   useEffect(() => {
     console.log("gameData", gameData);
     if (socket.connected && !!gameData) {
-      setStopGame(true);
+      // setGameOngoing(true);
       startGame(gameData);
       sessionStorage.setItem("game", "true");
     } else {
@@ -92,13 +96,13 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     console.log("startGame", gameData);
 
     const canvas = canvasRef.current;
-    if (canvas && stopGame) {
-      setStopGame(false);
+    if (canvas) {
+      // setStopGame(false);
       if (gameData && (testUsername || user.user?.name)) {
-        Game.startGame(
+        Game.setGameData(
           canvasRef.current,
           testUsername || user.user?.name || "",
-          gameData
+          gameData, null
         );
       }
     }
@@ -265,7 +269,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         <Button
           children={"play VS AI"}
           variant={"outlined"}
-          disabled={singlePlayerOpponent == "AI" || !stopGame}
+          disabled={singlePlayerOpponent == "AI" || gameOngoing}
           size="large"
           onClick={() => setSinglePlayerOpponent("AI")}
         />
@@ -273,13 +277,13 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           children={"play VS hand"}
           variant={"outlined"}
           size="large"
-          disabled={singlePlayerOpponent == "hand" || !stopGame}
+          disabled={singlePlayerOpponent == "hand" || gameOngoing}
           onClick={() => setSinglePlayerOpponent("hand")}
         />
         <Button
           children={"Single player"}
           variant={"outlined"}
-          disabled={!stopGame}
+          disabled={gameOngoing}
           size="large"
           onClick={() =>
             startGame({
@@ -294,7 +298,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         <Button
           children={"Multi player"}
           variant={"outlined"}
-          disabled={!stopGame}
+          disabled={gameOngoing}
           size="large"
           onClick={() => {
             setDeclined(false);
@@ -304,7 +308,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         <Button
           children={"Watch games"}
           variant={"outlined"}
-          disabled={!stopGame}
+          disabled={gameOngoing}
           size="large"
           onClick={() => {
             getActiveGames();

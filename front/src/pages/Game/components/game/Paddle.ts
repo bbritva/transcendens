@@ -23,12 +23,14 @@ class Paddle {
   downPressed: boolean;
   upPressed: boolean;
   remoteY: number = 0;
+  winScore: number;
   lastUpdateTime: number = Date.now();
 
   constructor( game : Game,
     isLeft: boolean,
     control: ControlE
   ) {
+    this.winScore = game.winScore;
     this.canvas = game.canvas;
     this.downPressed = false;
     this.upPressed = false;
@@ -108,8 +110,16 @@ class Paddle {
   }
 
   makeScore(): boolean {
+    console.log(this.score);
+
     ++this.score;
-    return this.score >= 10;
+    console.log(this.score);
+    if (this.score >= this.winScore) {
+      this.score = 0;
+      return true;
+    }
+    return false;
+
   }
 
   reset() {
