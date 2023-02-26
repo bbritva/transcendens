@@ -52,6 +52,7 @@ enum role {
 class Game {
   private static instance: Game;
   private static count: number = 0;
+  private static isPaused: boolean = false;
   private static hasNewData: boolean;
   private static setGameOngoing: Function | null;
   private static defaultGameData: InitialGameDataI = {
@@ -128,6 +129,9 @@ class Game {
 
   public static isGameOngoing(): boolean {
     return Game.instance.gameState.gameName != "demo";
+  }
+  public static setPause(value : boolean) {
+    Game.isPaused = value;
   }
 
   public static startGame(
@@ -217,8 +221,11 @@ class Game {
     this.updateGameState();
 
     if (socket.connected) {
+      socket.off("paddleState");
+      socket.off("gameState");
+      socket.off("gameFinished");
+
       if (this.myRole == role.FIRST) {
-        socket.off("paddleState");
         socket.on("paddleState", (data) => {
           if (!this.canvas) return;
 
@@ -228,7 +235,6 @@ class Game {
               : this.leftPaddle.initY;
         });
       } else {
-        socket.off("gameState");
         socket.on("gameState", (data: GameStateDataI) => {
           if (!this.canvas) return;
 
@@ -252,8 +258,8 @@ class Game {
           );
           this.leftPaddle.score = data.playerFirst.score;
           this.rightPaddle.score = data.playerSecond.score;
+          
         });
-        socket.off("gameFinished");
         socket.on("gameFinished", (result: GameResultDto) => {
           alert(`${result.winnerName} WINS`);
           if (Game.setGameOngoing) Game.setGameOngoing(false);
@@ -413,7 +419,7 @@ class Game {
       // } else this.leftPaddle.paddleY = this.canvas.height * this.y;
     }
     this.leftPaddle.movePaddle();
-    this.ball.moveBall();
+    this.ball.moveBall(Game.isPaused);
   }
 
   private checkCollisions() {

@@ -80,15 +80,15 @@ class Ball {
     ctx.closePath();
   }
 
-  moveBall() {
+  moveBall(isPaused : boolean) {
     if (this.remote) {
       this.x = this.remoteX;
       this.y = this.remoteY;
     } else {
       const now = Date.now();
       const k = (now - this.lastUpdateTime) * this.ballSpeed;
-      this.x += this.speedX * k;
-      this.y += this.speedY * k;
+      this.x += isPaused ? 0 : this.speedX * k;
+      this.y += isPaused ? 0 : this.speedY * k;
       this.lastUpdateTime = now;
       // this.x += this.speedX;
       // this.y += this.speedY;

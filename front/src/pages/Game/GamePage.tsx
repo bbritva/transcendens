@@ -51,18 +51,22 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const { user } = getState() as RootState;
 
   // const webcamRef = useRef<Webcam>(null);
- 
-  useEffect(()=> {
+
+  useEffect(() => {
     console.log("useeff canvas");
     const canvas = canvasRef.current;
     if (canvas)
-    Game.startGame(canvas, testUsername || user.user?.name || "", null, setGameOngoing);
-  }, [canvasRef])
+      Game.startGame(
+        canvas,
+        testUsername || user.user?.name || "",
+        null,
+        setGameOngoing
+      );
+  }, [canvasRef]);
 
   useEffect(() => {
     console.log("gameOngoing", gameOngoing);
-  }, [gameOngoing])
-
+  }, [gameOngoing]);
 
   useEffect(() => {
     console.log("useeff1");
@@ -97,10 +101,16 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         Game.setGameData(
           canvasRef.current,
           testUsername || user.user?.name || "",
-          gameData, null
+          gameData,
+          null
         );
       }
     }
+  }
+
+  function setPause() {
+    Game.setPause(!isPaused);
+    setIsPaused(!isPaused);
   }
 
   function onChange(
@@ -335,7 +345,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           variant={"outlined"}
           // disabled={stopGame}
           size="large"
-          onClick={() => setIsPaused((prev) => !prev)}
+          onClick={setPause}
         />
       </Grid>
     </Grid>
