@@ -97,19 +97,20 @@ export default function SignUp(props: styledBoxI) {
       >
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
           <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <Avatar
+            <Box overflow='hidden' display={'flex'} maxHeight="20vh" maxWidth={"100%"} justifyContent='center'>
+              <Box
+                component={'img'}
                 alt={user.user?.name}
                 src={avatarSource}
+                maxWidth='80%'
                 sx={{
-                  width: 100,
-                  height: 100,
                   m: 1,
                   bgcolor: "secondary.main",
+                  objectFit: 'cover'
                 }}
               />
-            </Grid>
-            <Grid item xs={6} display={"flex"} alignItems={"center"}>
+            </Box>
+            {/* <Grid item xs={6} display={"flex"} alignItems={"center"}>
               <Button variant="contained" component="label">
                 Upload photo
                 <input
@@ -119,9 +120,9 @@ export default function SignUp(props: styledBoxI) {
                   multiple
                   type="file"
                   onChange={onFileChange}
-                />
-              </Button>
-            </Grid>
+                /> */}
+              {/* </Button>
+            </Grid> */}
             <Grid item xs={12} display="flex" alignItems="flex-start">
               <AlternateEmailIcon
                 fontSize="large"
