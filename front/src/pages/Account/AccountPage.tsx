@@ -1,4 +1,4 @@
-import { ReactElement, FC, forwardRef, ForwardedRef, useState } from "react";
+import { ReactElement, FC, forwardRef, ForwardedRef, useState, useEffect } from "react";
 import { Box, IconButton, Paper, Slide, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
@@ -48,8 +48,12 @@ const header = ["Score", "Win/Lose", "Rivals"];
 const AccountPage: FC<any> = (): ReactElement => {
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
-  const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user);
+  const [slideShow, setSlideShow] = useState<boolean>(false);
+  const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user, setSlideShow);
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
+
+
+
   const createFriendElem = (id: number, name: string): settingsRowI => {
     const FriendComponent = (
       <BasicMenu title={name} onLogout={() => { }}></BasicMenu>
@@ -89,7 +93,6 @@ const AccountPage: FC<any> = (): ReactElement => {
       <ChooseTwoFA {...props.twoFAProps} />
     </StyledBox>);
   });
-
   return (
     <Box
       component={Paper}
@@ -120,8 +123,14 @@ const AccountPage: FC<any> = (): ReactElement => {
         mybackcolor={theme.palette.info.main}
         myalign="end"
       />
-      {open ? (
-        <Slide direction="right" in={open}>
+      { (slideShow) && 
+        <Slide direction="right" in={open}
+        timeout={800} appear={true}
+        addEndListener={() => {
+          if (!open)
+            setTimeout(() => {setSlideShow(false);}, 600);
+        }}
+        >
           {slideFriends ? (
             <FriendsTableRef
               title="Friends"
@@ -141,9 +150,11 @@ const AccountPage: FC<any> = (): ReactElement => {
             />
           )}
         </Slide>
-      ) : (
+      }
+      { (!open && !slideShow) && (
         <ButtonTable
           setOpen={setOpen}
+          setSlideShow={setSlideShow}
           setUrlQR={setUrlQR}
           setSlideFriends={setSlideFriends}
           mybackcolor={theme.palette.info.main}

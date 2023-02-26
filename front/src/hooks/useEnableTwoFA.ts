@@ -6,7 +6,8 @@ import { updateUser, userI } from "src/store/userSlice";
 
 
 export default function useEnableTwoFA(
-user: userI | null
+user: userI | null,
+setSlideShow: Function
 ) : [boolean, Function, twoFAdialogProps, Function]
 {
     const [open, setOpen] = React.useState<boolean>(false);

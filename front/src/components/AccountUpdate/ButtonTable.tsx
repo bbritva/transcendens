@@ -11,6 +11,7 @@ export interface buttonTableI extends styledBoxI {
   setOpen: Function;
   setUrlQR: Function;
   setSlideFriends: Function;
+  setSlideShow: Function;
 }
 
 export default function ButtonTable(props: buttonTableI) {
@@ -23,6 +24,7 @@ export default function ButtonTable(props: buttonTableI) {
     if (src) {
       props.setUrlQR(src);
       props.setOpen(true);
+      props.setSlideShow(true);
     } else props.setOpen(false);
   }
 
@@ -33,6 +35,7 @@ export default function ButtonTable(props: buttonTableI) {
           onClick={() => {
             props.setSlideFriends(false);
             props.setOpen(true);
+            props.setSlideShow(true);
           }}
         >
           <RemoveModeratorIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
@@ -48,6 +51,7 @@ export default function ButtonTable(props: buttonTableI) {
         onClick={() => {
           props.setSlideFriends(true);
           props.setOpen(true);
+          props.setSlideShow(true);
         }}
       >
         <PeopleOutlineIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
