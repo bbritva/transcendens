@@ -62,7 +62,8 @@ export default function BasicTable(props: basicTableI) {
       {props.onClose && (
         <IconButton
           aria-label="close"
-          onClick={() => props.onClose && props.onClose()}
+          onClick={() => {
+            props.onClose && props.onClose();}}
           sx={{
             alignSelf: "end",
             color: (theme) => theme.palette.grey[500],

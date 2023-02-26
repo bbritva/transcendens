@@ -5,17 +5,22 @@ import MoreVert from "@mui/icons-material/MoreVert";
 import fakeAvatar from "src/assets/logo192.png";
 import { RootState } from "src/store/store";
 import { useStore } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { StyledMenu, StyledMenuItem } from "./StyledMenu";
+import { StyledMenu } from "./StyledMenu";
 
 interface basicMenuI {
   onLogout: Function;
   title?: string
+  mychildren: {
+    component: React.FC,
+    compProps: {
+      onClick: Function
+    }
+  }[]
 }
 
-export default function BasicMenu({ onLogout, title }: basicMenuI) {
+export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
   const { getState } = useStore();
-  const navigate = useNavigate();
+
   const { user } = getState() as RootState;
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -47,47 +52,12 @@ export default function BasicMenu({ onLogout, title }: basicMenuI) {
           "aria-labelledby": "basic-button",
         }}
       >
-       
-        <StyledMenuItem
-          onClick={() => {
-            navigate("/account", { replace: true });
-            handleClose();
-          }}
-        >
-          {user.user?.name || "Profile"}
-        </StyledMenuItem>
-        <StyledMenuItem
-          onClick={() => {
-            navigate("/", { replace: true });
-            handleClose();
-          }}
-        >
-          {"Home"}
-        </StyledMenuItem>
-        <StyledMenuItem
-          onClick={() => {
-            navigate("/game", { replace: true });
-            handleClose();
-          }}
-        >
-          {"Game"}
-        </StyledMenuItem>
-        <StyledMenuItem
-          onClick={() => {
-            navigate("/chat", { replace: true });
-            handleClose();
-          }}
-        >
-          {"Chat"}
-        </StyledMenuItem>
-        <StyledMenuItem
-          onClick={() => {
-            onLogout();
-            handleClose();
-          }}
-        >
-          Logout
-        </StyledMenuItem>
+        {mychildren.map((element) => {
+          const MButton = element.component;
+          //@ts-ignore
+          return (<MButton {...element.compProps}  onClick={() => {element.compProps.onClick();handleClose();}}/>
+          );
+        })}
       </StyledMenu>
     </>
   );

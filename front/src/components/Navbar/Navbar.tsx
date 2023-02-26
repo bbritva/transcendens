@@ -7,6 +7,9 @@ import Protected from "../Authentication/Protected";
 import { StyledNavButton } from "../NavButton/StyledNavButton";
 import NavButton from "../NavButton/NavButton";
 import BasicMenu from "../BasicMenu/BasicMenu";
+import { StyledMenuItem } from "../BasicMenu/StyledMenu";
+import { useNavigate } from "react-router-dom";
+import { FC } from "react";
 
 interface NavbarProps {
   loginButtonText: string;
@@ -14,11 +17,51 @@ interface NavbarProps {
   onLogoutClick: () => void;
 }
 
+
 function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
   // const [anchorNav, setAnchorNav] = useState(null); //will use it for menu
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
   const myHeight = "10vh";
+  const navigate = useNavigate();
+
+  const buttons = [
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/account", { replace: true }),
+        children: user?.name || "Profile"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/", { replace: true }),
+        children: "Home"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/game", { replace: true }),
+        children: "Game"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/chat", { replace: true }),
+        children: "Chat"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => onLogoutClick(),
+        children: "Logout"
+      }
+    },
+  ];
 
   return (
     <AppBar position="sticky">
@@ -33,7 +76,10 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
         <Box marginLeft={"auto"} marginRight={'2rem'} display='flex'>
           <Protected
             user={user}
-            render={() => <BasicMenu onLogout={onLogoutClick} />}
+            render={() => 
+            <BasicMenu onLogout={onLogoutClick} mychildren={buttons}/>            
+            }
+
             fail={() => (
               <StyledNavButton variant={"text"} onClick={onLoginClick}>
                 <Typography color="secondary">{loginButtonText}</Typography>

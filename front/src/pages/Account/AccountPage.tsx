@@ -15,6 +15,8 @@ import useEnableTwoFA from "src/hooks/useEnableTwoFA";
 import CloseIcon from "@mui/icons-material/Close";
 import StyledBox from "src/components/BasicTable/StyledBox";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
+import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
+import { useNavigate } from "react-router-dom";
 
 function createHistoryData(
   score: string,
@@ -51,12 +53,46 @@ const AccountPage: FC<any> = (): ReactElement => {
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user, setSlideShow);
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-
+  const buttons = [
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/account", { replace: true }),
+        children: "Profile"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/chat", { replace: true }),
+        children: "Message"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/game", { replace: true }),
+        children: "Game"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/game", { replace: true }),
+        children: "Delete"
+      }
+    },
+  ];
 
   const createFriendElem = (id: number, name: string): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu title={name} onLogout={() => { }}></BasicMenu>
+      <BasicMenu
+        title={name}
+        onLogout={() => { }}
+        mychildren={buttons}
+      />
     );
     return { id, button: FriendComponent };
   };
@@ -138,7 +174,11 @@ const AccountPage: FC<any> = (): ReactElement => {
               mybackcolor={theme.palette.info.main}
               myalign="start"
               flexDirection={"column"}
-              tableRowArray={[createFriendElem(111, "Vasya")]}
+              tableRowArray={[
+                createFriendElem(111, "Vasya"),
+                createFriendElem(1112, "Vasya2"),
+                createFriendElem(1113, "Vasya3"),
+              ]}
               onClose={() => {
                 setOpen(false);
               }}
