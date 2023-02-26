@@ -160,7 +160,7 @@ function App() {
                 Accept
               </Button>
           </DialogSelect>
-          <Grid display="flex" justifyContent="center" item xs={8} margin={10} sx={{
+          <Grid display="flex" justifyContent="center" item xs={10} margin={3} sx={{
           }}>
             <Routes>
               {appRoutes.map((route) => (

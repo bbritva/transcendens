@@ -112,6 +112,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     ref: ForwardedRef<HTMLDivElement>
   ) {
     return (<StyledBox
+      myalign="start"
       ref={ref}
       flexDirection={"column"}
       mybackcolor={theme.palette.info.main}
@@ -139,7 +140,7 @@ const AccountPage: FC<any> = (): ReactElement => {
       sx={{
         backgroundColor: theme.palette.secondary.light,
         width: "65vw",
-        height: "80vh",
+        height: "90vh",
         overflow: "scroll",
         overflowX: "hidden",
         "&::-webkit-scrollbar": {
@@ -151,7 +152,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         },
       }}
     >
-      <SignUp />
+      <SignUp myalign="end"/>
       <BasicTable
         title="Player stats"
         tableHeadArray={null}
@@ -207,6 +208,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         tableHeadArray={header}
         tableRowArray={historyRows}
         mybackcolor={theme.palette.primary.main}
+        myalign="start"
       />
     </Box>
   );

@@ -41,7 +41,7 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
         onClick={handleClick}
       >
         {title || <Avatar src={user.user?.avatar || user.user?.image || fakeAvatar} />}
-        <MoreVert color="secondary" />
+        {!title && <MoreVert color="secondary" />}
       </StyledNavButton>
       <StyledMenu 
         id="basic-menu"

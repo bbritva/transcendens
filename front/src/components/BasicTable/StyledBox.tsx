@@ -20,12 +20,12 @@ const StyledBox = styled(Box)<styledBoxI>(
       flexWrap: 'wrap',
       borderRadius: 20,
       boxShadow: "0 3px 5px 2px rgba(0, 1, 1, .3)",
-      padding: "2rem",
-      margin: "2rem",
+      padding: "1rem",
+      margin: "1rem",
       width: '25vw',
       backgroundColor: mybackcolor,
       alignSelf: myalign,
-      [theme.breakpoints.down("lg")]: { width: "55vw"},
+      [theme.breakpoints.down("lg")]: { width: "55vw", maxHeight: '100vh'},
     };
   }
 );
