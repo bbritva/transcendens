@@ -255,7 +255,8 @@ export class Gateway implements OnModuleInit {
   async getScore(
     @MessageBody() data: DTO.paddleStateI
   ) {
-    this.server.to(data.gameName).emit("paddleState", data);
+    this.server.to(data.gameName).volatile.emit("paddleState", data);
+    
   }
 
   @SubscribeMessage("gameState")

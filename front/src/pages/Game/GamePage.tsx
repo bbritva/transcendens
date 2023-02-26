@@ -68,11 +68,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     console.log("useeff1");
 
     const canvas = canvasRef.current;
-    // if (canvas) {
-    //   return () => {
-    //     setStopGame(true);
-    //   };
-    // }
     if (socket.connected) {
       socket.off("gameLine");
       socket.on("gameLine", (data: gameLineI) => {

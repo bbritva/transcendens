@@ -114,12 +114,7 @@ class Paddle {
 
     ++this.score;
     console.log(this.score);
-    if (this.score >= this.winScore) {
-      this.score = 0;
-      return true;
-    }
-    return false;
-
+    return (this.score >= this.winScore);
   }
 
   reset() {

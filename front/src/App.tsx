@@ -56,7 +56,7 @@ function App() {
   function connectUser(tokenConnect: {}) {
     socket.auth = tokenConnect;
     socket.connect();
-    initSocket(navigate, setGameData, gameData, setChannels, dispatch);
+    initSocket(navigate, setGameData, setChannels, dispatch);
   }
 
   useEffect(() => {

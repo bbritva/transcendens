@@ -12,7 +12,7 @@ const socket = io(URL, { autoConnect: false });
 export function initSocket(
     navigate: Function,
     setGameData: Function,
-    gameData: InitialGameDataI | null,
+    // gameData: InitialGameDataI | null,
     setChannels: Function,
     dispatch: Dispatch,
   ){

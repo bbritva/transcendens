@@ -66,7 +66,7 @@ class Game {
   gameData: InitialGameDataI | null = null;
   gameState: GameStateDataI;
   webcamRef: React.RefObject<Webcam> | null;
-  winScore = 2;
+  winScore = 200;
   paddleHeight = 10;
   paddleWidth = 75;
   ballRadius = 10;
@@ -190,15 +190,15 @@ class Game {
         : role.SPECTATOR;
 
       this.rightPaddle.reset();
-      this.rightPaddle.control = (this.gameState.playerFirst.name == this.myName)
+      this.rightPaddle.score = 0;
+      this.rightPaddle.control = (this.gameState.playerFirst.name == this.myName || this.gameState.playerSecond.name == this.myName)
       ? ControlE.MOUSE
       : this.gameState.playerFirst.name.endsWith("AI")
       ? ControlE.AI
       : ControlE.REMOTE;
     this.leftPaddle.reset();
-    this.leftPaddle.control = (this.gameState.playerSecond.name == this.myName)
-        ? ControlE.MOUSE
-        : this.gameState.playerSecond.name.endsWith("AI")
+    this.leftPaddle.score = 0;
+    this.leftPaddle.control = this.gameState.playerSecond.name.endsWith("AI")
         ? ControlE.AI
         : ControlE.REMOTE;
     this.ball.remote = this.myRole != role.FIRST;
@@ -377,12 +377,11 @@ class Game {
     if (!this.canvas) return;
 
     if (this.gameState.gameName == "demo") {
-      if (this.gameState.playerFirst.name.endsWith("AI")) {
         this.rightPaddle.upPressed =
         this.ball.speedX > 0 && this.rightPaddle.paddleY + 10 > this.ball.y;
         this.rightPaddle.downPressed =
         this.ball.speedX > 0 && this.rightPaddle.paddleY + 70 < this.ball.y;
-      } else this.rightPaddle.paddleY = this.canvas.height * this.y;
+      // } else this.rightPaddle.paddleY = this.canvas.height * this.y;
     }
     this.rightPaddle.movePaddle();
 
@@ -390,12 +389,11 @@ class Game {
       this.gameState.gameName == "single" ||
       this.gameState.gameName == "demo"
     ) {
-      if (this.gameState.playerSecond.name.endsWith("AI")) {
         this.leftPaddle.upPressed =
         this.ball.speedX < 0 && this.leftPaddle.paddleY + 10 > this.ball.y;
         this.leftPaddle.downPressed =
         this.ball.speedX < 0 && this.leftPaddle.paddleY + 70 < this.ball.y;
-      } else this.leftPaddle.paddleY = this.canvas.height * this.y;
+      // } else this.leftPaddle.paddleY = this.canvas.height * this.y;
     }
     this.leftPaddle.movePaddle();
     this.ball.moveBall();
@@ -481,7 +479,7 @@ class Game {
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText(
-      `Score: ${this.gameState.playerFirst.name} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.gameState.playerSecond.name}`,
+      `Score: ${this.gameState.playerSecond.name} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.gameState.playerFirst.name}`,
       this.canvas.width / 2 - 70,
       20
     );
@@ -507,7 +505,7 @@ class Game {
       socket.volatile.emit("gameState", this.gameState);
     else if (this.myRole == role.SECOND)
       socket.volatile.emit("paddleState", {
-        gameName: Game.name,
+        gameName: this.gameState.gameName,
         paddleY: this.translateToPercent(this.canvas.height, paddle.paddleY),
       });
   }

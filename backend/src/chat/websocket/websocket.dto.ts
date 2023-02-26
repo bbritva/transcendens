@@ -93,10 +93,9 @@ export interface gameStateDataI {
 }
 
 export interface gameChannelDataI{
-  name: string,
-  first: string,
-  second: string
-  guests: string[]
+  gameName: string;
+  playerFirstName: string;
+  playerSecondName: string;
   gameState?: gameStateDataI
 }
 

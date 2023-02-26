@@ -370,10 +370,9 @@ export class GatewayService {
   async startGame(socket: Socket, data: DTO.AcceptInviteI) {
     const acceptorName = this.connections.get(socket.id).name;
     const game = {
-      name: data.sender + acceptorName + "Game",
-      first: data.sender,
-      second: acceptorName,
-      guests: [],
+      gameName: data.sender + acceptorName + "Game",
+      playerFirstName: data.sender,
+      playerSecondName: acceptorName,
     };
     this.connectToGame(game);
   }
@@ -501,9 +500,9 @@ export class GatewayService {
   }
 
   async connectSpectator(socketId: string, data: DTO.spectateGameI) {
-    const game = this.gameRooms.get(data.gameName);
-    this.server.to(socketId).emit("connectToGame", game);
-    this.server.in(socketId).socketsJoin(game.name);
+    const gameRoom = this.gameRooms.get(data.gameName);
+    this.server.to(socketId).emit("connectToGame", gameRoom);
+    this.server.in(socketId).socketsJoin(gameRoom.gameName);
   }
 
   // PRIVATE FUNCTIONS
@@ -520,15 +519,15 @@ export class GatewayService {
   }
 
   private async connectToGame(data: DTO.gameChannelDataI) {
-    const game = this.gameRooms.set(data.name, data).get(data.name);
+    const game = this.gameRooms.set(data.gameName, data).get(data.gameName);
     // send to users game info
     for (const el of this.connections.entries()) {
-      if (el[1].name == game.first || game.second === el[1].name) {
+      if (el[1].name == game.playerFirstName || game.playerSecondName === el[1].name) {
         el[1].inGame = true;
-        this.server.in(el[0]).socketsJoin(game.name);
+        this.server.in(el[0]).socketsJoin(game.gameName);
       }
     }
-    this.server.to(game.name).emit("connectToGame", game);
+    this.server.to(game.gameName).emit("connectToGame", game);
   }
 
   private async connectUserToChannels(socket: Socket) {
@@ -630,10 +629,9 @@ export class GatewayService {
         const first = this.readyToPlayUsers.pop();
         const second = this.readyToPlayUsers.pop();
         const game = {
-          name: first.name + second.name + "Game",
-          first: first.name,
-          second: second.name,
-          guests: [],
+          gameName: first.name + second.name + "Game",
+          playerFirstName: first.name,
+          playerSecondName: second.name,
         };
         this.connectToGame(game);
       }
