@@ -60,7 +60,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }, [canvasRef])
 
   useEffect(() => {
-    console.log("setstop", gameOngoing);
+    console.log("gameOngoing", gameOngoing);
   }, [gameOngoing])
 
 

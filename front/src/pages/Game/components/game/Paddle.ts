@@ -9,7 +9,10 @@ export enum ControlE {
 }
 
 class Paddle {
+  public static count = 0;
+  myNum : number;
   canvas: HTMLCanvasElement;
+  playerName: string;
   initX: number;
   initY: number;
   paddleX: number;
@@ -26,10 +29,14 @@ class Paddle {
   winScore: number;
   lastUpdateTime: number = Date.now();
 
-  constructor( game : Game,
+  constructor(
+    game: Game,
     isLeft: boolean,
-    control: ControlE
+    control: ControlE,
+    playerName: string = ""
   ) {
+    this.myNum = Ball.count++;
+    this.playerName = playerName;
     this.winScore = game.winScore;
     this.canvas = game.canvas;
     this.downPressed = false;
@@ -39,8 +46,10 @@ class Paddle {
     this.paddleOffsetX = game.paddleOffsetX;
     this.paddleSpeed = game.paddleSpeed;
     this.score = 0;
-    this.initX = isLeft ? this.paddleOffsetX : this.canvas.width - this.paddleHeight - this.paddleOffsetX;
-    this.initY =  (this.canvas.height - this.paddleWidth) / 2;
+    this.initX = isLeft
+      ? this.paddleOffsetX
+      : this.canvas.width - this.paddleHeight - this.paddleOffsetX;
+    this.initY = (this.canvas.height - this.paddleWidth) / 2;
     this.paddleX = this.initX;
     this.paddleY = this.initY;
     this.control = control;
@@ -63,10 +72,11 @@ class Paddle {
   }
 
   mouseMoveHandler(e: MouseEvent) {
-    let relativeY = e.clientY - this.canvas.offsetTop;
-    if (relativeY > 0 && relativeY < this.canvas.height - this.paddleHeight) {
+    const relativeY = e.clientY - this.canvas.offsetTop;
+    if (relativeY < 0) this.paddleY = 0;
+    else if (relativeY < this.canvas.height - this.paddleHeight)
       this.paddleY = relativeY;
-    }
+    else this.paddleY = this.canvas.height - this.paddleHeight;
   }
 
   drawPaddle(ctx: CanvasRenderingContext2D) {
@@ -114,7 +124,7 @@ class Paddle {
 
     ++this.score;
     console.log(this.score);
-    return (this.score >= this.winScore);
+    return this.score >= this.winScore;
   }
 
   reset() {

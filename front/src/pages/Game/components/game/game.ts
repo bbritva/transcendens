@@ -59,7 +59,7 @@ class Game {
     playerFirstName: "AlexaAI",
     playerSecondName: "SiriAI",
   };
-  ctx: CanvasRenderingContext2D | null = null;
+  private ctx: CanvasRenderingContext2D | null = null;
   canvas: HTMLCanvasElement;
   myRole: role;
   myName: string;
@@ -71,16 +71,16 @@ class Game {
   paddleWidth = 75;
   ballRadius = 10;
   paddleOffsetX = 2;
-  paddleSpeed = 0.5;
+  paddleSpeed = 0.45;
   ballSpeed = 0.5;
   // var camera = null;
   y: number = 0;
   handsMesh: Hands | null = null;
   camera: Camera | null = null;
 
-  rightPaddle : Paddle;
-  leftPaddle : Paddle;
-  ball : Ball;
+  private rightPaddle: Paddle;
+  private leftPaddle: Paddle;
+  private ball: Ball;
 
   private constructor(canvas: HTMLCanvasElement, myName: string) {
     Game.count++;
@@ -146,10 +146,10 @@ class Game {
     initialGameData: InitialGameDataI | null,
     setGameOngoing: Function | null
   ) {
-    if (!Game.setGameOngoing) Game.setGameOngoing = setGameOngoing;
     if (!Game.instance) {
       Game.instance = new Game(canvas, myName);
     }
+    if (!Game.setGameOngoing) Game.setGameOngoing = setGameOngoing;
     Game.instance.canvas = canvas;
     Game.instance.gameData = initialGameData
       ? initialGameData
@@ -161,8 +161,8 @@ class Game {
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext("2d");
     Game.instance.gameData = Game.instance.gameData
-    ? Game.instance.gameData
-    : Game.defaultGameData;
+      ? Game.instance.gameData
+      : Game.defaultGameData;
     if (Game.instance.gameData) {
       Game.instance.gameState = {
         gameName: Game.instance.gameData.gameName,
@@ -189,18 +189,28 @@ class Game {
         ? role.SECOND
         : role.SPECTATOR;
 
-      this.rightPaddle.reset();
-      this.rightPaddle.score = 0;
-      this.rightPaddle.control = (this.gameState.playerFirst.name == this.myName || this.gameState.playerSecond.name == this.myName)
-      ? ControlE.MOUSE
-      : this.gameState.playerFirst.name.endsWith("AI")
-      ? ControlE.AI
-      : ControlE.REMOTE;
-    this.leftPaddle.reset();
-    this.leftPaddle.score = 0;
-    this.leftPaddle.control = this.gameState.playerSecond.name.endsWith("AI")
+    this.rightPaddle.reset();
+    this.rightPaddle.playerName =
+      this.myRole == role.FIRST
+        ? Game.instance.gameData.playerFirstName
+        : Game.instance.gameData.playerSecondName;
+    this.rightPaddle.score = 0;
+    this.rightPaddle.control =
+      this.gameState.playerFirst.name == this.myName ||
+      this.gameState.playerSecond.name == this.myName
+        ? ControlE.MOUSE
+        : this.gameState.playerFirst.name.endsWith("AI")
         ? ControlE.AI
         : ControlE.REMOTE;
+    this.leftPaddle.reset();
+    this.leftPaddle.playerName =
+      this.myRole == role.FIRST
+        ? Game.instance.gameData.playerSecondName
+        : Game.instance.gameData.playerFirstName;
+    this.leftPaddle.score = 0;
+    this.leftPaddle.control = this.gameState.playerSecond.name.endsWith("AI")
+      ? ControlE.AI
+      : ControlE.REMOTE;
     this.ball.remote = this.myRole != role.FIRST;
     this.ball.reset(1);
 
@@ -255,30 +265,31 @@ class Game {
 
     // const bricks = new Bricks();
     // document.removeEventListener("keydown");
-    document.addEventListener(
-      "keydown",
-      (e) => {
-        this.leftPaddle.keyDownHandler(e);
-      },
-      false
-    );
-    document.addEventListener(
-      "keyup",
-      (e) => {
-        this.leftPaddle.keyUpHandler(e);
-      },
-      false
-    );
+    // document.addEventListener(
+    //   "keydown",
+    //   (e) => {
+    //     this.leftPaddle.keyDownHandler(e);
+    //   },
+    //   false
+    // );
+    // document.addEventListener(
+    //   "keyup",
+    //   (e) => {
+    //     this.leftPaddle.keyUpHandler(e);
+    //   },
+    //   false
+    // );
     if (this.myRole != role.SPECTATOR && this.gameState.gameName != "demo")
       document.addEventListener(
         "mousemove",
         (e) => {
-          this.rightPaddle.mouseMoveHandler(e);
+          if (this.rightPaddle.control === ControlE.MOUSE)
+            this.rightPaddle.mouseMoveHandler(e);
         },
         false
       );
     if (this.ctx) {
-      if (Game.setGameOngoing) Game.setGameOngoing(Game.isGameOngoing)
+      if (Game.setGameOngoing) Game.setGameOngoing(Game.isGameOngoing);
       Game.hasNewData = false;
       this.mainGameCycle(
         // bricks,
@@ -311,8 +322,14 @@ class Game {
     if (!this.canvas) return;
 
     if (this.myRole != role.FIRST) return;
-    this.gameState.ball.x = this.translateToPercent(this.canvas.width, this.ball.x);
-    this.gameState.ball.y = this.translateToPercent(this.canvas.height, this.ball.y);
+    this.gameState.ball.x = this.translateToPercent(
+      this.canvas.width,
+      this.ball.x
+    );
+    this.gameState.ball.y = this.translateToPercent(
+      this.canvas.height,
+      this.ball.y
+    );
     this.gameState.playerFirst.paddleY = this.translateToPercent(
       this.canvas.height,
       this.rightPaddle.paddleY
@@ -377,9 +394,9 @@ class Game {
     if (!this.canvas) return;
 
     if (this.gameState.gameName == "demo") {
-        this.rightPaddle.upPressed =
+      this.rightPaddle.upPressed =
         this.ball.speedX > 0 && this.rightPaddle.paddleY + 10 > this.ball.y;
-        this.rightPaddle.downPressed =
+      this.rightPaddle.downPressed =
         this.ball.speedX > 0 && this.rightPaddle.paddleY + 70 < this.ball.y;
       // } else this.rightPaddle.paddleY = this.canvas.height * this.y;
     }
@@ -389,9 +406,9 @@ class Game {
       this.gameState.gameName == "single" ||
       this.gameState.gameName == "demo"
     ) {
-        this.leftPaddle.upPressed =
+      this.leftPaddle.upPressed =
         this.ball.speedX < 0 && this.leftPaddle.paddleY + 10 > this.ball.y;
-        this.leftPaddle.downPressed =
+      this.leftPaddle.downPressed =
         this.ball.speedX < 0 && this.leftPaddle.paddleY + 70 < this.ball.y;
       // } else this.leftPaddle.paddleY = this.canvas.height * this.y;
     }
@@ -408,31 +425,29 @@ class Game {
       //check left side
       if (
         this.ball.x <
-        this.ball.ballRadius + this.leftPaddle.paddleOffsetX + this.leftPaddle.paddleHeight
+        this.ball.ballRadius +
+          this.leftPaddle.paddleOffsetX +
+          this.leftPaddle.paddleHeight
       ) {
         //try to hit left paddle
         if (!this.ball.hitPaddle(this.leftPaddle, true)) {
           if (this.ball.x < this.ball.ballRadius) {
-            console.log(this.ball.myNum, this.ball.x, this.ball.y);
-
             if (this.rightPaddle.makeScore()) {
               this.finishGame(this.rightPaddle.score, this.leftPaddle.score);
             }
+            this.ball.reset(-1);
           }
-          this.ball.reset(-1);
         }
       } else if (
         this.ball.x >
         this.canvas.width -
-        this.ball.ballRadius -
-        this.leftPaddle.paddleOffsetX -
-        this.leftPaddle.paddleHeight
+          this.ball.ballRadius -
+          this.leftPaddle.paddleOffsetX -
+          this.leftPaddle.paddleHeight
       ) {
         //try to hit right paddle
         if (!this.ball.hitPaddle(this.rightPaddle, false)) {
           if (this.ball.x > this.canvas.width - this.ball.ballRadius) {
-            console.log(this.ball.myNum, this.ball.x, this.ball.y);
-
             if (this.leftPaddle.makeScore()) {
               this.finishGame(this.rightPaddle.score, this.leftPaddle.score);
             }
@@ -443,10 +458,7 @@ class Game {
     }
   }
 
-  private draw(
-    canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D
-  ) {
+  private draw(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     this.drawBorder(ctx);
 
@@ -471,15 +483,13 @@ class Game {
     ctx.closePath();
   }
 
-  private drawScore(
-    ctx: CanvasRenderingContext2D,
-  ) {
+  private drawScore(ctx: CanvasRenderingContext2D) {
     if (!this.canvas) return;
 
     ctx.font = "16px Arial";
     ctx.fillStyle = "#0095DD";
     ctx.fillText(
-      `Score: ${this.gameState.playerSecond.name} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.gameState.playerFirst.name}`,
+      `Score: ${this.leftPaddle.playerName} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.rightPaddle.playerName}`,
       this.canvas.width / 2 - 70,
       20
     );
