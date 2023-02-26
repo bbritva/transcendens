@@ -1,13 +1,13 @@
 import { useStore } from "react-redux";
 import authService from "src/services/auth.service";
 import { RootState } from "src/store/store";
-import StyledBox, { styledBox } from "../BasicTable/StyledBox";
+import StyledBox, { styledBoxI } from "../BasicTable/StyledBox";
 import AccountButton from "./StyledButton";
 import GppGoodIcon from "@mui/icons-material/GppGood";
 import RemoveModeratorIcon from "@mui/icons-material/RemoveModerator";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 
-export interface buttonTableI extends styledBox {
+export interface buttonTableI extends styledBoxI {
   setOpen: Function;
   setUrlQR: Function;
   setSlideFriends: Function;

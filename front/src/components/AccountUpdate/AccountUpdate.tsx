@@ -11,12 +11,12 @@ import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
 import { useTheme } from "@mui/material";
 import { useAppDispatch } from "src/app/hooks";
-import StyledBox, { styledBox } from "../BasicTable/StyledBox";
+import StyledBox, { styledBoxI } from "../BasicTable/StyledBox";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import AccountButton from "./StyledButton";
 import CloudSyncIcon from "@mui/icons-material/CloudSync";
 
-export default function SignUp(props: styledBox) {
+export default function SignUp(props: styledBoxI) {
   const username = sessionStorage.getItem("username");
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
@@ -84,9 +84,6 @@ export default function SignUp(props: styledBox) {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
   }
-
-
-
 
   return (
     <StyledBox {...props}>

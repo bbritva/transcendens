@@ -10,8 +10,7 @@ import BasicTable, {
   settingsRowI,
 } from "src/components/BasicTable/BasicTable";
 import ButtonTable from "src/components/AccountUpdate/ButtonTable";
-import ChooseTwoFA from "src/components/AccountUpdate/ChooseTwoFA";
-
+import ChooseTwoFA, { twoFAdialogProps } from "src/components/AccountUpdate/ChooseTwoFA";
 import useEnableTwoFA from "src/hooks/useEnableTwoFA";
 import CloseIcon from "@mui/icons-material/Close";
 import StyledBox from "src/components/BasicTable/StyledBox";
@@ -53,16 +52,42 @@ const AccountPage: FC<any> = (): ReactElement => {
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
   const createFriendElem = (id: number, name: string): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu title={name} onLogout={() => {}}></BasicMenu>
+      <BasicMenu title={name} onLogout={() => { }}></BasicMenu>
     );
     return { id, button: FriendComponent };
   };
 
-  const MyTable = forwardRef(function MyTable(
+  const FriendsTableRef = forwardRef(function FriendsTableRef(
     props: basicTableI,
     ref: ForwardedRef<HTMLDivElement>
   ) {
     return <BasicTable myRef={ref} {...props} />;
+  });
+
+  const EnableTwoFaRef = forwardRef(function EnableTwoFaRef(
+    props: {
+      twoFAProps: twoFAdialogProps,
+      setOpen: Function
+    },
+    ref: ForwardedRef<HTMLDivElement>
+  ) {
+    return (<StyledBox
+      ref={ref}
+      flexDirection={"column"}
+      mybackcolor={theme.palette.info.main}
+    >
+      <IconButton
+        aria-label="close"
+        onClick={() => props.setOpen(false)}
+        sx={{
+          alignSelf: "end",
+          color: (theme) => theme.palette.grey[500],
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <ChooseTwoFA {...props.twoFAProps} />
+    </StyledBox>);
   });
 
   return (
@@ -98,7 +123,7 @@ const AccountPage: FC<any> = (): ReactElement => {
       {open ? (
         <Slide direction="right" in={open}>
           {slideFriends ? (
-            <MyTable
+            <FriendsTableRef
               title="Friends"
               tableHeadArray={null}
               mybackcolor={theme.palette.info.main}
@@ -110,22 +135,10 @@ const AccountPage: FC<any> = (): ReactElement => {
               }}
             />
           ) : (
-            <StyledBox
-              flexDirection={"column"}
-              mybackcolor={theme.palette.info.main}
-            >
-              <IconButton
-                aria-label="close"
-                onClick={() => setOpen(false)}
-                sx={{
-                  alignSelf: "end",
-                  color: (theme) => theme.palette.grey[500],
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-              <ChooseTwoFA {...twoFaProps} />
-            </StyledBox>
+            <EnableTwoFaRef
+              twoFAProps={twoFaProps}
+              setOpen={setOpen}
+            />
           )}
         </Slide>
       ) : (

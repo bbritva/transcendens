@@ -5,7 +5,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { IconButton, Typography } from "@mui/material";
-import StyledBox, { styledBox } from "./StyledBox";
+import StyledBox, { styledBoxI } from "./StyledBox";
 import { ForwardedRef, ReactNode } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -28,7 +28,7 @@ export interface settingsRowI extends rowI {
   button: ReactNode;
 }
 
-export interface basicTableI extends styledBox {
+export interface basicTableI extends styledBoxI {
   title: string;
   tableHeadArray: string[] | null;
   tableRowArray: rowI[];

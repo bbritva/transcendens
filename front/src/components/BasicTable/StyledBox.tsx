@@ -6,13 +6,13 @@ import { Box, BoxProps } from "@mui/material";
 // Add any additional props you want to use
 
 // Define the component using the props interface
-export interface styledBox extends BoxProps {
+export interface styledBoxI extends BoxProps {
   mybackcolor?: string;
   myalign?: string;
 }
 
 // Use the styled function to create a customized version of the component
-const StyledBox = styled(Box)<styledBox>(
+const StyledBox = styled(Box)<styledBoxI>(
   ({ theme, mybackcolor, myalign }: { theme: Theme; mybackcolor?: string; myalign?: string }) => {
     return {
       display: 'flex',
