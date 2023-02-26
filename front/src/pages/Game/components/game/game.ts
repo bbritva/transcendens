@@ -50,6 +50,7 @@ enum role {
 }
 
 class Game {
+
   private static instance: Game;
   private static count: number = 0;
   private static isPaused: boolean = false;
@@ -130,8 +131,15 @@ class Game {
   public static isGameOngoing(): boolean {
     return Game.instance.gameState.gameName != "demo";
   }
-  public static setPause(value : boolean) {
+  public static setPause(value: boolean) {
     Game.isPaused = value;
+  }
+
+  static getPaused(): any {
+    return {
+      gameName : Game.instance.gameState.gameName,
+      isPaused : Game.isPaused
+    }
   }
 
   public static startGame(
@@ -258,7 +266,6 @@ class Game {
           );
           this.leftPaddle.score = data.playerFirst.score;
           this.rightPaddle.score = data.playerSecond.score;
-          
         });
         socket.on("gameFinished", (result: GameResultDto) => {
           alert(`${result.winnerName} WINS`);

@@ -266,6 +266,13 @@ export class Gateway implements OnModuleInit {
     this.gatewayService.emitGameState(data);
   }
 
+  @SubscribeMessage("setPause")
+  async setPause(
+    @MessageBody() data:DTO.pauseGameI
+  ) {
+    this.server.to(data.gameName).emit("setPause", data);
+  }
+
   @SubscribeMessage("endGame")
   async onEndGame(
     @ConnectedSocket() socket: Socket,

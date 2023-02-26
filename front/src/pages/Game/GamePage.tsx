@@ -72,12 +72,22 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     console.log("useeff1");
 
     const canvas = canvasRef.current;
-    if (socket.connected) {
+    // if (socket.connected) {
       socket.off("gameLine");
       socket.on("gameLine", (data: gameLineI) => {
         setInLine(data.inLine);
+        console.log(data);
+        
       });
-    }
+      socket.off("setPause");
+      socket.on("setPause", (data: {isPaused : boolean}) => {
+        console.log(data);
+        
+        setIsPaused(data.isPaused);
+        Game.setPause(data.isPaused);
+      });
+
+    // }
   }, []);
 
   useEffect(() => {
@@ -108,9 +118,12 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     }
   }
 
+  
+
   function setPause() {
     Game.setPause(!isPaused);
     setIsPaused(!isPaused);
+    socket.emit("setPause", Game.getPaused());
   }
 
   function onChange(

@@ -103,6 +103,11 @@ export interface spectateGameI {
   gameName: string;
 }
 
+export interface pauseGameI {
+  gameName: string;
+  isPaused: boolean;
+}
+
 export interface gameLineI {
   inLine: boolean;
 }

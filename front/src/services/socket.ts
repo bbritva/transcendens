@@ -134,6 +134,10 @@ export function initSocket(
   }) => {
     console.log(data);
   });
+
+  socket.on("setPause", (data: {isPaused : boolean}) => {
+    console.log(data);
+  });
 }
 
 export default socket
