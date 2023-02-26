@@ -2,8 +2,9 @@ import Game from "./game";
 import Paddle from "./Paddle";
 
 class Ball {
+  private static instance: Ball;
   public static count = 0;
-  myNum : number;
+  myNum: number;
   canvas: HTMLCanvasElement;
   x: number;
   y: number;
@@ -16,9 +17,25 @@ class Ball {
   remoteY: number = 0;
   lastUpdateTime: number;
 
-  constructor( game :Game,
-       remote: boolean
-  ) {
+  public static getInstance(game: Game, remote: boolean) : Ball {
+    if (!Ball.instance) {
+      Ball.instance = new Ball(game, remote);
+    } else {
+      Ball.instance.canvas = game.canvas;
+      Ball.instance.x = Ball.instance.canvas.width / 2;
+      Ball.instance.y = Ball.instance.canvas.height / 2;
+      Ball.instance.remote = remote;
+      Ball.instance.ballSpeed = game.ballSpeed;
+      Ball.instance.speedX = -Ball.instance.ballSpeed;
+      Ball.instance.speedY = Ball.instance.ballSpeed;
+      Ball.instance.ballRadius = game.ballRadius;
+      Ball.instance.lastUpdateTime = Date.now();
+    }
+    return Ball.instance;
+
+  }
+
+  private constructor(game: Game, remote: boolean) {
     this.myNum = Ball.count++;
     this.canvas = game.canvas;
     this.x = this.canvas.width / 2;

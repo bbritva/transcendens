@@ -123,7 +123,7 @@ class Game {
         ? ControlE.AI
         : ControlE.REMOTE
     );
-    this.ball = new Ball(this, this.myRole != role.FIRST);
+    this.ball = Ball.getInstance(this, this.myRole != role.FIRST);
   }
 
   public static isGameOngoing(): boolean {
