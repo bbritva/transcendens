@@ -19,7 +19,7 @@ setSlideShow: Function
     async function enableTwoFA() {
         setOtpError(false);
         const userEnable = await authService.otpTurnOn(otpValue);
-        if (!userEnable?.isTwoFaEnabled) {
+        if (!userEnable?.isTwoFaEnabled || userEnable?.name === 'AxiosError') {
           setOtpError(true);
           return;
         }
@@ -32,7 +32,7 @@ setSlideShow: Function
       async function disableTwoFA() {
         setOtpError(false);
         const userDisable = await authService.otpTurnOff(otpValue);
-        if (userDisable.isTwoFaEnabled) {
+        if (userDisable?.isTwoFaEnabled || userDisable?.name === 'AxiosError') {
           setOtpError(true);
           return;
         }

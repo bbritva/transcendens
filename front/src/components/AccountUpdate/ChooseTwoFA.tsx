@@ -57,7 +57,6 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
       <TextField
         error={props.error}
         helperText={props.error ? "Wrong authentication code" : ""}
-        label={"otp code"}
         onChange={props.onChange}
         onKeyUp={(e) => {
           if (e.key === "Enter") props.onClick();

@@ -104,32 +104,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     return <BasicTable myRef={ref} {...props} />;
   });
 
-  const EnableTwoFaRef = forwardRef(function EnableTwoFaRef(
-    props: {
-      twoFAProps: twoFAdialogProps,
-      setOpen: Function
-    },
-    ref: ForwardedRef<HTMLDivElement>
-  ) {
-    return (<StyledBox
-      myalign="start"
-      ref={ref}
-      flexDirection={"column"}
-      mybackcolor={theme.palette.info.main}
-    >
-      <IconButton
-        aria-label="close"
-        onClick={() => props.setOpen(false)}
-        sx={{
-          alignSelf: "end",
-          color: (theme) => theme.palette.grey[500],
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <ChooseTwoFA {...props.twoFAProps} />
-    </StyledBox>);
-  });
+
   return (
     <Box
       component={Paper}
@@ -185,10 +160,23 @@ const AccountPage: FC<any> = (): ReactElement => {
               }}
             />
           ) : (
-            <EnableTwoFaRef
-              twoFAProps={twoFaProps}
-              setOpen={setOpen}
-            />
+            <StyledBox
+            myalign="start"
+            flexDirection={"column"}
+            mybackcolor={theme.palette.info.main}
+          >
+            <IconButton
+              aria-label="close"
+              onClick={() => setOpen(false)}
+              sx={{
+                alignSelf: "end",
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+            <ChooseTwoFA {...twoFaProps} />
+          </StyledBox>
           )}
         </Slide>
       }
