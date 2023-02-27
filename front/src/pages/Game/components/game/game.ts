@@ -27,6 +27,7 @@ export interface GameStateDataI {
   playerFirst: PlayerDataI;
   playerSecond: PlayerDataI;
   ball: { x: number; y: number };
+  isPaused : boolean;
 }
 
 enum role {
@@ -47,6 +48,7 @@ class Game {
     playerFirst : {name: "AlexaAI", score: 0, paddleY: 0},
     playerSecond : {name : "SiriAI", score: 0, paddleY: 0},
     ball: { x: 0, y: 0 },
+    isPaused : false,
   };
   private ctx: CanvasRenderingContext2D | null = null;
   canvas: HTMLCanvasElement;
@@ -105,6 +107,7 @@ class Game {
   }
   public static setPause(value: boolean) {
     Game.isPaused = value;
+    Game.instance.gameState.isPaused = value;
   }
 
   static getPaused(): any {
@@ -144,9 +147,6 @@ class Game {
   private initGame() {
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext("2d");
-    Game.instance.gameInitState = Game.instance.gameInitState
-      ? Game.instance.gameInitState
-      : Game.defaultGameData;
     if (Game.instance.gameInitState) {
       Game.instance.gameState = Game.instance.gameInitState;
     }
@@ -160,12 +160,12 @@ class Game {
         ? role.SECOND
         : role.SPECTATOR;
 
-    this.rightPaddle.reset();
+    this.rightPaddle.paddleY = this.gameState.playerFirst.paddleY ? this.rightPaddle.initY : this.gameState.playerFirst.paddleY;
     this.rightPaddle.playerName =
       this.myRole == role.FIRST
-        ? Game.instance.gameInitState.playerFirst.name
-        : Game.instance.gameInitState.playerSecond.name;
-    this.rightPaddle.score = 0;
+        ? Game.instance.gameState.playerFirst.name
+        : Game.instance.gameState.playerSecond.name;
+    this.rightPaddle.score = this.gameState.playerFirst.score;
     this.rightPaddle.control =
       this.gameState.playerFirst.name == this.myName ||
       this.gameState.playerSecond.name == this.myName
@@ -173,17 +173,18 @@ class Game {
         : this.gameState.playerFirst.name.endsWith("AI")
         ? ControlE.AI
         : ControlE.REMOTE;
-    this.leftPaddle.reset();
+    this.leftPaddle.paddleY = this.gameState.playerSecond.paddleY ? this.leftPaddle.initY : this.gameState.playerSecond.paddleY;
     this.leftPaddle.playerName =
       this.myRole == role.FIRST
-        ? Game.instance.gameInitState.playerSecond.name
-        : Game.instance.gameInitState.playerFirst.name;
-    this.leftPaddle.score = 0;
+        ? Game.instance.gameState.playerSecond.name
+        : Game.instance.gameState.playerFirst.name;
+    this.leftPaddle.score = this.gameState.playerSecond.score;
     this.leftPaddle.control = this.gameState.playerSecond.name.endsWith("AI")
       ? ControlE.AI
       : ControlE.REMOTE;
     this.ball.remote = this.myRole != role.FIRST;
     this.ball.reset(1);
+    Game.isPaused = this.gameState.isPaused;
 
     this.updateGameState();
 

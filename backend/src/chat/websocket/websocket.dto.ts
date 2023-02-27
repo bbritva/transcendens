@@ -90,6 +90,7 @@ export interface gameStateDataI {
   playerFirst: playerDataI;
   playerSecond: playerDataI;
   ball: { x: number; y: number };
+  isPaused : boolean;
 }
 
 export interface spectateGameI {

@@ -85,7 +85,10 @@ export class GatewayService {
         el.playerFirst.name == this.connections.get(socket.id).name ||
         el.playerSecond.name == this.connections.get(socket.id).name
       )
-        this.server.to(el.gameName).emit("setPause", { isPaused: true });
+        this.setPaused({
+          isPaused: true,
+          gameName: el.gameName,
+        });
     }
     this.connections.delete(socket.id);
   }
@@ -382,6 +385,7 @@ export class GatewayService {
       playerFirst: { name: data.sender, score: 0, paddleY: 0 },
       playerSecond: { name: acceptorName, score: 0, paddleY: 0 },
       ball: { x: 0, y: 0 },
+      isPaused: false,
     };
     this.connectToGame(game);
   }
@@ -479,7 +483,9 @@ export class GatewayService {
         gameRoom.playerFirst.score > gameRoom.playerSecond.score
           ? gameRoom.playerFirst.name
           : gameRoom.playerSecond.name;
-      this.server.to(data.gameName).emit("gameFinished", {winnerName : winnerName});
+      this.server
+        .to(data.gameName)
+        .emit("gameFinished", { winnerName: winnerName });
     }
     this.server.socketsLeave(data.gameName);
   }
@@ -537,6 +543,12 @@ export class GatewayService {
     this.server.to(socketId).emit("activeGames", activeGames);
   }
 
+  setPaused(data: DTO.pauseGameI) {
+    this.server.to(data.gameName).emit("setPause", data);
+    const gameRoom = this.gameRooms.get(data.gameName);
+    if (gameRoom) gameRoom.isPaused = data.isPaused;
+  }
+
   async connectSpectator(socketId: string, data: DTO.spectateGameI) {
     const gameRoom = this.gameRooms.get(data.gameName);
     this.server.to(socketId).emit("connectToGame", gameRoom);
@@ -584,7 +596,7 @@ export class GatewayService {
         el.playerSecond.name == client.name
       )
         this.server.to(socketId).emit("connectToGame", el);
-        this.server.in(socketId).socketsJoin(el.gameName);
+      this.server.in(socketId).socketsJoin(el.gameName);
     }
   }
 
@@ -691,6 +703,7 @@ export class GatewayService {
           playerFirst: { name: first.name, score: 0, paddleY: 0 },
           playerSecond: { name: second.name, score: 0, paddleY: 0 },
           ball: { x: 0, y: 0 },
+          isPaused: false,
         };
         this.connectToGame(game);
       }
