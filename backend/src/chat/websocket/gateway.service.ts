@@ -18,7 +18,7 @@ export class GatewayService {
     private readonly jwtService: JwtService
   ) {}
 
-  gameRooms: Map<string, DTO.gameChannelDataI> = new Map();
+  gameRooms: Map<string, DTO.gameStateDataI> = new Map();
   connections: Map<string, DTO.ClientInfo> = new Map();
   readyToPlayUsers: DTO.ClientInfo[] = [];
   server: Server;
@@ -57,6 +57,7 @@ export class GatewayService {
 
       //connect user to his channels
       this.connectUserToChannels(socket);
+      this.connectUserToGames(socket.id);
       return true;
     }
     this.server.emit("connectError", { message: "invalid username" });
@@ -79,6 +80,13 @@ export class GatewayService {
     this.readyToPlayUsers = this.readyToPlayUsers.filter(
       (user) => user.name != this.connections.get(socket.id).name
     );
+    for (const el of this.gameRooms.values()) {
+      if (
+        el.playerFirst.name == this.connections.get(socket.id).name ||
+        el.playerSecond.name == this.connections.get(socket.id).name
+      )
+        this.server.to(el.gameName).emit("setPause", { isPaused: true });
+    }
     this.connections.delete(socket.id);
   }
 
@@ -369,10 +377,11 @@ export class GatewayService {
 
   async startGame(socket: Socket, data: DTO.AcceptInviteI) {
     const acceptorName = this.connections.get(socket.id).name;
-    const game = {
+    const game: DTO.gameStateDataI = {
       gameName: data.sender + acceptorName + "Game",
-      playerFirstName: data.sender,
-      playerSecondName: acceptorName,
+      playerFirst: { name: data.sender, score: 0, paddleY: 0 },
+      playerSecond: { name: acceptorName, score: 0, paddleY: 0 },
+      ball: { x: 0, y: 0 },
     };
     this.connectToGame(game);
   }
@@ -423,7 +432,7 @@ export class GatewayService {
   }
 
   async emitGameState(data: DTO.gameStateDataI) {
-    this.gameRooms.get(data.gameName).gameState = data;
+    this.gameRooms.set(data.gameName, data);
     this.server.to(data.gameName).volatile.emit("gameState", data);
   }
 
@@ -492,7 +501,7 @@ export class GatewayService {
   }
 
   async getActiveGames(socketId: string) {
-    const activeGames: DTO.gameChannelDataI[] = [];
+    const activeGames: DTO.gameStateDataI[] = [];
     for (const el of this.gameRooms.values()) {
       activeGames.push(el);
     }
@@ -518,16 +527,31 @@ export class GatewayService {
     }
   }
 
-  private async connectToGame(data: DTO.gameChannelDataI) {
+  private async connectToGame(data: DTO.gameStateDataI) {
     const game = this.gameRooms.set(data.gameName, data).get(data.gameName);
     // send to users game info
     for (const el of this.connections.entries()) {
-      if (el[1].name == game.playerFirstName || game.playerSecondName === el[1].name) {
+      if (
+        el[1].name == game.playerFirst.name ||
+        game.playerSecond.name === el[1].name
+      ) {
         el[1].inGame = true;
         this.server.in(el[0]).socketsJoin(game.gameName);
       }
     }
     this.server.to(game.gameName).emit("connectToGame", game);
+  }
+
+  private async connectUserToGames(socketId: string) {
+    const client = this.connections.get(socketId);
+
+    for (const el of this.gameRooms.values()) {
+      if (
+        el.playerFirst.name == client.name ||
+        el.playerSecond.name == client.name
+      )
+        this.server.to(socketId).emit("connectToGame", el);
+    }
   }
 
   private async connectUserToChannels(socket: Socket) {
@@ -628,10 +652,11 @@ export class GatewayService {
       while (this.readyToPlayUsers.length > 1) {
         const first = this.readyToPlayUsers.pop();
         const second = this.readyToPlayUsers.pop();
-        const game = {
+        const game: DTO.gameStateDataI = {
           gameName: first.name + second.name + "Game",
-          playerFirstName: first.name,
-          playerSecondName: second.name,
+          playerFirst: { name: first.name, score: 0, paddleY: 0 },
+          playerSecond: { name: second.name, score: 0, paddleY: 0 },
+          ball: { x: 0, y: 0 },
         };
         this.connectToGame(game);
       }

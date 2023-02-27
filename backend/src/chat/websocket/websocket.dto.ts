@@ -92,13 +92,6 @@ export interface gameStateDataI {
   ball: { x: number; y: number };
 }
 
-export interface gameChannelDataI{
-  gameName: string;
-  playerFirstName: string;
-  playerSecondName: string;
-  gameState?: gameStateDataI
-}
-
 export interface spectateGameI {
   gameName: string;
 }

@@ -20,7 +20,7 @@ import PrivateRouteWrapper from "src/components/Authentication/PrivateRouteWrapp
 import { getAuthorizeHref } from 'src/utils/oauthConfig';
 import useAuth from "src/hooks/useAuth";
 import useTwoFA from "src/hooks/useTwoFA";
-import { InitialGameDataI } from "src/pages/Game/components/game/game";
+import { GameStateDataI } from "src/pages/Game/components/game/game";
 
 
 const theme = createTheme({
@@ -43,7 +43,7 @@ function App() {
   const isLoggedIn = useSelector(selectLoggedIn);
   const [userName, setUsername] = useState<string>('');
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
-  const [gameData, setGameData] = useState<InitialGameDataI | null>(null);
+  const [gameData, setGameData] = useState<GameStateDataI | null>(null);
 
   authHeader();
   authRefreshInterceptor();

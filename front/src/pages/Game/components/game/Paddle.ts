@@ -9,6 +9,8 @@ export enum ControlE {
 }
 
 class Paddle {
+  public static left: Paddle;
+  public static right: Paddle;
   public static count = 0;
   myNum : number;
   canvas: HTMLCanvasElement;
@@ -29,7 +31,61 @@ class Paddle {
   winScore: number;
   lastUpdateTime: number = Date.now();
 
-  constructor(
+  public static getLeftPaddle (
+    game: Game,
+    control: ControlE,
+    playerName: string = ""
+  ) : Paddle {
+    if (!Paddle.left) {
+      Paddle.left = new Paddle(game, true, control, playerName);
+    } else {
+      Paddle.left.playerName = playerName;
+      Paddle.left.winScore = game.winScore;
+      Paddle.left.canvas = game.canvas;
+      Paddle.left.downPressed = false;
+      Paddle.left.upPressed = false;
+      Paddle.left.paddleHeight = game.paddleHeight;
+      Paddle.left.paddleWidth = game.paddleWidth;
+      Paddle.left.paddleOffsetX = game.paddleOffsetX;
+      Paddle.left.paddleSpeed = game.paddleSpeed;
+      Paddle.left.score = 0;
+      Paddle.left.initX = Paddle.left.paddleOffsetX;
+      Paddle.left.initY = (Paddle.left.canvas.height - Paddle.left.paddleWidth) / 2;
+      Paddle.left.paddleX = Paddle.left.initX;
+      Paddle.left.paddleY = Paddle.left.initY;
+      Paddle.left.control = control;
+    }
+    return Paddle.left;
+  }
+
+  public static getRightPaddle (
+    game: Game,
+    control: ControlE,
+    playerName: string = ""
+  ) : Paddle {
+    if (!Paddle.right) {
+      Paddle.right = new Paddle(game, false, control, playerName);
+    } else {
+      Paddle.right.playerName = playerName;
+      Paddle.right.winScore = game.winScore;
+      Paddle.right.canvas = game.canvas;
+      Paddle.right.downPressed = false;
+      Paddle.right.upPressed = false;
+      Paddle.right.paddleHeight = game.paddleHeight;
+      Paddle.right.paddleWidth = game.paddleWidth;
+      Paddle.right.paddleOffsetX = game.paddleOffsetX;
+      Paddle.right.paddleSpeed = game.paddleSpeed;
+      Paddle.right.score = 0;
+      Paddle.right.initX = Paddle.right.paddleOffsetX;
+      Paddle.right.initY = (Paddle.right.canvas.height - Paddle.right.paddleWidth) / 2;
+      Paddle.right.paddleX = Paddle.right.initX;
+      Paddle.right.paddleY = Paddle.right.initY;
+      Paddle.right.control = control;
+    }
+    return Paddle.right;
+  }
+
+  private constructor(
     game: Game,
     isLeft: boolean,
     control: ControlE,

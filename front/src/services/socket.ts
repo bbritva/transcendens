@@ -1,7 +1,7 @@
 import { Dispatch } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
-import { InitialGameDataI } from 'src/pages/Game/components/game/game';
+import { GameStateDataI } from 'src/pages/Game/components/game/game';
 import { logout } from 'src/store/authActions';
 
 
@@ -124,7 +124,7 @@ export function initSocket(
     console.log("nameSuggestions", data);
   })
 
-  socket.on("activeGames",(data: InitialGameDataI[]) => {
+  socket.on("activeGames",(data: GameStateDataI[]) => {
     console.log("activeGames", data);
   })
 

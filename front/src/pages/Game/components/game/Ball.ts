@@ -32,7 +32,6 @@ class Ball {
       Ball.instance.lastUpdateTime = Date.now();
     }
     return Ball.instance;
-
   }
 
   private constructor(game: Game, remote: boolean) {

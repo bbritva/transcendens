@@ -8,7 +8,7 @@ import {
   TextField,
 } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
-import Game, { InitialGameDataI } from "./components/game/game";
+import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import socket from "src/services/socket";
 import { useStore } from "react-redux";
@@ -30,7 +30,7 @@ export interface gameLineI {
 }
 
 export interface GamePageProps {
-  gameData: InitialGameDataI | null;
+  gameData: GameStateDataI | null;
 }
 
 const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
@@ -101,7 +101,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     }
   }, [gameData]);
 
-  function startGame(gameData: InitialGameDataI) {
+  function startGame(gameData: GameStateDataI) {
     console.log("startGame", gameData);
 
     const canvas = canvasRef.current;
@@ -306,8 +306,9 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           onClick={() =>
             startGame({
               gameName: "single",
-              playerFirstName: testUsername || user.user?.name || "",
-              playerSecondName: singlePlayerOpponent,
+              playerFirst : { name: testUsername || user.user?.name || "", score: 0, paddleY: 0 },
+              playerSecond : {name: singlePlayerOpponent, score: 0, paddleY: 0 },
+              ball: { x: 0, y: 0 },
             })
           }
         />

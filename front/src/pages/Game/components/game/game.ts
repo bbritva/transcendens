@@ -37,12 +37,6 @@ export interface GameStateDataI {
   ball: { x: number; y: number };
 }
 
-export interface InitialGameDataI {
-  gameName: string;
-  playerFirstName: string;
-  playerSecondName: string;
-}
-
 enum role {
   FIRST,
   SECOND,
@@ -56,16 +50,17 @@ class Game {
   private static isPaused: boolean = false;
   private static hasNewData: boolean;
   private static setGameOngoing: Function | null;
-  private static defaultGameData: InitialGameDataI = {
+  private static defaultGameData: GameStateDataI = {
     gameName: "demo",
-    playerFirstName: "AlexaAI",
-    playerSecondName: "SiriAI",
+    playerFirst : {name: "AlexaAI", score: 0, paddleY: 0},
+    playerSecond : {name : "SiriAI", score: 0, paddleY: 0},
+    ball: { x: 0, y: 0 },
   };
   private ctx: CanvasRenderingContext2D | null = null;
   canvas: HTMLCanvasElement;
   myRole: role;
   myName: string;
-  gameData: InitialGameDataI | null = null;
+  gameInitState: GameStateDataI | null = null;
   gameState: GameStateDataI;
   webcamRef: React.RefObject<Webcam> | null;
   winScore = 200;
@@ -90,35 +85,20 @@ class Game {
     this.canvas = canvas;
     this.myName = myName;
     this.myRole = role.FIRST;
-    this.gameState = {
-      gameName: Game.defaultGameData.gameName,
-      playerFirst: {
-        name: Game.defaultGameData.playerFirstName,
-        score: 0,
-        paddleY: 0,
-      },
-      playerSecond: {
-        name: Game.defaultGameData.playerSecondName,
-        score: 0,
-        paddleY: 0,
-      },
-      ball: { x: 0, y: 0 },
-    };
+    this.gameState = Game.defaultGameData;
     this.webcamRef = null;
-    this.gameData = Game.defaultGameData;
+    // this.gameInitState = Game.defaultGameData;
 
-    this.rightPaddle = new Paddle(
+    this.rightPaddle = Paddle.getRightPaddle(
       this,
-      false,
       this.gameState.playerFirst.name == this.myName
         ? ControlE.MOUSE
         : this.gameState.playerFirst.name.endsWith("AI")
         ? ControlE.AI
         : ControlE.REMOTE
     );
-    this.leftPaddle = new Paddle(
+    this.leftPaddle = Paddle.getLeftPaddle(
       this,
-      true,
       this.gameState.playerSecond.name == this.myName
         ? ControlE.MOUSE
         : this.gameState.playerSecond.name.endsWith("AI")
@@ -145,7 +125,7 @@ class Game {
   public static startGame(
     canvas: HTMLCanvasElement,
     myName: string,
-    initialGameData: InitialGameDataI | null,
+    initialGameData: GameStateDataI | null,
     setGameOngoing: Function | null
   ) {
     Game.setGameData(canvas, myName, initialGameData, setGameOngoing);
@@ -155,7 +135,7 @@ class Game {
   public static setGameData(
     canvas: HTMLCanvasElement,
     myName: string,
-    initialGameData: InitialGameDataI | null,
+    initialGameData: GameStateDataI | null,
     setGameOngoing: Function | null
   ) {
     if (!Game.instance) {
@@ -163,7 +143,7 @@ class Game {
     }
     if (!Game.setGameOngoing) Game.setGameOngoing = setGameOngoing;
     Game.instance.canvas = canvas;
-    Game.instance.gameData = initialGameData
+    Game.instance.gameInitState = initialGameData
       ? initialGameData
       : Game.defaultGameData;
     Game.hasNewData = true;
@@ -172,24 +152,11 @@ class Game {
   private initGame() {
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext("2d");
-    Game.instance.gameData = Game.instance.gameData
-      ? Game.instance.gameData
+    Game.instance.gameInitState = Game.instance.gameInitState
+      ? Game.instance.gameInitState
       : Game.defaultGameData;
-    if (Game.instance.gameData) {
-      Game.instance.gameState = {
-        gameName: Game.instance.gameData.gameName,
-        playerFirst: {
-          name: Game.instance.gameData.playerFirstName,
-          score: 0,
-          paddleY: 0,
-        },
-        playerSecond: {
-          name: Game.instance.gameData.playerSecondName,
-          score: 0,
-          paddleY: 0,
-        },
-        ball: { x: 0, y: 0 },
-      };
+    if (Game.instance.gameInitState) {
+      Game.instance.gameState = Game.instance.gameInitState;
     }
     console.log(Game.count, Game.instance.gameState);
 
@@ -204,8 +171,8 @@ class Game {
     this.rightPaddle.reset();
     this.rightPaddle.playerName =
       this.myRole == role.FIRST
-        ? Game.instance.gameData.playerFirstName
-        : Game.instance.gameData.playerSecondName;
+        ? Game.instance.gameInitState.playerFirst.name
+        : Game.instance.gameInitState.playerSecond.name;
     this.rightPaddle.score = 0;
     this.rightPaddle.control =
       this.gameState.playerFirst.name == this.myName ||
@@ -217,8 +184,8 @@ class Game {
     this.leftPaddle.reset();
     this.leftPaddle.playerName =
       this.myRole == role.FIRST
-        ? Game.instance.gameData.playerSecondName
-        : Game.instance.gameData.playerFirstName;
+        ? Game.instance.gameInitState.playerSecond.name
+        : Game.instance.gameInitState.playerFirst.name;
     this.leftPaddle.score = 0;
     this.leftPaddle.control = this.gameState.playerSecond.name.endsWith("AI")
       ? ControlE.AI
@@ -534,7 +501,7 @@ class Game {
   }
 
   private finishGame(rightScore: number, leftScore: number) {
-    this.gameData = null;
+    this.gameInitState = null;
     Game.hasNewData = true;
     if (Game.setGameOngoing) {
       console.log("setGameOngoing in game");
