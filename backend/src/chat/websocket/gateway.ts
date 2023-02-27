@@ -36,6 +36,10 @@ export class Gateway implements OnModuleInit {
       });
       socket.on("disconnect", async () => {});
     });
+    this.server.of("/").adapter.on("delete-room", (room) => {
+      if (room.endsWith("Game")) 
+        this.gatewayService.removeGame(room);
+    });
   }
 
   @SubscribeMessage("connectToChannel")
@@ -275,10 +279,9 @@ export class Gateway implements OnModuleInit {
 
   @SubscribeMessage("endGame")
   async onEndGame(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: GameResultDto
+    @MessageBody() data: DTO.finishGameI
   ) {
-    this.gatewayService.addGameResult(socket, data);
+    this.gatewayService.finishGame(data);
   }
 
   @SubscribeMessage("getActiveGames")

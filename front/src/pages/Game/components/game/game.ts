@@ -16,14 +16,6 @@ export interface HandDataI {
   multiHandLandmarks: PointI[][];
 }
 
-export interface GameResultDto {
-  name: string;
-  winnerName: string;
-  loserName: string;
-  winnerScore: number;
-  loserScore: number;
-}
-
 export interface PlayerDataI {
   name: string;
   score: number;
@@ -234,7 +226,7 @@ class Game {
           this.leftPaddle.score = data.playerFirst.score;
           this.rightPaddle.score = data.playerSecond.score;
         });
-        socket.on("gameFinished", (result: GameResultDto) => {
+        socket.on("gameFinished", (result: {winnerName : string}) => {
           alert(`${result.winnerName} WINS`);
           if (Game.setGameOngoing) Game.setGameOngoing(false);
           socket.off("gameState");
@@ -413,7 +405,7 @@ class Game {
         if (!this.ball.hitPaddle(this.leftPaddle, true)) {
           if (this.ball.x < this.ball.ballRadius) {
             if (this.rightPaddle.makeScore()) {
-              this.finishGame(this.rightPaddle.score, this.leftPaddle.score);
+              this.finishGame();
             }
             this.ball.reset(-1);
           }
@@ -429,7 +421,7 @@ class Game {
         if (!this.ball.hitPaddle(this.rightPaddle, false)) {
           if (this.ball.x > this.canvas.width - this.ball.ballRadius) {
             if (this.leftPaddle.makeScore()) {
-              this.finishGame(this.rightPaddle.score, this.leftPaddle.score);
+              this.finishGame();
             }
             this.ball.reset(1);
           }
@@ -500,39 +492,14 @@ class Game {
       });
   }
 
-  private finishGame(rightScore: number, leftScore: number) {
+  private finishGame() {
     this.gameInitState = null;
     Game.hasNewData = true;
     if (Game.setGameOngoing) {
       console.log("setGameOngoing in game");
       Game.setGameOngoing(false);
     }
-    const result = this.emitGameResults(rightScore, leftScore);
-  }
-
-  private emitGameResults(
-    rightScore: number,
-    leftScore: number
-  ): GameResultDto {
-    let result: GameResultDto = {
-      name: Game.name,
-      winnerName: this.gameState.playerFirst.name,
-      loserName: this.gameState.playerSecond.name,
-      winnerScore: 10,
-      loserScore: leftScore,
-    };
-    if (leftScore > rightScore) {
-      result.winnerName = this.gameState.playerSecond.name;
-      result.loserName = this.gameState.playerFirst.name;
-      result.loserScore = rightScore;
-    }
-    if (
-      this.gameState.gameName != "single" &&
-      this.gameState.gameName != "demo"
-    )
-      socket.emit("endGame", result);
-    socket.off("paddleState");
-    return result;
+    socket.emit("endGame", {gameName: this.gameState.gameName});
   }
 }
 

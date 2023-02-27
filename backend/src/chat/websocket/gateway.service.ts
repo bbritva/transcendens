@@ -436,23 +436,52 @@ export class GatewayService {
     this.server.to(data.gameName).volatile.emit("gameState", data);
   }
 
-  async addGameResult(socket: Socket, data: GameResultDto) {
-    this.gameService
-      .addGame(data)
-      .then(() => {
-        this.connections.forEach((client: DTO.ClientInfo) => {
-          if (client.name == data.winnerName || client.name == data.loserName) {
-            client.inGame = false;
-          }
+  async addGameResult(data: DTO.finishGameI) {
+    const gameRoom = this.gameRooms.get(data.gameName);
+    if (gameRoom) {
+      const gameResults: GameResultDto = {
+        name: gameRoom.gameName,
+        winnerName: gameRoom.playerFirst.name,
+        loserName: gameRoom.playerSecond.name,
+        winnerScore: gameRoom.playerFirst.score,
+        loserScore: gameRoom.playerSecond.score,
+      };
+      if (gameRoom.playerFirst.score < gameRoom.playerSecond.score) {
+        gameResults.winnerName = gameRoom.playerSecond.name;
+        gameResults.loserName = gameRoom.playerFirst.name;
+        gameResults.winnerScore = gameRoom.playerSecond.score;
+        gameResults.loserScore = gameRoom.playerFirst.score;
+      }
+      this.gameService
+        .addGame(gameResults)
+        .then(() => {
+          this.connections.forEach((client: DTO.ClientInfo) => {
+            if (
+              client.name == gameResults.winnerName ||
+              client.name == gameResults.loserName
+            ) {
+              client.inGame = false;
+            }
+          });
+        })
+        .catch((e) => {
+          console.log("Exception", e.message);
+          // this.emitNotAllowed(socket.id, "endGame", data);
         });
-        this.server.to(data.name).emit("gameFinished", data);
-        this.gameRooms.delete(data.name);
-        this.server.socketsLeave(data.name);
-      })
-      .catch((e) => {
-        console.log("Exception", e.message);
-        this.emitNotAllowed(socket.id, "endGame", data);
-      });
+      this.gameRooms.delete(data.gameName);
+    }
+  }
+
+  async finishGame(data: DTO.finishGameI) {
+    const gameRoom = this.gameRooms.get(data.gameName);
+    if (gameRoom) {
+      const winnerName =
+        gameRoom.playerFirst.score > gameRoom.playerSecond.score
+          ? gameRoom.playerFirst.name
+          : gameRoom.playerSecond.name;
+      this.server.to(data.gameName).emit("gameFinished", {winnerName : winnerName});
+    }
+    this.server.socketsLeave(data.gameName);
   }
 
   async getUserStat(socketId: string, data: DTO.ManageUserI) {
@@ -514,6 +543,10 @@ export class GatewayService {
     this.server.in(socketId).socketsJoin(gameRoom.gameName);
   }
 
+  removeGame(room: string) {
+    this.addGameResult({ gameName: room });
+  }
+
   // PRIVATE FUNCTIONS
   private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
     try {
@@ -551,6 +584,7 @@ export class GatewayService {
         el.playerSecond.name == client.name
       )
         this.server.to(socketId).emit("connectToGame", el);
+        this.server.in(socketId).socketsJoin(el.gameName);
     }
   }
 
