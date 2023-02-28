@@ -249,7 +249,7 @@ class Game {
           if (!this.canvas) return;
 
           if (this.myRole == role.SPECTATOR) {
-            this.rightPaddle.remoteY = data.playerSecond.paddleY;
+            this.rightPaddle.remoteY = 1 - data.playerSecond.paddleY;
           }
           this.leftPaddle.remoteY = 1 - data.playerFirst.paddleY;
           this.ball.remoteX = 1 - data.ball.x;

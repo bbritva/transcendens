@@ -96,6 +96,9 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       // setGameOngoing(true);
       startGame(gameData);
       sessionStorage.setItem("game", "true");
+      if (gameData.isPaused != isPaused) {
+        setPause();
+      }
     } else {
       sessionStorage.setItem("game", "false");
     }
@@ -117,8 +120,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       }
     }
   }
-
-  
 
   function setPause() {
     Game.setPause(!isPaused);
