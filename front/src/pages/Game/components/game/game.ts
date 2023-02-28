@@ -241,7 +241,7 @@ class Game {
 
           this.leftPaddle.remoteY =
             this.leftPaddle.control == ControlE.REMOTE
-              ? this.translateFromPercent(this.canvas.height, data.paddleY)
+              ? 1 - data.paddleY
               : this.leftPaddle.initY;
         });
       } else {
@@ -249,23 +249,11 @@ class Game {
           if (!this.canvas) return;
 
           if (this.myRole == role.SPECTATOR) {
-            this.rightPaddle.remoteY = this.translateFromPercent(
-              this.canvas.height,
-              data.playerSecond.paddleY
-            );
+            this.rightPaddle.remoteY = data.playerSecond.paddleY;
           }
-          this.leftPaddle.remoteY = this.translateFromPercent(
-            this.canvas.height,
-            data.playerFirst.paddleY
-          );
-          this.ball.remoteX = this.translateFromPercent(
-            this.canvas.width,
-            data.ball.x
-          );
-          this.ball.remoteY = this.translateFromPercent(
-            this.canvas.height,
-            data.ball.y
-          );
+          this.leftPaddle.remoteY = 1 - data.playerFirst.paddleY;
+          this.ball.remoteX = 1 - data.ball.x;
+          this.ball.remoteY = 1 - data.ball.y;
           this.leftPaddle.score = data.playerFirst.score;
           this.rightPaddle.score = data.playerSecond.score;
         });
@@ -348,23 +336,11 @@ class Game {
     if (this.myRole != role.FIRST) return;
     this.gameState.ball.speedX = this.ball.speedX;
     this.gameState.ball.speedY = this.ball.speedY;
-    this.gameState.ball.x = this.translateToPercent(
-      this.canvas.width,
-      this.ball.x
-    );
-    this.gameState.ball.y = this.translateToPercent(
-      this.canvas.height,
-      this.ball.y
-    );
-    this.gameState.playerFirst.paddleY = this.translateToPercent(
-      this.canvas.height,
-      this.rightPaddle.paddleY
-    );
+    this.gameState.ball.x = this.ball.x;
+    this.gameState.ball.y = this.ball.y;
+    this.gameState.playerFirst.paddleY = this.rightPaddle.paddleY;
     this.gameState.playerFirst.score = this.rightPaddle.score;
-    this.gameState.playerSecond.paddleY = this.translateToPercent(
-      this.canvas.height,
-      this.leftPaddle.paddleY
-    );
+    this.gameState.playerSecond.paddleY = this.leftPaddle.paddleY;
     this.gameState.playerSecond.score = this.leftPaddle.score;
   }
 
@@ -521,14 +497,6 @@ class Game {
     );
   }
 
-  private translateToPercent(big: number, little: number) {
-    return little / big;
-  }
-
-  private translateFromPercent(big: number, percent: number) {
-    return big - big * percent;
-  }
-
   private emitData(paddle: Paddle) {
     if (
       !this.canvas ||
@@ -542,7 +510,7 @@ class Game {
     else if (this.myRole == role.SECOND)
       socket.volatile.emit("paddleState", {
         gameName: this.gameState.gameName,
-        paddleY: this.translateToPercent(this.canvas.height, paddle.paddleY),
+        paddleY: paddle.paddleY,
       });
   }
 
