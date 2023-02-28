@@ -12,7 +12,7 @@ class Ball {
   speedX: number;
   speedY: number;
   ballRadius: number;
-  ballSpeed: number;
+  speed: number;
   remoteX: number = 0;
   remoteY: number = 0;
   lastUpdateTime: number;
@@ -25,9 +25,9 @@ class Ball {
       Ball.instance.x = Ball.instance.canvas.width / 2;
       Ball.instance.y = Ball.instance.canvas.height / 2;
       Ball.instance.remote = remote;
-      Ball.instance.ballSpeed = game.ballSpeed;
-      Ball.instance.speedX = -Ball.instance.ballSpeed;
-      Ball.instance.speedY = Ball.instance.ballSpeed;
+      Ball.instance.speed = game.ballSpeed;
+      Ball.instance.speedX = -Ball.instance.speed;
+      Ball.instance.speedY = Ball.instance.speed;
       Ball.instance.ballRadius = game.ballRadius;
       Ball.instance.lastUpdateTime = Date.now();
     }
@@ -40,18 +40,18 @@ class Ball {
     this.x = this.canvas.width / 2;
     this.y = this.canvas.height / 2;
     this.remote = remote;
-    this.ballSpeed = game.ballSpeed;
-    this.speedX = -this.ballSpeed;
-    this.speedY = this.ballSpeed;
+    this.speed = game.ballSpeed;
+    this.speedX = -this.speed;
+    this.speedY = this.speed;
     this.ballRadius = game.ballRadius;
     this.lastUpdateTime = Date.now();
   }
 
   verticalCollision() {
     if (this.y + this.speedY > this.canvas.height - this.ballRadius)
-      this.speedY = -this.ballSpeed;
+      this.speedY = -this.speed;
     else if (this.y + this.speedY < this.ballRadius)
-      this.speedY = this.ballSpeed;
+      this.speedY = this.speed;
   }
 
   hitPaddle(paddle: Paddle, isLeft = false): boolean {
@@ -61,10 +61,10 @@ class Ball {
         this.speedY = 0;
         // this.speedX = 0;
         this.speedX =
-          (isLeft ? this.ballSpeed : -this.ballSpeed) * Math.sqrt(2);
+          (isLeft ? this.speed : -this.speed) * Math.sqrt(2);
       } else {
-        this.speedY = this.ballSpeed * -whereHit;
-        this.speedX = isLeft ? this.ballSpeed : -this.ballSpeed;
+        this.speedY = this.speed * -whereHit;
+        this.speedX = isLeft ? this.speed : -this.speed;
       }
       return true;
     }
@@ -85,7 +85,7 @@ class Ball {
       this.y = this.remoteY;
     } else {
       const now = Date.now();
-      const k = (now - this.lastUpdateTime) * this.ballSpeed;
+      const k = (now - this.lastUpdateTime) * this.speed;
       this.x += isPaused ? 0 : this.speedX * k;
       this.y += isPaused ? 0 : this.speedY * k;
       this.lastUpdateTime = now;
@@ -97,8 +97,8 @@ class Ball {
   reset(side: number) {
     this.y = this.canvas.height / 2;
     this.x = this.canvas.width / 2;
-    this.speedX = -this.ballSpeed * side;
-    this.speedY = this.ballSpeed * side;
+    this.speedX = -this.speed * side;
+    this.speedY = this.speed * side;
   }
 }
 

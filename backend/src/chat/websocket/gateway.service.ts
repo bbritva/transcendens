@@ -384,7 +384,7 @@ export class GatewayService {
       gameName: data.sender + acceptorName + "Game",
       playerFirst: { name: data.sender, score: 0, paddleY: 0 },
       playerSecond: { name: acceptorName, score: 0, paddleY: 0 },
-      ball: { x: 0, y: 0 },
+      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
       isPaused: false,
     };
     this.connectToGame(game);
@@ -551,8 +551,10 @@ export class GatewayService {
 
   async connectSpectator(socketId: string, data: DTO.spectateGameI) {
     const gameRoom = this.gameRooms.get(data.gameName);
-    this.server.to(socketId).emit("connectToGame", gameRoom);
-    this.server.in(socketId).socketsJoin(gameRoom.gameName);
+    if (gameRoom) {
+      this.server.to(socketId).emit("connectToGame", gameRoom);
+      this.server.in(socketId).socketsJoin(gameRoom.gameName);
+    } else this.emitNotAllowed(socketId, "spectateGame", data);
   }
 
   removeGame(room: string) {
@@ -702,7 +704,7 @@ export class GatewayService {
           gameName: first.name + second.name + "Game",
           playerFirst: { name: first.name, score: 0, paddleY: 0 },
           playerSecond: { name: second.name, score: 0, paddleY: 0 },
-          ball: { x: 0, y: 0 },
+          ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
           isPaused: false,
         };
         this.connectToGame(game);

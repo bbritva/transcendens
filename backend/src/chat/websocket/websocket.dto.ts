@@ -85,11 +85,18 @@ export interface playerDataI {
   paddleY: number;
 }
 
+export interface ballDataI{
+  x: number;
+  y: number ;
+  speedX: number;
+  speedY: number;
+}
+
 export interface gameStateDataI {
   gameName: string;
   playerFirst: playerDataI;
   playerSecond: playerDataI;
-  ball: { x: number; y: number };
+  ball: ballDataI;
   isPaused : boolean;
 }
 

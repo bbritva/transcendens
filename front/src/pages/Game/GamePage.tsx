@@ -308,7 +308,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
               gameName: "single",
               playerFirst : { name: testUsername || user.user?.name || "", score: 0, paddleY: 0 },
               playerSecond : {name: singlePlayerOpponent, score: 0, paddleY: 0 },
-              ball: { x: 0, y: 0 },
+              ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
               isPaused : false,
             })
           }

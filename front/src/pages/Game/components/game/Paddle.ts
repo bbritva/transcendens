@@ -1,5 +1,5 @@
 import Ball from "./Ball";
-import Game from "./game";
+import Game, { GameStateDataI } from "./game";
 
 export enum ControlE {
   REMOTE,
@@ -12,7 +12,7 @@ class Paddle {
   public static left: Paddle;
   public static right: Paddle;
   public static count = 0;
-  myNum : number;
+  myNum: number;
   canvas: HTMLCanvasElement;
   playerName: string;
   initX: number;
@@ -31,11 +31,11 @@ class Paddle {
   winScore: number;
   lastUpdateTime: number = Date.now();
 
-  public static getLeftPaddle (
+  public static getLeftPaddle(
     game: Game,
     control: ControlE,
     playerName: string = ""
-  ) : Paddle {
+  ): Paddle {
     if (!Paddle.left) {
       Paddle.left = new Paddle(game, true, control, playerName);
     } else {
@@ -50,7 +50,8 @@ class Paddle {
       Paddle.left.paddleSpeed = game.paddleSpeed;
       Paddle.left.score = 0;
       Paddle.left.initX = Paddle.left.paddleOffsetX;
-      Paddle.left.initY = (Paddle.left.canvas.height - Paddle.left.paddleWidth) / 2;
+      Paddle.left.initY =
+        (Paddle.left.canvas.height - Paddle.left.paddleWidth) / 2;
       Paddle.left.paddleX = Paddle.left.initX;
       Paddle.left.paddleY = Paddle.left.initY;
       Paddle.left.control = control;
@@ -58,11 +59,11 @@ class Paddle {
     return Paddle.left;
   }
 
-  public static getRightPaddle (
+  public static getRightPaddle(
     game: Game,
     control: ControlE,
     playerName: string = ""
-  ) : Paddle {
+  ): Paddle {
     if (!Paddle.right) {
       Paddle.right = new Paddle(game, false, control, playerName);
     } else {
@@ -77,7 +78,8 @@ class Paddle {
       Paddle.right.paddleSpeed = game.paddleSpeed;
       Paddle.right.score = 0;
       Paddle.right.initX = Paddle.right.paddleOffsetX;
-      Paddle.right.initY = (Paddle.right.canvas.height - Paddle.right.paddleWidth) / 2;
+      Paddle.right.initY =
+        (Paddle.right.canvas.height - Paddle.right.paddleWidth) / 2;
       Paddle.right.paddleX = Paddle.right.initX;
       Paddle.right.paddleY = Paddle.right.initY;
       Paddle.right.control = control;

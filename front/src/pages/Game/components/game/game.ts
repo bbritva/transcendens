@@ -22,11 +22,18 @@ export interface PlayerDataI {
   paddleY: number;
 }
 
+export interface ballDataI{
+  x: number;
+  y: number ;
+  speedX: number;
+  speedY: number;
+}
+
 export interface GameStateDataI {
   gameName: string;
   playerFirst: PlayerDataI;
   playerSecond: PlayerDataI;
-  ball: { x: number; y: number };
+  ball: ballDataI;
   isPaused : boolean;
 }
 
@@ -47,7 +54,7 @@ class Game {
     gameName: "demo",
     playerFirst : {name: "AlexaAI", score: 0, paddleY: 0},
     playerSecond : {name : "SiriAI", score: 0, paddleY: 0},
-    ball: { x: 0, y: 0 },
+    ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
     isPaused : false,
   };
   private ctx: CanvasRenderingContext2D | null = null;
@@ -160,34 +167,56 @@ class Game {
         ? role.SECOND
         : role.SPECTATOR;
 
-    this.rightPaddle.paddleY = this.gameState.playerFirst.paddleY ? this.rightPaddle.initY : this.gameState.playerFirst.paddleY;
-    this.rightPaddle.playerName =
-      this.myRole == role.FIRST
-        ? Game.instance.gameState.playerFirst.name
-        : Game.instance.gameState.playerSecond.name;
-    this.rightPaddle.score = this.gameState.playerFirst.score;
-    this.rightPaddle.control =
-      this.gameState.playerFirst.name == this.myName ||
-      this.gameState.playerSecond.name == this.myName
-        ? ControlE.MOUSE
-        : this.gameState.playerFirst.name.endsWith("AI")
-        ? ControlE.AI
-        : ControlE.REMOTE;
-    this.leftPaddle.paddleY = this.gameState.playerSecond.paddleY ? this.leftPaddle.initY : this.gameState.playerSecond.paddleY;
-    this.leftPaddle.playerName =
-      this.myRole == role.FIRST
-        ? Game.instance.gameState.playerSecond.name
-        : Game.instance.gameState.playerFirst.name;
-    this.leftPaddle.score = this.gameState.playerSecond.score;
-    this.leftPaddle.control = this.gameState.playerSecond.name.endsWith("AI")
-      ? ControlE.AI
-      : ControlE.REMOTE;
-    this.ball.remote = this.myRole != role.FIRST;
-    this.ball.reset(1);
+    this.initPaddles();
+    this.initBall();
+
     Game.isPaused = this.gameState.isPaused;
 
     this.updateGameState();
 
+    this.initSocketListeners();
+    this.initDocumentListeners();
+
+
+    if (this.ctx) {
+      if (Game.setGameOngoing) Game.setGameOngoing(Game.isGameOngoing);
+      Game.hasNewData = false;
+      this.mainGameCycle(
+        // bricks,
+        this.canvas,
+        this.ctx
+      );
+    }
+  }
+
+  private initDocumentListeners() {
+        // document.removeEventListener("keydown");
+    // document.addEventListener(
+    //   "keydown",
+    //   (e) => {
+    //     this.leftPaddle.keyDownHandler(e);
+    //   },
+    //   false
+    // );
+    // document.addEventListener(
+    //   "keyup",
+    //   (e) => {
+    //     this.leftPaddle.keyUpHandler(e);
+    //   },
+    //   false
+    // );
+    if (this.myRole != role.SPECTATOR && this.gameState.gameName != "demo")
+      document.addEventListener(
+        "mousemove",
+        (e) => {
+          if (this.rightPaddle.control === ControlE.MOUSE)
+            this.rightPaddle.mouseMoveHandler(e);
+        },
+        false
+      );
+  }
+
+  private initSocketListeners() {
     if (socket.connected) {
       socket.off("paddleState");
       socket.off("gameState");
@@ -235,41 +264,39 @@ class Game {
         });
       }
     }
+  }
 
-    // const bricks = new Bricks();
-    // document.removeEventListener("keydown");
-    // document.addEventListener(
-    //   "keydown",
-    //   (e) => {
-    //     this.leftPaddle.keyDownHandler(e);
-    //   },
-    //   false
-    // );
-    // document.addEventListener(
-    //   "keyup",
-    //   (e) => {
-    //     this.leftPaddle.keyUpHandler(e);
-    //   },
-    //   false
-    // );
-    if (this.myRole != role.SPECTATOR && this.gameState.gameName != "demo")
-      document.addEventListener(
-        "mousemove",
-        (e) => {
-          if (this.rightPaddle.control === ControlE.MOUSE)
-            this.rightPaddle.mouseMoveHandler(e);
-        },
-        false
-      );
-    if (this.ctx) {
-      if (Game.setGameOngoing) Game.setGameOngoing(Game.isGameOngoing);
-      Game.hasNewData = false;
-      this.mainGameCycle(
-        // bricks,
-        this.canvas,
-        this.ctx
-      );
-    }
+  private initPaddles() {
+    this.rightPaddle.paddleY = this.gameState.playerFirst.paddleY ? this.rightPaddle.initY : this.gameState.playerFirst.paddleY;
+    this.rightPaddle.playerName =
+      this.myRole == role.FIRST
+        ? Game.instance.gameState.playerFirst.name
+        : Game.instance.gameState.playerSecond.name;
+    this.rightPaddle.score = this.gameState.playerFirst.score;
+    this.rightPaddle.control =
+      this.gameState.playerFirst.name == this.myName ||
+      this.gameState.playerSecond.name == this.myName
+        ? ControlE.MOUSE
+        : this.gameState.playerFirst.name.endsWith("AI")
+        ? ControlE.AI
+        : ControlE.REMOTE;
+    this.leftPaddle.paddleY = this.gameState.playerSecond.paddleY ? this.leftPaddle.initY : this.gameState.playerSecond.paddleY;
+    this.leftPaddle.playerName =
+      this.myRole == role.FIRST
+        ? Game.instance.gameState.playerSecond.name
+        : Game.instance.gameState.playerFirst.name;
+    this.leftPaddle.score = this.gameState.playerSecond.score;
+    this.leftPaddle.control = this.gameState.playerSecond.name.endsWith("AI")
+      ? ControlE.AI
+      : ControlE.REMOTE;
+  }
+
+  private initBall() {
+    this.ball.remote = this.myRole != role.FIRST;
+    this.ball.x = this.gameState.ball.x ? this.translateFromPercent(this.canvas.width, this.gameState.ball.x) : this.canvas.width / 2;
+    this.ball.y = this.gameState.ball.y ? this.translateFromPercent(this.canvas.height, this.gameState.ball.y) : this.canvas.height / 2;
+    this.ball.speedX = this.gameState.ball.speedX ? this.gameState.ball.speedX : this.ball.speed;
+    this.ball.speedY = this.gameState.ball.speedY ? this.gameState.ball.speedY : -this.ball.speed;
   }
 
   private mainGameCycle(
@@ -295,6 +322,8 @@ class Game {
     if (!this.canvas) return;
 
     if (this.myRole != role.FIRST) return;
+    this.gameState.ball.speedX = this.ball.speedX;
+    this.gameState.ball.speedY = this.ball.speedY;
     this.gameState.ball.x = this.translateToPercent(
       this.canvas.width,
       this.ball.x
