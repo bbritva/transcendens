@@ -56,10 +56,9 @@ class Ball {
   }
 
   hitPaddle(paddle: Paddle, isLeft = false): boolean {
-    const whereHit = paddle.ballCollision(this);
+    const whereHit = paddle.ballCollision(this, isLeft);
     if (whereHit) {
-      console.log("where hit", whereHit);
-      if (whereHit == 2) {
+      if (whereHit == 3) {
         this.speedY = 0;
         // this.speedX = 0;
         this.speedX = (isLeft ? this.speedH : -this.speedH) * Math.sqrt(2);

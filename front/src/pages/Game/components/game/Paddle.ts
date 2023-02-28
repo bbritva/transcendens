@@ -34,7 +34,7 @@ class Paddle {
     playerName: string = ""
   ): Paddle {
     if (!Paddle.left) {
-      Paddle.left = new Paddle(gameProps, true, control, playerName);
+      Paddle.left = new Paddle(gameProps, control, playerName);
     } else {
       Paddle.left.playerName = playerName;
       Paddle.left.winScore = gameProps.winScore;
@@ -58,7 +58,7 @@ class Paddle {
     playerName: string = ""
   ): Paddle {
     if (!Paddle.right) {
-      Paddle.right = new Paddle(gameProps, false, control, playerName);
+      Paddle.right = new Paddle(gameProps, control, playerName);
     } else {
       Paddle.right.playerName = playerName;
       Paddle.right.winScore = gameProps.winScore;
@@ -78,7 +78,6 @@ class Paddle {
 
   private constructor(
     gameProps: gameBasicPropsI,
-    isLeft: boolean,
     control: ControlE,
     playerName: string = ""
   ) {
@@ -114,16 +113,20 @@ class Paddle {
   }
 
   mouseMoveHandler(e: MouseEvent, canvas: HTMLCanvasElement) {
-    const relativeY = (e.clientY - canvas.offsetTop) / canvas.height - this.paddleWidth / 2;
+    const relativeY =
+      (e.clientY - canvas.offsetTop) / canvas.height - this.paddleWidth / 2;
     if (relativeY < this.paddleY / 2) this.paddleY = 0;
-    else if (relativeY < 1 - this.paddleWidth)
-      this.paddleY = relativeY;
+    else if (relativeY < 1 - this.paddleWidth) this.paddleY = relativeY;
     else this.paddleY = 1 - this.paddleWidth;
   }
 
   drawPaddle(ctx: CanvasRenderingContext2D, isLeft: boolean) {
     ctx.beginPath();
-    const x = isLeft ? this.paddleOffset : ctx.canvas.width - this.paddleOffset - ctx.canvas.width * this.paddleHeight;
+    const x = isLeft
+      ? this.paddleOffset
+      : ctx.canvas.width -
+        this.paddleOffset -
+        ctx.canvas.width * this.paddleHeight;
     ctx.rect(
       x,
       this.paddleY * ctx.canvas.height,
@@ -153,10 +156,7 @@ class Paddle {
         const now = Date.now();
         const k = (now - this.lastUpdateTime) * this.paddleSpeed;
         this.lastUpdateTime = now;
-        if (
-          this.downPressed &&
-          this.paddleY < 1 - this.paddleWidth
-        ) {
+        if (this.downPressed && this.paddleY < 1 - this.paddleWidth) {
           this.paddleY += this.paddleSpeed * k;
         } else if (this.upPressed && this.paddleY > 0) {
           this.paddleY -= this.paddleSpeed * k;
@@ -166,12 +166,14 @@ class Paddle {
     }
   }
 
-  ballCollision(ball: Ball): number {
-    const hit = ball.y - this.paddleY;
-    if (hit < 0 || hit > this.paddleWidth) return 0;
-    if (hit < this.paddleWidth / 3) return 1;
-    if (hit < (2 * this.paddleWidth) / 3) return 2;
-    if (hit < this.paddleWidth) return -1;
+  ballCollision(ball: Ball, isLeft: boolean): number {
+    const paddleX = isLeft ? this.paddleHeight : 1 - this.paddleHeight;
+    const hitY =
+      ball.y + (ball.speedY * (paddleX - ball.x)) / ball.speedX - this.paddleY;
+    if (hitY < 0 || hitY > this.paddleWidth) return 0;
+    if (hitY < this.paddleWidth / 3) return 1;
+    if (hitY < (2 * this.paddleWidth) / 3) return 3;
+    if (hitY < this.paddleWidth) return -1;
     return 0;
   }
 

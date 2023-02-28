@@ -7,14 +7,14 @@ import { Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
 
 const gameBasicProps = {
-  screenRatio: 2 / 1,
+  screenRatio: 3 / 2,
   winScore: 200,
-  paddleHeight: 0.005,
+  paddleHeight: 0.015,
   paddleWidth: 0.2,
   paddleOffset: 3,
-  paddleSpeed: 0.02,
-  ballRadius: 0.01,
-  ballSpeed: 0.02,
+  paddleSpeed: 0.023,
+  ballRadius: 0.015,
+  ballSpeed: 0.023,
 };
 
 export interface gameBasicPropsI {
@@ -450,7 +450,7 @@ class Game {
       this.ball.verticalCollision();
       //check left side
       if (
-        this.ball.x <
+        this.ball.x + this.ball.speedX * 0.2 <
         this.ball.ballRadius +
           this.leftPaddle.paddleHeight
       ) {
@@ -464,7 +464,7 @@ class Game {
           }
         }
       } else if (
-        this.ball.x  >
+        this.ball.x + this.ball.speedX * 0.2 >
         1 -
           this.ball.ballRadius -
           this.leftPaddle.paddleHeight
