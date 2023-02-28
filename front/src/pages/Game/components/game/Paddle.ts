@@ -1,5 +1,5 @@
 import Ball from "./Ball";
-import Game, { GameStateDataI } from "./game";
+import { gameBasicPropsI } from "./game";
 
 export enum ControlE {
   REMOTE,
@@ -13,16 +13,13 @@ class Paddle {
   public static right: Paddle;
   public static count = 0;
   myNum: number;
-  canvas: HTMLCanvasElement;
   playerName: string;
-  initX: number;
   initY: number;
-  paddleX: number;
   paddleY: number;
   paddleHeight: number;
   paddleWidth: number;
   paddleSpeed: number;
-  paddleOffsetX: number;
+  paddleOffset: number;
   score: number;
   control: ControlE;
   downPressed: boolean;
@@ -32,27 +29,23 @@ class Paddle {
   lastUpdateTime: number = Date.now();
 
   public static getLeftPaddle(
-    game: Game,
+    gameProps: gameBasicPropsI,
     control: ControlE,
     playerName: string = ""
   ): Paddle {
     if (!Paddle.left) {
-      Paddle.left = new Paddle(game, true, control, playerName);
+      Paddle.left = new Paddle(gameProps, true, control, playerName);
     } else {
       Paddle.left.playerName = playerName;
-      Paddle.left.winScore = game.winScore;
-      Paddle.left.canvas = game.canvas;
+      Paddle.left.winScore = gameProps.winScore;
       Paddle.left.downPressed = false;
       Paddle.left.upPressed = false;
-      Paddle.left.paddleHeight = game.paddleHeight;
-      Paddle.left.paddleWidth = game.paddleWidth;
-      Paddle.left.paddleOffsetX = game.paddleOffsetX;
-      Paddle.left.paddleSpeed = game.paddleSpeed;
+      Paddle.left.paddleHeight = gameProps.paddleHeight;
+      Paddle.left.paddleWidth = gameProps.paddleWidth;
+      Paddle.left.paddleOffset = gameProps.paddleOffset;
+      Paddle.left.paddleSpeed = gameProps.paddleSpeed;
       Paddle.left.score = 0;
-      Paddle.left.initX = Paddle.left.paddleOffsetX;
-      Paddle.left.initY =
-        (Paddle.left.canvas.height - Paddle.left.paddleWidth) / 2;
-      Paddle.left.paddleX = Paddle.left.initX;
+      Paddle.left.initY = 0.5;
       Paddle.left.paddleY = Paddle.left.initY;
       Paddle.left.control = control;
     }
@@ -60,27 +53,23 @@ class Paddle {
   }
 
   public static getRightPaddle(
-    game: Game,
+    gameProps: gameBasicPropsI,
     control: ControlE,
     playerName: string = ""
   ): Paddle {
     if (!Paddle.right) {
-      Paddle.right = new Paddle(game, false, control, playerName);
+      Paddle.right = new Paddle(gameProps, false, control, playerName);
     } else {
       Paddle.right.playerName = playerName;
-      Paddle.right.winScore = game.winScore;
-      Paddle.right.canvas = game.canvas;
+      Paddle.right.winScore = gameProps.winScore;
       Paddle.right.downPressed = false;
       Paddle.right.upPressed = false;
-      Paddle.right.paddleHeight = game.paddleHeight;
-      Paddle.right.paddleWidth = game.paddleWidth;
-      Paddle.right.paddleOffsetX = game.paddleOffsetX;
-      Paddle.right.paddleSpeed = game.paddleSpeed;
+      Paddle.right.paddleHeight = gameProps.paddleHeight;
+      Paddle.right.paddleWidth = gameProps.paddleWidth;
+      Paddle.right.paddleOffset = gameProps.paddleOffset;
+      Paddle.right.paddleSpeed = gameProps.paddleSpeed;
       Paddle.right.score = 0;
-      Paddle.right.initX = Paddle.right.paddleOffsetX;
-      Paddle.right.initY =
-        (Paddle.right.canvas.height - Paddle.right.paddleWidth) / 2;
-      Paddle.right.paddleX = Paddle.right.initX;
+      Paddle.right.initY = 0.5;
       Paddle.right.paddleY = Paddle.right.initY;
       Paddle.right.control = control;
     }
@@ -88,27 +77,22 @@ class Paddle {
   }
 
   private constructor(
-    game: Game,
+    gameProps: gameBasicPropsI,
     isLeft: boolean,
     control: ControlE,
     playerName: string = ""
   ) {
     this.myNum = Ball.count++;
     this.playerName = playerName;
-    this.winScore = game.winScore;
-    this.canvas = game.canvas;
+    this.winScore = gameProps.winScore;
     this.downPressed = false;
     this.upPressed = false;
-    this.paddleHeight = game.paddleHeight;
-    this.paddleWidth = game.paddleWidth;
-    this.paddleOffsetX = game.paddleOffsetX;
-    this.paddleSpeed = game.paddleSpeed;
+    this.paddleHeight = gameProps.paddleHeight;
+    this.paddleWidth = gameProps.paddleWidth;
+    this.paddleOffset = gameProps.paddleOffset;
+    this.paddleSpeed = gameProps.paddleSpeed;
     this.score = 0;
-    this.initX = isLeft
-      ? this.paddleOffsetX
-      : this.canvas.width - this.paddleHeight - this.paddleOffsetX;
-    this.initY = (this.canvas.height - this.paddleWidth) / 2;
-    this.paddleX = this.initX;
+    this.initY = 0.5 - gameProps.paddleWidth / 2;
     this.paddleY = this.initY;
     this.control = control;
   }
@@ -129,21 +113,35 @@ class Paddle {
     }
   }
 
-  mouseMoveHandler(e: MouseEvent) {
-    const relativeY = e.clientY - this.canvas.offsetTop;
-    if (relativeY < 0) this.paddleY = 0;
-    else if (relativeY < this.canvas.height - this.paddleHeight)
+  mouseMoveHandler(e: MouseEvent, canvas: HTMLCanvasElement) {
+    const relativeY = (e.clientY - canvas.offsetTop) / canvas.height - this.paddleWidth / 2;
+    if (relativeY < this.paddleY / 2) this.paddleY = 0;
+    else if (relativeY < 1 - this.paddleWidth)
       this.paddleY = relativeY;
-    else this.paddleY = this.canvas.height - this.paddleHeight;
+    else this.paddleY = 1 - this.paddleWidth;
   }
 
-  drawPaddle(ctx: CanvasRenderingContext2D) {
+  drawPaddle(ctx: CanvasRenderingContext2D, isLeft: boolean) {
     ctx.beginPath();
-    ctx.rect(this.paddleX, this.paddleY, this.paddleHeight, this.paddleWidth);
+    const x = isLeft ? this.paddleOffset : ctx.canvas.width - this.paddleOffset - ctx.canvas.width * this.paddleHeight;
+    ctx.rect(
+      x,
+      this.paddleY * ctx.canvas.height,
+      this.paddleHeight * ctx.canvas.width,
+      this.paddleWidth * ctx.canvas.height
+    );
     ctx.fillStyle = "#0096DD";
     ctx.fill();
     ctx.closePath();
   }
+
+  // static drawPaddles(ctx: CanvasRenderingContext2D) {
+  //   ctx.beginPath();
+  //   ctx.rect(this.paddleX, this.paddleY, this.paddleHeight, this.paddleWidth);
+  //   ctx.fillStyle = "#0096DD";
+  //   ctx.fill();
+  //   ctx.closePath();
+  // }
 
   movePaddle() {
     switch (this.control) {
@@ -157,7 +155,7 @@ class Paddle {
         this.lastUpdateTime = now;
         if (
           this.downPressed &&
-          this.paddleY < this.canvas.height - this.paddleWidth
+          this.paddleY < 1 - this.paddleWidth
         ) {
           this.paddleY += this.paddleSpeed * k;
         } else if (this.upPressed && this.paddleY > 0) {
