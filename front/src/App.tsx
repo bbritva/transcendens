@@ -41,8 +41,8 @@ const theme = createTheme({
     fontFamily: 'Raleway, Arial',
     fontSize: 16, //px or rem
     h4: {
-      fontSize: 32,
-      color: 'red',
+      fontSize: 16,
+      color: 'primary',
     },
   },
 });

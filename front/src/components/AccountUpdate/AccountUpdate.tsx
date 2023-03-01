@@ -87,7 +87,7 @@ export default function SignUp(props: styledBoxI) {
 
   return (
     <StyledBox {...props}>
-      <CssBaseline />
+      {/* <CssBaseline /> */}
       <Box
         sx={{
           display: "flex",
@@ -96,7 +96,7 @@ export default function SignUp(props: styledBoxI) {
         }}
       >
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
+          <Grid container >
             <Box overflow='hidden' display={'flex'} maxHeight="20vh" maxWidth={"100%"} justifyContent='center'>
               <Box
                 component={'img'}
@@ -123,7 +123,7 @@ export default function SignUp(props: styledBoxI) {
                 /> */}
               {/* </Button>
             </Grid> */}
-            <Grid item xs={12} display="flex" alignItems="flex-start">
+            <Grid item xs={11} display="flex" alignItems="flex-start" marginTop={3}>
               <AlternateEmailIcon
                 fontSize="large"
                 sx={{ color: theme.palette.primary.dark, mr: 1, my: 1.5 }}
