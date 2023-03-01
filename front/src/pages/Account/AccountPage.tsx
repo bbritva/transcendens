@@ -114,6 +114,9 @@ const AccountPage: FC<any> = (): ReactElement => {
       flexWrap="wrap"
       sx={{
         backgroundColor: theme.palette.secondary.light,
+        // fontSize: theme.typography.fontSize,
+        // fontFamily: theme.typography.fontFamily,
+        // color: theme.palette.primary.dark,
         width: "65vw",
         height: "90vh",
         overflow: "scroll",
@@ -129,7 +132,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     >
       <SignUp myalign="end"/>
       <BasicTable
-        title="Player stats"
+        title="PLAYER STATISTICS"
         tableHeadArray={null}
         tableRowArray={playerRows}
         mybackcolor={theme.palette.info.main}
@@ -151,9 +154,9 @@ const AccountPage: FC<any> = (): ReactElement => {
               myalign="start"
               flexDirection={"column"}
               tableRowArray={[
-                createFriendElem(111, "Vasya"),
-                createFriendElem(1112, "Vasya2"),
-                createFriendElem(1113, "Vasya3"),
+                createFriendElem(111, "tphung"),
+                createFriendElem(1112, "grvelva"),
+                createFriendElem(1113, "abelosev"),
               ]}
               onClose={() => {
                 setOpen(false);
@@ -192,7 +195,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         />
       )}
       <BasicTable
-        title="Match history"
+        title="MATCH HISTORY"
         tableHeadArray={header}
         tableRowArray={historyRows}
         mybackcolor={theme.palette.primary.main}

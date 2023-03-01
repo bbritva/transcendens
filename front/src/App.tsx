@@ -25,7 +25,10 @@ import useTwoFA from "src/hooks/useTwoFA";
 const theme = createTheme({
   palette: {
     primary: {
+      //light 
       main: '#56a2b8',
+      //dark
+      // contrastText: '#ffcc00',
     },
     secondary: {
       main: '#ecebd9',
@@ -34,7 +37,74 @@ const theme = createTheme({
       main: '#8bd4d1'
     }
   },
+  typography: {
+    fontFamily: 'Raleway, Arial',
+    fontSize: 16, //px or rem
+    h4: {
+      fontSize: 32,
+      color: 'red',
+    },
+  },
 });
+
+// const theme = createTheme({
+//   // typography: {
+//     poster: {
+//       fontSize: 64,
+//       color: 'red',
+//     },
+
+
+// Variants
+// The typography object comes with 13 variants by default:
+
+// h1
+// h2
+// h3
+// h4
+// h5
+// h6
+// subtitle1
+// subtitle2
+// body1
+// body2
+// button
+// caption
+// overline
+
+
+// import { useTheme } from '@mui/material/styles';
+
+// function DeepChild() {
+//   const theme = useTheme();
+//   return <span>{`spacing ${theme.spacing}`}</span>;
+// }
+
+// const theme = createTheme();
+
+// theme.typography.h3 = {
+//   fontSize: '1.2rem',
+//   '@media (min-width:600px)': {
+//     fontSize: '1.5rem',
+//   },
+//   [theme.breakpoints.up('md')]: {
+//     fontSize: '2.4rem',
+//   },
+// };
+
+// const theme = createTheme({
+//   typography: {
+//     subtitle1: {
+//       fontSize: 12,
+//     },
+//     body1: {
+//       fontWeight: 500,
+//     },
+//     button: {
+//       fontStyle: 'italic',
+//     },
+//   },
+// });
 
 function App() {
   const { getState } = useStore();
