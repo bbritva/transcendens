@@ -34,6 +34,7 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
   return (
     <>
       <StyledNavButton
+        showonxs
         id="basic-button"
         aria-controls={open ? "basic-menu" : undefined}
         aria-haspopup="true"

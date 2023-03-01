@@ -81,7 +81,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
             }
 
             fail={() => (
-              <StyledNavButton variant={"text"} onClick={onLoginClick}>
+              <StyledNavButton showonxs variant={"text"} onClick={onLoginClick}>
                 <Typography color="secondary">{loginButtonText}</Typography>
               </StyledNavButton>
             )}

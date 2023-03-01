@@ -5,17 +5,22 @@ interface styledNavButtonProps extends ButtonProps {
   component?: any ;
   to?: any;
   children: React.ReactNode | React.ReactNode[];
-  onClick?: React.MouseEventHandler
+  onClick?: React.MouseEventHandler,
+  showonxs?: boolean
 }
 
 export const StyledNavButton = styled(Button)<styledNavButtonProps>(
-  ({ theme }) => ({
+  ({ theme, showonxs }) => ({
     fontSize: "large",
     marginLeft: "3rem",
     "&:hover": {
       backgroundColor: theme.palette.primary.light,
     },
     display: "flex",
-    [theme.breakpoints.only("xs")]: { display: "none" },
+    [theme.breakpoints.only("xs")]: {
+      display: showonxs
+      ? ""
+      : "none"
+    },
   })
 );
