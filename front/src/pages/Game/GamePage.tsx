@@ -53,7 +53,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   // const webcamRef = useRef<Webcam>(null);
 
   useEffect(() => {
-    console.log("useeff canvas");
     const canvas = canvasRef.current;
     if (canvas)
       Game.startGame(
@@ -65,35 +64,20 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }, [canvasRef]);
 
   useEffect(() => {
-    console.log("gameOngoing", gameOngoing);
-  }, [gameOngoing]);
-
-  useEffect(() => {
-    console.log("useeff1");
-
     const canvas = canvasRef.current;
-    // if (socket.connected) {
-      socket.off("gameLine");
-      socket.on("gameLine", (data: gameLineI) => {
-        setInLine(data.inLine);
-        console.log(data);
-        
-      });
-      socket.off("setPause");
-      socket.on("setPause", (data: {isPaused : boolean}) => {
-        console.log(data);
-        
-        setIsPaused(data.isPaused);
-        Game.setPause(data.isPaused);
-      });
-
-    // }
+    socket.off("gameLine");
+    socket.on("gameLine", (data: gameLineI) => {
+      setInLine(data.inLine);
+    });
+    socket.off("setPause");
+    socket.on("setPause", (data: { isPaused: boolean }) => {
+      setIsPaused(data.isPaused);
+      Game.setPause(data.isPaused);
+    });
   }, []);
 
   useEffect(() => {
-    console.log("gameData", gameData);
     if (socket.connected && !!gameData) {
-      // setGameOngoing(true);
       startGame(gameData);
       sessionStorage.setItem("game", "true");
       if (gameData.isPaused != isPaused) {
@@ -105,8 +89,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }, [gameData]);
 
   function startGame(gameData: GameStateDataI) {
-    console.log("startGame", gameData);
-
     const canvas = canvasRef.current;
     if (canvas) {
       // setStopGame(false);
@@ -131,15 +113,10 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     this: any,
     event: React.ChangeEvent<HTMLTextAreaElement>
   ): void {
-    // event.preventDefault();
-    console.log("onChange");
-
     setInputValue(event.currentTarget.value);
   }
 
   async function sendInvite() {
-    console.log("sendInvite");
-
     if (socket.connected) {
       socket.emit("inviteToGame", { recipient: inputValue });
       setInputValue(undefined);
@@ -154,8 +131,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }
 
   async function getInLine(inLine: boolean) {
-    console.log("getInLine");
-
     if (socket.connected) {
       socket.emit("gameLine", { inLine: inLine });
     }
@@ -163,16 +138,12 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   }
 
   async function getActiveGames() {
-    console.log("getActiveGames");
-
     if (socket.connected) {
       socket.emit("getActiveGames", {});
     }
   }
 
   async function spectateGame() {
-    console.log("spectateGame");
-
     if (socket.connected) {
       socket.emit("spectateGame", {
         gameName: inputValue,
@@ -186,7 +157,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     height: "480",
   } as canvasPropsI;
 
-  console.log("render");
   return (
     <Grid container component={Paper} display={"table-row"}>
       <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
@@ -307,10 +277,18 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           onClick={() =>
             startGame({
               gameName: "single",
-              playerFirst : { name: testUsername || user.user?.name || "", score: 0, paddleY: 0 },
-              playerSecond : {name: singlePlayerOpponent, score: 0, paddleY: 0 },
+              playerFirst: {
+                name: testUsername || user.user?.name || "",
+                score: 0,
+                paddleY: 0,
+              },
+              playerSecond: {
+                name: singlePlayerOpponent,
+                score: 0,
+                paddleY: 0,
+              },
               ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
-              isPaused : false,
+              isPaused: false,
             })
           }
         />

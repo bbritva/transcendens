@@ -171,7 +171,6 @@ class Game {
     if (Game.instance.gameInitState) {
       Game.instance.gameState = Game.instance.gameInitState;
     }
-    console.log(Game.count, Game.instance.gameState);
 
     this.myRole =
       this.gameState.playerFirst.name === this.myName ||
@@ -203,7 +202,6 @@ class Game {
   }
 
   private initDocumentListeners() {
-    // document.removeEventListener("keydown");
     // document.addEventListener(
     //   "keydown",
     //   (e) => {
@@ -308,7 +306,6 @@ class Game {
     this.ball.speedY = this.gameState.ball.speedY
       ? this.gameState.ball.speedY
       : -this.ball.speedV;
-    console.log(this.ball.speedX, this.ball.speedY);
   }
 
   private mainGameCycle(
@@ -518,7 +515,6 @@ class Game {
     this.gameInitState = null;
     Game.hasNewData = true;
     if (Game.setGameOngoing) {
-      console.log("setGameOngoing in game");
       Game.setGameOngoing(false);
     }
     socket.emit("endGame", { gameName: this.gameState.gameName });

@@ -178,10 +178,7 @@ class Paddle {
   }
 
   makeScore(): boolean {
-    console.log(this.score);
-
     ++this.score;
-    console.log(this.score);
     return this.score >= this.winScore;
   }
 
