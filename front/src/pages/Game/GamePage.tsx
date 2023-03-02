@@ -91,7 +91,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   function startGame(gameData: GameStateDataI) {
     const canvas = canvasRef.current;
     if (canvas) {
-      // setStopGame(false);
       if (gameData && (testUsername || user.user?.name)) {
         Game.setGameData(
           canvasRef.current,
