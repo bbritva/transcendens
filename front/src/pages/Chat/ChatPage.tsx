@@ -97,7 +97,7 @@ const ChatPage: FC<ChatPageProps> = ({
 
   return (
   <>
-      <Box flex={1} sx={{display: { xs: "none", sm: "none", md: "block"}}}>
+      <Box flex={1} sx={{ display: { xs: "none", sm: "none", md: "block"}}}>
         <OneColumnTable
           taper='Channels'
           user={user.user}
@@ -120,7 +120,7 @@ const ChatPage: FC<ChatPageProps> = ({
         />
         </Box>
       
-      <Box flex={4}>
+      <Box flex={4} height='70vh' >
         <ChatTable
           name={'Chat'}
           loading={loading}

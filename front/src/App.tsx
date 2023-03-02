@@ -25,10 +25,9 @@ import useTwoFA from "src/hooks/useTwoFA";
 const theme = createTheme({
   palette: {
     primary: {
-      //light 
       main: '#56a2b8',
-      //dark
-      // contrastText: '#ffcc00',
+      dark: '#3c7180',
+      contrastText: '#ffcc00',
     },
     secondary: {
       main: '#ecebd9',
@@ -38,39 +37,21 @@ const theme = createTheme({
     }
   },
   typography: {
-    fontFamily: 'Raleway, Arial',
-    fontSize: 16, //px or rem
-    h4: {
+    body1: {
+      fontFamily:  'Arial',
       fontSize: 16,
-      color: 'primary',
+      fontWeight: 'bolder',
+      color: '#3c7180',
+    },
+    subtitle1: {
+      fontFamily:  'Arial',
+      fontSize: 15,
+      fontWeight: "bolder",
+      fontStyle: 'oblique',
+      color: '#56a2b8',
     },
   },
 });
-
-// const theme = createTheme({
-//   // typography: {
-//     poster: {
-//       fontSize: 64,
-//       color: 'red',
-//     },
-
-
-// Variants
-// The typography object comes with 13 variants by default:
-
-// h1
-// h2
-// h3
-// h4
-// h5
-// h6
-// subtitle1
-// subtitle2
-// body1
-// body2
-// button
-// caption
-// overline
 
 
 // import { useTheme } from '@mui/material/styles';

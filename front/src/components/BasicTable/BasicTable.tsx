@@ -40,9 +40,8 @@ function drawHeader(element: string) {
   return (
     <TableCell
       key={element}
-      // sx={{color: 'primary.dark' }}
     >
-      <Typography variant="h4">{element}</Typography>
+      <Typography variant="subtitle1">{element}</Typography>
     </TableCell>
   );
 }
@@ -56,7 +55,7 @@ function drawRow(row: rowI) {
       {keys.map(
         (cellData, index) =>
           cellData !== "id" && (<TableCell key={row.id + String(index)}>
-            <Typography variant="h4">
+            <Typography variant="body1">
             {          //@ts-ignore
               row[cellData]
             }
@@ -87,17 +86,18 @@ export default function BasicTable(props: basicTableI) {
         </IconButton>
       )}
       {props.title && (
-        <Typography // style for the titles 
+        <Typography 
           sx={{ flex: "1 1 100%" }}
-          variant="h6"
+          variant="body1"
           id="tableTitle"
           component="div"
-          fontStyle="oblique" //variant for paper
+          padding='0.25rem'
+          marginLeft='2.5rem'
         >
           {props.title}
         </Typography>
       )}
-      <TableContainer component={Paper} sx ={{backgroundColor: theme.palette.secondary.main,}} >
+      <TableContainer component={Paper} sx ={{backgroundColor: theme.palette.secondary.main, margin: 'auto'}} >
         <Table aria-label="simple table">
           {props.tableHeadArray && (
             <TableHead>

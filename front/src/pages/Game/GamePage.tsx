@@ -1,5 +1,5 @@
 import { ReactElement, FC, useRef, useEffect, useState } from "react";
-import { Box, Button, DialogTitle, Grid, Paper, TextField } from "@mui/material";
+import { Box, Button, DialogTitle, Grid, Paper, TextField, useTheme } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
 import game from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
@@ -34,6 +34,7 @@ const GamePage: FC<any> = (): ReactElement => {
   const testUsername = sessionStorage.getItem('username');
   const { getState } = useStore();
   const { user } = getState() as RootState;
+  const theme = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -104,6 +105,7 @@ const GamePage: FC<any> = (): ReactElement => {
       <Grid container
         component={Paper}
         display={'table-row'}
+        sx={{backgroundColor: theme.palette.secondary.main}}
       >
         <DialogSelect
           options={{}}
