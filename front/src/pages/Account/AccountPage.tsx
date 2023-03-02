@@ -17,6 +17,7 @@ import StyledBox from "src/components/BasicTable/StyledBox";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
+import { selectFriends } from "src/store/chatSlice";
 
 function createHistoryData(
   score: string,
@@ -53,6 +54,7 @@ const AccountPage: FC<any> = (): ReactElement => {
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user, setSlideShow);
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
+  const friends = useSelector(selectFriends);
   const navigate = useNavigate();
 
   const buttons = [
@@ -153,11 +155,11 @@ const AccountPage: FC<any> = (): ReactElement => {
               mybackcolor={theme.palette.info.main}
               myalign="start"
               flexDirection={"column"}
-              tableRowArray={[
-                createFriendElem(111, "tphung"),
-                createFriendElem(1112, "grvelva"),
-                createFriendElem(1113, "abelosev"),
-              ]}
+              tableRowArray={
+                friends.map((friend):settingsRowI => 
+                  createFriendElem(friend.id, friend.name)
+                )
+              }
               onClose={() => {
                 setOpen(false);
               }}
