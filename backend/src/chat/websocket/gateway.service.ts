@@ -5,7 +5,7 @@ import { UserService } from "src/user/user.service";
 import { ChannelService } from "src/chat/channel/channel.service";
 import { ChannelEntity } from "src/chat/channel/entities/channel.entity";
 import { JwtService } from "@nestjs/jwt";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common";
 import { GameResultDto } from "src/game/dto/create-game.dto";
 import { GameService } from "src/game/game.service";
 
@@ -99,7 +99,7 @@ export class GatewayService {
         data.targetUserName
       );
       if (targetUser.bannedIds.includes(this.connections.get(socket.id).id)) {
-        this.emitNotAllowed(socket.id, "privateMessage", data);
+        this.emitNotAllowed(socket.id, "privateMessage", "you're banned", data);
       } else {
         const channelIn = this.createPMChannelName([
           this.connections.get(socket.id).name,
@@ -113,6 +113,7 @@ export class GatewayService {
       }
     } catch (e) {
       console.log(e.message);
+      this.emitExecutionError(socket.id, "privateMessage", data);
     }
   }
 
@@ -123,8 +124,13 @@ export class GatewayService {
       .then((messageOut) => {
         this.server.to(message.channelName).emit("newMessage", messageOut);
       })
-      .catch((e) => {
-        this.emitNotAllowed(socket.id, "newMessage", message);
+      .catch((e: ForbiddenException) => {
+        console.log("forbidden", e);
+        this.emitNotAllowed(socket.id, "newMessage", "you're muted", message);
+      })
+      .catch((e: BadRequestException) => {
+        console.log("BadRequest", e);
+        this.emitExecutionError(socket.id, "newMessage", {cause : e.getResponse()});
       });
   }
 
@@ -142,7 +148,7 @@ export class GatewayService {
           this.server.to(data.channelName).emit("newAdmin", data);
       })
       .catch((e) => {
-        this.emitNotAllowed(socketId, "addAdmin", data);
+        this.emitNotAllowed(socketId, "addAdmin", "you don't have enough rights", data);
       });
   }
 
@@ -159,7 +165,7 @@ export class GatewayService {
       this.server.socketsLeave(data.channelName);
       // notice user about new channel name
       this.server.to(data.newName).emit("newChannelName", data);
-    } else this.emitNotAllowed(socketId, "changeChannelName", data);
+    } else this.emitNotAllowed(socketId, "changeChannelName", "you don't have enough rights", data);
   }
 
   async setPrivacy(socketId: string, data: DTO.SetPrivacyI) {
@@ -170,7 +176,7 @@ export class GatewayService {
       )
     ) {
       this.server.to(data.channelName).emit("privacySet", data);
-    } else this.emitNotAllowed(socketId, "setPrivacy", data);
+    } else this.emitNotAllowed(socketId, "setPrivacy", "you don't have enough rights", data);
   }
 
   async setPassword(socketId: string, data: DTO.SetPasswordI) {
@@ -183,7 +189,7 @@ export class GatewayService {
       this.server
         .to(data.channelName)
         .emit("passwordSet", { channelName: data.channelName });
-    } else this.emitNotAllowed(socketId, "setPassword", data);
+    } else this.emitNotAllowed(socketId, "setPassword", "you don't have enough rights", data);
   }
 
   async banUser(socketId: string, data: DTO.ManageUserInChannelI) {
@@ -199,7 +205,7 @@ export class GatewayService {
     ) {
       await this.leaveChannel(socketId, data.channelName, targetUser);
       this.server.to(socketId).emit("userBanned", data);
-    } else this.emitNotAllowed(socketId, "banUser", data);
+    } else this.emitNotAllowed(socketId, "banUser", "you don't have enough rights", data);
   }
 
   async muteUser(socketId: string, data: DTO.ManageUserInChannelI) {
@@ -214,7 +220,7 @@ export class GatewayService {
       )
     ) {
       this.server.to(data.channelName).emit("userMuted", data);
-    } else this.emitNotAllowed(socketId, "muteUser", data);
+    } else this.emitNotAllowed(socketId, "muteUser", "you don't have enough rights", data);
   }
 
   async unmuteUser(socket: Socket, data: DTO.ManageUserInChannelI) {
@@ -229,7 +235,7 @@ export class GatewayService {
       )
     ) {
       this.server.to(socket.id).emit("userUnmuted", data);
-    } else this.emitNotAllowed(socket.id, "unmuteUser", data);
+    } else this.emitNotAllowed(socket.id, "unmuteUser", "you don't have enough rights", data);
   }
 
   async unbanUser(socket: Socket, data: DTO.ManageUserInChannelI) {
@@ -244,7 +250,7 @@ export class GatewayService {
       )
     ) {
       this.server.to(socket.id).emit("userUnbanned", data);
-    } else this.emitNotAllowed(socket.id, "unbanUser", data);
+    } else this.emitNotAllowed(socket.id, "unbanUser", "you don't have enough rights", data);
   }
 
   async connectToChannel(socketId: string, channelIn: DTO.ChannelInfoIn) {
@@ -265,7 +271,7 @@ export class GatewayService {
             await this.connectUserToChannel(channelIn, targetUser);
         });
       }
-    } else this.emitNotAllowed(socketId, "connectToChannel", channelIn);
+    } else this.emitNotAllowed(socketId, "connectToChannel", "you don't have enough rights", channelIn);
   }
 
   async kickUser(socketId: string, data: DTO.ManageUserInChannelI) {
@@ -281,7 +287,7 @@ export class GatewayService {
         targetUser = await this.userService.getUserByName(data.targetUserName);
       await this.leaveChannel(socketId, data.channelName, targetUser);
       this.server.to(socketId).emit("userKicked", data.channelName);
-    } else this.emitNotAllowed(socketId, "kickUser", data);
+    } else this.emitNotAllowed(socketId, "kickUser", "you don't have enough rights", data);
   }
 
   async leaveChannel(
@@ -305,11 +311,11 @@ export class GatewayService {
       .addFriend(this.connections.get(socketId).id, data.targetUserName)
       .then((newFriend) => {
         if (newFriend) this.server.to(socketId).emit("newFriend", newFriend);
-        else this.emitNotAllowed(socketId, "addFriend", data);
+        else this.emitNotAllowed(socketId, "addFriend", "you don't have enough rights", data);
       })
       .catch((e) => {
         console.log(e.message);
-        this.emitNotAllowed(socketId, "addFriend", data);
+        this.emitNotAllowed(socketId, "addFriend", "you don't have enough rights", data);
       });
   }
 
@@ -318,11 +324,11 @@ export class GatewayService {
       .removeFriend(this.connections.get(socketId).id, data.targetUserName)
       .then((exFriend) => {
         if (exFriend) this.server.to(socketId).emit("exFriend", exFriend);
-        else this.emitNotAllowed(socketId, "removeFriend", data);
+        else this.emitNotAllowed(socketId, "removeFriend", "you don't have enough rights", data);
       })
       .catch((e) => {
         console.log(e.message);
-        this.emitNotAllowed(socketId, "removeFriend", data);
+        this.emitNotAllowed(socketId, "removeFriend", "you don't have enough rights", data);
       });
   }
 
@@ -334,7 +340,7 @@ export class GatewayService {
       })
       .catch((e) => {
         console.log(e.message);
-        this.emitNotAllowed(socketId, "getFriends", {});
+        this.emitNotAllowed(socketId, "getFriends", "you don't have enough rights", {});
       });
   }
 
@@ -344,11 +350,11 @@ export class GatewayService {
       .then((banned) => {
         if (banned)
           this.server.to(socketId).emit("newPersonnalyBanned", banned);
-        else this.emitNotAllowed(socketId, "banPersonnaly", data);
+        else this.emitNotAllowed(socketId, "banPersonnaly", "you don't have enough rights", data);
       })
       .catch((e) => {
         console.log(e.message);
-        this.emitNotAllowed(socketId, "banPersonnaly", data);
+        this.emitNotAllowed(socketId, "banPersonnaly", "you don't have enough rights", data);
       });
   }
 
@@ -358,11 +364,11 @@ export class GatewayService {
       .then((exBanned) => {
         if (exBanned)
           this.server.to(socketId).emit("exPersonnalyBanned", exBanned);
-        else this.emitNotAllowed(socketId, "unbanPersonally", data);
+        else this.emitNotAllowed(socketId, "unbanPersonally", "you don't have enough rights", data);
       })
       .catch((e) => {
         console.log(e.message);
-        this.emitNotAllowed(socketId, "unbanPersonally", data);
+        this.emitNotAllowed(socketId, "unbanPersonally", "you don't have enough rights", data);
       });
   }
 
@@ -374,7 +380,7 @@ export class GatewayService {
       })
       .catch((e) => {
         console.log(e.message);
-        this.emitNotAllowed(socketId, "personallyBannedList", {});
+        this.emitNotAllowed(socketId, "personallyBannedList", "you don't have enough rights", {});
       });
   }
 
@@ -497,7 +503,7 @@ export class GatewayService {
         this.server.to(socketId).emit("userStat", stats);
       })
       .catch((e) => {
-        this.emitNotAllowed(socketId, "getUserStats", data);
+        this.emitNotAllowed(socketId, "getUserStats", "you don't have enough rights", data);
       });
   }
 
@@ -508,7 +514,7 @@ export class GatewayService {
         this.server.to(socketId).emit("ladder", ladder);
       })
       .catch((e) => {
-        this.emitNotAllowed(socketId, "getLadder", {});
+        this.emitNotAllowed(socketId, "getLadder", "you don't have enough rights", {});
       });
   }
 
@@ -520,7 +526,7 @@ export class GatewayService {
         else this.server.to(socketId).emit("nameAvailable", data);
       })
       .catch((e) => {
-        this.emitNotAllowed(socketId, "checkNamePossibility", {});
+        this.emitNotAllowed(socketId, "checkNamePossibility", "you don't have enough rights", {});
       });
   }
 
@@ -531,7 +537,7 @@ export class GatewayService {
         this.server.to(socketId).emit("nameSuggestions", names);
       })
       .catch((e) => {
-        this.emitNotAllowed(socketId, "getNamesSuggestions", data);
+        this.emitNotAllowed(socketId, "getNamesSuggestions", "you don't have enough rights", data);
       });
   }
 
@@ -554,7 +560,7 @@ export class GatewayService {
     if (gameRoom) {
       this.server.to(socketId).emit("connectToGame", gameRoom);
       this.server.in(socketId).socketsJoin(gameRoom.gameName);
-    } else this.emitNotAllowed(socketId, "spectateGame", data);
+    } else this.emitNotAllowed(socketId, "spectateGame", "you don't have enough rights", data);
   }
 
   removeGame(room: string) {
@@ -720,7 +726,11 @@ export class GatewayService {
     this.server.to(socket.id).emit("gameLine", { inLine: false });
   }
 
-  private emitNotAllowed(socketId: string, eventName: string, data: any) {
-    this.server.to(socketId).emit(eventName, data);
+  private emitNotAllowed(socketId: string, eventName: string, cause: string, data: any) {
+    this.server.to(socketId).emit("notAllowed", {eventName : eventName, data : data, cause : cause});
+  }
+
+  private emitExecutionError(socketId: string, eventName: string, data: any) {
+    this.server.to(socketId).emit("executionError", {eventName : eventName, data : data});
   }
 }

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Message, Prisma } from "@prisma/client";
 import * as DTO from "src/chat/websocket/websocket.dto";
@@ -112,7 +117,7 @@ export class ChannelService {
       });
   }
 
-  async leaveChannel(userId : number, channelName : string) : Promise<Channel> {
+  async leaveChannel(userId: number, channelName: string): Promise<Channel> {
     return this.updateChannel({
       where: {
         name: channelName,
@@ -124,10 +129,11 @@ export class ChannelService {
           },
         },
       },
-    }).then((channel) => channel)
-    .catch((e) => {
-      throw new BadRequestException(e.message);
     })
+      .then((channel) => channel)
+      .catch((e) => {
+        throw new BadRequestException(e.message);
+      });
   }
 
   async getChannel(
@@ -347,21 +353,26 @@ export class ChannelService {
     executorId: number,
     data: CreateMessageDTO
   ): Promise<Message> {
-    if (!(await this.isMuted(data.channelName, executorId))) {
-      try {
-        const messageOut = await this.messageService.createMessage({
-          channel: {
-            connect: { name: data.channelName },
-          },
-          authorName: data.authorName,
-          text: data.text,
-        });
-        return messageOut;
-      } catch (e) {
-        console.log("err", e.meta.cause);
-      }
-    }
-    return null;
+    return this.isMuted(data.channelName, executorId).then(async (isMuted) => {
+      if (isMuted) {
+        console.log("muted");
+        throw new ForbiddenException();
+      } else
+        try {
+          const message = await this.messageService.createMessage({
+            channel: {
+              connect: { name: data.channelName },
+            },
+            authorName: data.authorName,
+            text: data.text,
+          });
+          return message;
+        } catch (e) {
+          throw new BadRequestException();
+        }
+    }).catch((e) => {
+      throw new BadRequestException()
+    })
   }
 
   async banUser(
