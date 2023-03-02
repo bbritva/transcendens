@@ -714,12 +714,9 @@ export class GatewayService {
   }
 
   private async leaveLine(socket: Socket) {
-    const userIndex = this.readyToPlayUsers.findIndex(
-      (value) => value.id == this.connections.get(socket.id).id
+    this.readyToPlayUsers = this.readyToPlayUsers.filter(
+      (user) => user.name != this.connections.get(socket.id).name
     );
-    if (userIndex != -1) {
-      this.readyToPlayUsers.splice(userIndex, 1);
-    }
     this.server.to(socket.id).emit("gameLine", { inLine: false });
   }
 
