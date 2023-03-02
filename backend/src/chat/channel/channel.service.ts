@@ -51,7 +51,13 @@ export class ChannelService {
   async ChannelList(): Promise<DTO.ChannelInfoOut[]> {
     let channelList: DTO.ChannelInfoOut[] = [];
     return this.prisma.channel
-      .findMany()
+      .findMany({
+        where: {
+          type: {
+            equals: "GENERAL",
+          },
+        },
+      })
       .then((res: ChannelEntity[]) => {
         res.forEach((channel) => {
           channelList.push({
@@ -96,6 +102,7 @@ export class ChannelService {
             },
           },
           isPrivate: data.isPrivate,
+          type: data.type,
           admIds: [data.ownerId],
         },
       })
@@ -103,6 +110,24 @@ export class ChannelService {
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
+  }
+
+  async leaveChannel(userId : number, channelName : string) : Promise<Channel> {
+    return this.updateChannel({
+      where: {
+        name: channelName,
+      },
+      data: {
+        guests: {
+          disconnect: {
+            id: userId,
+          },
+        },
+      },
+    }).then((channel) => channel)
+    .catch((e) => {
+      throw new BadRequestException(e.message);
+    })
   }
 
   async getChannel(
@@ -303,13 +328,19 @@ export class ChannelService {
   }
 
   async isMuted(channelName: string, userId: number): Promise<boolean> {
-    return (
-      await this.prisma.channel.findUnique({
+    return this.prisma.channel
+      .findUnique({
         where: {
           name: channelName,
         },
       })
-    ).mutedIds.includes(userId);
+      .then((channel) => {
+        return channel.mutedIds.includes(userId);
+      })
+      .catch((e: any) => {
+        console.log("err", e.meta.cause);
+        throw new BadRequestException(e.message);
+      });
   }
 
   async addMessage(

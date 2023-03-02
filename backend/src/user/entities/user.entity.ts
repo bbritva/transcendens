@@ -1,5 +1,7 @@
 import { eStatus, User } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
+import { GameEntity } from 'src/game/entities/game.entity';
+import { ChannelEntity } from 'src/chat/channel/entities/channel.entity';
 
 export class UserEntity implements User {
   @ApiProperty()
@@ -13,6 +15,14 @@ export class UserEntity implements User {
 
   @ApiProperty()
   image: string;
+
+  @ApiProperty()
+  wins?: GameEntity[];
+  @ApiProperty()
+  loses?: GameEntity[];
+
+  @ApiProperty()
+  channels?: ChannelEntity[];
 
   @ApiProperty({ nullable: true})
   avatar: string;

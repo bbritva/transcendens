@@ -13,3 +13,20 @@ export class CreateGameDto {
   @ApiProperty()
   loserScore: number;
 }
+
+export class GameResultDto {
+  @ApiProperty()
+  name: string;
+  
+  @ApiProperty()
+  winnerName: string;
+
+  @ApiProperty()
+  loserName: string;
+
+  @ApiProperty()
+  winnerScore: number;
+
+  @ApiProperty()
+  loserScore: number;
+}

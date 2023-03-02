@@ -1,4 +1,4 @@
-import { Channel } from '@prisma/client';
+import { Channel, eChannelType } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { MessageEntity } from 'src/chat/message/entities/message.entity';
@@ -26,5 +26,8 @@ export class ChannelEntity implements Channel {
 
   @ApiProperty()
   isPrivate: boolean;
+
+  @ApiProperty()
+  type: eChannelType;
 
 }

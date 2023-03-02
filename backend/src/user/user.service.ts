@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { User, Prisma } from "@prisma/client";
+import { User, Prisma, eStatus } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UserInfoPublic } from "src/chat/websocket/websocket.dto";
-import { CreateGameDto } from "src/game/dto/create-game.dto";
+import { CreateGameDto, GameResultDto } from "src/game/dto/create-game.dto";
+import { UserEntity } from "./entities/user.entity";
 
 @Injectable()
 export class UserService {
@@ -60,6 +61,17 @@ export class UserService {
       });
   }
 
+  async getStatsByName(name: string): Promise<User> {
+    return this.getUserByName(name, true)
+      .then((user) => {
+        this.filterUserdata(user);
+        return user;
+      })
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
   async createUser(data: CreateUserDto): Promise<User> {
     return this.prisma.user
       .create({
@@ -82,17 +94,38 @@ export class UserService {
       });
   }
 
-  async getUserByName(userName: string): Promise<User> {
+  async getUserByName(
+    userName: string,
+    includeGames = false,
+    includeChannels = false
+  ): Promise<User> {
     return this.prisma.user
       .findUnique({
         where: {
           name: userName,
         },
         include: {
-          channels: true,
+          wins: includeGames,
+          loses: includeGames,
+          channels: includeChannels,
         },
       })
       .then((ret: any) => ret)
+      .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  async getUserPublic(
+    userId: number,
+    includeGames = false,
+    includeChannels = false
+  ): Promise<User> {
+    return this.getUser(userId, includeGames, includeChannels)
+      .then((user) => {
+        this.filterUserdata(user);
+        return user;
+      })
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
@@ -120,15 +153,40 @@ export class UserService {
       });
   }
 
-  async updateUser(params: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  }): Promise<User> {
+  async setUserStatus(userId: number, status: eStatus): Promise<UserEntity> {
+    return this.updateUser(
+      {
+        where: {
+          id: userId,
+        },
+        data: {
+          status: status,
+        },
+      },
+      status == "OFFLINE"
+    )
+      .then((ret) => ret)
+      .catch((e) => {
+        console.log(e.message);
+        return null;
+      });
+  }
+
+  async updateUser(
+    params: {
+      where: Prisma.UserWhereUniqueInput;
+      data: Prisma.UserUpdateInput;
+    },
+    includeChannels = false
+  ): Promise<User> {
     const { where, data } = params;
     return this.prisma.user
       .update({
         data,
         where,
+        include: {
+          channels: includeChannels,
+        },
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
@@ -173,10 +231,7 @@ export class UserService {
       .catch(() => false);
   }
 
-  async addFriend(
-    userId: number,
-    targetUserName: string
-  ): Promise<UserInfoPublic> {
+  async addFriend(userId: number, targetUserName: string): Promise<User> {
     const user = await this.getUser(userId);
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
@@ -199,7 +254,8 @@ export class UserService {
               });
           }
         }
-        return targetUser as UserInfoPublic;
+        this.filterUserdata(targetUser);
+        return targetUser;
       })
       .catch((e) => {
         throw new BadRequestException(e.message);
@@ -228,6 +284,7 @@ export class UserService {
                 throw new BadRequestException(e.message);
               });
         }
+        this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {
@@ -265,7 +322,7 @@ export class UserService {
           where: {
             name: {
               contains: name,
-              mode: 'insensitive'
+              mode: "insensitive",
             },
           },
         });
@@ -303,6 +360,7 @@ export class UserService {
                 throw new BadRequestException(e.message);
               });
         }
+        this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {
@@ -315,7 +373,7 @@ export class UserService {
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
         if (targetUser) {
-          if (user.bannedIds.includes(userId))
+          if (user.bannedIds.includes(targetUser.id))
             this.prisma.user
               .update({
                 where: {
@@ -332,6 +390,7 @@ export class UserService {
                 throw new BadRequestException(e.message);
               });
         }
+        this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {
@@ -361,34 +420,45 @@ export class UserService {
     }
   }
 
-  async addScores(gameData: CreateGameDto) {
-    const diff = gameData.winnerScore - gameData.loserScore;
-    this.prisma.user
+  async addScores(gameResult: GameResultDto): Promise<CreateGameDto> {
+    const diff = gameResult.winnerScore - gameResult.loserScore;
+    let game = {
+      winnerId: 0,
+      loserId: 0,
+      winnerScore: gameResult.winnerScore,
+      loserScore: gameResult.loserScore,
+    };
+    await this.prisma.user
       .update({
         where: {
-          id: gameData.winnerId,
+          name: gameResult.winnerName,
         },
         data: {
           score: { increment: diff },
         },
       })
-      .then()
+      .then((user) => {
+        game.winnerId = user.id;
+      })
       .catch((e) => {
         throw new BadRequestException(e.message);
       });
-    this.prisma.user
+    await this.prisma.user
       .update({
         where: {
-          id: gameData.loserId,
+          name: gameResult.loserName,
         },
         data: {
           score: { decrement: diff },
         },
       })
-      .then()
+      .then((user) => {
+        game.loserId = user.id;
+      })
       .catch((e) => {
         throw new BadRequestException(e.message);
       });
+    return game;
   }
 
   filterUserdata(user: User) {

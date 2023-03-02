@@ -28,11 +28,6 @@ model User {
   isTwoFaEnabled  Boolean @default(false)
   channels        Channel[]
 }
-enum eStatus {
-  OFFLINE
-  ONLINE
-  ONGAME
-}
 
 model Game {
   id          Int     @default(autoincrement()) @id
@@ -56,15 +51,16 @@ model Token {
 }
 
 model Channel {
-  name      String      @unique @id
+  name      String        @unique @id
   ownerId   Int
   password  String?
   guests    User[]
   admIds    Int[]
   mutedIds  Int[]
   bannedIds Int[]       
-  isPrivate Boolean     @default(false)
-  messages  Message[]   @relation()
+  isPrivate Boolean       @default(false)
+  type      eChannelType  @default(GENERAL)
+  messages  Message[]     @relation()
 }
 
 model Message {
@@ -74,4 +70,15 @@ model Message {
   sentAt      DateTime  @default(now())
   authorName  String
   text        String
+}
+
+enum eStatus {
+  OFFLINE
+  ONLINE
+  ONGAME
+}
+
+enum eChannelType {
+  GENERAL
+  PRIVATE_MESSAGING
 }

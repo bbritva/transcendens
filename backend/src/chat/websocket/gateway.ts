@@ -10,6 +10,7 @@ import { Server, Socket } from "socket.io";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import * as DTO from "./websocket.dto";
 import { GatewayService } from "./gateway.service";
+import { GameResultDto } from "src/game/dto/create-game.dto";
 
 @WebSocketGateway({
   cors: true,
@@ -35,6 +36,10 @@ export class Gateway implements OnModuleInit {
       });
       socket.on("disconnect", async () => {});
     });
+    this.server.of("/").adapter.on("delete-room", (room) => {
+      if (room.endsWith("Game")) 
+        this.gatewayService.removeGame(room);
+    });
   }
 
   @SubscribeMessage("connectToChannel")
@@ -59,57 +64,6 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.ManageUserI
   ) {
     this.gatewayService.connectToChannelPM(socket, data);
-  }
-
-  @SubscribeMessage("inviteToGame")
-  async inviteToGame(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.InviteToGameI
-  ) {
-    console.log("Invite to game");
-    this.gatewayService.emitToRecipient("inviteToGame", socket, data.recipient);
-  }
-
-  @SubscribeMessage("acceptInvite")
-  async acceptInvite(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.AcceptInviteI
-  ) {
-    console.log("accepted Invite");
-    this.gatewayService.emitToRecipient("acceptInvite", socket, data.sender);
-  }
-
-  @SubscribeMessage("declineInvite")
-  async declineInvite(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.AcceptInviteI
-  ) {
-    console.log("DECLINE Invite");
-    this.gatewayService.emitToRecipient("declineInvite", socket, data.sender);
-  }
-
-  @SubscribeMessage("connectToGame")
-  async connectToGame(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.gameChannelDataI
-  ) {
-    this.gatewayService.connectToGame(socket, data);
-  }
-
-  @SubscribeMessage("score")
-  async getScore(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.scoreDataI
-  ) {
-    this.server.to(data.game).emit("gameScore", { ...data });
-  }
-
-  @SubscribeMessage("coordinates")
-  async getCoordinates(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: DTO.coordinateDataI
-  ) {
-    this.gatewayService.getCoordinates(socket, data);
   }
 
   @SubscribeMessage("newMessage")
@@ -266,5 +220,84 @@ export class Gateway implements OnModuleInit {
     @MessageBody() data: DTO.ManageUserI
   ) {
     this.gatewayService.getNamesSuggestions(socket.id, data);
+  }
+
+
+  @SubscribeMessage("gameLine")
+  async standInLine(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.gameLineI
+  ) {
+    this.gatewayService.gameLine(socket, data);
+  }
+
+  @SubscribeMessage("inviteToGame")
+  async inviteToGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.InviteToGameI
+  ) {
+    this.gatewayService.inviteToGame(socket, data);
+  }
+
+  @SubscribeMessage("acceptInvite")
+  async acceptInvite(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.AcceptInviteI
+  ) {
+    this.gatewayService.startGame(socket, data);
+  }
+
+  @SubscribeMessage("declineInvite")
+  async declineInvite(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.AcceptInviteI
+  ) {
+    this.gatewayService.sendDecline(socket, data.sender);
+  }
+
+  @SubscribeMessage("paddleState")
+  async getScore(
+    @MessageBody() data: DTO.paddleStateI
+  ) {
+    this.server.to(data.gameName).volatile.emit("paddleState", data);
+    
+  }
+
+  @SubscribeMessage("gameState")
+  async getCoordinates(
+    @MessageBody() data: DTO.gameStateDataI
+  ) {
+    this.gatewayService.emitGameState(data);
+  }
+
+  @SubscribeMessage("setPause")
+  async setPause(
+    @MessageBody() data:DTO.pauseGameI
+  ) {
+    this.gatewayService.setPaused(data);
+  }
+
+  @SubscribeMessage("endGame")
+  async onEndGame(
+    @MessageBody() data: DTO.finishGameI
+  ) {
+    this.gatewayService.finishGame(data);
+  }
+
+  @SubscribeMessage("getActiveGames")
+  async onGetActiveGames(
+    @ConnectedSocket() socket: Socket,
+  ) {
+    this.gatewayService.getActiveGames(socket.id);
+  }
+
+
+  @SubscribeMessage("spectateGame")
+  async onSpectateGame(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.spectateGameI
+
+  ) {
+    this.gatewayService.connectSpectator(socket.id, data);
   }
 }
