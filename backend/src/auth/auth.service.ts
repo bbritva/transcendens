@@ -1,13 +1,13 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { authenticator } from 'otplib';
-import { env } from 'process';
-import { ReqService } from 'src/req/req.service';
-import { intraTokenDto } from 'src/token/intraToken.dto';
-import { TokenService } from 'src/token/token.service';
-import { UserService } from 'src/user/user.service';
-import { toDataURL } from 'qrcode';
-import { User } from '@prisma/client';
+import { ForbiddenException, Injectable } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { authenticator } from "otplib";
+import { env } from "process";
+import { ReqService } from "src/req/req.service";
+import { intraTokenDto } from "src/token/intraToken.dto";
+import { TokenService } from "src/token/token.service";
+import { UserService } from "src/user/user.service";
+import { toDataURL } from "qrcode";
+import { User } from "@prisma/client";
 
 @Injectable()
 export class AuthService {
@@ -19,26 +19,28 @@ export class AuthService {
   ) {}
 
   async validateUser(accessTokenData: intraTokenDto): Promise<any> {
-    let userResponse = await this.httpService.getMe(accessTokenData.access_token);
+    let userResponse = await this.httpService.getMe(
+      accessTokenData.access_token
+    );
     if (userResponse?.data) {
       const userData = {
         id: parseInt(userResponse.data.id),
         name: userResponse.data.login,
         image: userResponse.data.image.link,
-        channels : {
-          connect : {
-            name : "main"
-          }
-        }
+        channels: {
+          connect: {
+            name: "main",
+          },
+        },
       };
       let userBd = await this.userService.getUser(userData.id);
       if (!userBd) {
         userBd = await this.userService.createUser(userData);
         const tokenBd = await this.tokenService.createToken({
           owner: {
-            connect: {id: userBd.id}
+            connect: { id: userBd.id },
           },
-          ...accessTokenData
+          ...accessTokenData,
         });
       }
       return userBd;
@@ -47,7 +49,7 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { 
+    const payload = {
       id: user.id,
       username: user.name,
       isTwoFaEnabled: !!user.isTwoFaEnabled,
@@ -55,13 +57,13 @@ export class AuthService {
     const res = this.getTokens(payload);
     const dbResponse = await this.updateRefreshTokenDb(
       user.name,
-      res.refreshToken,
+      res.refreshToken
     );
     return res;
   }
-  
+
   async loginWith2Fa(user: any) {
-    const payload = { 
+    const payload = {
       id: user.id,
       username: user.name,
       isTwoFaEnabled: !!user.isTwoFaEnabled,
@@ -70,7 +72,7 @@ export class AuthService {
     const res = await this.getTokens(payload);
     const dbResponse = await this.updateRefreshTokenDb(
       user.name,
-      res.refreshToken,
+      res.refreshToken
     );
     return res;
   }
@@ -88,7 +90,7 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       refreshToken: this.jwtService.sign(payload, {
         secret: env.JWT_REFRESH_SECRET,
-        expiresIn: '7d',
+        expiresIn: "7d",
       }),
     };
     return tokens;
@@ -105,24 +107,27 @@ export class AuthService {
   async refreshTokens(username: string, refreshToken: string) {
     const user = await this.userService.getUserByName(username);
     if (!user || !user.refreshToken)
-      throw new ForbiddenException('Access Denied');
+      throw new ForbiddenException("Access Denied");
     const refreshTokenMatches = refreshToken.localeCompare(user.refreshToken);
-    if (refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    if (refreshTokenMatches) throw new ForbiddenException("Access Denied");
     const payload = { id: user.id, username: user.name, sub: user.image };
     const tokens = this.getTokens(payload);
     await this.updateRefreshTokenDb(user.name, tokens.refreshToken);
     return tokens;
   }
 
-  async generateTwoFaSecret(user: {id: number, username:string})
-  {
+  async generateTwoFaSecret(user: { id: number; username: string }) {
     const secret = authenticator.generateSecret();
-    const otpauthUrl = authenticator.keyuri(user.username, env.AUTH_APP_NAME, secret)
+    const otpauthUrl = authenticator.keyuri(
+      user.username,
+      env.AUTH_APP_NAME,
+      secret
+    );
     await this.setTwoFaSecret(secret, user.id);
     return {
       secret,
-      otpauthUrl
-    }
+      otpauthUrl,
+    };
   }
 
   async setTwoFaSecret(secret: string, userId: number) {
@@ -143,8 +148,8 @@ export class AuthService {
       data: { isTwoFaEnabled: true },
     });
     return {
-      username: res.name, 
-      isTwoFaEnabled: res.isTwoFaEnabled 
+      username: res.name,
+      isTwoFaEnabled: res.isTwoFaEnabled,
     };
   }
 
@@ -154,14 +159,13 @@ export class AuthService {
       data: { isTwoFaEnabled: false },
     });
     return {
-      username: res.name, 
-      isTwoFaEnabled: res.isTwoFaEnabled 
+      username: res.name,
+      isTwoFaEnabled: res.isTwoFaEnabled,
     };
   }
 
   async isTwoFaCodeValid(twoFaCode: string, user: User) {
-    if (twoFaCode && user.twoFaSecret)
-    {
+    if (twoFaCode && user.twoFaSecret) {
       return authenticator.verify({
         token: twoFaCode,
         secret: user.twoFaSecret,

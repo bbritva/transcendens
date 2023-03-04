@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { GameService } from "./game.service";
 import { Game as GameModel } from "@prisma/client";
-import { CreateGameDto } from "./dto/create-game.dto";
+import { GameResultDto } from "./dto/create-game.dto";
 import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { GameEntity } from "./entities/game.entity";
 
@@ -19,7 +19,7 @@ export class GameController {
 
   @Post("add")
   @ApiOkResponse({ type: GameEntity })
-  async addGameResult(@Body() gameData: CreateGameDto): Promise<GameModel> {
+  async addGameResult(@Body() gameData: GameResultDto): Promise<GameModel> {
     return this.gameService
       .addGame(gameData)
       .then((ret) => ret)

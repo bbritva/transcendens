@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 async function main() {
+  await prisma.game.deleteMany()
   await prisma.user.deleteMany()
   await prisma.message.deleteMany()
   await prisma.channel.deleteMany()

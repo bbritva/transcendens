@@ -1,15 +1,19 @@
 import { Dispatch } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
+import { GameStateDataI } from 'src/pages/Game/components/game/game';
 import { logout } from 'src/store/authActions';
 import { setUsers, UserInfoPublic } from 'src/store/chatSlice';
-import { userI } from 'src/store/userSlice';
 
 
 const URL = process.env.REACT_APP_AUTH_URL || '';
 const socket = io(URL, { autoConnect: false });
 
+
 export function initSocket(
+    navigate: Function,
+    setGameData: Function,
+    // gameData: InitialGameDataI | null,
     setChannels: Function,
     dispatch: Dispatch,
   ){
@@ -62,6 +66,13 @@ export function initSocket(
     });
   });
 
+  socket.on("connectToGame", (game) => {
+    if (socket.connected) {
+      setGameData(game);
+      navigate('/game', { replace: true });
+    }
+  })
+
   socket.on("connect", () => {
 
   });
@@ -69,12 +80,6 @@ export function initSocket(
   socket.on("disconnect", () => {
 
   });
-
-  socket.onAny((data: any) => {
-    console.log("received", data);
-    
-  })
-
 
   socket.on("userStat",(data: fromBackI) => {
     console.log("userStat", data);
@@ -107,6 +112,22 @@ export function initSocket(
 
   socket.on("personallyBannedList",(data: fromBackI[]) => {
     console.log("personallyBannedList", data);
+  })
+
+  socket.on("nameAvailable",(data: fromBackI) => {
+    console.log("nameAvailable", data);
+  })
+
+  socket.on("nameTaken",(data: fromBackI) => {
+    console.log("nameTaken", data);
+  })
+
+  socket.on("nameSuggestions",(data: string[]) => {
+    console.log("nameSuggestions", data);
+  })
+
+  socket.on("activeGames",(data: GameStateDataI[]) => {
+    console.log("activeGames", data);
   })
 
   socket.on("notAllowed", (data: {

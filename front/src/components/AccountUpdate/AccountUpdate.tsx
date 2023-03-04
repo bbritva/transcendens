@@ -15,6 +15,7 @@ import StyledBox, { styledBoxI } from "../BasicTable/StyledBox";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import AccountButton from "./StyledButton";
 import CloudSyncIcon from "@mui/icons-material/CloudSync";
+import socket from 'src/services/socket';
 
 export default function SignUp(props: styledBoxI) {
   const username = sessionStorage.getItem("username");
@@ -83,6 +84,14 @@ export default function SignUp(props: styledBoxI) {
   ): void {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
+    socket.emit("checkNamePossibility", {targetUserName : event.currentTarget.value})
+  }
+
+
+  function nickSearch (this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
+    // event.preventDefault();
+    setInputValue(event.currentTarget.value);
+    socket.emit("getNamesSuggestions", {targetUserName : event.currentTarget.value})
   }
 
   return (
@@ -139,6 +148,16 @@ export default function SignUp(props: styledBoxI) {
                 onChange={nickChange}
               />
             </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="userSearch"
+                  fullWidth
+                  id="userSearch"
+                  label="userSearch"
+                  autoFocus
+                  onChange={nickSearch}
+                />
+              </Grid>
           </Grid>
           <AccountButton type="submit">
             <CloudSyncIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />

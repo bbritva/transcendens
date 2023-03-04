@@ -50,7 +50,7 @@ class Bricks{
         let b = this.bricks[c][r];
         if (b.status == 1) {
           if (ball.x > b.x && ball.x < b.x + this.brickWidth && ball.y > b.y && ball.y < b.y + this.brickHeight) {
-            ball.dy = -ball.dy;
+            ball.speedY = -ball.speedY;
             b.status = 0;
             this.score++;
             if (this.score == this.brickRowCount * this.brickColumnCount) {
