@@ -1,6 +1,6 @@
 import * as React from "react";
 import { StyledNavButton } from "../NavButton/StyledNavButton";
-import { Avatar } from "@mui/material";
+import { Avatar, Typography } from "@mui/material";
 import MoreVert from "@mui/icons-material/MoreVert";
 import fakeAvatar from "src/assets/logo192.png";
 import { RootState } from "src/store/store";
@@ -41,8 +41,14 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        {title || <Avatar src={user.user?.avatar || user.user?.image || fakeAvatar} />}
-        {!title && <MoreVert color="secondary" />}
+        {
+          title
+          ? <Typography >{title}</Typography>
+          : <>
+              <Avatar src={user.user?.avatar || user.user?.image || fakeAvatar} />
+              <MoreVert color="secondary" />
+            </>
+        }
       </StyledNavButton>
       <StyledMenu 
         id="basic-menu"
