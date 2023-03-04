@@ -50,6 +50,13 @@ const theme = createTheme({
       fontStyle: 'oblique',
       color: '#56a2b8',
     },
+    subtitle2: {
+      fontFamily:  'Arial',
+      fontSize: 15,
+      fontWeight: "bolder",
+      fontStyle: 'oblique',
+      color: '#ecebd9',
+    },
   },
 });
 

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useAppDispatch } from "src/app/hooks";
 import { twoFAdialogProps } from "src/components/AccountUpdate/ChooseTwoFA";
@@ -52,7 +53,7 @@ setSlideShow: Function
     
     
       const enableProps: twoFAdialogProps = {
-        title: "Enable",
+        title: "ENABLE",
         urlQR: urlQR,
         isEnabled: true,
         onClick: enableTwoFA,
@@ -62,7 +63,7 @@ setSlideShow: Function
       };
     
       const disableProps: twoFAdialogProps = {
-        title: "Disable",
+        title: "DISABLE",
         urlQR: urlQR,
         isEnabled: false,
         onClick: disableTwoFA,
@@ -70,6 +71,7 @@ setSlideShow: Function
         value: otpValue,
         error: otpError,
       };
+    
       const twoFaProps = (user?.isTwoFaEnabled ? disableProps : enableProps);
       return (
         [open, setOpen, twoFaProps, setUrlQR]

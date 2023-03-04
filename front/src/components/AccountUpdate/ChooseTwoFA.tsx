@@ -4,6 +4,7 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
+  Typography,
 } from "@mui/material";
 import { ChangeEventHandler, FC } from "react";
 import Link from "@mui/material/Link";
@@ -21,10 +22,17 @@ export interface twoFAdialogProps {
 const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
   return (
     <Box display={"flex"} flexDirection={"column"} padding={"0"}>
-      <DialogTitle sx={{ padding: "3px" }}>{props.title} 2FA</DialogTitle>
+      <DialogTitle sx={{ padding: "3px" }}>
+        {props.title}
+        <Typography variant="body1">TWO-FACTOR AUTHENTICATION</Typography>{" "}
+      </DialogTitle>
       {props.isEnabled && (
         <>
-          <DialogContentText>1. Scan QR code with auth app</DialogContentText>
+          <DialogContentText>
+            <Typography variant="subtitle2">
+              1. SCAN YOUR QR CODE WITH THE GOOGLE APP
+            </Typography>
+          </DialogContentText>
           <Box display={"flex"}>
             <Box
               marginLeft={"8px"}
@@ -34,24 +42,28 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
               alt="2faQR"
               src={props.urlQR}
             />
-            <Link
-              href="https://apps.apple.com/fr/app/google-authenticator/id388497605"
-              marginLeft={"1rem"}
-              target={"_blank"}
-              color={"secondary"}
-            >
-              iOs
-            </Link>
-            <Link
-              href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=fr&gl=US&pli=1"
-              marginLeft={"1rem"}
-              target={"_blank"}
-              color={"secondary"}
-            >
-              Android
-            </Link>
+            <Typography variant="subtitle1">
+              <Link
+                href="https://apps.apple.com/fr/app/google-authenticator/id388497605"
+                marginLeft={"1rem"}
+                target={"_blank"}
+              >
+                iOs
+              </Link>
+              <Link
+                href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=fr&gl=US&pli=1"
+                marginLeft={"1rem"}
+                target={"_blank"}
+              >
+                Android
+              </Link>
+            </Typography>
           </Box>
-          <DialogContentText>2. Enter google auth app</DialogContentText>
+          <DialogContentText>
+          <Typography variant="subtitle2">
+            2. ENTER YOUR 6-DIGIT CODE
+            </Typography>
+            </DialogContentText>
         </>
       )}
       <TextField

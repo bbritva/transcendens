@@ -9,7 +9,7 @@ import { useStore } from "react-redux";
 import { updateUser, userI } from "src/store/userSlice";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
-import { useTheme } from "@mui/material";
+import { Typography, useTheme } from "@mui/material";
 import { useAppDispatch } from "src/app/hooks";
 import StyledBox, { styledBoxI } from "../BasicTable/StyledBox";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
@@ -61,9 +61,9 @@ export default function SignUp(props: styledBoxI) {
     event.preventDefault();
     const formData = new FormData();
     formData.append("file", file);
-    const res = await userService.uploadAvatar(formData) as userI;
-    if (res?.avatar && user.user){
-      dispatch(updateUser({...user.user, avatar: res?.avatar}));
+    const res = (await userService.uploadAvatar(formData)) as userI;
+    if (res?.avatar && user.user) {
+      dispatch(updateUser({ ...user.user, avatar: res?.avatar }));
     }
     setFile(null);
     setImageUrl("");
@@ -87,7 +87,6 @@ export default function SignUp(props: styledBoxI) {
 
   return (
     <StyledBox {...props}>
-      {/* <CssBaseline /> */}
       <Box
         sx={{
           display: "flex",
@@ -96,39 +95,39 @@ export default function SignUp(props: styledBoxI) {
         }}
       >
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          <Grid container >
-            <Box overflow='hidden' display={'flex'} maxHeight="20vh" maxWidth={"100%"} justifyContent='center'>
+          <Grid container>
+            <Box
+              overflow="hidden"
+              display={"flex"}
+              maxHeight="20vh"
+              maxWidth={"100%"}
+              justifyContent="center"
+            >
               <Box
-                component={'img'}
+                component={"img"}
                 alt={user.user?.name}
                 src={avatarSource}
-                maxWidth='80%'
+                maxWidth="80%"
                 sx={{
                   m: 1,
                   bgcolor: "secondary.main",
-                  objectFit: 'cover'
+                  objectFit: "cover",
                 }}
               />
             </Box>
-            {/* <Grid item xs={6} display={"flex"} alignItems={"center"}>
-              <Button variant="contained" component="label">
-                Upload photo
-                <input
-                  hidden
-                  id="uploaded-photo"
-                  accept="image/*"
-                  multiple
-                  type="file"
-                  onChange={onFileChange}
-                /> */}
-              {/* </Button>
-            </Grid> */}
-            <Grid item xs={11} display="flex" alignItems="flex-start" marginTop={3}>
+            <Grid
+              item
+              xs={11}
+              display="flex"
+              alignItems="flex-start"
+              marginTop={3}
+            >
               <AlternateEmailIcon
                 fontSize="large"
                 sx={{ color: theme.palette.primary.dark, mr: 1, my: 1.5 }}
               />
               <TextField
+                variant="filled"
                 name="nickname"
                 fullWidth
                 id="nickname"
