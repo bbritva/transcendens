@@ -1,7 +1,5 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -9,12 +7,13 @@ import { useStore } from "react-redux";
 import { updateUser, userI } from "src/store/userSlice";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
-import { Typography, useTheme } from "@mui/material";
+import { useTheme } from "@mui/material";
 import { useAppDispatch } from "src/app/hooks";
 import StyledBox, { styledBoxI } from "../BasicTable/StyledBox";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import AccountButton from "./StyledButton";
 import CloudSyncIcon from "@mui/icons-material/CloudSync";
+import AddAPhotoOutlinedIcon from "@mui/icons-material/AddAPhotoOutlined";
 
 export default function SignUp(props: styledBoxI) {
   const username = sessionStorage.getItem("username");
@@ -115,6 +114,22 @@ export default function SignUp(props: styledBoxI) {
                 }}
               />
             </Box>
+            <Grid item xs={6} display={"flex"} justifyContent={"end"} marginLeft={"15rem"} marginTop={"-3rem"}>
+              <Button component="label">
+                <AddAPhotoOutlinedIcon
+                  fontSize='large'
+                  sx={{ color: theme.palette.primary.dark, mr: 2, my: 2.5}}
+                />
+                <input
+                  hidden
+                  id="uploaded-photo"
+                  accept="image/*"
+                  multiple
+                  type="file"
+                  onChange={onFileChange}
+                />
+              </Button>
+            </Grid>
             <Grid
               item
               xs={11}
@@ -124,7 +139,7 @@ export default function SignUp(props: styledBoxI) {
             >
               <AlternateEmailIcon
                 fontSize="large"
-                sx={{ color: theme.palette.primary.dark, mr: 1, my: 1.5 }}
+                sx={{ color: theme.palette.primary.dark, mr: 1, my: 1.5, marginLeft: '8px' }}
               />
               <TextField
                 variant="filled"
