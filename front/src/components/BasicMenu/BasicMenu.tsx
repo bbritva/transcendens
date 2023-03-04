@@ -43,7 +43,7 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
       >
         {
           title
-          ? <Typography >{title}</Typography>
+          ? <Typography variant="subtitle1">{title}</Typography>
           : <>
               <Avatar src={user.user?.avatar || user.user?.image || fakeAvatar} />
               <MoreVert color="secondary" />

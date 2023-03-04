@@ -52,7 +52,7 @@ const theme = createTheme({
     },
     subtitle2: {
       fontFamily:  'Arial',
-      fontSize: 15,
+      fontSize: 14,
       fontWeight: "bolder",
       fontStyle: 'oblique',
       color: '#ecebd9',

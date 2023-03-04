@@ -13,5 +13,5 @@ export const StyledMenu = styled(Menu)<MenuProps>(
 
 export const StyledMenuItem = styled(MenuItem)<MenuItemProps>(
     ({ theme }) => ({
-        color: theme.palette.primary.dark
+        color: theme.palette.primary.main
 }));

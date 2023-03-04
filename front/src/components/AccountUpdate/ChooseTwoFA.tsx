@@ -23,13 +23,14 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
   return (
     <Box display={"flex"} flexDirection={"column"} padding={"0"}>
       <DialogTitle sx={{ padding: "3px" }}>
-        {props.title}
-        <Typography variant="body1">TWO-FACTOR AUTHENTICATION</Typography>{" "}
+        <Typography variant="body1" marginLeft="50%">{props.title} {" "}
+          2FA
+        </Typography>
       </DialogTitle>
       {props.isEnabled && (
         <>
           <DialogContentText>
-            <Typography variant="subtitle2">
+            <Typography variant="subtitle2" marginLeft="1rem">
               1. SCAN YOUR QR CODE WITH THE GOOGLE APP
             </Typography>
           </DialogContentText>
@@ -60,10 +61,10 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
             </Typography>
           </Box>
           <DialogContentText>
-          <Typography variant="subtitle2">
-            2. ENTER YOUR 6-DIGIT CODE
+            <Typography variant="subtitle2" marginLeft="1rem" marginTop="1rem">
+              2. ENTER YOUR 6-DIGIT CODE
             </Typography>
-            </DialogContentText>
+          </DialogContentText>
         </>
       )}
       <TextField
