@@ -375,8 +375,11 @@ export class GatewayService {
   }
 
   async getFriends(socketId: string) {
+    const user = this.connections.get(socketId);
+    if (!user)
+      return ;
     await this.userService
-      .getFriends(this.connections.get(socketId).id)
+      .getFriends(user.id)
       .then((friendList) => {
         this.server.to(socketId).emit("friendList", friendList);
       })

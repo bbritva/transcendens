@@ -2,6 +2,7 @@ import { Dispatch } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
 import { logout } from 'src/store/authActions';
+import { setUsers, UserInfoPublic } from 'src/store/chatSlice';
 import { userI } from 'src/store/userSlice';
 
 
@@ -91,8 +92,9 @@ export function initSocket(
     console.log("exFriend", data);
   })
 
-  socket.on("friendList",(data: fromBackI[]) => {
+  socket.on("friendList",(data: UserInfoPublic[]) => {
     console.log("friendList", data);
+    dispatch(setUsers({friends: data}));
   })
 
   socket.on("newPersonnalyBanned",(data: fromBackI) => {
@@ -113,6 +115,8 @@ export function initSocket(
   }) => {
     console.log(data);
   });
+
+  socket.emit("getFriends");
 }
 
 export default socket
