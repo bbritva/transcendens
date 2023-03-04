@@ -129,8 +129,8 @@ export default function SignUp(props: styledBoxI) {
                   multiple
                   type="file"
                   onChange={onFileChange}
-                /> */}
-              {/* </Button>
+                /> 
+              </Button>
             </Grid> */}
             <Grid item xs={11} display="flex" alignItems="flex-start" marginTop={3}>
               <AlternateEmailIcon

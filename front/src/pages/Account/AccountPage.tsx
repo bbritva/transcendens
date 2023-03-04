@@ -18,6 +18,8 @@ import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
 import { selectFriends } from "src/store/chatSlice";
+import { getGames, selectGames } from "src/store/gamesSlice";
+import { useAppDispatch } from "src/app/hooks";
 
 function createHistoryData(
   score: string,
@@ -27,14 +29,6 @@ function createHistoryData(
 ) {
   return { score, result, rival, id } as matchHistoryRowI;
 }
-
-const historyRows = [
-  createHistoryData("Frozen yoghurt", "159", "6.0", 15),
-  createHistoryData("Ice cream sandwich", "237", "9.0", 37),
-  createHistoryData("Eclair", "262", "16.0", 13),
-  createHistoryData("Cupcake", "305", "3.7", 67),
-  createHistoryData("Gingerbread", "356", "16.", 49),
-];
 
 function createPlayerData(data: string, rank: string, id: number) {
   return { data, rank, id } as playerStatisticsRowI;
@@ -49,13 +43,33 @@ const playerRows = [
 const header = ["Score", "Win/Lose", "Rivals"];
 
 const AccountPage: FC<any> = (): ReactElement => {
-  const { user, status, error } = useSelector(selectUser);
+  const { user } = useSelector(selectUser);
+  const { games, status } = useSelector(selectGames);
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user, setSlideShow);
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
   const friends = useSelector(selectFriends) || [];
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
+  const username = sessionStorage.getItem("username");
+
+  if (status === 'idle' && (user?.id || username))
+    dispatch(getGames(parseInt(user?.id || '2')));
+
+  useEffect(() => {
+    if (status === 'succeeded') {
+      setHistoryRows(games.map((game) =>
+        createHistoryData(
+          `${game.winnerScore} : ${game.loserScore}`,
+          game.winnerId == parseInt(user?.id || '')
+            ? 'win' : 'lose',
+          `${game.id}`,
+          game.id
+        )))
+    }
+  }, [status]);
 
   const buttons = [
     {
@@ -132,7 +146,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         },
       }}
     >
-      <SignUp myalign="end"/>
+      <SignUp myalign="end" />
       <BasicTable
         title="PLAYER STATISTICS"
         tableHeadArray={null}
@@ -140,13 +154,13 @@ const AccountPage: FC<any> = (): ReactElement => {
         mybackcolor={theme.palette.info.main}
         myalign="end"
       />
-      { (slideShow) && 
+      {(slideShow) &&
         <Slide direction="right" in={open}
-        timeout={800} appear={true}
-        addEndListener={() => {
-          if (!open)
-            setTimeout(() => {setSlideShow(false);}, 600);
-        }}
+          timeout={800} appear={true}
+          addEndListener={() => {
+            if (!open)
+              setTimeout(() => { setSlideShow(false); }, 600);
+          }}
         >
           {slideFriends ? (
             <FriendsTableRef
@@ -156,7 +170,7 @@ const AccountPage: FC<any> = (): ReactElement => {
               myalign="start"
               flexDirection={"column"}
               tableRowArray={
-                friends.map((friend):settingsRowI => 
+                friends.map((friend): settingsRowI =>
                   createFriendElem(friend.id, friend.name)
                 )
               }
@@ -166,26 +180,26 @@ const AccountPage: FC<any> = (): ReactElement => {
             />
           ) : (
             <StyledBox
-            myalign="start"
-            flexDirection={"column"}
-            mybackcolor={theme.palette.info.main}
-          >
-            <IconButton
-              aria-label="close"
-              onClick={() => setOpen(false)}
-              sx={{
-                alignSelf: "end",
-                color: (theme) => theme.palette.grey[500],
-              }}
+              myalign="start"
+              flexDirection={"column"}
+              mybackcolor={theme.palette.info.main}
             >
-              <CloseIcon />
-            </IconButton>
-            <ChooseTwoFA {...twoFaProps} />
-          </StyledBox>
+              <IconButton
+                aria-label="close"
+                onClick={() => setOpen(false)}
+                sx={{
+                  alignSelf: "end",
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+              <ChooseTwoFA {...twoFaProps} />
+            </StyledBox>
           )}
         </Slide>
       }
-      { (!open && !slideShow) && (
+      {(!open && !slideShow) && (
         <ButtonTable
           setOpen={setOpen}
           setSlideShow={setSlideShow}
