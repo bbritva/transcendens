@@ -6,7 +6,6 @@ import { ChannelService } from "src/chat/channel/channel.service";
 import { ChannelEntity } from "src/chat/channel/entities/channel.entity";
 import { JwtService } from "@nestjs/jwt";
 import {
-  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -293,7 +292,11 @@ export class GatewayService {
     const user = this.connections.get(socketId);
     const channel = await this.channelService.getChannel(channelIn.name);
     // check possibility
-    if (this.canConnect(user, channel, channelIn, user)) {
+    if (!user)
+      this.emitExecutionError(socketId, "connectToChannel", "user unknown");
+    else if (!channel)
+      this.emitExecutionError(socketId, "connectToChannel", "channel unknown");
+    else if (this.canConnect(socketId, user, channel, channelIn, user)) {
       await this.connectUserToChannel(
         channelIn,
         this.connections.get(socketId)
@@ -306,7 +309,7 @@ export class GatewayService {
             userName.name
           );
           // i suppose, we don't need this part of function
-          if (this.canConnect(user, channel, channelIn, targetUser))
+          if (this.canConnect(socketId, user, channel, channelIn, targetUser))
             this.connectUserToChannel(channelIn, targetUser).catch((e) =>
               this.emitExecutionError(
                 socketId,
@@ -316,7 +319,7 @@ export class GatewayService {
             );
         });
       }
-    } else this.emitNotAllowed(socketId, "connectToChannel", channelIn);
+    }
   }
 
   async kickUser(socketId: string, data: DTO.ManageUserInChannelI) {
@@ -729,25 +732,46 @@ export class GatewayService {
       });
   }
 
-  // user can connect to channel:
-  // 1 channel doesn't exist
-  // 2 channel admin adds user
-  // 3 channel is public, password is correct and user is not banned
+  // user can not connect to channel:
+  // 1 - channel is private
+  // 2 - user banned
+  // 3 - pasword incorrect
   private canConnect(
+    socketId: string,
     executor: DTO.ClientInfo,
     channel: ChannelEntity,
     channelIn: DTO.ChannelInfoIn,
     target: DTO.ClientInfo
   ): boolean {
-    return (
-      executor &&
-      target &&
-      (channel == null ||
-        channel.admIds.includes(executor.id) ||
-        (!channel.isPrivate &&
-          channel.password == channelIn.password &&
-          !channel.bannedIds.includes(target.id)))
-    );
+    if (channel == null || channel.admIds.includes(executor.id)) return true;
+    if (channel.isPrivate) {
+      this.emitNotAllowed(
+        socketId,
+        "connectToChannel",
+        channelIn,
+        "channel is private"
+      );
+      return false;
+    }
+    if (channel.bannedIds.includes(target.id)) {
+      this.emitNotAllowed(
+        socketId,
+        "connectToChannel",
+        channelIn,
+        "user banned"
+      );
+      return false;
+    }
+    if (channel.password != channelIn.password) {
+      this.emitNotAllowed(
+        socketId,
+        "connectToChannel",
+        channelIn,
+        "password incorrect"
+      );
+      return false;
+    }
+    return true;
   }
 
   private connectionByName(name: string) {
