@@ -54,7 +54,7 @@ const AccountPage: FC<any> = (): ReactElement => {
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user, setSlideShow);
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
-  const friends = useSelector(selectFriends);
+  const friends = useSelector(selectFriends) || [];
   const navigate = useNavigate();
 
   const buttons = [
