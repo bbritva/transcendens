@@ -135,6 +135,30 @@ async function main() {
     },
   });
 
+  await prisma.game.upsert({
+    where: { id: 131 },
+    update: {},
+    create: {
+      id: 131,
+      winnerId: 1,
+      winnerScore: 11,
+      loserId: 2,
+      loserScore: 2
+    },
+  })
+
+  await prisma.game.upsert({
+    where: { id: 522 },
+    update: {},
+    create: {
+      id: 522,
+      winnerId: 2,
+      winnerScore: 10,
+      loserId: 1,
+      loserScore: 5
+    },
+  })
+
   const users = await prisma.user.findMany({
     include: { channels: true },
   });

@@ -23,7 +23,7 @@ export class GameService {
     skip?: number;
     take?: number;
     cursor?: Prisma.UserWhereUniqueInput;
-    where?: Prisma.UserWhereInput;
+    where?: Prisma.GameWhereInput;
     orderBy?: Prisma.UserOrderByWithRelationInput;
   }): Promise<Game[]> {
     const { skip, take, cursor, where, orderBy } = params;
