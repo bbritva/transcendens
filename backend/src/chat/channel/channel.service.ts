@@ -131,9 +131,7 @@ export class ChannelService {
       },
     })
       .then((channel) => channel)
-      .catch((e) => {
-        throw new BadRequestException(e.message);
-      });
+      .catch((e) => e);
   }
 
   async getChannel(
@@ -196,11 +194,10 @@ export class ChannelService {
         },
       })
       .then((ret: any) => {
-        return ret.count != 0;
+        if (ret.count != 0) return true;
+        else throw new ForbiddenException();
       })
-      .catch((e: any) => {
-        return false;
-      });
+      .catch((e) => e);
   }
 
   async addAdmin(
@@ -221,11 +218,10 @@ export class ChannelService {
         },
       })
       .then((ret: any) => {
-        return ret.count != 0;
+        if (ret.count != 0) return true;
+        else throw new ForbiddenException();
       })
-      .catch((e: any) => {
-        return false;
-      });
+      .catch((e) => e);
   }
 
   async unmuteUser(
@@ -303,11 +299,10 @@ export class ChannelService {
         },
       })
       .then((ret: any) => {
-        return ret.count != 0;
+        if (ret.count != 0) return true;
+        else throw new ForbiddenException();
       })
-      .catch((e: any) => {
-        return false;
-      });
+      .catch((e) => e);
   }
 
   async updateChannel(params: {
@@ -353,26 +348,22 @@ export class ChannelService {
     executorId: number,
     data: CreateMessageDTO
   ): Promise<Message> {
-    return this.isMuted(data.channelName, executorId).then(async (isMuted) => {
-      if (isMuted) {
-        console.log("muted");
-        throw new ForbiddenException();
-      } else
-        try {
-          const message = await this.messageService.createMessage({
-            channel: {
-              connect: { name: data.channelName },
-            },
-            authorName: data.authorName,
-            text: data.text,
-          });
-          return message;
-        } catch (e) {
-          throw new BadRequestException();
-        }
-    }).catch((e) => {
-      throw new BadRequestException()
-    })
+    return this.isMuted(data.channelName, executorId)
+      .then(async (isMuted) => {
+        if (isMuted) throw new ForbiddenException();
+        else
+          return this.messageService
+            .createMessage({
+              channel: {
+                connect: { name: data.channelName },
+              },
+              authorName: data.authorName,
+              text: data.text,
+            })
+            .then((message) => message)
+            .catch((e) => e);
+      })
+      .catch((e) => e);
   }
 
   async banUser(
@@ -419,9 +410,7 @@ export class ChannelService {
           return true;
         } else return false;
       })
-      .catch((e: any) => {
-        throw new BadRequestException(e.message);
-      });
+      .catch((e: any) => e);
   }
 
   async deleteChannel(where: Prisma.ChannelWhereUniqueInput): Promise<Channel> {
