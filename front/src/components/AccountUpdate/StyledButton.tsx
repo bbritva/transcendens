@@ -1,8 +1,19 @@
-import { Button, ButtonProps, Typography } from "@mui/material";
+import { Button, ButtonProps, Typography, useTheme } from "@mui/material";
 
 function AccountButton(props: ButtonProps) {
+  const theme = useTheme();
   return (
-    <Button variant={"text"} {...props} sx={{ marginRight: 'auto' }}>
+    <Button
+      fullWidth
+      variant={"text"}
+      {...props}
+      sx={{
+        justifyContent: "flex-start",
+        "&:hover": {
+          backgroundColor: theme.palette.primary.light,
+        },
+      }}
+    >
       <Typography variant="body1" display="flex" alignItems="center">
         {props.children}
       </Typography>

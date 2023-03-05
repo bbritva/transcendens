@@ -1,5 +1,4 @@
 import { styled, Theme } from "@mui/material/styles";
-import BasicTable, { basicTableI } from "./BasicTable";
 import { Box, BoxProps } from "@mui/material";
 
 // Define the interface for the component's props
@@ -15,6 +14,7 @@ export interface styledBoxI extends BoxProps {
 const StyledBox = styled(Box)<styledBoxI>(
   ({ theme, mybackcolor, myalign }: { theme: Theme; mybackcolor?: string; myalign?: string }) => {
     return {
+      position: 'sticky',
       display: 'flex',
       alignItems: 'center',
       flexWrap: 'wrap',

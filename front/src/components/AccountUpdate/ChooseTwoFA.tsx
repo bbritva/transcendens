@@ -21,16 +21,16 @@ export interface twoFAdialogProps {
 
 const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
   return (
-    <Box display={"flex"} flexDirection={"column"} padding={"0"}>
+    <Box display={"flex"}  flexDirection={"column"} padding={"0"} marginLeft='10px'
+    >
       <DialogTitle sx={{ padding: "3px" }}>
-        <Typography variant="body1" marginLeft="50%">{props.title} {" "}
-          2FA
+        <Typography variant="body1" marginLeft={"2rem"}>{props.title + " 2FA"}
         </Typography>
       </DialogTitle>
       {props.isEnabled && (
         <>
           <DialogContentText>
-            <Typography variant="subtitle2" marginLeft="1rem">
+            <Typography variant="subtitle2" marginLeft="1rem" marginTop={"5px"}>
               1. SCAN YOUR QR CODE WITH THE GOOGLE APP
             </Typography>
           </DialogContentText>
@@ -75,6 +75,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
           if (e.key === "Enter") props.onClick();
         }}
         margin="dense"
+
       />
       <Button
         variant="outlined"

@@ -78,7 +78,9 @@ export default function BasicTable(props: basicTableI) {
             props.onClose && props.onClose();
           }}
           sx={{
-            alignSelf: "end",
+            position:"absolute",
+            right: "2px",
+            top: "1px",
             color: (theme) => theme.palette.grey[500],
           }}
         >
@@ -87,7 +89,6 @@ export default function BasicTable(props: basicTableI) {
       )}
       {props.title && (
         <Typography 
-          sx={{ flex: "1 1 100%" }}
           variant="body1"
           id="tableTitle"
           component="div"

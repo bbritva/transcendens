@@ -13,7 +13,7 @@ import StyledBox, { styledBoxI } from "../BasicTable/StyledBox";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import AccountButton from "./StyledButton";
 import CloudSyncIcon from "@mui/icons-material/CloudSync";
-import socket from 'src/services/socket';
+import socket from "src/services/socket";
 import AddAPhotoOutlinedIcon from "@mui/icons-material/AddAPhotoOutlined";
 
 export default function SignUp(props: styledBoxI) {
@@ -107,9 +107,11 @@ export default function SignUp(props: styledBoxI) {
             <Box
               overflow="hidden"
               display={"flex"}
-              maxHeight="20vh"
-              maxWidth={"100%"}
+              maxHeight="30vh"
               justifyContent="center"
+              sx={{
+                position: "sticky",
+              }}
             >
               <Box
                 component={"img"}
@@ -117,28 +119,34 @@ export default function SignUp(props: styledBoxI) {
                 src={avatarSource}
                 maxWidth="80%"
                 sx={{
-                  m: 1,
-                  bgcolor: "secondary.main",
-                  objectFit: "cover",
+                  objectFit: "scale-down",
                 }}
-              />
+              >
+                
+              </Box>
+              <Button
+                  component="label"
+                  sx={{
+                    position: "absolute",
+                    right: "30px",
+                    bottom: "-3px",
+                    padding: 0,
+                  }}
+                >
+                  <AddAPhotoOutlinedIcon
+                    fontSize="large"
+                    sx={{ color: theme.palette.primary.dark, padding: 0 }}
+                  />
+                  <input
+                    hidden
+                    id="uploaded-photo"
+                    accept="image/*"
+                    multiple
+                    type="file"
+                    onChange={onFileChange}
+                  />
+                </Button>
             </Box>
-            <Grid item xs={6} display={"flex"} justifyContent={"end"} marginLeft={"15rem"} marginTop={"-3rem"}>
-              <Button component="label">
-                <AddAPhotoOutlinedIcon
-                  fontSize='large'
-                  sx={{ color: theme.palette.primary.dark, mr: 2, my: 2.5}}
-                />
-                <input
-                  hidden
-                  id="uploaded-photo"
-                  accept="image/*"
-                  multiple
-                  type="file"
-                  onChange={onFileChange}
-                />
-              </Button>
-            </Grid>
             <Grid
               item
               xs={11}
@@ -162,16 +170,16 @@ export default function SignUp(props: styledBoxI) {
                 onChange={nickChange}
               />
             </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="userSearch"
-                  fullWidth
-                  id="userSearch"
-                  label="userSearch"
-                  autoFocus
-                  onChange={nickSearch}
-                />
-              </Grid>
+            <Grid item xs={12}>
+              <TextField
+                name="userSearch"
+                fullWidth
+                id="userSearch"
+                label="userSearch"
+                autoFocus
+                onChange={nickSearch}
+              />
+            </Grid>
           </Grid>
           <AccountButton type="submit">
             <CloudSyncIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />

@@ -145,11 +145,12 @@ const AccountPage: FC<any> = (): ReactElement => {
         },
         [theme.breakpoints.down("md")]: {
           overflowY: "scroll",
-          alignContent: "center",
         },
       }}
     >
-      <SignUp myalign="end"  />
+      <SignUp 
+        myalign="end"
+          />
       <BasicTable
         title="PLAYER STATISTICS"
         tableHeadArray={null}
@@ -176,7 +177,6 @@ const AccountPage: FC<any> = (): ReactElement => {
               tableHeadArray={null}
               mybackcolor={theme.palette.info.main}
               myalign="start"
-              flexDirection={"column"}
               tableRowArray={
                 friends.map((friend): settingsRowI =>
                   createFriendElem(friend.id, friend.name)
@@ -189,14 +189,15 @@ const AccountPage: FC<any> = (): ReactElement => {
           ) : (
             <StyledBox
               myalign="start"
-              flexDirection={"column"}
               mybackcolor={theme.palette.info.main}
             >
               <IconButton
                 aria-label="close"
                 onClick={() => setOpen(false)}
                 sx={{
-                  alignSelf: "end",
+                  position:"absolute",
+                  right: "2px",
+                  top: "1px",
                   color: (theme) => theme.palette.grey[500],
                 }}
               >
