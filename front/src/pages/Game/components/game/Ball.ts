@@ -1,89 +1,110 @@
+import { gameBasicPropsI } from "./game";
 import Paddle from "./Paddle";
 
-class Ball{
-  canvas: HTMLCanvasElement;
+class Ball {
+  private static instance: Ball;
+  public static count = 0;
+  myNum: number;
   x: number;
   y: number;
   remote: boolean;
-  dx: number;
-  dy: number;
+  speedX: number;
+  speedY: number;
   ballRadius: number;
-  ballSpeed: number;
+  speedH: number;
+  speedV: number;
   remoteX: number = 0;
   remoteY: number = 0;
+  lastUpdateTime: number;
 
-  constructor(
-    initX: number, initY: number, 
-    remote:boolean ,canvas: HTMLCanvasElement,
-    radius: number, speed: number,
-  ){
-    this.canvas = canvas;
-    this.x = initX;
-    this.y = initY;
+  public static getInstance(gameProps: gameBasicPropsI, remote: boolean): Ball {
+    if (!Ball.instance) {
+      Ball.instance = new Ball(gameProps, remote);
+    } else {
+      Ball.instance.x = 0.5;
+      Ball.instance.y = 0.5;
+      Ball.instance.remote = remote;
+      Ball.instance.speedH = gameProps.ballSpeed / gameProps.screenRatio;
+      Ball.instance.speedV = gameProps.ballSpeed;
+      Ball.instance.speedX = -Ball.instance.speedH;
+      Ball.instance.speedY = Ball.instance.speedV;
+      Ball.instance.ballRadius = gameProps.ballRadius;
+      Ball.instance.lastUpdateTime = Date.now();
+    }
+    return Ball.instance;
+  }
+
+  private constructor(gameProps: gameBasicPropsI, remote: boolean) {
+    this.myNum = Ball.count++;
+    this.x = 0.5;
+    this.y = 0.5;
     this.remote = remote;
-    this.dx = -speed;
-    this.dy = speed;
-    this.ballRadius = radius;
-    this.ballSpeed = speed;
+    this.speedH = gameProps.ballSpeed / gameProps.screenRatio;
+    this.speedV = gameProps.ballSpeed;
+    this.speedX = -this.speedH;
+    this.speedY = this.speedV;
+    this.ballRadius = gameProps.ballRadius;
+    this.lastUpdateTime = Date.now();
   }
 
   verticalCollision() {
-    if(this.y + this.dy > this.canvas.height - this.ballRadius || this.y + this.dy < this.ballRadius) {
-      this.dy = -this.dy;
+    if (this.y + this.speedY > 1) {
+      this.speedY = -this.speedV;
+    } else if (this.y + this.speedY < 0) {
+      this.speedY = this.speedV;
     }
   }
 
-  hitDirection(paddle: Paddle) {
-    const whereHit = paddle.ballCollision(this);
-    if (whereHit){
-      this.dx = -this.dx;
-      if (whereHit == 2)
-        this.dy = 0;
-      else if (this.dy <= 0 && whereHit < 0 || this.dy >= 0 && whereHit > 0)
-        this.dy = this.ballSpeed * -whereHit;
+  hitPaddle(paddle: Paddle, isLeft = false): boolean {
+    const whereHit = paddle.ballCollision(this, isLeft);
+    if (whereHit) {
+      if (whereHit == 3) {
+        this.speedY = 0;
+        // this.speedX = 0;
+        this.speedX = (isLeft ? this.speedH : -this.speedH) * Math.sqrt(2);
+      } else {
+        this.speedY = this.speedV * -whereHit;
+        this.speedX = isLeft ? this.speedH : -this.speedH;
+      }
+      return true;
     }
+    return false;
   }
 
-  leftCollision(leftPaddle: Paddle): boolean {
-    const res = (this.x + this.dx < this.ballRadius + leftPaddle.paddleHeight + leftPaddle.paddleOffsetX);
-    if (res){
-      this.hitDirection(leftPaddle);
-    }
-    return res;
-  }
-
-  rightCollision(rightPaddle: Paddle): boolean {
-    const res = (this.x + this.dx > this.canvas.width - this.ballRadius - rightPaddle.paddleOffsetX);
-    if (res){
-      this.hitDirection(rightPaddle);
-    }
-    return res;
-  }
-  
   drawBall(ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.ballRadius, 0, Math.PI * 2);
+    ctx.arc(
+      this.x * ctx.canvas.width,
+      this.y * ctx.canvas.height,
+      this.ballRadius * ctx.canvas.width,
+      0,
+      Math.PI * 2
+    );
     ctx.fillStyle = "#0090DD";
     ctx.fill();
     ctx.closePath();
   }
 
-  moveBall() {
-    if (this.remoteX || this.remoteY){
+  moveBall(isPaused: boolean) {
+    if (this.remote) {
       this.x = this.remoteX;
       this.y = this.remoteY;
-    }
-    else {
-      this.x += this.dx;
-      this.y += this.dy;
+    } else {
+      const now = Date.now();
+      const k = (now - this.lastUpdateTime) * this.speedV;
+      this.x += isPaused ? 0 : this.speedX * k;
+      this.y += isPaused ? 0 : this.speedY * k;
+      this.lastUpdateTime = now;
+      // this.x += this.speedX;
+      // this.y += this.speedY;
     }
   }
 
   reset(side: number) {
-    this.y = this.canvas.height / 2;
-    this.x = this.canvas.width / 2;
-    this.dx = -this.ballSpeed * side;
-    this.dy = this.ballSpeed * side;
+    this.y = 0.5;
+    this.x = 0.5;
+    this.speedX = -this.speedH * side;
+    this.speedY = this.speedV * side;
   }
 }
 

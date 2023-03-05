@@ -21,6 +21,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { randomUUID } from "crypto";
 import * as path from "path";
+import { ManageUserI } from "src/chat/websocket/websocket.dto";
 
 export const storage = {
   storage: diskStorage({
@@ -91,9 +92,23 @@ export class UserController {
   @ApiOkResponse()
   @Get("ladder")
   async getLadder(): Promise<UserModel[]> {
-    return this.userService.getLadder()
+    return this.userService
+      .getLadder()
       .then((users) => users)
       .catch((e: any) => {
+        throw new BadRequestException(e.message);
+      });
+  }
+
+  @ApiOkResponse()
+  @Get("checkNamePossibility")
+  async checkNamePossibility(@Request() req: ManageUserI): Promise<boolean> {
+    return this.userService
+      .getUserByName(req.targetUserName)
+      .then((user) => {
+        return !user;
+      })
+      .catch((e) => {
         throw new BadRequestException(e.message);
       });
   }
@@ -101,13 +116,14 @@ export class UserController {
   @ApiOkResponse({ type: UserEntity })
   @Get("stats/:id")
   async getStats(@Param("id") id: string): Promise<UserModel> {
-    return this.userService.getStats(parseInt(id))
+    return this.userService
+      .getStats(parseInt(id))
       .then((user) => user)
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
   }
-  
+
   @ApiOkResponse({ type: UserEntity })
   @Get(":id")
   async showUser(@Param("id") id: string): Promise<UserModel> {
@@ -131,7 +147,7 @@ export class UserController {
       data: {
         avatar: file.filename,
       },
-    });
+      });
     return { avatar: file.filename };
   }
 

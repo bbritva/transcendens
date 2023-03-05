@@ -1,13 +1,15 @@
 import { UserEntity } from "src/user/entities/user.entity";
 import { MessageEntity } from "src/chat/message/entities/message.entity";
-import { eStatus } from "@prisma/client";
+import { eChannelType, eStatus } from "@prisma/client";
 import { GameEntity } from "src/game/entities/game.entity";
 
 export interface ChannelInfoIn {
   name: string;
+  ownerId?: number;
   isPrivate?: boolean;
   password?: string;
   users?: { name: string }[];
+  type?: eChannelType;
 }
 
 export interface ChannelInfoOut {
@@ -32,6 +34,7 @@ export class ClientInfo {
   readonly id: number;
   readonly name: string;
   readonly socketId?: string;
+  inGame?: boolean;
 }
 
 export interface NotAllowedI {
@@ -71,27 +74,45 @@ export interface AcceptInviteI {
   sender: string;
 }
 
-export interface scoreDataI{
-  game: string,
-  playerOne: {
-    name: string, 
-    score: number
-  },
-  playerTwo: {
-    name: string, 
-    score: number
-  },
+export interface paddleStateI {
+  gameName: string;
+  paddleY: number;
 }
 
-export interface coordinateDataI{
-  game: string,
-  playerY: number,
-  ball: {x: number, y: number}
+export interface playerDataI {
+  name: string;
+  score: number;
+  paddleY: number;
 }
 
-export interface gameChannelDataI{
-  name: string,
-  first: string,
-  second: string
-  guests: string[]
+export interface ballDataI{
+  x: number;
+  y: number ;
+  speedX: number;
+  speedY: number;
+}
+
+export interface gameStateDataI {
+  gameName: string;
+  playerFirst: playerDataI;
+  playerSecond: playerDataI;
+  ball: ballDataI;
+  isPaused : boolean;
+}
+
+export interface spectateGameI {
+  gameName: string;
+}
+
+export interface finishGameI {
+  gameName: string;
+}
+
+export interface pauseGameI {
+  gameName: string;
+  isPaused: boolean;
+}
+
+export interface gameLineI {
+  inLine: boolean;
 }

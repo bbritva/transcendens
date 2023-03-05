@@ -4,6 +4,7 @@ import {
   forwardRef,
   ForwardedRef,
   useState,
+  useEffect
 } from "react";
 import { Box, IconButton, Paper, Slide, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
@@ -25,6 +26,8 @@ import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
 import { selectFriends } from "src/store/chatSlice";
+import { getGames, selectGames } from "src/store/gamesSlice";
+import { useAppDispatch } from "src/app/hooks";
 
 function createHistoryData(
   score: string,
@@ -34,16 +37,6 @@ function createHistoryData(
 ) {
   return { score, result, rival, id } as matchHistoryRowI;
 }
-
-const historyRows = [
-  createHistoryData("Frozen yoghurt", "159", "6.0", 15),
-  createHistoryData("Ice cream sandwich", "237", "9.0", 37),
-  createHistoryData("Eclair", "262", "16.0", 13),
-  createHistoryData("Cupcake", "305", "3.7", 67),
-  createHistoryData("Gingerbread", "356", "16.", 49),
-  // createHistoryData("Gingerbread", "356", "16.", 489),
-  // // createHistoryData("Gingerbread", "356", "16.", 389),
-];
 
 function createPlayerData(data: string, rank: string, id: number) {
   return { data, rank, id } as playerStatisticsRowI;
@@ -58,7 +51,8 @@ const playerRows = [
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
 const AccountPage: FC<any> = (): ReactElement => {
-  const { user, status, error } = useSelector(selectUser);
+  const { user } = useSelector(selectUser);
+  const { games, status } = useSelector(selectGames);
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(
@@ -68,6 +62,25 @@ const AccountPage: FC<any> = (): ReactElement => {
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
   const friends = useSelector(selectFriends) || [];
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
+  const username = sessionStorage.getItem("username");
+
+  if (status === 'idle' && (user?.id || username))
+    dispatch(getGames(parseInt(user?.id || '2')));
+
+  useEffect(() => {
+    if (status === 'succeeded') {
+      setHistoryRows(games.map((game) =>
+        createHistoryData(
+          `${game.winnerScore} : ${game.loserScore}`,
+          game.winnerId == parseInt(user?.id || '')
+            ? 'win' : 'lose',
+          `${game.id}`,
+          game.id
+        )))
+    }
+  }, [status]);
 
   const buttons = [
     {
@@ -136,7 +149,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         },
       }}
     >
-      <SignUp myalign="end" />
+      <SignUp myalign="end"  />
       <BasicTable
         title="PLAYER STATISTICS"
         tableHeadArray={null}
@@ -165,7 +178,7 @@ const AccountPage: FC<any> = (): ReactElement => {
               myalign="start"
               flexDirection={"column"}
               tableRowArray={
-                friends.map((friend):settingsRowI => 
+                friends.map((friend): settingsRowI =>
                   createFriendElem(friend.id, friend.name)
                 )
               }
