@@ -6,7 +6,7 @@ import {
   useState,
   useEffect
 } from "react";
-import { Box, IconButton, Paper, Slide, useTheme } from "@mui/material";
+import { Box, CardMedia, IconButton, Paper, Slide, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
 import { selectUser } from "src/store/userSlice";
@@ -129,13 +129,15 @@ const AccountPage: FC<any> = (): ReactElement => {
 
   return (
     <Box
-      component={Paper}
+      component={CardMedia}
       display="flex"
       alignItems="center"
       justifyContent="center"
       flexWrap="wrap"
+
       sx={{
-        backgroundColor: theme.palette.secondary.light,
+        boxShadow: '20',
+        background: "linear-gradient(to top, #8bd4d1, 15%, #ecebd9)",
         width: "65vw",
         height: "90vh",
         overflow: "scroll",

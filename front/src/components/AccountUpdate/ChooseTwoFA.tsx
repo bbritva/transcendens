@@ -5,9 +5,11 @@ import {
   DialogTitle,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { ChangeEventHandler, FC } from "react";
 import Link from "@mui/material/Link";
+import AccountButton from "./StyledButton";
 
 export interface twoFAdialogProps {
   title: string;
@@ -20,25 +22,26 @@ export interface twoFAdialogProps {
 }
 
 const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
+  const theme = useTheme()
   return (
     <Box display={"flex"}  flexDirection={"column"} padding={"0"} marginLeft='10px'
     >
       <DialogTitle sx={{ padding: "3px" }}>
-        <Typography variant="body1" marginLeft={"2rem"}>{props.title + " 2FA"}
+        <Typography variant="body1" marginLeft={"3rem"}>{props.title + " 2FA"}
         </Typography>
       </DialogTitle>
       {props.isEnabled && (
         <>
           <DialogContentText>
-            <Typography variant="subtitle2" marginLeft="1rem" marginTop={"5px"}>
+            <Typography variant="subtitle2" marginLeft="3rem" marginTop={"5px"}>
               1. SCAN YOUR QR CODE WITH THE GOOGLE APP
             </Typography>
           </DialogContentText>
           <Box display={"flex"}>
             <Box
-              marginLeft={"8px"}
-              maxHeight="80px"
-              maxWidth="80px"
+              marginLeft={"3rem"}
+              maxHeight="100px"
+              maxWidth="100px"
               component={"img"}
               alt="2faQR"
               src={props.urlQR}
@@ -61,7 +64,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
             </Typography>
           </Box>
           <DialogContentText>
-            <Typography variant="subtitle2" marginLeft="1rem" marginTop="1rem">
+            <Typography variant="subtitle2" marginLeft="3rem" marginTop="1rem">
               2. ENTER YOUR 6-DIGIT CODE
             </Typography>
           </DialogContentText>
@@ -75,7 +78,12 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
           if (e.key === "Enter") props.onClick();
         }}
         margin="dense"
-
+        sx={{ marginLeft: '3rem', 
+        fieldset: {
+          borderColor: theme.palette.primary.dark,},
+        input:   {
+          color: theme.palette.primary.dark,
+         }}}
       />
       <Button
         variant="outlined"

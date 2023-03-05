@@ -32,6 +32,7 @@ const theme = createTheme({
     },
     secondary: {
       main: '#ecebd9',
+      dark: '#ebebda',
     },
     info: {
       main: '#8bd4d1'
@@ -56,7 +57,7 @@ const theme = createTheme({
       fontSize: 14,
       fontWeight: "bolder",
       fontStyle: 'oblique',
-      color: '#ecebd9',
+      color: '#ebebda',
     },
   },
 });

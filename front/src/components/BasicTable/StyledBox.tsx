@@ -18,7 +18,7 @@ const StyledBox = styled(Box)<styledBoxI>(
       display: 'flex',
       alignItems: 'center',
       flexWrap: 'wrap',
-      borderRadius: 4,
+      borderRadius: 8,
       boxShadow: "0 3px 5px 2px rgba(0, 1, 1, .3)",
       padding: "0.25rem",
       margin: "0.5rem",
