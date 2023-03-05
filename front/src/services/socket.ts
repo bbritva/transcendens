@@ -114,13 +114,7 @@ export function initSocket(
     console.log("personallyBannedList", data);
   })
 
-  socket.on("nameAvailable",(data: fromBackI) => {
-    console.log("nameAvailable", data);
-  })
 
-  socket.on("nameTaken",(data: fromBackI) => {
-    console.log("nameTaken", data);
-  })
 
   socket.on("nameSuggestions",(data: string[]) => {
     console.log("nameSuggestions", data);

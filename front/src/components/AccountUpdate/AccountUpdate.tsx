@@ -15,20 +15,29 @@ import AccountButton from "./StyledButton";
 import CloudSyncIcon from "@mui/icons-material/CloudSync";
 import socket from "src/services/socket";
 import AddAPhotoOutlinedIcon from "@mui/icons-material/AddAPhotoOutlined";
+import { fromBackI } from "src/pages/Chat/ChatPage";
 
 export default function SignUp(props: styledBoxI) {
   const username = sessionStorage.getItem("username");
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
   const [inputError, setInputError] = React.useState<boolean>(false);
-  const [inputValue, setInputValue] = React.useState<string>(username || "");
-
-  const [avatarSource, setAvatarSource] = React.useState<string>("");
   const { getState } = useStore();
   const { user } = getState() as RootState;
+  const [inputValue, setInputValue] = React.useState<string>(username || user.user?.name || "");
+  const [avatarSource, setAvatarSource] = React.useState<string>("");
   const dispatch = useAppDispatch();
 
   const theme = useTheme();
+
+  if (socket.connected){
+    socket.on("nameAvailable",(data: fromBackI) => {
+      setInputError(false);
+    })
+    socket.on("nameTaken",(data: fromBackI) => {
+      setInputError(true);
+    })
+  }
 
   React.useEffect(() => {
     if (file?.name) {
@@ -46,16 +55,6 @@ export default function SignUp(props: styledBoxI) {
       : setAvatarSource(user.user?.image || "");
   }, [imageUrl, user.user?.avatar]);
 
-  React.useEffect(() => {
-    const timeOutId = setTimeout(() => {
-      if (inputValue !== user.user?.name) {
-        setInputError(true);
-      } else {
-        setInputError(false);
-      }
-    }, 500);
-    return () => clearTimeout(timeOutId);
-  }, [inputValue, user.user?.name]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -82,10 +81,14 @@ export default function SignUp(props: styledBoxI) {
     event: React.ChangeEvent<HTMLTextAreaElement>
   ): void {
     // event.preventDefault();
-    setInputValue(event.currentTarget.value);
-    socket.emit("checkNamePossibility", {targetUserName : event.currentTarget.value})
+    const val = event.currentTarget.value
+    setInputValue(val);
+    const timeOutId = setTimeout(() => {
+      if (val !== user.user?.name) {
+        socket.emit("checkNamePossibility", {targetUserName: val})
+      }
+    }, 800);
   }
-
 
   function nickSearch (this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
     // event.preventDefault();
@@ -122,7 +125,6 @@ export default function SignUp(props: styledBoxI) {
                   objectFit: "scale-down",
                 }}
               >
-                
               </Box>
               <Button
                   component="label"
@@ -159,7 +161,7 @@ export default function SignUp(props: styledBoxI) {
                 sx={{ color: theme.palette.primary.dark, mr: 1, my: 1.5, marginLeft: '8px' }}
               />
               <TextField
-                variant="filled"
+                variant="outlined"
                 name="nickname"
                 fullWidth
                 id="nickname"
@@ -168,9 +170,17 @@ export default function SignUp(props: styledBoxI) {
                 error={inputError}
                 helperText={inputError ? "This nickname is taken" : ""}
                 onChange={nickChange}
+                sx={{
+                  fieldset: {
+                    borderColor: theme.palette.primary.dark,
+                  },
+                  input:   {
+                    color: theme.palette.primary.dark,
+                   }
+                }}
               />
             </Grid>
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <TextField
                 name="userSearch"
                 fullWidth
@@ -179,7 +189,7 @@ export default function SignUp(props: styledBoxI) {
                 autoFocus
                 onChange={nickSearch}
               />
-            </Grid>
+            </Grid> */}
           </Grid>
           <AccountButton type="submit">
             <CloudSyncIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
