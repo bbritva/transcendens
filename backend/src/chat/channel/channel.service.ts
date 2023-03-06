@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Message, Prisma } from "@prisma/client";
 import * as DTO from "src/chat/websocket/websocket.dto";
@@ -69,7 +74,7 @@ export class ChannelService {
         return channelList;
       })
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
@@ -108,11 +113,11 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
-  async leaveChannel(userId : number, channelName : string) : Promise<Channel> {
+  async leaveChannel(userId: number, channelName: string): Promise<Channel> {
     return this.updateChannel({
       where: {
         name: channelName,
@@ -124,10 +129,11 @@ export class ChannelService {
           },
         },
       },
-    }).then((channel) => channel)
-    .catch((e) => {
-      throw new BadRequestException(e.message);
     })
+      .then((channel) => channel)
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async getChannel(
@@ -147,7 +153,7 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
@@ -167,11 +173,9 @@ export class ChannelService {
           isPrivate: data.isPrivate,
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
+      .then((ret: any) => ret.count != 0)
       .catch((e: any) => {
-        return false;
+        throw e;
       });
   }
 
@@ -189,11 +193,9 @@ export class ChannelService {
           password: data.password,
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
-      .catch((e: any) => {
-        return false;
+      .then((ret: any) => ret.count != 0)
+      .catch((e) => {
+        throw e;
       });
   }
 
@@ -214,11 +216,9 @@ export class ChannelService {
           },
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
-      .catch((e: any) => {
-        return false;
+      .then((ret: any) => ret.count != 0)
+      .catch((e) => {
+        throw e;
       });
   }
 
@@ -243,11 +243,9 @@ export class ChannelService {
           },
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
+      .then((ret: any) => ret.count != 0)
       .catch((e: any) => {
-        return false;
+        throw e;
       });
   }
 
@@ -272,11 +270,9 @@ export class ChannelService {
           },
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
+      .then((ret: any) => ret.count != 0)
       .catch((e: any) => {
-        return false;
+        throw e;
       });
   }
 
@@ -296,11 +292,9 @@ export class ChannelService {
           name: data.newName,
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
-      .catch((e: any) => {
-        return false;
+      .then((ret: any) => ret.count != 0)
+      .catch((e) => {
+        throw e;
       });
   }
 
@@ -316,13 +310,6 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2002") {
-            console.log(
-              "There is a unique constraint violation, a Channel cannot be updated"
-            );
-          }
-        }
         throw e;
       });
   }
@@ -335,11 +322,11 @@ export class ChannelService {
         },
       })
       .then((channel) => {
-        return channel.mutedIds.includes(userId);
+        if (channel) return channel.mutedIds.includes(userId);
+        else throw new NotFoundException();
       })
       .catch((e: any) => {
-        console.log("err", e.meta.cause);
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
@@ -347,21 +334,26 @@ export class ChannelService {
     executorId: number,
     data: CreateMessageDTO
   ): Promise<Message> {
-    if (!(await this.isMuted(data.channelName, executorId))) {
-      try {
-        const messageOut = await this.messageService.createMessage({
-          channel: {
-            connect: { name: data.channelName },
-          },
-          authorName: data.authorName,
-          text: data.text,
-        });
-        return messageOut;
-      } catch (e) {
-        console.log("err", e.meta.cause);
-      }
-    }
-    return null;
+    return this.isMuted(data.channelName, executorId)
+      .then(async (isMuted) => {
+        if (isMuted)throw new ForbiddenException();
+        else
+          return this.messageService
+            .createMessage({
+              channel: {
+                connect: { name: data.channelName },
+              },
+              authorName: data.authorName,
+              text: data.text,
+            })
+            .then((message) => message)
+            .catch((e) => {
+              throw e;
+            });
+      })
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async banUser(
@@ -370,6 +362,7 @@ export class ChannelService {
     targetId: number
   ): Promise<boolean> {
     const channel = await this.getChannel(channelName);
+    if (!channel) throw new NotFoundException();
     if (channel.admIds.includes(executorId)) {
       if (!channel.bannedIds.includes(targetId))
         this.updateChannel({
@@ -381,8 +374,12 @@ export class ChannelService {
               push: targetId,
             },
           },
-        });
-      return true;
+        })
+          .then(() => true)
+          .catch((e) => {
+            throw e;
+          });
+      else return true;
     } else return false;
   }
 
@@ -404,12 +401,16 @@ export class ChannelService {
                   push: targetId,
                 },
               },
-            });
-          return true;
+            })
+              .then(() => true)
+              .catch((e) => {
+                throw e;
+              });
+          else return true;
         } else return false;
       })
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
@@ -420,7 +421,7 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 }
