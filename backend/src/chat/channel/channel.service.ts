@@ -1,8 +1,8 @@
 import {
   BadRequestException,
   ForbiddenException,
-  HttpStatus,
   Injectable,
+  NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Channel, Message, Prisma } from "@prisma/client";
@@ -74,7 +74,7 @@ export class ChannelService {
         return channelList;
       })
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
@@ -113,7 +113,7 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
@@ -131,7 +131,9 @@ export class ChannelService {
       },
     })
       .then((channel) => channel)
-      .catch((e) => e);
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async getChannel(
@@ -151,7 +153,7 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
@@ -171,11 +173,9 @@ export class ChannelService {
           isPrivate: data.isPrivate,
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
+      .then((ret: any) => ret.count != 0)
       .catch((e: any) => {
-        return false;
+        throw e;
       });
   }
 
@@ -193,11 +193,10 @@ export class ChannelService {
           password: data.password,
         },
       })
-      .then((ret: any) => {
-        if (ret.count != 0) return true;
-        else throw new ForbiddenException();
-      })
-      .catch((e) => e);
+      .then((ret: any) => ret.count != 0)
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async addAdmin(
@@ -217,11 +216,10 @@ export class ChannelService {
           },
         },
       })
-      .then((ret: any) => {
-        if (ret.count != 0) return true;
-        else throw new ForbiddenException();
-      })
-      .catch((e) => e);
+      .then((ret: any) => ret.count != 0)
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async unmuteUser(
@@ -245,11 +243,9 @@ export class ChannelService {
           },
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
+      .then((ret: any) => ret.count != 0)
       .catch((e: any) => {
-        return false;
+        throw e;
       });
   }
 
@@ -274,11 +270,9 @@ export class ChannelService {
           },
         },
       })
-      .then((ret: any) => {
-        return ret.count != 0;
-      })
+      .then((ret: any) => ret.count != 0)
       .catch((e: any) => {
-        return false;
+        throw e;
       });
   }
 
@@ -298,11 +292,10 @@ export class ChannelService {
           name: data.newName,
         },
       })
-      .then((ret: any) => {
-        if (ret.count != 0) return true;
-        else throw new ForbiddenException();
-      })
-      .catch((e) => e);
+      .then((ret: any) => ret.count != 0)
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async updateChannel(params: {
@@ -317,13 +310,6 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2002") {
-            console.log(
-              "There is a unique constraint violation, a Channel cannot be updated"
-            );
-          }
-        }
         throw e;
       });
   }
@@ -336,11 +322,11 @@ export class ChannelService {
         },
       })
       .then((channel) => {
-        return channel.mutedIds.includes(userId);
+        if (channel) return channel.mutedIds.includes(userId);
+        else throw new NotFoundException();
       })
       .catch((e: any) => {
-        console.log("err", e.meta.cause);
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
@@ -350,7 +336,7 @@ export class ChannelService {
   ): Promise<Message> {
     return this.isMuted(data.channelName, executorId)
       .then(async (isMuted) => {
-        if (isMuted) throw new ForbiddenException();
+        if (isMuted)throw new ForbiddenException();
         else
           return this.messageService
             .createMessage({
@@ -361,9 +347,13 @@ export class ChannelService {
               text: data.text,
             })
             .then((message) => message)
-            .catch((e) => e);
+            .catch((e) => {
+              throw e;
+            });
       })
-      .catch((e) => e);
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async banUser(
@@ -372,6 +362,7 @@ export class ChannelService {
     targetId: number
   ): Promise<boolean> {
     const channel = await this.getChannel(channelName);
+    if (!channel) throw new NotFoundException();
     if (channel.admIds.includes(executorId)) {
       if (!channel.bannedIds.includes(targetId))
         this.updateChannel({
@@ -383,8 +374,12 @@ export class ChannelService {
               push: targetId,
             },
           },
-        });
-      return true;
+        })
+          .then(() => true)
+          .catch((e) => {
+            throw e;
+          });
+      else return true;
     } else return false;
   }
 
@@ -406,11 +401,17 @@ export class ChannelService {
                   push: targetId,
                 },
               },
-            });
-          return true;
+            })
+              .then(() => true)
+              .catch((e) => {
+                throw e;
+              });
+          else return true;
         } else return false;
       })
-      .catch((e: any) => e);
+      .catch((e: any) => {
+        throw e;
+      });
   }
 
   async deleteChannel(where: Prisma.ChannelWhereUniqueInput): Promise<Channel> {
@@ -420,7 +421,7 @@ export class ChannelService {
       })
       .then((ret: any) => ret)
       .catch((e: any) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 }

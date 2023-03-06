@@ -90,6 +90,31 @@ export function initSocket(
     console.log("newFriend", data);
   });
 
+
+  socket.on("userMuted", (data: fromBackI) => {
+    console.log("userMuted", data);
+  });
+
+
+  socket.on("userBanned", (data: fromBackI) => {
+    console.log("userBanned", data);
+  });
+
+
+  socket.on("userUnmuted", (data: fromBackI) => {
+    console.log("userUnmuted", data);
+  });
+
+
+  socket.on("userUnbanned", (data: fromBackI) => {
+    console.log("userUnbanned", data);
+  });
+
+
+  socket.on("userKicked", (data: fromBackI) => {
+    console.log("userKicked", data);
+  });
+
   socket.on("exFriend", (data: fromBackI) => {
     console.log("exFriend", data);
   });
@@ -126,14 +151,11 @@ export function initSocket(
     console.log("activeGames", data);
   });
 
-  socket.on(
-    "notAllowed",
-    (data: { eventName: string; cause: string; data: any }) => {
-      console.log(data);
-    }
-  );
+  socket.on("notAllowed", (data: any) => {
+    console.log(data);
+  });
 
-  socket.on("executionError", (data: { eventName: string; data: any }) => {
+  socket.on("executionError", (data: any) => {
     console.log(data);
   });
 }
