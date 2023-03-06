@@ -100,17 +100,17 @@ export class GatewayService {
       const targetUser = await this.userService.getUserByName(
         data.targetUserName
       );
-      if (targetUser.bannedIds.includes(this.connections.get(socket.id).id)) {
+      const executror = this.connections.get(socket.id);
+      if (!targetUser || !executror)
+        this.emitExecutionError(socket.id, "privateMessage", "user unknown");
+      else if (targetUser.bannedIds.includes(executror.id))
         this.emitNotAllowed(socket.id, "privateMessage", data, "you're banned");
-      } else {
+      else {
         const channelIn = this.createPMChannelName([
-          this.connections.get(socket.id).name,
+          executror.name,
           data.targetUserName,
         ]);
-        await this.connectUserToChannel(
-          channelIn,
-          this.connections.get(socket.id)
-        );
+        await this.connectUserToChannel(channelIn, executror);
         this.connectUserToChannel(channelIn, targetUser);
       }
     } catch (e) {
@@ -164,11 +164,8 @@ export class GatewayService {
           this.server.in(data.channelName).socketsJoin(data.newName);
           this.server.socketsLeave(data.channelName);
           this.server.to(data.newName).emit("newChannelName", data);
-        }
+        } else this.emitNotAllowed(socketId, "newChannelName", data);
       })
-      .catch((e: ForbiddenException) =>
-        this.emitNotAllowed(socketId, "newChannelName", data)
-      )
       .catch((e) =>
         this.emitExecutionError(socketId, "newChannelName", e.cause)
       );
@@ -290,11 +287,14 @@ export class GatewayService {
             .then((targetUser) => {
               if (!targetUser)
                 this.emitExecutionError(socketId, "kickUser", "user unknown");
-              this.leaveChannel(socketId, data.channelName, targetUser).then(
-                () => {
-                  this.server.to(socketId).emit("userKicked", data.channelName);
-                }
-              );
+              else
+                this.leaveChannel(socketId, data.channelName, targetUser).then(
+                  () => {
+                    this.server
+                      .to(socketId)
+                      .emit("userKicked", data.channelName);
+                  }
+                );
             })
             .catch((e) =>
               this.emitExecutionError(socketId, "kickUser", e.getResponse())
@@ -321,12 +321,13 @@ export class GatewayService {
       ).catch((e) =>
         this.emitExecutionError(socketId, "connectToChannel", e.getResponse())
       );
+
+      // i suppose, we don't need this part of function
       if (channelIn.users) {
         channelIn.users.forEach(async (userName) => {
           const targetUser = await this.userService.getUserByName(
             userName.name
           );
-          // i suppose, we don't need this part of function
           if (this.canConnect(socketId, user, channel, channelIn, targetUser))
             this.connectUserToChannel(channelIn, targetUser).catch((e) =>
               this.emitExecutionError(
@@ -362,7 +363,6 @@ export class GatewayService {
       .addFriend(this.connections.get(socketId)?.id || -1, data.targetUserName)
       .then((newFriend) => {
         if (newFriend) this.server.to(socketId).emit("newFriend", newFriend);
-        else this.emitNotAllowed(socketId, "addFriend", data);
       })
       .catch((e: NotFoundException) =>
         this.emitExecutionError(socketId, "addFriend", "user unknown")
@@ -378,7 +378,6 @@ export class GatewayService {
       .removeFriend(this.connections.get(socketId).id, data.targetUserName)
       .then((exFriend) => {
         if (exFriend) this.server.to(socketId).emit("exFriend", exFriend);
-        else this.emitNotAllowed(socketId, "removeFriend", data);
       })
       .catch((e: NotFoundException) => {
         this.emitExecutionError(socketId, "removeFriend", "user unknown");
@@ -477,28 +476,33 @@ export class GatewayService {
   async inviteToGame(socket: Socket, data: DTO.InviteToGameI) {
     const executor = this.connections.get(socket.id);
     const recipientSocket = this.connectionByName(data.recipient);
-    if (recipientSocket) {
-      if (
-        await this.userService.isBanned(
-          executor.id,
-          this.connections.get(recipientSocket).name
-        )
-      )
-        this.server
-          .to(socket.id)
-          .emit("declineInvite", { cause: "you banned" });
-      else if (this.connections.get(recipientSocket).inGame)
-        this.server
-          .to(socket.id)
-          .emit("declineInvite", { cause: "user in game" });
-      else
-        this.server
-          .to(recipientSocket)
-          .emit("inviteToGame", { sender: executor.name });
-    } else
+    if (!executor)
+      this.emitExecutionError(socket.id, "inviteToGame", "user unknown");
+    else if (!recipientSocket)
       this.server
         .to(socket.id)
         .emit("declineInvite", { cause: "user offline" });
+    else {
+      this.userService
+        .isBanned(executor.id, this.connections.get(recipientSocket).name)
+        .then((isBanned) => {
+          if (isBanned)
+            this.server
+              .to(socket.id)
+              .emit("declineInvite", { cause: "you banned" });
+          else if (this.connections.get(recipientSocket).inGame)
+            this.server
+              .to(socket.id)
+              .emit("declineInvite", { cause: "user in game" });
+          else
+            this.server
+              .to(recipientSocket)
+              .emit("inviteToGame", { sender: executor.name });
+        })
+        .catch((e) =>
+          this.emitExecutionError(socket.id, "inviteToGame", e.cause)
+        );
+    }
   }
 
   async sendDecline(socket: Socket, recipient: string) {
@@ -508,7 +512,7 @@ export class GatewayService {
       this.server
         .to(recipientSocket)
         .emit("declineInvite", { cause: `${executorName} hates you =)` });
-    else return null;
+    else this.emitExecutionError(socket.id, "declineInvite", "user offline");
   }
 
   async emitGameState(data: DTO.gameStateDataI) {
@@ -516,7 +520,90 @@ export class GatewayService {
     this.server.to(data.gameName).volatile.emit("gameState", data);
   }
 
-  async addGameResult(data: DTO.finishGameI) {
+  async finishGame(data: DTO.finishGameI) {
+    const gameRoom = this.gameRooms.get(data.gameName);
+    if (gameRoom) {
+      const winnerName =
+        gameRoom.playerFirst.score > gameRoom.playerSecond.score
+          ? gameRoom.playerFirst.name
+          : gameRoom.playerSecond.name;
+      this.server
+        .to(data.gameName)
+        .emit("gameFinished", { winnerName: winnerName });
+    }
+    this.server.socketsLeave(data.gameName);
+  }
+
+  async getUserStat(socketId: string, data: DTO.ManageUserI) {
+    return this.userService
+      .getStatsByName(data.targetUserName)
+      .then((stats) => {
+        this.server.to(socketId).emit("userStat", stats);
+      })
+      .catch((e) => this.emitExecutionError(socketId, "getUserStats", e.cause));
+  }
+
+  async getLadder(socketId: string) {
+    return this.userService
+      .getLadder()
+      .then(async (ladder) => {
+        this.server.to(socketId).emit("ladder", ladder);
+      })
+      .catch((e) => this.emitExecutionError(socketId, "getLadder", e.cause));
+  }
+
+  async checkNamePossibility(socketId: string, data: DTO.ManageUserI) {
+    return this.userService
+      .getUserByName(data.targetUserName)
+      .then((user) => {
+        if (user) this.server.to(socketId).emit("nameTaken", data);
+        else this.server.to(socketId).emit("nameAvailable", data);
+      })
+      .catch((e) =>
+        this.emitExecutionError(socketId, "checkNamePossibility", e.cause)
+      );
+  }
+
+  async getNamesSuggestions(socketId: string, data: DTO.ManageUserI) {
+    return this.userService
+      .getNamesSuggestion(data.targetUserName)
+      .then((names) => {
+        this.server.to(socketId).emit("nameSuggestions", names);
+      })
+      .catch((e) =>
+        this.emitExecutionError(socketId, "getNamesSuggestions", e.cause)
+      );
+  }
+
+  async getActiveGames(socketId: string) {
+    const activeGames: DTO.gameStateDataI[] = [];
+    for (const el of this.gameRooms.values()) {
+      activeGames.push(el);
+    }
+    this.server.to(socketId).emit("activeGames", activeGames);
+  }
+
+  setPaused(data: DTO.pauseGameI) {
+    this.server.to(data.gameName).emit("setPause", data);
+    const gameRoom = this.gameRooms.get(data.gameName);
+    if (gameRoom) gameRoom.isPaused = data.isPaused;
+  }
+
+  async connectSpectator(socketId: string, data: DTO.spectateGameI) {
+    const gameRoom = this.gameRooms.get(data.gameName);
+    if (gameRoom) {
+      this.server.to(socketId).emit("connectToGame", gameRoom);
+      this.server.in(socketId).socketsJoin(gameRoom.gameName);
+    } else this.emitNotAllowed(socketId, "spectateGame", "game unknown");
+  }
+
+  removeGame(room: string) {
+    this.addGameResult({ gameName: room });
+  }
+
+  // PRIVATE FUNCTIONS
+
+  private async addGameResult(data: DTO.finishGameI) {
     const gameRoom = this.gameRooms.get(data.gameName);
     if (gameRoom) {
       const gameResults: GameResultDto = {
@@ -546,98 +633,10 @@ export class GatewayService {
         })
         .catch((e) => {
           console.log("Exception", e.message);
-          // this.emitNotAllowed(socket.id, "endGame", data);
         });
       this.gameRooms.delete(data.gameName);
     }
   }
-
-  async finishGame(data: DTO.finishGameI) {
-    const gameRoom = this.gameRooms.get(data.gameName);
-    if (gameRoom) {
-      const winnerName =
-        gameRoom.playerFirst.score > gameRoom.playerSecond.score
-          ? gameRoom.playerFirst.name
-          : gameRoom.playerSecond.name;
-      this.server
-        .to(data.gameName)
-        .emit("gameFinished", { winnerName: winnerName });
-    }
-    this.server.socketsLeave(data.gameName);
-  }
-
-  async getUserStat(socketId: string, data: DTO.ManageUserI) {
-    return this.userService
-      .getStatsByName(data.targetUserName)
-      .then(async (stats) => {
-        this.server.to(socketId).emit("userStat", stats);
-      })
-      .catch((e) => {
-        this.emitNotAllowed(socketId, "getUserStats", data);
-      });
-  }
-
-  async getLadder(socketId: string) {
-    return this.userService
-      .getLadder()
-      .then(async (ladder) => {
-        this.server.to(socketId).emit("ladder", ladder);
-      })
-      .catch((e) => {
-        this.emitNotAllowed(socketId, "getLadder", {});
-      });
-  }
-
-  async checkNamePossibility(socketId: string, data: DTO.ManageUserI) {
-    return this.userService
-      .getUserByName(data.targetUserName)
-      .then((user) => {
-        if (user) this.server.to(socketId).emit("nameTaken", data);
-        else this.server.to(socketId).emit("nameAvailable", data);
-      })
-      .catch((e) => {
-        this.emitNotAllowed(socketId, "checkNamePossibility", {});
-      });
-  }
-
-  async getNamesSuggestions(socketId: string, data: DTO.ManageUserI) {
-    return this.userService
-      .getNamesSuggestion(data.targetUserName)
-      .then((names) => {
-        this.server.to(socketId).emit("nameSuggestions", names);
-      })
-      .catch((e) => {
-        this.emitNotAllowed(socketId, "getNamesSuggestions", data);
-      });
-  }
-
-  async getActiveGames(socketId: string) {
-    const activeGames: DTO.gameStateDataI[] = [];
-    for (const el of this.gameRooms.values()) {
-      activeGames.push(el);
-    }
-    this.server.to(socketId).emit("activeGames", activeGames);
-  }
-
-  setPaused(data: DTO.pauseGameI) {
-    this.server.to(data.gameName).emit("setPause", data);
-    const gameRoom = this.gameRooms.get(data.gameName);
-    if (gameRoom) gameRoom.isPaused = data.isPaused;
-  }
-
-  async connectSpectator(socketId: string, data: DTO.spectateGameI) {
-    const gameRoom = this.gameRooms.get(data.gameName);
-    if (gameRoom) {
-      this.server.to(socketId).emit("connectToGame", gameRoom);
-      this.server.in(socketId).socketsJoin(gameRoom.gameName);
-    } else this.emitNotAllowed(socketId, "spectateGame", data);
-  }
-
-  removeGame(room: string) {
-    this.addGameResult({ gameName: room });
-  }
-
-  // PRIVATE FUNCTIONS
   private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
     try {
       const decodedToken = this.jwtService.verify(JWTtoken, {
@@ -774,7 +773,7 @@ export class GatewayService {
     return true;
   }
 
-  private connectionByName(name: string) {
+  private connectionByName(name: string): string {
     for (const el of this.connections.entries()) {
       if (el[1].name == name) {
         return el[0];

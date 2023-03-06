@@ -257,12 +257,16 @@ export class UserService {
               },
             })
             .then()
-            .catch((e) => e);
+            .catch((e) => {
+              throw e;
+            });
         }
         this.filterUserdata(targetUser);
         return targetUser;
       })
-      .catch((e) => e);
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async removeFriend(userId: number, targetUserName: string): Promise<User> {
@@ -284,11 +288,15 @@ export class UserService {
               },
             })
             .then()
-            .catch((e) => e);
+            .catch((e) => {
+              throw e;
+            });
         this.filterUserdata(targetUser);
         return targetUser;
       })
-      .catch((e) => e);
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async getFriends(userId: number): Promise<UserInfoPublic[]> {
@@ -347,11 +355,15 @@ export class UserService {
                 },
               },
             })
-            .catch((e) => e);
+            .catch((e) => {
+              throw e;
+            });
         this.filterUserdata(targetUser);
         return targetUser;
       })
-      .catch((e) => e);
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async unbanPersonally(userId: number, targetUserName: string): Promise<User> {
@@ -373,11 +385,15 @@ export class UserService {
               },
             })
             .then()
-            .catch((e) => e);
+            .catch((e) => {
+              throw e;
+            });
         this.filterUserdata(targetUser);
         return targetUser;
       })
-      .catch((e) => e);
+      .catch((e) => {
+        throw e;
+      });
   }
 
   async getPersonallyBanned(userId: number): Promise<UserInfoPublic[]> {
