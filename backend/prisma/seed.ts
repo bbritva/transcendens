@@ -100,12 +100,12 @@ async function main() {
     },
   });
 
-  const tom10 = await prisma.user.upsert({
-    where: { id: 10 },
+  const tphung = await prisma.user.upsert({
+    where: { id: 73725 },
     update: {},
     create: {
-      id: 10,
-      name: "Tom10",
+      id: 73725,
+      name: "tphung",
       status: "OFFLINE"
     },
   });
@@ -140,10 +140,34 @@ async function main() {
     update: {},
     create: {
       id: 131,
-      winnerId: 1,
+      winnerId: 73725,
       winnerScore: 11,
       loserId: 2,
       loserScore: 2
+    },
+  })
+
+  await prisma.game.upsert({
+    where: { id: 132 },
+    update: {},
+    create: {
+      id: 132,
+      winnerId: 73725,
+      winnerScore: 11,
+      loserId: 3,
+      loserScore: 4
+    },
+  })
+
+  await prisma.game.upsert({
+    where: { id: 133 },
+    update: {},
+    create: {
+      id: 133,
+      winnerId: 3,
+      winnerScore: 13,
+      loserId: 73725,
+      loserScore: 5
     },
   })
 

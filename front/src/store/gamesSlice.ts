@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import gameService from "src/services/game.service";
+import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
 
 
@@ -27,8 +27,8 @@ const initialState: gamesStateI = {
 export const getGames = createAsyncThunk(
   'getGames',
   async ( userId: number, thunkApi) => {
-      const response = await gameService.getGames(userId);
-      return response.data;
+      const response = await userService.getStats(userId);
+      return response.data.wins.concat(response.data.loses);
   }
 )
 
