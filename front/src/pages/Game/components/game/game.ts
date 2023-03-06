@@ -8,7 +8,7 @@ import { Camera } from "@mediapipe/camera_utils";
 
 const gameBasicProps = {
   screenRatio: 3 / 2,
-  winScore: 200,
+  winScore: 2,
   paddleHeight: 0.015,
   paddleWidth: 0.2,
   paddleOffset: 3,
@@ -67,15 +67,14 @@ enum role {
 
 class Game {
   private static instance: Game;
-  private static count: number = 0;
   private static isPaused: boolean = false;
   private static hasNewData: boolean;
   private static setGameOngoing: Function | null;
   private static defaultGameData: GameStateDataI = {
     gameName: "demo",
-    playerFirst: { name: "AlexaAI", score: 0, paddleY: 0 },
-    playerSecond: { name: "SiriAI", score: 0, paddleY: 0 },
-    ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
+    playerFirst: { name: "AlexaAI", score: 0, paddleY: 0.5 },
+    playerSecond: { name: "SiriAI", score: 0, paddleY: 0.5 },
+    ball: { x: 0.5, y: 0.5, speedX: 0, speedY: 0 },
     isPaused: false,
   };
   private ctx: CanvasRenderingContext2D | null = null;
@@ -83,7 +82,13 @@ class Game {
   myRole: role;
   myName: string;
   gameInitState: GameStateDataI | null = null;
-  gameState: GameStateDataI;
+  gameState: GameStateDataI = {
+    gameName: "",
+    playerFirst: { name: "", score: 0, paddleY: 0 },
+    playerSecond: { name: "", score: 0, paddleY: 0 },
+    ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
+    isPaused: false,
+  };
   webcamRef: React.RefObject<Webcam> | null;
   // var camera = null;
   y: number = 0;
@@ -95,37 +100,20 @@ class Game {
   private ball: Ball;
 
   private constructor(canvas: HTMLCanvasElement, myName: string) {
-    Game.count++;
-
     this.canvas = canvas;
     this.myName = myName;
     this.myRole = role.FIRST;
-    this.gameState = Game.defaultGameData;
     this.webcamRef = null;
-    // this.gameInitState = Game.defaultGameData;
 
-    this.rightPaddle = Paddle.getRightPaddle(
-      gameBasicProps,
-      this.gameState.playerFirst.name == this.myName
-        ? ControlE.MOUSE
-        : this.gameState.playerFirst.name.endsWith("AI")
-        ? ControlE.AI
-        : ControlE.REMOTE
-    );
-    this.leftPaddle = Paddle.getLeftPaddle(
-      gameBasicProps,
-      this.gameState.playerSecond.name == this.myName
-        ? ControlE.MOUSE
-        : this.gameState.playerSecond.name.endsWith("AI")
-        ? ControlE.AI
-        : ControlE.REMOTE
-    );
-    this.ball = Ball.getInstance(gameBasicProps, this.myRole != role.FIRST);
+    this.rightPaddle = Paddle.getRightPaddle(gameBasicProps, ControlE.AI);
+    this.leftPaddle = Paddle.getLeftPaddle(gameBasicProps, ControlE.AI);
+    this.ball = Ball.getInstance(gameBasicProps, false);
   }
 
   public static isGameOngoing(): boolean {
     return Game.instance.gameState.gameName != "demo";
   }
+
   public static setPause(value: boolean) {
     Game.isPaused = value;
     Game.instance.gameState.isPaused = value;
@@ -141,10 +129,9 @@ class Game {
   public static startGame(
     canvas: HTMLCanvasElement,
     myName: string,
-    initialGameData: GameStateDataI | null,
     setGameOngoing: Function | null
   ) {
-    Game.setGameData(canvas, myName, initialGameData, setGameOngoing);
+    Game.setGameData(canvas, myName, null, setGameOngoing);
     Game.instance.initGame();
   }
 
@@ -154,34 +141,29 @@ class Game {
     initialGameData: GameStateDataI | null,
     setGameOngoing: Function | null
   ) {
-    if (!Game.instance) {
-      Game.instance = new Game(canvas, myName);
-    }
+    if (!Game.instance) Game.instance = new Game(canvas, myName);
     if (!Game.setGameOngoing) Game.setGameOngoing = setGameOngoing;
     Game.instance.canvas = canvas;
-    Game.instance.gameInitState = initialGameData
-      ? initialGameData
-      : Game.defaultGameData;
+    Game.instance.gameInitState = initialGameData;
     Game.hasNewData = true;
   }
 
   private initGame() {
+    const initData = this.gameInitState
+      ? this.gameInitState
+      : Game.defaultGameData;
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext("2d");
-    if (Game.instance.gameInitState) {
-      Game.instance.gameState = Game.instance.gameInitState;
-    }
 
     this.myRole =
-      this.gameState.playerFirst.name === this.myName ||
-      this.gameState.gameName == "demo"
+      initData.playerFirst.name === this.myName || initData.gameName == "demo"
         ? role.FIRST
-        : this.gameState.playerSecond.name === this.myName
+        : initData.playerSecond.name === this.myName
         ? role.SECOND
         : role.SPECTATOR;
-
-    this.initPaddles();
-    this.initBall();
+    this.gameState.gameName = initData.gameName;
+    this.initPaddles(initData);
+    this.initBall(initData);
 
     Game.isPaused = this.gameState.isPaused;
 
@@ -265,46 +247,47 @@ class Game {
     }
   }
 
-  private initPaddles() {
-    this.rightPaddle.paddleY = this.gameState.playerFirst.paddleY
-      ? this.gameState.playerFirst.paddleY
+  private initPaddles(initData: GameStateDataI) {
+    this.rightPaddle.paddleY = initData.playerFirst.paddleY
+      ? initData.playerFirst.paddleY
       : this.rightPaddle.initY;
     this.rightPaddle.playerName =
       this.myRole == role.FIRST
-        ? Game.instance.gameState.playerFirst.name
-        : Game.instance.gameState.playerSecond.name;
-    this.rightPaddle.score = this.gameState.playerFirst.score;
+        ? initData.playerFirst.name
+        : initData.playerSecond.name;
+    this.rightPaddle.score = initData.playerFirst.score;
     this.rightPaddle.control =
-      this.gameState.playerFirst.name == this.myName ||
-      this.gameState.playerSecond.name == this.myName
+      initData.playerFirst.name == this.myName ||
+      initData.playerSecond.name == this.myName
         ? ControlE.MOUSE
-        : this.gameState.playerFirst.name.endsWith("AI")
+        : initData.playerFirst.name.endsWith("AI")
         ? ControlE.AI
         : ControlE.REMOTE;
-
-    this.leftPaddle.paddleY = this.gameState.playerSecond.paddleY
-      ? this.gameState.playerSecond.paddleY
+    this.leftPaddle.paddleY = initData.playerSecond.paddleY
+      ? initData.playerSecond.paddleY
       : this.leftPaddle.initY;
 
     this.leftPaddle.playerName =
       this.myRole == role.FIRST
-        ? Game.instance.gameState.playerSecond.name
-        : Game.instance.gameState.playerFirst.name;
-    this.leftPaddle.score = this.gameState.playerSecond.score;
-    this.leftPaddle.control = this.gameState.playerSecond.name.endsWith("AI")
+        ? initData.playerSecond.name
+        : initData.playerFirst.name;
+    this.leftPaddle.score = initData.playerSecond.score;
+    this.leftPaddle.control = initData.playerSecond.name.endsWith("AI")
       ? ControlE.AI
       : ControlE.REMOTE;
+    this.leftPaddle.lastUpdateTime = Date.now();
+    this.rightPaddle.lastUpdateTime = Date.now();
   }
 
-  private initBall() {
+  private initBall(initData: GameStateDataI) {
     this.ball.remote = this.myRole != role.FIRST;
-    this.ball.x = this.gameState.ball.x ? this.gameState.ball.x : 0.5;
-    this.ball.y = this.gameState.ball.y ? this.gameState.ball.y : 0.5;
-    this.ball.speedX = this.gameState.ball.speedX
-      ? this.gameState.ball.speedX
+    this.ball.x = initData.ball.x ? initData.ball.x : 0.5;
+    this.ball.y = initData.ball.y ? initData.ball.y : 0.5;
+    this.ball.speedX = initData.ball.speedX
+      ? initData.ball.speedX
       : this.ball.speedH;
-    this.ball.speedY = this.gameState.ball.speedY
-      ? this.gameState.ball.speedY
+    this.ball.speedY = initData.ball.speedY
+      ? initData.ball.speedY
       : -this.ball.speedV;
   }
 
@@ -394,9 +377,12 @@ class Game {
 
     if (this.gameState.gameName == "demo") {
       this.rightPaddle.upPressed =
-        this.ball.speedX > 0 && this.rightPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
+        this.ball.speedX > 0 &&
+        this.rightPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
       this.rightPaddle.downPressed =
-        this.ball.speedX > 0 && this.rightPaddle.paddleY + gameBasicProps.paddleWidth * 3 / 4 < this.ball.y;
+        this.ball.speedX > 0 &&
+        this.rightPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+          this.ball.y;
       // } else this.rightPaddle.paddleY = this.canvas.height * this.y;
     }
     this.rightPaddle.movePaddle();
@@ -406,9 +392,12 @@ class Game {
       this.gameState.gameName == "demo"
     ) {
       this.leftPaddle.upPressed =
-        this.ball.speedX < 0 && this.leftPaddle.paddleY  + gameBasicProps.paddleWidth / 4 > this.ball.y;
+        this.ball.speedX < 0 &&
+        this.leftPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
       this.leftPaddle.downPressed =
-        this.ball.speedX < 0 && this.leftPaddle.paddleY + gameBasicProps.paddleWidth * 3 / 4 < this.ball.y;
+        this.ball.speedX < 0 &&
+        this.leftPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+          this.ball.y;
       // } else this.leftPaddle.paddleY = this.canvas.height * this.y;
     }
     this.leftPaddle.movePaddle();
@@ -424,12 +413,14 @@ class Game {
       //check left side
       if (
         this.ball.x + this.ball.speedX * 0.2 <
-        this.ball.ballRadius +
-          this.leftPaddle.paddleHeight
+        this.ball.ballRadius + this.leftPaddle.paddleHeight
       ) {
         //try to hit left paddle
         if (!this.ball.hitPaddle(this.leftPaddle, true)) {
           if (this.ball.x < this.ball.ballRadius) {
+            console.log(this.rightPaddle.score);
+            console.log(this.rightPaddle.winScore);
+
             if (this.rightPaddle.makeScore()) {
               this.finishGame();
             }
@@ -438,13 +429,11 @@ class Game {
         }
       } else if (
         this.ball.x + this.ball.speedX * 0.2 >
-        1 -
-          this.ball.ballRadius -
-          this.leftPaddle.paddleHeight
+        1 - this.ball.ballRadius - this.leftPaddle.paddleHeight
       ) {
         //try to hit right paddle
         if (!this.ball.hitPaddle(this.rightPaddle, false)) {
-          if (this.ball.x  > 1 - this.ball.ballRadius) {
+          if (this.ball.x > 1 - this.ball.ballRadius) {
             if (this.leftPaddle.makeScore()) {
               this.finishGame();
             }
@@ -512,8 +501,8 @@ class Game {
   }
 
   private finishGame() {
-    this.gameInitState = null;
     Game.hasNewData = true;
+    Game.instance.gameInitState = { ...Game.defaultGameData };
     if (Game.setGameOngoing) {
       Game.setGameOngoing(false);
     }

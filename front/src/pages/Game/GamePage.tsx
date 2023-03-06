@@ -58,7 +58,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       Game.startGame(
         canvas,
         testUsername || user.user?.name || "",
-        null,
         setGameOngoing
       );
   }, [canvasRef]);
