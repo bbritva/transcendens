@@ -162,6 +162,8 @@ class Game {
         ? role.SECOND
         : role.SPECTATOR;
     this.gameState.gameName = initData.gameName;
+    this.gameState.playerFirst.name = initData.playerFirst.name;
+    this.gameState.playerSecond.name = initData.playerSecond.name;
     this.initPaddles(initData);
     this.initBall(initData);
 
@@ -240,6 +242,7 @@ class Game {
         socket.on("gameFinished", (result: { winnerName: string }) => {
           alert(`${result.winnerName} WINS`);
           if (Game.setGameOngoing) Game.setGameOngoing(false);
+          this.finishGame();
           socket.off("gameState");
           socket.off("gameFinished");
         });
@@ -506,7 +509,8 @@ class Game {
     if (Game.setGameOngoing) {
       Game.setGameOngoing(false);
     }
-    socket.emit("endGame", { gameName: this.gameState.gameName });
+    if (this.myRole == role.FIRST)
+      socket.emit("endGame", { gameName: this.gameState.gameName });
   }
 }
 
