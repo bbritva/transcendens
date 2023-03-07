@@ -100,6 +100,7 @@ async function main() {
     },
   });
 
+  
   const tphung = await prisma.user.upsert({
     where: { id: 73725 },
     update: {},
@@ -110,6 +111,17 @@ async function main() {
     },
   });
 
+  const ddiakova = await prisma.user.upsert({
+    where: { id: 74587 },
+    update: {},
+    create: {
+      id: 74587,
+      name: "ddiakova",
+      status: "OFFLINE",
+      image:"https://cdn.intra.42.fr/users/202255b82453593a913e7b6a0ee2f2d0/ddiakova.jpg",
+      friendIds: [2, 4, 5, 73725, 9, 8, 7, 6]
+    },
+  });
 
   const mainChannel = await prisma.channel.upsert({
     where: { name: "main" },
@@ -140,7 +152,7 @@ async function main() {
     update: {},
     create: {
       id: 131,
-      winnerId: 73725,
+      winnerId: 74587,
       winnerScore: 11,
       loserId: 2,
       loserScore: 2
@@ -152,7 +164,7 @@ async function main() {
     update: {},
     create: {
       id: 132,
-      winnerId: 73725,
+      winnerId: 74587,
       winnerScore: 11,
       loserId: 3,
       loserScore: 4
@@ -166,7 +178,7 @@ async function main() {
       id: 133,
       winnerId: 3,
       winnerScore: 13,
-      loserId: 73725,
+      loserId: 74587,
       loserScore: 5
     },
   })
@@ -176,6 +188,41 @@ async function main() {
     update: {},
     create: {
       id: 522,
+      winnerId: 2,
+      winnerScore: 10,
+      loserId: 1,
+      loserScore: 5
+    },
+  })
+  await prisma.game.upsert({
+    where: { id: 1321 },
+    update: {},
+    create: {
+      id: 1321,
+      winnerId: 74587,
+      winnerScore: 11,
+      loserId: 3,
+      loserScore: 4
+    },
+  })
+
+  await prisma.game.upsert({
+    where: { id: 1332 },
+    update: {},
+    create: {
+      id: 1332,
+      winnerId: 3,
+      winnerScore: 13,
+      loserId: 74587,
+      loserScore: 5
+    },
+  })
+
+  await prisma.game.upsert({
+    where: { id: 5223 },
+    update: {},
+    create: {
+      id: 5223,
       winnerId: 2,
       winnerScore: 10,
       loserId: 1,

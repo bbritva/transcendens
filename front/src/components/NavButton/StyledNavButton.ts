@@ -24,3 +24,10 @@ export const StyledNavButton = styled(Button)<styledNavButtonProps>(
     },
   })
 );
+
+export const StyledMenuButton = styled(StyledNavButton)<styledNavButtonProps>(
+  ({ theme, showonxs }) => ({
+    marginLeft: "0rem",
+    justifyContent: 'flex-start'
+  })
+);

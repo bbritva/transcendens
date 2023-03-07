@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyledNavButton } from "../NavButton/StyledNavButton";
+import { StyledMenuButton } from "../NavButton/StyledNavButton";
 import { Avatar, Typography } from "@mui/material";
 import MoreVert from "@mui/icons-material/MoreVert";
 import fakeAvatar from "src/assets/logo192.png";
@@ -33,8 +33,9 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
 
   return (
     <>
-      <StyledNavButton
+      <StyledMenuButton
         showonxs
+        fullWidth
         id="basic-button"
         aria-controls={open ? "basic-menu" : undefined}
         aria-haspopup="true"
@@ -49,7 +50,7 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
               <MoreVert color="secondary" />
             </>
         }
-      </StyledNavButton>
+      </StyledMenuButton>
       <StyledMenu 
         id="basic-menu"
         anchorEl={anchorEl}
