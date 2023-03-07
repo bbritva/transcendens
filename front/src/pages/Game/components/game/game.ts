@@ -250,7 +250,7 @@ class Game {
           if (Game.setGameOngoing) Game.setGameOngoing(false);
           if (Game.setGameResult)
             Game.setGameResult(
-              result.winnerName == this.myName ? "You win! =)" : "You lose! :'("
+              result.winnerName == this.myName ? "You won! =)" : "You lost! :'("
             );
           socket.off("gameState");
           socket.off("gameFinished");
@@ -516,8 +516,8 @@ class Game {
     if (Game.setGameResult)
       Game.setGameResult(
         this.rightPaddle.score > this.leftPaddle.score
-          ? "You win! =)"
-          : "You lose! :'("
+          ? "You won! =)"
+          : "You lost! :'("
       );
     if (this.myRole == role.FIRST)
       socket.emit("endGame", { gameName: this.gameState.gameName });
