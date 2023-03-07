@@ -104,6 +104,13 @@ export class GatewayService {
       const executror = this.connections.get(socket.id);
       if (!targetUser || !executror)
         this.emitExecutionError(socket.id, "privateMessage", "user unknown");
+      else if (targetUser.name == executror.name)
+        this.emitNotAllowed(
+          socket.id,
+          "privateMessage",
+          data,
+          "self-talks are strange"
+        );
       else if (targetUser.bannedIds.includes(executror.id))
         this.emitNotAllowed(socket.id, "privateMessage", data, "you're banned");
       else {
@@ -734,9 +741,16 @@ export class GatewayService {
   }
 
   private leavePMChannels(socketId: string, banned: User) {
-    const PMChannel = this.createPMChannelInfo([banned.name, this.connections.get(socketId).name]);
-    this.leaveChannel(socketId, PMChannel.name, banned).catch((e) => {throw e});
-    this.leaveChannel(socketId, PMChannel.name).catch((e) => {throw e});
+    const PMChannel = this.createPMChannelInfo([
+      banned.name,
+      this.connections.get(socketId).name,
+    ]);
+    this.leaveChannel(socketId, PMChannel.name, banned).catch((e) => {
+      throw e;
+    });
+    this.leaveChannel(socketId, PMChannel.name).catch((e) => {
+      throw e;
+    });
   }
 
   // user can not connect to channel:
