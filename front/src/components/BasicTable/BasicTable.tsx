@@ -38,9 +38,7 @@ export interface basicTableI extends styledBoxI {
 
 function drawHeader(element: string) {
   return (
-    <TableCell
-      key={element}
-    >
+    <TableCell padding="checkbox" key={element}>
       <Typography variant="subtitle1">{element}</Typography>
     </TableCell>
   );
@@ -49,18 +47,19 @@ function drawHeader(element: string) {
 function drawRow(row: rowI) {
   const keys = Object.keys(row);
   return (
-    <TableRow
-      key={row.id}
-    >
+    <TableRow key={row.id}>
       {keys.map(
         (cellData, index) =>
-          cellData !== "id" && (<TableCell key={row.id + String(index)}>
-            <Typography variant="body1">
-            {          //@ts-ignore
-              row[cellData]
-            }
-            </Typography>
-          </TableCell>)
+          cellData !== "id" && (
+            <TableCell  key={row.id + String(index)}>
+              <Typography variant="body1">
+                {
+                  //@ts-ignore
+                  row[cellData]
+                }
+              </Typography>
+            </TableCell>
+          )
       )}
     </TableRow>
   );
@@ -78,7 +77,7 @@ export default function BasicTable(props: basicTableI) {
             props.onClose && props.onClose();
           }}
           sx={{
-            position:"absolute",
+            position: "absolute",
             right: "2px",
             top: "1px",
             color: (theme) => theme.palette.grey[500],
@@ -88,17 +87,32 @@ export default function BasicTable(props: basicTableI) {
         </IconButton>
       )}
       {props.title && (
-        <Typography 
+        <Typography
           variant="body1"
           id="tableTitle"
           component="div"
-          padding='0.25rem'
-          marginLeft='2.5rem'
+          padding="0.25rem"
+          marginLeft="2.5rem"
         >
           {props.title}
         </Typography>
       )}
-      <TableContainer component={Paper} sx ={{backgroundColor: theme.palette.secondary.main, margin: 'auto'}} >
+      <TableContainer
+        component={Paper}
+        sx={{
+          backgroundColor: theme.palette.secondary.main,
+          margin: "auto",
+          maxHeight: "27.5vh",
+          overflow: "scroll",
+          overflowX: "hidden",
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+          [theme.breakpoints.down("md")]: {
+            overflowY: "scroll",
+          },
+        }}
+      >
         <Table aria-label="simple table">
           {props.tableHeadArray && (
             <TableHead>

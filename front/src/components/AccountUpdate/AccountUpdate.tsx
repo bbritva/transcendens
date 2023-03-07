@@ -105,7 +105,7 @@ export default function SignUp(props: styledBoxI) {
           alignItems: "center",
         }}
       >
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <Grid container>
             <Box
               overflow="hidden"
