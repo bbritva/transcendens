@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Grid, Paper, Typography, alpha, useTheme, CardMedia } from "@mui/material";
 import { ReactElement, FC, useRef, useEffect } from "react";
 import { Socket } from "socket.io-client";
 import { newMessageI } from "src/pages/Chat/ChatPage";
@@ -37,12 +37,13 @@ const ChatTable: FC<{
   return (
     <Grid container
       ref={tableRef}
-      component={Paper}
+      component={CardMedia}
       color={theme.palette.primary.dark}
       sx={{
         height: '90%',
         marginBottom: "5px",
-        backgroundColor: theme.palette.secondary.main,
+        // backgroundColor: theme.palette.secondary.main,
+        background: "linear-gradient(to top, #8bd4d1, 15%, #ecebd9)",
         ...chatStyles.borderStyle,
         ...chatStyles.scrollStyle
       }}

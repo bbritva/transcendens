@@ -1,4 +1,4 @@
-import { Button, Grid, Paper, Typography, useTheme } from "@mui/material";
+import { Button, CardMedia, Grid, Paper, Typography, useTheme } from "@mui/material";
 import { ReactElement, FC, useRef, CSSProperties, useState, ReactNode, cloneElement, Children } from "react";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import { fromBackI } from "src/pages/Chat/ChatPage";
@@ -39,14 +39,15 @@ const OneColumnTable: FC<{
     const child = Children.only(dialogChildren);
     return (
       <Grid container
-        component={Paper}
+        component={CardMedia}
         color={theme.palette.primary.dark}
         display="flex"
         justifyContent="center"
         sx={{
           height: '100%',
           ...chatStyles.borderStyle,
-          backgroundColor: theme.palette.secondary.main
+          // backgroundColor: theme.palette.secondary.main
+          background: "linear-gradient(to top, #8bd4d1, 15%, #ecebd9)",
         }}
       >
         <Grid
