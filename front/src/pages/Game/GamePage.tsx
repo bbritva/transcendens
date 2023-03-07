@@ -73,6 +73,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     const canvas = canvasRef.current;
     socket.off("gameLine");
     socket.on("gameLine", (data: gameLineI) => {
+      console.log(data);
       setInLine(data.inLine);
     });
     socket.off("setPause");
@@ -156,9 +157,9 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     setOpenSpectatorDialog(false);
   }
 
-  async function closeEndGamedialog() {
-    setGameResult("");
+  function closeEndGamedialog() {
     setOpenEndGameDialog(false);
+    setGameResult("");
   }
 
   const canvasProps = {

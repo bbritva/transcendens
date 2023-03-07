@@ -80,7 +80,7 @@ export class GatewayService {
       })
       .catch((e) => console.log(e.message));
     this.readyToPlayUsers = this.readyToPlayUsers.filter(
-      (user) => user.name != this.connections.get(socket.id).name
+      (user) => user.name != this.connections.get(socket.id)?.name
     );
     for (const el of this.gameRooms.values()) {
       if (
@@ -599,6 +599,7 @@ export class GatewayService {
 
   removeGame(room: string) {
     this.addGameResult({ gameName: room });
+    this.gameRooms.delete(room);
   }
 
   // PRIVATE FUNCTIONS
@@ -634,7 +635,6 @@ export class GatewayService {
         .catch((e) => {
           console.log("Exception", e.message);
         });
-      this.gameRooms.delete(data.gameName);
     }
   }
   private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
@@ -655,10 +655,11 @@ export class GatewayService {
     for (const el of this.connections.entries()) {
       if (
         el[1].name == game.playerFirst.name ||
-        game.playerSecond.name === el[1].name
+        el[1].name == game.playerSecond.name
       ) {
         el[1].inGame = true;
         this.server.in(el[0]).socketsJoin(game.gameName);
+        this.server.to(el[0]).emit("gameLine", { inLine: false });
       }
     }
     this.server.to(game.gameName).emit("connectToGame", game);
@@ -796,27 +797,27 @@ export class GatewayService {
     if (!user) this.emitExecutionError(socket.id, "getInLine", "user unknown");
     if (this.readyToPlayUsers.findIndex((value) => value.id == user.id) == -1) {
       this.readyToPlayUsers.push(user);
-      while (this.readyToPlayUsers.length > 1) {
-        const first = this.readyToPlayUsers.pop();
-        const second = this.readyToPlayUsers.pop();
-        const game: DTO.gameStateDataI = {
-          gameName: first.name + second.name + "Game",
-          playerFirst: { name: first.name, score: 0, paddleY: 0 },
-          playerSecond: { name: second.name, score: 0, paddleY: 0 },
-          ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
-          isPaused: false,
-        };
-        this.connectToGame(game);
-      }
     }
     this.server.to(socket.id).emit("gameLine", { inLine: true });
+    while (this.readyToPlayUsers.length > 1) {
+      const first = this.readyToPlayUsers.pop();
+      const second = this.readyToPlayUsers.pop();
+      const game: DTO.gameStateDataI = {
+        gameName: first.name + second.name + "Game",
+        playerFirst: { name: first.name, score: 0, paddleY: 0 },
+        playerSecond: { name: second.name, score: 0, paddleY: 0 },
+        ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
+        isPaused: false,
+      };
+      this.connectToGame(game);
+    }
   }
 
   private async leaveLine(socket: Socket) {
     const user = this.connections.get(socket.id);
     if (!user) this.emitExecutionError(socket.id, "getInLine", "user unknown");
     this.readyToPlayUsers = this.readyToPlayUsers.filter(
-      (user) => user.id != user.id
+      (userInLine) => userInLine.id != user.id
     );
     this.server.to(socket.id).emit("gameLine", { inLine: false });
   }

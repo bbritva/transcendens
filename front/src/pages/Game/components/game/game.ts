@@ -244,13 +244,14 @@ class Game {
           this.rightPaddle.score = data.playerSecond.score;
         });
         socket.on("gameFinished", (result: { winnerName: string }) => {
-          alert(`${result.winnerName} WINS`);
+          console.log(result);
+          Game.hasNewData = true;
+          Game.instance.gameInitState = null;
           if (Game.setGameOngoing) Game.setGameOngoing(false);
           if (Game.setGameResult)
             Game.setGameResult(
               result.winnerName == this.myName ? "You win! =)" : "You lose! :'("
             );
-          this.finishGame();
           socket.off("gameState");
           socket.off("gameFinished");
         });
@@ -429,9 +430,6 @@ class Game {
         //try to hit left paddle
         if (!this.ball.hitPaddle(this.leftPaddle, true)) {
           if (this.ball.x < this.ball.ballRadius) {
-            console.log(this.rightPaddle.score);
-            console.log(this.rightPaddle.winScore);
-
             if (this.rightPaddle.makeScore()) {
               this.finishGame();
             }
