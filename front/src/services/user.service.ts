@@ -39,6 +39,10 @@ class UserService {
   getAdminBoard() {
     return axios.get(API_URL + 'admin');
   }
+
+  getStats(id: number) {
+    return axios.get(API_URL + '/stats/' + id);
+  }
 }
 
 export default new UserService();
