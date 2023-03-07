@@ -70,6 +70,7 @@ class Game {
   private static isPaused: boolean = false;
   private static hasNewData: boolean;
   private static setGameOngoing: Function | null;
+  private static setGameResult: Function | null;
   private static defaultGameData: GameStateDataI = {
     gameName: "demo",
     playerFirst: { name: "AlexaAI", score: 0, paddleY: 0.5 },
@@ -129,9 +130,10 @@ class Game {
   public static startGame(
     canvas: HTMLCanvasElement,
     myName: string,
-    setGameOngoing: Function | null
+    setGameOngoing: Function | null = null,
+    setGameResult: Function | null = null
   ) {
-    Game.setGameData(canvas, myName, null, setGameOngoing);
+    Game.setGameData(canvas, myName, null, setGameOngoing, setGameResult);
     Game.instance.initGame();
   }
 
@@ -139,10 +141,12 @@ class Game {
     canvas: HTMLCanvasElement,
     myName: string,
     initialGameData: GameStateDataI | null,
-    setGameOngoing: Function | null
+    setGameOngoing: Function | null = null,
+    setGameResult: Function | null = null
   ) {
     if (!Game.instance) Game.instance = new Game(canvas, myName);
     if (!Game.setGameOngoing) Game.setGameOngoing = setGameOngoing;
+    if (!Game.setGameResult) Game.setGameResult = setGameResult;
     Game.instance.canvas = canvas;
     Game.instance.gameInitState = initialGameData;
     Game.hasNewData = true;
@@ -242,6 +246,10 @@ class Game {
         socket.on("gameFinished", (result: { winnerName: string }) => {
           alert(`${result.winnerName} WINS`);
           if (Game.setGameOngoing) Game.setGameOngoing(false);
+          if (Game.setGameResult)
+            Game.setGameResult(
+              result.winnerName == this.myName ? "You win! =)" : "You lose! :'("
+            );
           this.finishGame();
           socket.off("gameState");
           socket.off("gameFinished");
@@ -505,10 +513,14 @@ class Game {
 
   private finishGame() {
     Game.hasNewData = true;
-    Game.instance.gameInitState = { ...Game.defaultGameData };
-    if (Game.setGameOngoing) {
-      Game.setGameOngoing(false);
-    }
+    Game.instance.gameInitState = null;
+    if (Game.setGameOngoing) Game.setGameOngoing(false);
+    if (Game.setGameResult)
+      Game.setGameResult(
+        this.rightPaddle.score > this.leftPaddle.score
+          ? "You win! =)"
+          : "You lose! :'("
+      );
     if (this.myRole == role.FIRST)
       socket.emit("endGame", { gameName: this.gameState.gameName });
   }
