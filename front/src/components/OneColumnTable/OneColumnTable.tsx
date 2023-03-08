@@ -21,6 +21,9 @@ import AdjustOutlinedIcon from "@mui/icons-material/AdjustOutlined";
 import { userI } from "src/store/userSlice";
 import React from "react";
 import { StyledMenuButton } from "../NavButton/StyledNavButton";
+import BasicMenu from "../BasicMenu/BasicMenu";
+import { useNavigate } from "react-router-dom";
+import { StyledMenuItem } from "../BasicMenu/StyledMenu";
 
 const anchorStyle = {
   overflowAnchor: "auto",
@@ -48,8 +51,39 @@ const OneColumnTable: FC<{
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
+  const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
   const child = Children.only(dialogChildren);
+  const buttons = [
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/account", { replace: true }),
+        children: "Profile",
+      },
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/chat", { replace: true }),
+        children: "Message",
+      },
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/game", { replace: true }),
+        children: "Game",
+      },
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/game", { replace: true }),
+        children: "Delete",
+      },
+    },
+  ];
   return (
     <Grid
       container
@@ -88,30 +122,33 @@ const OneColumnTable: FC<{
       >
         {loading
           ? "LOADING"
+
+          
           : elements.map((data) => {
               if (!(taper === "Users" && user?.name === data.name))
                 return (
-                  <StyledMenuButton
-                    fullWidth
+                  <BasicMenu
                     key={data.name}
-                    variant={selectedElement == data ? "contained" : "text"}
-                    startIcon={
-                      data.connected && <AdjustOutlinedIcon fontSize="small" />
-                    }
+                    title={data.name}
+                    // variant={selectedElement == data ? "contained" : "text"}
+                    // startIcon={
+                    //   data.connected && <AdjustOutlinedIcon fontSize="small" />
+                    // }
                     onClick={() => {
                       setElement(data);
                       setOpenDialog(true);
                     }}
-                    size="small"
-                    sx={{
-                      textAlign: "left",
-                      maxHeight: "2rem",
-                    }}
-                  >
-                    <Typography variant="subtitle1" noWrap>
-                      {data.name}
-                    </Typography>
-                  </StyledMenuButton>
+                    mychildren={buttons}
+                    // size="small"
+                    // sx={{
+                    //   textAlign: "left",
+                    //   maxHeight: "2rem",
+                    // }}
+                  />
+                  //   <Typography variant="subtitle1" noWrap>
+                  //     {data.name}
+                  //   </Typography>
+                  // </BasicMenu>
                 );
             })}
         <div style={anchorStyle as CSSProperties} />

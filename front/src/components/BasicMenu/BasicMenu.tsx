@@ -8,8 +8,9 @@ import { useStore } from "react-redux";
 import { StyledMenu } from "./StyledMenu";
 
 interface basicMenuI {
-  extAvatar?: string;
+  extAvatar?: string
   title?: string
+  onClick?: Function
   mychildren: {
     component: React.FC,
     compProps: {
@@ -18,7 +19,7 @@ interface basicMenuI {
   }[]
 }
 
-export default function BasicMenu({ extAvatar, title, mychildren}: basicMenuI) {
+export default function BasicMenu({ extAvatar, title, mychildren, onClick}: basicMenuI) {
   const { getState } = useStore();
 
   const { user } = getState() as RootState;
@@ -31,7 +32,9 @@ export default function BasicMenu({ extAvatar, title, mychildren}: basicMenuI) {
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    
+    if (onClick){
+      onClick();
+    }
     setContextMenu(
       contextMenu === null
         ? {
