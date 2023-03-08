@@ -31,9 +31,10 @@ export interface gameLineI {
 
 export interface GamePageProps {
   gameData: GameStateDataI | null;
+  setGameData: Function;
 }
 
-const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
+const GamePage: FC<GamePageProps> = ({ gameData, setGameData }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [declinedCause, setDeclinedCause] = useState<string>("");
@@ -90,6 +91,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       if (gameData.isPaused != isPaused) {
         setPause();
       }
+      setGameData(null);
     } else {
       sessionStorage.setItem("game", "false");
     }
