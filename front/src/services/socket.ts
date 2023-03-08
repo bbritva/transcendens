@@ -132,8 +132,11 @@ export function initSocket(
     console.log(data);
   });
 
-  socket.emit("getFriends");
-  socket.emit("getPersonallyBanned");
+  setTimeout(() => {
+    socket.emit("getFriends");
+    socket.emit("getPersonallyBanned");
+  }, 1000)
 }
+
 
 export default socket

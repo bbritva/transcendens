@@ -23,13 +23,27 @@ export default function BasicMenu({ extAvatar, title, mychildren}: basicMenuI) {
 
   const { user } = getState() as RootState;
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [contextMenu, setContextMenu] = React.useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
   const [avatarSource, setAvatarSource] = React.useState<string>(fakeAvatar);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+    event.preventDefault();
+    
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+          }
+        : null,
+    );
   };
+
   const handleClose = () => {
-    setAnchorEl(null);
+    setContextMenu(null);
   };
   
   React.useEffect(() => {
@@ -71,10 +85,15 @@ export default function BasicMenu({ extAvatar, title, mychildren}: basicMenuI) {
           </>
         }
       </StyledMenuButton>
-      <StyledMenu 
+      <StyledMenu
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+          ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+          : undefined
+        }
         id="basic-menu"
-        anchorEl={anchorEl}
-        open={open}
+        open={contextMenu !== null}
         onClose={handleClose}
         MenuListProps={{
           "aria-labelledby": "basic-button",
