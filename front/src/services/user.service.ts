@@ -12,7 +12,7 @@ class UserService {
     return axios.get(API_URL + '/getMe')
   }
 
-  uploadAvatar(fileData: FormData): Promise<userI> {
+  uploadAvatar(fileData: FormData): Promise<{data:userI}> {
     return axios.post(API_URL + '/upload', fileData);
   }
 

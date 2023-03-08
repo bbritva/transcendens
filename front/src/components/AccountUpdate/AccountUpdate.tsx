@@ -62,9 +62,9 @@ export default function SignUp(props: styledBoxI) {
     event.preventDefault();
     const formData = new FormData();
     formData.append("file", file);
-    const res = await userService.uploadAvatar(formData) as userI;
-    if (res?.avatar && user.user){
-      dispatch(updateUser({...user.user, avatar: res?.avatar}));
+    const res = await userService.uploadAvatar(formData);
+    if (res.data?.avatar && user.user){
+      dispatch(updateUser({...user.user, avatar:  res.data.avatar}));
     }
     setFile(null);
     setImageUrl("");

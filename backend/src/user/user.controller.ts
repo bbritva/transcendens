@@ -22,6 +22,7 @@ import { diskStorage } from "multer";
 import { randomUUID } from "crypto";
 import * as path from "path";
 import { ManageUserI } from "src/chat/websocket/websocket.dto";
+import { Public } from 'src/auth/constants';
 
 export const storage = {
   storage: diskStorage({
@@ -151,6 +152,7 @@ export class UserController {
     return { avatar: file.filename };
   }
 
+  @Public()
   @Get("avatar/:avatarname")
   findAvatar(@Param("avatarname") avatarname, @Res() res): Promise<any> {
     return res.sendFile(
