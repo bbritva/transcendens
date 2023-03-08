@@ -34,13 +34,17 @@ export interface GamePageProps {
   setGameData: Function;
 }
 
-const GamePage: FC<GamePageProps> = ({ gameData, setGameData }): ReactElement => {
+const GamePage: FC<GamePageProps> = ({
+  gameData,
+  setGameData,
+}): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [isPaused, setPaused] = useState<boolean>(false);
+  const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
   const [openEndGameDialog, setOpenEndGameDialog] = useState<boolean>(false);
   const [gameResult, setGameResult] = useState<string>("");
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
@@ -65,7 +69,7 @@ const GamePage: FC<GamePageProps> = ({ gameData, setGameData }): ReactElement =>
         setGameResult
       );
   }, [canvasRef]);
-  
+
   useEffect(() => {
     if (gameResult != "") setOpenEndGameDialog(true);
   }, [gameResult]);
@@ -79,7 +83,7 @@ const GamePage: FC<GamePageProps> = ({ gameData, setGameData }): ReactElement =>
     });
     socket.off("setPause");
     socket.on("setPause", (data: { isPaused: boolean }) => {
-      setIsPaused(data.isPaused);
+      setPaused(data.isPaused);
       Game.setPause(data.isPaused);
     });
   }, []);
@@ -110,10 +114,24 @@ const GamePage: FC<GamePageProps> = ({ gameData, setGameData }): ReactElement =>
     }
   }
 
+  
+  let t: number = 0;
   function setPause() {
     Game.setPause(!isPaused);
-    setIsPaused(!isPaused);
+    setPaused(!isPaused);
     socket.emit("setPause", Game.getPaused());
+    setPauseAvailable(false);
+    t = 0;
+    setPauseTimeout();
+  }
+
+  function setPauseTimeout() {
+    if (t > 5) setPauseAvailable(true);
+    else
+      setTimeout(() => {
+        ++t;
+        setPauseTimeout();
+      }, 1000);
   }
 
   function onChange(
@@ -371,9 +389,9 @@ const GamePage: FC<GamePageProps> = ({ gameData, setGameData }): ReactElement =>
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
-          children={isPaused ? "Continue" : "Pause"}
+          children={(isPaused ? "Continue" : "Pause") + (isPauseAvailable ? "" : `(${t})`)}
           variant={"outlined"}
-          // disabled={stopGame}
+          disabled={!isPauseAvailable}
           size="large"
           onClick={setPause}
         />
