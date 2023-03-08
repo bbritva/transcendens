@@ -13,7 +13,7 @@ async function main() {
       name: "Alice",
       status: "OFFLINE",
       score: 44,
-      friendIds: [2, 4, 5, 7]
+      friendIds: [2, 4, 5, 7],
     },
   });
   const bob = await prisma.user.upsert({
@@ -55,7 +55,9 @@ async function main() {
     create: {
       id: 5,
       name: "Tom2",
-      status: "OFFLINE"
+      status: "OFFLINE",
+      image: "https://imageresizer.static9.net.au/TIEZnRR7cK4eRYkoO-Z2mbWolB0=/0x93:1812x1905/400x0/https%3A%2F%2Fprod.static9.net.au%2Ffs%2F42a3eb1e-2a8a-46c7-a342-fb2fa175671a"
+
     },
   });
 
@@ -96,7 +98,9 @@ async function main() {
     create: {
       id: 9,
       name: "Tom9",
-      status: "OFFLINE"
+      status: "OFFLINE",
+      image: "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/twilight-jacob-1626228957.png?crop=0.752xw:1.00xh;0.250xw,0&resize=480:*"
+
     },
   });
 

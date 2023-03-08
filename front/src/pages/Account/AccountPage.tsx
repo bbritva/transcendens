@@ -31,9 +31,10 @@ import StyledBox from "src/components/BasicTable/StyledBox";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
-import { selectBanned, selectFriends } from "src/store/chatSlice";
+import { selectBanned, selectFriends, UserInfoPublic } from "src/store/chatSlice";
 import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
+import fakeAvatar from "src/assets/logo192.png";
 
 function createHistoryData(
   score: string,
@@ -123,11 +124,11 @@ const AccountPage: FC<any> = (): ReactElement => {
     },
   ];
 
-  const createFriendElem = (id: number, name: string): settingsRowI => {
+  const createFriendElem = (friend: UserInfoPublic): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu title={name} onLogout={() => {}} mychildren={buttons} />
+      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={buttons} />
     );
-    return { id, button: FriendComponent };
+    return { id: friend.id, button: FriendComponent };
   };
 
   const FriendsTableRef = forwardRef(function FriendsTableRef(
@@ -143,7 +144,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     mybackcolor: theme.palette.info.main,
     myalign: "start",
     tableRowArray: friends.map(
-      (friend): settingsRowI => createFriendElem(friend.id, friend.name)
+      (friend): settingsRowI => createFriendElem(friend)
     ),
     onClose: () => {
       setOpen(false);
@@ -156,7 +157,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     mybackcolor: theme.palette.info.main,
     myalign: "start",
     tableRowArray: bannedList.map(
-      (friend): settingsRowI => createFriendElem(friend.id, friend.name)
+      (friend): settingsRowI => createFriendElem(friend)
     ),
     onClose: () => {
       setOpen(false);

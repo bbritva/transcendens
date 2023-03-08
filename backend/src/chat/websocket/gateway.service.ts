@@ -370,8 +370,11 @@ export class GatewayService {
   }
 
   async getPersonallyBanned(socketId: string) {
+    const temp = this.connections.get(socketId)
+      if (!temp)
+        return ;
     this.userService
-      .getPersonallyBanned(this.connections.get(socketId).id)
+      .getPersonallyBanned(temp.id)
       .then((bannedList) => {
         this.server.to(socketId).emit("personallyBannedList", bannedList);
       })

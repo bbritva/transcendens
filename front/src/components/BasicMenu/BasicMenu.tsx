@@ -1,6 +1,6 @@
 import * as React from "react";
 import { StyledMenuButton } from "../NavButton/StyledNavButton";
-import { Avatar, Typography } from "@mui/material";
+import { Avatar, Box, Typography } from "@mui/material";
 import MoreVert from "@mui/icons-material/MoreVert";
 import fakeAvatar from "src/assets/logo192.png";
 import { RootState } from "src/store/store";
@@ -8,7 +8,7 @@ import { useStore } from "react-redux";
 import { StyledMenu } from "./StyledMenu";
 
 interface basicMenuI {
-  onLogout: Function;
+  extAvatar?: string;
   title?: string
   mychildren: {
     component: React.FC,
@@ -18,7 +18,7 @@ interface basicMenuI {
   }[]
 }
 
-export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
+export default function BasicMenu({ extAvatar, title, mychildren}: basicMenuI) {
   const { getState } = useStore();
 
   const { user } = getState() as RootState;
@@ -34,7 +34,13 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
   
   React.useEffect(() => {
     const test = user?.user?.avatar;
-    if (test){
+
+    if (extAvatar){
+      setAvatarSource(
+        extAvatar
+      )
+    }
+    else if (test){
       setAvatarSource(
         process.env.REACT_APP_USERS_URL + `/avatar/${test}`
       )
@@ -55,12 +61,14 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
         onClick={handleClick}
       >
         {
-          title
-          ? <Typography variant="subtitle1">{title}</Typography>
-          : <>
+          
+          <>
+              <Typography variant="subtitle1">{title}</Typography>
+              <Box marginLeft={'auto'} display="flex"alignItems="center">
               <Avatar src={avatarSource} />
               <MoreVert color="secondary" />
-            </>
+              </Box>
+          </>
         }
       </StyledMenuButton>
       <StyledMenu 

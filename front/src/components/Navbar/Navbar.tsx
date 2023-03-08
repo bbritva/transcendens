@@ -77,7 +77,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
           <Protected
             user={user}
             render={() => 
-            <BasicMenu onLogout={onLogoutClick} mychildren={buttons}/>            
+            <BasicMenu  mychildren={buttons}/>            
             }
 
             fail={() => (
