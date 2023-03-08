@@ -119,7 +119,7 @@ export default function SignUp(props: styledBoxI) {
                 }}
               />
             </Box>
-            {/* <Grid item xs={6} display={"flex"} alignItems={"center"}>
+            <Grid item xs={6} display={"flex"} alignItems={"center"}>
               <Button variant="contained" component="label">
                 Upload photo
                 <input
@@ -131,7 +131,7 @@ export default function SignUp(props: styledBoxI) {
                   onChange={onFileChange}
                 /> 
               </Button>
-            </Grid> */}
+            </Grid>
             <Grid item xs={11} display="flex" alignItems="flex-start" marginTop={3}>
               <AlternateEmailIcon
                 fontSize="large"

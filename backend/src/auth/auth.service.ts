@@ -43,6 +43,12 @@ export class AuthService {
           ...accessTokenData,
         });
       }
+      else if (userBd){
+        userBd = await this.userService.updateUser({
+          where: {id: userBd.id},
+          data: {image: userResponse.data.image.link}
+        });
+      }
       return userBd;
     }
     return null;
