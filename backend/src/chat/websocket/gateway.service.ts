@@ -531,6 +531,7 @@ export class GatewayService {
         .to(data.gameName)
         .emit("gameFinished", { winnerName: winnerName });
     }
+    this.addGameResult(data)
     this.server.socketsLeave(data.gameName);
   }
 
@@ -598,12 +599,13 @@ export class GatewayService {
   }
 
   removeGame(room: string) {
-    this.addGameResult({ gameName: room });
+    this.gameRooms.delete(room);
   }
 
   // PRIVATE FUNCTIONS
 
   private async addGameResult(data: DTO.finishGameI) {
+    if (data.dropGame) return;
     const gameRoom = this.gameRooms.get(data.gameName);
     if (gameRoom) {
       const gameResults: GameResultDto = {
@@ -634,7 +636,6 @@ export class GatewayService {
         .catch((e) => {
           console.log("Exception", e.message);
         });
-      this.gameRooms.delete(data.gameName);
     }
   }
   private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {

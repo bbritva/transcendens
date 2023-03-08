@@ -8,7 +8,7 @@ import { Camera } from "@mediapipe/camera_utils";
 
 const gameBasicProps = {
   screenRatio: 3 / 2,
-  winScore: 200,
+  winScore: 2,
   paddleHeight: 0.015,
   paddleWidth: 0.2,
   paddleOffset: 3,
@@ -394,9 +394,12 @@ class Game {
 
     if (this.gameState.gameName == "demo") {
       this.rightPaddle.upPressed =
-        this.ball.speedX > 0 && this.rightPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
+        this.ball.speedX > 0 &&
+        this.rightPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
       this.rightPaddle.downPressed =
-        this.ball.speedX > 0 && this.rightPaddle.paddleY + gameBasicProps.paddleWidth * 3 / 4 < this.ball.y;
+        this.ball.speedX > 0 &&
+        this.rightPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+          this.ball.y;
       // } else this.rightPaddle.paddleY = this.canvas.height * this.y;
     }
     this.rightPaddle.movePaddle();
@@ -406,9 +409,12 @@ class Game {
       this.gameState.gameName == "demo"
     ) {
       this.leftPaddle.upPressed =
-        this.ball.speedX < 0 && this.leftPaddle.paddleY  + gameBasicProps.paddleWidth / 4 > this.ball.y;
+        this.ball.speedX < 0 &&
+        this.leftPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
       this.leftPaddle.downPressed =
-        this.ball.speedX < 0 && this.leftPaddle.paddleY + gameBasicProps.paddleWidth * 3 / 4 < this.ball.y;
+        this.ball.speedX < 0 &&
+        this.leftPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+          this.ball.y;
       // } else this.leftPaddle.paddleY = this.canvas.height * this.y;
     }
     this.leftPaddle.movePaddle();
@@ -424,8 +430,7 @@ class Game {
       //check left side
       if (
         this.ball.x + this.ball.speedX * 0.2 <
-        this.ball.ballRadius +
-          this.leftPaddle.paddleHeight
+        this.ball.ballRadius + this.leftPaddle.paddleHeight
       ) {
         //try to hit left paddle
         if (!this.ball.hitPaddle(this.leftPaddle, true)) {
@@ -438,13 +443,11 @@ class Game {
         }
       } else if (
         this.ball.x + this.ball.speedX * 0.2 >
-        1 -
-          this.ball.ballRadius -
-          this.leftPaddle.paddleHeight
+        1 - this.ball.ballRadius - this.leftPaddle.paddleHeight
       ) {
         //try to hit right paddle
         if (!this.ball.hitPaddle(this.rightPaddle, false)) {
-          if (this.ball.x  > 1 - this.ball.ballRadius) {
+          if (this.ball.x > 1 - this.ball.ballRadius) {
             if (this.leftPaddle.makeScore()) {
               this.finishGame();
             }
@@ -517,7 +520,10 @@ class Game {
     if (Game.setGameOngoing) {
       Game.setGameOngoing(false);
     }
-    socket.emit("endGame", { gameName: this.gameState.gameName });
+    socket.emit("endGame", {
+      gameName: this.gameState.gameName,
+      dropGame: false,
+    });
   }
 }
 
