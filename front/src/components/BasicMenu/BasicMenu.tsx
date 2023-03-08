@@ -23,6 +23,7 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
 
   const { user } = getState() as RootState;
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [avatarSource, setAvatarSource] = React.useState<string>(fakeAvatar);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -30,6 +31,18 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  
+  React.useEffect(() => {
+    const test = user?.user?.avatar;
+    if (test){
+      console.log({test});
+      setAvatarSource(
+        process.env.REACT_APP_USERS_URL + `/avatar/${test}`
+      )
+    }
+    else
+      setAvatarSource( user.user?.image || fakeAvatar);
+  }, [user?.user?.avatar]);
 
   return (
     <>
@@ -46,7 +59,7 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
           title
           ? <Typography variant="subtitle1">{title}</Typography>
           : <>
-              <Avatar src={user.user?.avatar || user.user?.image || fakeAvatar} />
+              <Avatar src={avatarSource} />
               <MoreVert color="secondary" />
             </>
         }
