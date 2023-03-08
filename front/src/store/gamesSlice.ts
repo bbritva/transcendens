@@ -15,20 +15,31 @@ interface gamesStateI {
   // Multiple possible status enum values
   status: 'idle' | 'loading' | 'succeeded' | 'failed',
   error: string | undefined,
-  games: GameI[]
+  games: GameI[],
+  score: number,
+  losesNum: number,
+  winsNum: number
 }
 
 const initialState: gamesStateI = {
   status: 'idle',
   error: undefined,
-  games: []
+  games: [],
+  score: 0,
+  losesNum: 0,
+  winsNum: 0
 }
 
 export const getGames = createAsyncThunk(
   'getGames',
   async ( userId: number, thunkApi) => {
       const response = await userService.getStats(userId);
-      return response.data.wins.concat(response.data.loses);
+      return {
+        games: response.data.wins.concat(response.data.loses),
+        score: response.data.score,
+        losesNum: response.data.loses.length,
+        winsNum: response.data.wins.length,
+      };
   }
 )
 
@@ -45,8 +56,10 @@ const gamesSlice = createSlice({
         };
       })
       .addCase(getGames.fulfilled, (state, action) => {
-        state.status = 'succeeded'
-        state.games = action.payload;
+        return {
+          ...action.payload as gamesStateI,
+          status: 'succeeded'
+        }
       })
       .addCase(getGames.rejected, (state, action) => {
         state.status = 'failed';

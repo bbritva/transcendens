@@ -34,17 +34,12 @@ function createPlayerData(data: string, rank: string, id: number) {
   return { data, rank, id } as playerStatisticsRowI;
 }
 
-const playerRows = [
-  createPlayerData("Game level: ", "159", 35),
-  createPlayerData("Total wins: ", "237", 37),
-  createPlayerData("Total losses: ", "262", 24),
-];
 
 const header = ["Score", "Win/Lose", "Rivals"];
 
 const AccountPage: FC<any> = (): ReactElement => {
-  const { user } = useSelector(selectUser);
-  const { games, status } = useSelector(selectGames);
+  const { user,  } = useSelector(selectUser);
+  const { games, status, winsNum, losesNum, score } = useSelector(selectGames);
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(user, setSlideShow);
@@ -70,6 +65,12 @@ const AccountPage: FC<any> = (): ReactElement => {
         )))
     }
   }, [status]);
+
+  const playerRows = [
+    createPlayerData("Game level: ", score + '', 1),
+    createPlayerData("Total wins: ", winsNum + '', 2),
+    createPlayerData("Total losses: ", losesNum + '', 3),
+  ];
 
   const buttons = [
     {
