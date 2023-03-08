@@ -4,9 +4,16 @@ import {
   forwardRef,
   ForwardedRef,
   useState,
-  useEffect
+  useEffect,
 } from "react";
-import { Box, CardMedia, IconButton, Paper, Slide, useTheme } from "@mui/material";
+import {
+  Box,
+  CardMedia,
+  IconButton,
+  Paper,
+  Slide,
+  useTheme,
+} from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
 import { selectUser } from "src/store/userSlice";
@@ -17,15 +24,14 @@ import BasicTable, {
   settingsRowI,
 } from "src/components/BasicTable/BasicTable";
 import ButtonTable from "src/components/AccountUpdate/ButtonTable";
-import ChooseTwoFA, {
-} from "src/components/AccountUpdate/ChooseTwoFA";
+import ChooseTwoFA from "src/components/AccountUpdate/ChooseTwoFA";
 import useEnableTwoFA from "src/hooks/useEnableTwoFA";
 import CloseIcon from "@mui/icons-material/Close";
 import StyledBox from "src/components/BasicTable/StyledBox";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
-import { selectFriends } from "src/store/chatSlice";
+import { selectBanned, selectFriends } from "src/store/chatSlice";
 import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 
@@ -42,11 +48,10 @@ function createPlayerData(data: string, rank: string, id: number) {
   return { data, rank, id } as playerStatisticsRowI;
 }
 
-
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
 const AccountPage: FC<any> = (): ReactElement => {
-  const { user,  } = useSelector(selectUser);
+  const { user } = useSelector(selectUser);
   const { games, status, winsNum, losesNum, score } = useSelector(selectGames);
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
@@ -55,32 +60,36 @@ const AccountPage: FC<any> = (): ReactElement => {
     setSlideShow
   );
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
+  const [slideBanned, setSlideBanned] = useState<boolean>(false);
   const friends = useSelector(selectFriends) || [];
+  const bannedList = useSelector(selectBanned ) || [];
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
   const username = sessionStorage.getItem("username");
 
-  if (status === 'idle' && (user?.id || username))
-    dispatch(getGames(parseInt(user?.id || '2')));
+  if (status === "idle" && (user?.id || username))
+    dispatch(getGames(parseInt(user?.id || "2")));
 
   useEffect(() => {
-    if (status === 'succeeded') {
-      setHistoryRows(games.map((game) =>
-        createHistoryData(
-          `${game.winnerScore} : ${game.loserScore}`,
-          game.winnerId == parseInt(user?.id || '')
-            ? 'win' : 'lose',
-          `${game.id}`,
-          game.id
-        )))
+    if (status === "succeeded") {
+      setHistoryRows(
+        games.map((game) =>
+          createHistoryData(
+            `${game.winnerScore} : ${game.loserScore}`,
+            game.winnerId == parseInt(user?.id || "") ? "win" : "lose",
+            `${game.id}`,
+            game.id
+          )
+        )
+      );
     }
   }, [status]);
 
   const playerRows = [
-    createPlayerData("Game level: ", score + '', 1),
-    createPlayerData("Total wins: ", winsNum + '', 2),
-    createPlayerData("Total losses: ", losesNum + '', 3),
+    createPlayerData("Game level: ", score + "", 1),
+    createPlayerData("Total wins: ", winsNum + "", 2),
+    createPlayerData("Total losses: ", losesNum + "", 3),
   ];
 
   const buttons = [
@@ -128,6 +137,32 @@ const AccountPage: FC<any> = (): ReactElement => {
     return <BasicTable myRef={ref} {...props} />;
   });
 
+  const refFriendsProps = {
+    title: "FRIENDS",
+    tableHeadArray: null,
+    mybackcolor: theme.palette.info.main,
+    myalign: "start",
+    tableRowArray: friends.map(
+      (friend): settingsRowI => createFriendElem(friend.id, friend.name)
+    ),
+    onClose: () => {
+      setOpen(false);
+    },
+  };
+
+  const refBannedsProps = {
+    title: "BANNED",
+    tableHeadArray: null,
+    mybackcolor: theme.palette.info.main,
+    myalign: "start",
+    tableRowArray: bannedList.map(
+      (friend): settingsRowI => createFriendElem(friend.id, friend.name)
+    ),
+    onClose: () => {
+      setOpen(false);
+    },
+  };
+
   return (
     <Box
       component={CardMedia}
@@ -135,9 +170,8 @@ const AccountPage: FC<any> = (): ReactElement => {
       alignItems="center"
       justifyContent="center"
       flexWrap="wrap"
-
       sx={{
-        boxShadow: '20',
+        boxShadow: "20",
         background: "linear-gradient(to top, #8bd4d1, 15%, #ecebd9)",
         width: "65vw",
         height: "90vh",
@@ -151,9 +185,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         },
       }}
     >
-      <SignUp 
-        myalign="end"
-          />
+      <SignUp myalign="end" />
       <BasicTable
         title="PLAYER STATISTICS"
         tableHeadArray={null}
@@ -174,41 +206,29 @@ const AccountPage: FC<any> = (): ReactElement => {
               }, 600);
           }}
         >
-          {slideFriends ? (
-            <FriendsTableRef
-              title="FRIENDS"
-              tableHeadArray={null}
-              mybackcolor={theme.palette.info.main}
-              myalign="start"
-              tableRowArray={
-                friends.map((friend): settingsRowI =>
-                  createFriendElem(friend.id, friend.name)
-                )
-              }
-              onClose={() => {
-                setOpen(false);
-              }}
-            />
-          ) : (
-            <StyledBox
-              myalign="start"
-              mybackcolor={theme.palette.info.main}
-            >
-              <IconButton
-                aria-label="close"
-                onClick={() => setOpen(false)}
-                sx={{
-                  position:"absolute",
-                  right: "2px",
-                  top: "1px",
-                  color: (theme) => theme.palette.grey[500],
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-              <ChooseTwoFA {...twoFaProps} />
-            </StyledBox>
-          )}
+          {
+            slideFriends
+            ? <FriendsTableRef {
+              ...(slideBanned  
+              ? refBannedsProps
+              : refFriendsProps)
+            } />
+            : <StyledBox myalign="start" mybackcolor={theme.palette.info.main}>
+                <IconButton
+                  aria-label="close"
+                  onClick={() => setOpen(false)}
+                  sx={{
+                    position: "absolute",
+                    right: "2px",
+                    top: "1px",
+                    color: (theme) => theme.palette.grey[500],
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <ChooseTwoFA {...twoFaProps} />
+              </StyledBox>
+          }
         </Slide>
       )}
       {!open && !slideShow && (
@@ -217,6 +237,7 @@ const AccountPage: FC<any> = (): ReactElement => {
           setSlideShow={setSlideShow}
           setUrlQR={setUrlQR}
           setSlideFriends={setSlideFriends}
+          setSlideBanned={setSlideBanned}
           mybackcolor={theme.palette.info.main}
           myalign="start"
           flexDirection={"column"}

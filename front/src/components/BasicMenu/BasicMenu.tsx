@@ -35,7 +35,6 @@ export default function BasicMenu({ onLogout, title, mychildren}: basicMenuI) {
   React.useEffect(() => {
     const test = user?.user?.avatar;
     if (test){
-      console.log({test});
       setAvatarSource(
         process.env.REACT_APP_USERS_URL + `/avatar/${test}`
       )

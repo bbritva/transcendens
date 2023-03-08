@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
 import { GameStateDataI } from 'src/pages/Game/components/game/game';
 import { logout } from 'src/store/authActions';
-import { setUsers, UserInfoPublic } from 'src/store/chatSlice';
+import { setBanned, setUsers, UserInfoPublic } from 'src/store/chatSlice';
 
 
 const URL = process.env.REACT_APP_AUTH_URL || '';
@@ -99,7 +99,7 @@ export function initSocket(
 
   socket.on("friendList",(data: UserInfoPublic[]) => {
     console.log("friendList", data);
-    dispatch(setUsers({friends: data}));
+    dispatch(setUsers(data));
   })
 
   socket.on("newPersonnalyBanned",(data: fromBackI) => {
@@ -110,8 +110,9 @@ export function initSocket(
     console.log("exPersonnalyBanned", data);
   })
 
-  socket.on("personallyBannedList",(data: fromBackI[]) => {
+  socket.on("personallyBannedList",(data: UserInfoPublic[]) => {
     console.log("personallyBannedList", data);
+    dispatch(setBanned(data));
   })
 
 
@@ -132,6 +133,7 @@ export function initSocket(
   });
 
   socket.emit("getFriends");
+  socket.emit("getPersonallyBanned");
 }
 
 export default socket

@@ -15,6 +15,7 @@ export interface UserInfoPublic {
 
 export interface chatState {
   friends: UserInfoPublic[],
+  banned: UserInfoPublic[],
 }
 
 const initialState = {} as chatState;
@@ -23,8 +24,11 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    setUsers(state, action: PayloadAction<chatState>) {
-      state.friends = action.payload.friends;
+    setUsers(state, action: PayloadAction<UserInfoPublic[]>) {
+      state.friends = action.payload;
+    },
+    setBanned(state, action: PayloadAction<UserInfoPublic[]>) {
+      state.banned = action.payload;
     },
     // setUserMessages(
     //   state, 
@@ -40,6 +44,7 @@ const chatSlice = createSlice({
 })
 
 export const selectFriends = (state: RootState) => state.chat.friends;
+export const selectBanned = (state: RootState) => state.chat.banned;
 
-export const {setUsers} = chatSlice.actions;
+export const {setUsers, setBanned} = chatSlice.actions;
 export default chatSlice.reducer;
