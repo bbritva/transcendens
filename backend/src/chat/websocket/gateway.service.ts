@@ -12,7 +12,6 @@ import {
 } from "@nestjs/common";
 import { GameResultDto } from "src/game/dto/create-game.dto";
 import { GameService } from "src/game/game.service";
-import { User } from "@prisma/client";
 
 @Injectable()
 export class GatewayService {
@@ -740,7 +739,7 @@ export class GatewayService {
       });
   }
 
-  private leavePMChannels(socketId: string, banned: User) {
+  private leavePMChannels(socketId: string, banned: DTO.ClientInfo) {
     const PMChannel = this.createPMChannelInfo([
       banned.name,
       this.connections.get(socketId).name,
