@@ -45,6 +45,7 @@ const GamePage: FC<GamePageProps> = ({
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
   const [isPaused, setPaused] = useState<boolean>(false);
   const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
+  const [pauseTimeout, setPauseTimeout] = useState<number>(0);
   const [openEndGameDialog, setOpenEndGameDialog] = useState<boolean>(false);
   const [gameResult, setGameResult] = useState<string>("");
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
@@ -85,6 +86,8 @@ const GamePage: FC<GamePageProps> = ({
     socket.on("setPause", (data: { isPaused: boolean }) => {
       setPaused(data.isPaused);
       Game.setPause(data.isPaused);
+      setPauseAvailable(false);
+      updatePauseTimeout(5);
     });
   }, []);
 
@@ -114,24 +117,23 @@ const GamePage: FC<GamePageProps> = ({
     }
   }
 
-  
-  let t: number = 0;
   function setPause() {
     Game.setPause(!isPaused);
     setPaused(!isPaused);
     socket.emit("setPause", Game.getPaused());
     setPauseAvailable(false);
-    t = 0;
-    setPauseTimeout();
+    updatePauseTimeout(5);
   }
 
-  function setPauseTimeout() {
-    if (t > 5) setPauseAvailable(true);
-    else
+  function updatePauseTimeout(t: number) {
+    if (t < 0) setPauseAvailable(true);
+    else {
+      setPauseTimeout(t);
       setTimeout(() => {
-        ++t;
-        setPauseTimeout();
+        --t;
+        updatePauseTimeout(t);
       }, 1000);
+    }
   }
 
   function onChange(
@@ -389,7 +391,10 @@ const GamePage: FC<GamePageProps> = ({
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
-          children={(isPaused ? "Continue" : "Pause") + (isPauseAvailable ? "" : `(${t})`)}
+          children={
+            (isPaused ? "Continue" : "Pause") +
+            (isPauseAvailable ? "" : `(${pauseTimeout})`)
+          }
           variant={"outlined"}
           disabled={!isPauseAvailable}
           size="large"
