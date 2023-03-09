@@ -118,6 +118,8 @@ class Game {
   public static setPause(value: boolean) {
     Game.isPaused = value;
     Game.instance.gameState.isPaused = value;
+    console.log(Game.isPaused);
+    
   }
 
   static getPaused(): any {

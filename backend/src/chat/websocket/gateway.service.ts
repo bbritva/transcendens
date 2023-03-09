@@ -87,10 +87,7 @@ export class GatewayService {
         el.playerFirst.name == this.connections.get(socket.id).name ||
         el.playerSecond.name == this.connections.get(socket.id).name
       )
-        this.setPaused({
-          isPaused: true,
-          gameName: el.gameName,
-        });
+        this.server.to(el.gameName).emit("opponentOnline", { isOnline: false });
     }
     this.connections.delete(socket.id);
   }
@@ -531,7 +528,7 @@ export class GatewayService {
         .to(data.gameName)
         .emit("gameFinished", { winnerName: winnerName });
     }
-    this.addGameResult(data)
+    this.addGameResult(data);
     this.server.socketsLeave(data.gameName);
   }
 
@@ -673,9 +670,12 @@ export class GatewayService {
       if (
         el.playerFirst.name == client.name ||
         el.playerSecond.name == client.name
-      )
+      ) {
         this.server.to(socketId).emit("connectToGame", el);
-      this.server.in(socketId).socketsJoin(el.gameName);
+        this.server.to(el.gameName).emit("opponentOnline", { isOnline: true });
+        this.server.in(socketId).socketsJoin(el.gameName);
+        this.setPaused({gameName : el.gameName, isPaused : true});
+      }
     }
   }
 

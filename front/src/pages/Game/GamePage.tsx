@@ -79,7 +79,6 @@ const GamePage: FC<GamePageProps> = ({
     const canvas = canvasRef.current;
     socket.off("gameLine");
     socket.on("gameLine", (data: gameLineI) => {
-      console.log(data);
       setInLine(data.inLine);
     });
     socket.off("setPause");
@@ -89,15 +88,19 @@ const GamePage: FC<GamePageProps> = ({
       setPauseAvailable(false);
       updatePauseTimeout(5);
     });
+    socket.off("opponentOnline");
+    socket.on("opponentOnline", (data: { isOnline: boolean }) => {
+      if (!data.isOnline) {
+        Game.setPause(true);
+        setPauseAvailable(false);
+      }
+    });
   }, []);
 
   useEffect(() => {
     if (socket.connected && !!gameData) {
       startGame(gameData);
       sessionStorage.setItem("game", "true");
-      if (gameData.isPaused != isPaused) {
-        setPause();
-      }
       setGameData(null);
     } else {
       sessionStorage.setItem("game", "false");
@@ -117,7 +120,7 @@ const GamePage: FC<GamePageProps> = ({
     }
   }
 
-  function setPause() {
+  function clickPause() {
     Game.setPause(!isPaused);
     setPaused(!isPaused);
     socket.emit("setPause", Game.getPaused());
@@ -398,7 +401,7 @@ const GamePage: FC<GamePageProps> = ({
           variant={"outlined"}
           disabled={!isPauseAvailable}
           size="large"
-          onClick={setPause}
+          onClick={clickPause}
         />
       </Grid>
     </Grid>
