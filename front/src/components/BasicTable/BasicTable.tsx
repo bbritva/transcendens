@@ -39,7 +39,7 @@ export interface basicTableI extends styledBoxI {
 function drawHeader(element: string) {
   return (
     <TableCell padding="checkbox" key={element}>
-      <Typography variant="subtitle1">{element}</Typography>
+      <Typography marginLeft={"1.5rem"} paddingTop={"0.5rem"} variant="subtitle1">{element}</Typography>
     </TableCell>
   );
 }
@@ -52,7 +52,7 @@ function drawRow(row: rowI) {
         (cellData, index) =>
           cellData !== "id" && (
             <TableCell  key={row.id + String(index)}>
-              <Typography variant="body1">
+              <Typography marginLeft={"1.5rem"} variant="body1">
                 {
                   //@ts-ignore
                   row[cellData]
@@ -102,7 +102,8 @@ export default function BasicTable(props: basicTableI) {
         sx={{
           backgroundColor: theme.palette.secondary.main,
           margin: "auto",
-          maxHeight: "27.5vh",
+          maxHeight: "26vh",
+          minHeight: "26vh",
           overflow: "scroll",
           overflowX: "hidden",
           "&::-webkit-scrollbar": {

@@ -49,7 +49,6 @@ const theme = createTheme({
       fontFamily:  'Arial',
       fontSize: 15,
       fontWeight: "bolder",
-      fontStyle: 'oblique',
       color: '#56a2b8',
     },
     subtitle2: {
@@ -58,6 +57,13 @@ const theme = createTheme({
       fontWeight: "bolder",
       fontStyle: 'oblique',
       color: '#ebebda',
+    },
+    h6: {
+      fontFamily:  'Arial',
+      fontSize: 14,
+      fontWeight: "bolder",
+      fontStyle: 'oblique',
+      color: '#56a2b8',
     },
   },
 });
