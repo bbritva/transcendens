@@ -8,7 +8,7 @@ import { Camera } from "@mediapipe/camera_utils";
 
 const gameBasicProps = {
   screenRatio: 3 / 2,
-  winScore: 200,
+  winScore: 2,
   paddleHeight: 0.015,
   paddleWidth: 0.2,
   paddleOffset: 3,
@@ -118,8 +118,11 @@ class Game {
   public static setPause(value: boolean) {
     Game.isPaused = value;
     Game.instance.gameState.isPaused = value;
-    console.log(Game.isPaused);
-    
+  }
+
+  public static finishGameManual(option: string) {
+    Game.instance.finishGame(option);
+    Game.setPause(false);
   }
 
   static getPaused(): any {
@@ -498,7 +501,8 @@ class Game {
     if (
       !this.canvas ||
       this.gameState.gameName == "single" ||
-      this.gameState.gameName == "demo"
+      this.gameState.gameName == "demo" ||
+      Game.isPaused
     )
       return;
 
@@ -511,18 +515,22 @@ class Game {
       });
   }
 
-  private finishGame() {
+  private finishGame(option: string = "current") {
     Game.hasNewData = true;
     Game.instance.gameInitState = null;
     if (Game.setGameOngoing) Game.setGameOngoing(false);
-    if (Game.setGameResult)
+    if (Game.setGameResult && option != "drop")
       Game.setGameResult(
-        this.rightPaddle.score > this.leftPaddle.score
+        this.rightPaddle.score > this.leftPaddle.score || option == "meWinner"
           ? "You won! =)"
+          : this.rightPaddle.score == this.leftPaddle.score
+          ? "Boring... =("
           : "You lost! :'("
       );
-    if (this.myRole == role.FIRST)
-      socket.emit("endGame", { gameName: this.gameState.gameName });
+    socket.emit("endGame", {
+      gameName: this.gameState.gameName,
+      option: option,
+    });
   }
 }
 

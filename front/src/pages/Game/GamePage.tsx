@@ -3,8 +3,12 @@ import {
   Box,
   Button,
   DialogTitle,
+  FormControl,
+  FormControlLabel,
   Grid,
   Paper,
+  Radio,
+  RadioGroup,
   TextField,
 } from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
@@ -44,11 +48,13 @@ const GamePage: FC<GamePageProps> = ({
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
   const [isPaused, setPaused] = useState<boolean>(false);
+  const [isRivalOffline, setRivalOffline] = useState<boolean>(false);
   const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
   const [pauseTimeout, setPauseTimeout] = useState<number>(0);
   const [openEndGameDialog, setOpenEndGameDialog] = useState<boolean>(false);
+  const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
-  const [singlePlayerOpponent, setSinglePlayerOpponent] =
+  const [singlePlayerRival, setSinglePlayerRival] =
     useState<string>("AI");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
@@ -88,8 +94,9 @@ const GamePage: FC<GamePageProps> = ({
       setPauseAvailable(false);
       updatePauseTimeout(5);
     });
-    socket.off("opponentOnline");
-    socket.on("opponentOnline", (data: { isOnline: boolean }) => {
+    socket.off("rivalOnline");
+    socket.on("rivalOnline", (data: { isOnline: boolean }) => {
+      setRivalOffline(!data.isOnline);
       if (!data.isOnline) {
         Game.setPause(true);
         setPauseAvailable(false);
@@ -185,6 +192,15 @@ const GamePage: FC<GamePageProps> = ({
   function closeEndGamedialog() {
     setOpenEndGameDialog(false);
     setGameResult("");
+  }
+
+  function onEndGameOptionChange(value : string) {
+    setEndGameOption(value);
+  }
+
+  function finishGame() {
+    Game.finishGameManual(endGameOption);
+    setRivalOffline(false);
   }
 
   const canvasProps = {
@@ -313,20 +329,68 @@ const GamePage: FC<GamePageProps> = ({
           </Button>
         </Box>
       </DialogSelect>
+      <DialogSelect
+        options={{}}
+        open={isRivalOffline}
+        setOpen={setRivalOffline}
+      >
+        <Box
+          margin={"1rem"}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"flex-start"}
+        >
+          <DialogTitle>Rival is offline</DialogTitle>
+          <FormControl>
+            <RadioGroup
+              aria-labelledby="gameEndOptions"
+              defaultValue="meWinner"
+              name="gameEndOptions"
+              value={endGameOption}
+              onChange={(_event, value) => {onEndGameOptionChange(value)}}
+            >
+              <FormControlLabel
+                value="meWinner"
+                control={<Radio />}
+                label="Set me as a winner"
+              />
+              <FormControlLabel
+                value="current"
+                control={<Radio />}
+                label="Current result"
+              />
+              <FormControlLabel
+                value="drop"
+                control={<Radio />}
+                label="Drop game"
+              />
+            </RadioGroup>
+          </FormControl>
+          <Button
+            variant="outlined"
+            sx={{
+              alignSelf: "end",
+            }}
+            onClick={finishGame}
+          >
+            Finish game
+          </Button>
+        </Box>
+      </DialogSelect>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"play VS AI"}
           variant={"outlined"}
-          disabled={singlePlayerOpponent == "AI" || gameOngoing}
+          disabled={singlePlayerRival == "AI" || gameOngoing}
           size="large"
-          onClick={() => setSinglePlayerOpponent("AI")}
+          onClick={() => setSinglePlayerRival("AI")}
         />
         <Button
           children={"play VS hand"}
           variant={"outlined"}
           size="large"
-          disabled={singlePlayerOpponent == "hand" || gameOngoing}
-          onClick={() => setSinglePlayerOpponent("hand")}
+          disabled={singlePlayerRival == "hand" || gameOngoing}
+          onClick={() => setSinglePlayerRival("hand")}
         />
         <Button
           children={"Single player"}
@@ -342,7 +406,7 @@ const GamePage: FC<GamePageProps> = ({
                 paddleY: 0,
               },
               playerSecond: {
-                name: singlePlayerOpponent,
+                name: singlePlayerRival,
                 score: 0,
                 paddleY: 0,
               },
