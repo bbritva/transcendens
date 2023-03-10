@@ -40,6 +40,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [openEndGameDialog, setOpenEndGameDialog] = useState<boolean>(false);
+  const [gameResult, setGameResult] = useState<string>("");
   const [singlePlayerOpponent, setSinglePlayerOpponent] =
     useState<string>("AI");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
@@ -58,15 +60,20 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       Game.startGame(
         canvas,
         testUsername || user.user?.name || "",
-        null,
-        setGameOngoing
+        setGameOngoing,
+        setGameResult
       );
   }, [canvasRef]);
+  
+  useEffect(() => {
+    if (gameResult != "") setOpenEndGameDialog(true);
+  }, [gameResult]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     socket.off("gameLine");
     socket.on("gameLine", (data: gameLineI) => {
+      console.log(data);
       setInLine(data.inLine);
     });
     socket.off("setPause");
@@ -95,8 +102,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         Game.setGameData(
           canvasRef.current,
           testUsername || user.user?.name || "",
-          gameData,
-          null
+          gameData
         );
       }
     }
@@ -149,6 +155,11 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       });
     }
     setOpenSpectatorDialog(false);
+  }
+
+  function closeEndGamedialog() {
+    setOpenEndGameDialog(false);
+    setGameResult("");
   }
 
   const canvasProps = {
@@ -250,6 +261,30 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
             onClick={spectateGame}
           >
             Connect to game
+          </Button>
+        </Box>
+      </DialogSelect>
+      <DialogSelect
+        options={{}}
+        open={openEndGameDialog}
+        setOpen={setOpenEndGameDialog}
+      >
+        <Box
+          margin={"1rem"}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"flex-start"}
+        >
+          <DialogTitle>Game over</DialogTitle>
+          <h1>{gameResult}</h1>
+          <Button
+            variant="outlined"
+            sx={{
+              alignSelf: "end",
+            }}
+            onClick={closeEndGamedialog}
+          >
+            Ok
           </Button>
         </Box>
       </DialogSelect>
