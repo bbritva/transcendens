@@ -103,10 +103,17 @@ export class GatewayService {
       const executror = this.connections.get(socket.id);
       if (!targetUser || !executror)
         this.emitExecutionError(socket.id, "privateMessage", "user unknown");
+      else if (targetUser.name == executror.name)
+        this.emitNotAllowed(
+          socket.id,
+          "privateMessage",
+          data,
+          "self-talks are strange"
+        );
       else if (targetUser.bannedIds.includes(executror.id))
         this.emitNotAllowed(socket.id, "privateMessage", data, "you're banned");
       else {
-        const channelIn = this.createPMChannelName([
+        const channelIn = this.createPMChannelInfo([
           executror.name,
           data.targetUserName,
         ]);
@@ -403,9 +410,10 @@ export class GatewayService {
     this.userService
       .banPersonally(this.connections.get(socketId).id, data.targetUserName)
       .then((banned) => {
-        if (banned)
+        if (banned) {
           this.server.to(socketId).emit("newPersonnalyBanned", banned);
-        else this.emitNotAllowed(socketId, "banPersonnaly", data);
+          this.leavePMChannels(socketId, banned);
+        } else this.emitNotAllowed(socketId, "banPersonnaly", data);
       })
       .catch((e: NotFoundException) =>
         this.emitExecutionError(socketId, "banPersonnaly", "user unknown")
@@ -731,6 +739,19 @@ export class GatewayService {
       });
   }
 
+  private leavePMChannels(socketId: string, banned: DTO.ClientInfo) {
+    const PMChannel = this.createPMChannelInfo([
+      banned.name,
+      this.connections.get(socketId).name,
+    ]);
+    this.leaveChannel(socketId, PMChannel.name, banned).catch((e) => {
+      throw e;
+    });
+    this.leaveChannel(socketId, PMChannel.name).catch((e) => {
+      throw e;
+    });
+  }
+
   // user can not connect to channel:
   // 1 - channel is private
   // 2 - user banned
@@ -782,7 +803,7 @@ export class GatewayService {
     return null;
   }
 
-  private createPMChannelName(names: string[]): DTO.ChannelInfoIn {
+  private createPMChannelInfo(names: string[]): DTO.ChannelInfoIn {
     names.sort((a: string, b: string) => a.localeCompare(b));
     return {
       name: `${names[0]} ${names[1]} pm`,
