@@ -52,6 +52,8 @@ const GamePage: FC<GamePageProps> = ({
   const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
   const [pauseTimeout, setPauseTimeout] = useState<number>(0);
   const [openEndGameDialog, setOpenEndGameDialog] = useState<boolean>(false);
+  const [isEndGameAvailable, setEndGameAvailable] = useState<boolean>(false);
+  const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
   const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
   const [singlePlayerRival, setSinglePlayerRival] =
@@ -100,6 +102,8 @@ const GamePage: FC<GamePageProps> = ({
       if (!data.isOnline) {
         Game.setPause(true);
         setPauseAvailable(false);
+        setEndGameAvailable(false);
+        updateEndGameTimeout(10);
       }
     });
   }, []);
@@ -142,6 +146,17 @@ const GamePage: FC<GamePageProps> = ({
       setTimeout(() => {
         --t;
         updatePauseTimeout(t);
+      }, 1000);
+    }
+  }
+
+  function updateEndGameTimeout(t: number) {
+    if (t < 0) setEndGameAvailable(true);
+    else {
+      setEndGameTimeout(t);
+      setTimeout(() => {
+        --t;
+        updateEndGameTimeout(t);
       }, 1000);
     }
   }
@@ -372,8 +387,9 @@ const GamePage: FC<GamePageProps> = ({
               alignSelf: "end",
             }}
             onClick={finishGame}
+            disabled={!isEndGameAvailable}
           >
-            Finish game
+            Finish game {(isEndGameAvailable ? "" : `(${endGameTimeout})`)}
           </Button>
         </Box>
       </DialogSelect>
