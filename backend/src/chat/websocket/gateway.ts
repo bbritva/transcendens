@@ -279,9 +279,10 @@ export class Gateway implements OnModuleInit {
 
   @SubscribeMessage("endGame")
   async onEndGame(
+    @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.finishGameI
   ) {
-    this.gatewayService.finishGame(data);
+    this.gatewayService.finishGame(socket.id, data);
   }
 
   @SubscribeMessage("getActiveGames")

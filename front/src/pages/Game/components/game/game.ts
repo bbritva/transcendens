@@ -120,6 +120,11 @@ class Game {
     Game.instance.gameState.isPaused = value;
   }
 
+  public static finishGameManual(option: string) {
+    Game.instance.finishGame(option);
+    Game.setPause(false);
+  }
+
   static getPaused(): any {
     return {
       gameName: Game.instance.gameState.gameName,
@@ -492,7 +497,8 @@ class Game {
     if (
       !this.canvas ||
       this.gameState.gameName == "single" ||
-      this.gameState.gameName == "demo"
+      this.gameState.gameName == "demo" ||
+      Game.isPaused
     )
       return;
 
@@ -505,18 +511,22 @@ class Game {
       });
   }
 
-  private finishGame() {
+  private finishGame(option: string = "current") {
     Game.hasNewData = true;
     Game.instance.gameInitState = null;
     if (Game.setGameOngoing) Game.setGameOngoing(false);
-    if (Game.setGameResult)
+    if (Game.setGameResult && option != "drop")
       Game.setGameResult(
-        this.rightPaddle.score > this.leftPaddle.score
+        this.rightPaddle.score > this.leftPaddle.score || option == "meWinner"
           ? "You won! =)"
+          : this.rightPaddle.score == this.leftPaddle.score
+          ? "Boring... =("
           : "You lost! :'("
       );
-    if (this.myRole == role.FIRST)
-      socket.emit("endGame", { gameName: this.gameState.gameName });
+    socket.emit("endGame", {
+      gameName: this.gameState.gameName,
+      option: option,
+    });
   }
 }
 

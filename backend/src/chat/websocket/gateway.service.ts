@@ -87,10 +87,7 @@ export class GatewayService {
         el.playerFirst.name == this.connections.get(socket.id).name ||
         el.playerSecond.name == this.connections.get(socket.id).name
       )
-        this.setPaused({
-          isPaused: true,
-          gameName: el.gameName,
-        });
+        this.server.to(el.gameName).emit("rivalOnline", { isOnline: false });
     }
     this.connections.delete(socket.id);
   }
@@ -524,13 +521,25 @@ export class GatewayService {
   }
 
   async emitGameState(data: DTO.gameStateDataI) {
+    const room = this.gameRooms.get(data.gameName);
+    if (!room) return;
     this.gameRooms.set(data.gameName, data);
     this.server.to(data.gameName).volatile.emit("gameState", data);
   }
 
-  async finishGame(data: DTO.finishGameI) {
+  async finishGame(socketId: string, data: DTO.finishGameI) {
     const gameRoom = this.gameRooms.get(data.gameName);
-    if (gameRoom) {
+    const executor = this.connections.get(socketId);
+    if (!gameRoom || !executor) return;
+    if (data.option == "meWinner") {
+      gameRoom.playerFirst.score = 5;
+      gameRoom.playerSecond.score = 10;
+      if (gameRoom.playerFirst.name == executor.name) {
+        gameRoom.playerFirst.score = 10;
+        gameRoom.playerSecond.score = 5;
+      }
+    }
+    if (data.option != "drop") {
       const winnerName =
         gameRoom.playerFirst.score > gameRoom.playerSecond.score
           ? gameRoom.playerFirst.name
@@ -538,7 +547,9 @@ export class GatewayService {
       this.server
         .to(data.gameName)
         .emit("gameFinished", { winnerName: winnerName });
+      this.addGameResult(data);
     }
+    this.gameRooms.delete(data.gameName);
     this.server.socketsLeave(data.gameName);
   }
 
@@ -606,7 +617,6 @@ export class GatewayService {
   }
 
   removeGame(room: string) {
-    this.addGameResult({ gameName: room });
     this.gameRooms.delete(room);
   }
 
@@ -628,6 +638,7 @@ export class GatewayService {
         gameResults.winnerScore = gameRoom.playerSecond.score;
         gameResults.loserScore = gameRoom.playerFirst.score;
       }
+      if (gameRoom.playerFirst.score == gameRoom.playerSecond.score) return;
       this.gameService
         .addGame(gameResults)
         .then(() => {
@@ -645,6 +656,7 @@ export class GatewayService {
         });
     }
   }
+
   private async getUserFromJWT(JWTtoken: string): Promise<DTO.ClientInfo> {
     try {
       const decodedToken = this.jwtService.verify(JWTtoken, {
@@ -680,9 +692,12 @@ export class GatewayService {
       if (
         el.playerFirst.name == client.name ||
         el.playerSecond.name == client.name
-      )
+      ) {
         this.server.to(socketId).emit("connectToGame", el);
-      this.server.in(socketId).socketsJoin(el.gameName);
+        this.server.to(el.gameName).emit("rivalOnline", { isOnline: true });
+        this.server.in(socketId).socketsJoin(el.gameName);
+        this.setPaused({ gameName: el.gameName, isPaused: true });
+      }
     }
   }
 
