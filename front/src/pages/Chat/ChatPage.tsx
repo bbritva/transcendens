@@ -11,6 +11,7 @@ import socket from "src/services/socket";
 import { useAppDispatch } from "src/app/hooks";
 import { Box } from "@mui/system";
 import userMenuButtons from "src/components/BasicMenu/userMenuButtons";
+import channelMenuButtons from "src/components/BasicMenu/channelMenuButtons";
 
 export interface fromBackI {
   name: string;
@@ -110,7 +111,7 @@ const ChatPage: FC<ChatPageProps> = ({
           user={user.user}
           loading={loading}
           elements={channels}
-          buttons={[]}
+          buttons={channelMenuButtons(()=> {}, setDestination, chosenChannel)}
           chatStyles={chatStyles}
           selectedElement={chosenChannel}
           setElement={(channel: channelFromBackI) => {

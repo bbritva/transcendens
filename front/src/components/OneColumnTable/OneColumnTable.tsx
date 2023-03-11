@@ -17,13 +17,10 @@ import {
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import { fromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
-import AdjustOutlinedIcon from "@mui/icons-material/AdjustOutlined";
 import { userI } from "src/store/userSlice";
 import React from "react";
-import { StyledMenuButton } from "../NavButton/StyledNavButton";
 import BasicMenu from "../BasicMenu/BasicMenu";
 import { useNavigate } from "react-router-dom";
-import { StyledMenuItem } from "../BasicMenu/StyledMenu";
 
 const anchorStyle = {
   overflowAnchor: "auto",
