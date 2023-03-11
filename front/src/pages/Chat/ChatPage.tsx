@@ -63,6 +63,8 @@ const ChatPage: FC<ChatPageProps> = ({
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const testUsername = sessionStorage.getItem("username");
+  const [openUsersDialog, setOpenUsersDialog] = useState(false);
+  const [openChannelsDialog, setOpenChannelsDialog] = useState(false);
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
@@ -112,6 +114,8 @@ const ChatPage: FC<ChatPageProps> = ({
           loading={loading}
           elements={channels}
           buttons={channelMenuButtons(()=> {}, setDestination, chosenChannel)}
+          openDialog={openChannelsDialog}
+          setOpenDialog={setOpenChannelsDialog}
           chatStyles={chatStyles}
           selectedElement={chosenChannel}
           setElement={(channel: channelFromBackI) => {
@@ -124,6 +128,7 @@ const ChatPage: FC<ChatPageProps> = ({
               element={chosenChannel}
               channel={chosenChannel}
               setDestination={setDestination}
+              setOpen={setOpenChannelsDialog}
             />
           }
         />
@@ -168,6 +173,8 @@ const ChatPage: FC<ChatPageProps> = ({
             channels.find((el) => el.name === chosenChannel.name)?.users || []
           }
           buttons={userMenuButtons(()=> {}, setDestination, chosenUser)}
+          openDialog={openUsersDialog}
+          setOpenDialog={setOpenUsersDialog}
           chatStyles={chatStyles}
           selectedElement={chosenUser}
           setElement={setChosenUser}
@@ -178,6 +185,7 @@ const ChatPage: FC<ChatPageProps> = ({
               element={chosenUser}
               channel={chosenChannel}
               setDestination={setDestination}
+              setOpen={setOpenUsersDialog}
             />
           }
         />

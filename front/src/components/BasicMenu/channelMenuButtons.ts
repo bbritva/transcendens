@@ -29,14 +29,14 @@ function channelMenuButtons(
       component: StyledMenuItem as FC,
       compProps: {
         onClick: connectToChannel,
-        children: "CONNECT",
+        children: "Connect",
       },
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: disconnectFromChanel,
-        children: "DISCONNECT",
+        children: "Disconnect",
       },
     },
   ];

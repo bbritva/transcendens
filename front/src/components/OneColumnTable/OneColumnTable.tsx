@@ -41,7 +41,10 @@ const OneColumnTable: FC<{
     compProps: {
       onClick: Function
     }
-  }[]
+  }[];
+  openDialog: boolean; 
+  setOpenDialog: Function;
+
 }> = ({
   taper,
   user,
@@ -52,11 +55,12 @@ const OneColumnTable: FC<{
   setElement,
   dialogChildren,
   buttons,
+  openDialog,
+  setOpenDialog,
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
   const navigate = useNavigate();
-  const [openDialog, setOpenDialog] = useState(false);
   const child = Children.only(dialogChildren);
  
   return (
@@ -97,48 +101,28 @@ const OneColumnTable: FC<{
       >
         {loading
           ? "LOADING"
-
-          
           : elements.map((data) => { // list of users
               if (!(taper === "Users" && user?.name === data.name))
                 return (
                   <BasicMenu
                     key={data.name}
                     title={data.name}
-                    // variant={selectedElement == data ? "contained" : "text"}
-                    // startIcon={
-                    //   data.connected && <AdjustOutlinedIcon fontSize="small" />
-                    // }
                     onClick={() => {
                       setElement(data);
                       setOpenDialog(true);
                     }}
-                    mychildren={buttons} //left prop name in basic menu = right = variabele
-                    // size="small"
-                    // sx={{
-                    //   textAlign: "left",
-                    //   maxHeight: "2rem",
-                    // }}
+                    mychildren={buttons}
                   />
-                  //   <Typography variant="subtitle1" noWrap>
-                  //     {data.name}
-                  //   </Typography>
-                  // </BasicMenu>
                 );
             })}
         <div style={anchorStyle as CSSProperties} />
       </Grid>
-      <DialogSelect
+      <DialogSelect 
         options={selectedElement}
         open={openDialog}
         setOpen={setOpenDialog}
       >
-        {React.isValidElement(child) ? (
-          //@ts-ignore
-          cloneElement(child, { setOpen: setOpenDialog })
-        ) : (
-          <></>
-        )}
+        {dialogChildren}
       </DialogSelect>
     </Grid>
   );
