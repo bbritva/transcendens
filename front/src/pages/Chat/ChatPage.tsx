@@ -10,6 +10,7 @@ import { chatStyles } from "./chatStyles";
 import socket from "src/services/socket";
 import { useAppDispatch } from "src/app/hooks";
 import { Box } from "@mui/system";
+import userMenuButtons from "src/components/BasicMenu/userMenuButtons";
 
 export interface fromBackI {
   name: string;
@@ -93,6 +94,7 @@ const ChatPage: FC<ChatPageProps> = ({
     setValue("");
   };
 
+  // props for the oneCol table - buttons styled items
   return (
     <>
       <Box
@@ -103,11 +105,12 @@ const ChatPage: FC<ChatPageProps> = ({
         marginBottom={"2rem"}
         sx={{ display: { xs: "none", sm: "none", md: "block" } }}
       >
-        <OneColumnTable
+        <OneColumnTable 
           taper="CHANNELS"
           user={user.user}
           loading={loading}
           elements={channels}
+          buttons={[]}
           chatStyles={chatStyles}
           selectedElement={chosenChannel}
           setElement={(channel: channelFromBackI) => {
@@ -163,6 +166,7 @@ const ChatPage: FC<ChatPageProps> = ({
           elements={
             channels.find((el) => el.name === chosenChannel.name)?.users || []
           }
+          buttons={userMenuButtons(()=> {}, setDestination, chosenUser)}
           chatStyles={chatStyles}
           selectedElement={chosenUser}
           setElement={setChosenUser}

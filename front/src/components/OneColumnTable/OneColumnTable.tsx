@@ -39,6 +39,12 @@ const OneColumnTable: FC<{
   selectedElement: {};
   setElement: Function;
   dialogChildren: ReactNode;
+  buttons: {
+    component: React.FC,
+    compProps: {
+      onClick: Function
+    }
+  }[]
 }> = ({
   taper,
   user,
@@ -48,42 +54,14 @@ const OneColumnTable: FC<{
   selectedElement,
   setElement,
   dialogChildren,
+  buttons,
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
   const navigate = useNavigate();
   const [openDialog, setOpenDialog] = useState(false);
   const child = Children.only(dialogChildren);
-  const buttons = [
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/account", { replace: true }),
-        children: "Profile",
-      },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/chat", { replace: true }),
-        children: "Message",
-      },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/game", { replace: true }),
-        children: "Game",
-      },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/game", { replace: true }),
-        children: "Delete",
-      },
-    },
-  ];
+ 
   return (
     <Grid
       container
@@ -124,7 +102,7 @@ const OneColumnTable: FC<{
           ? "LOADING"
 
           
-          : elements.map((data) => {
+          : elements.map((data) => { // list of users
               if (!(taper === "Users" && user?.name === data.name))
                 return (
                   <BasicMenu
@@ -138,7 +116,7 @@ const OneColumnTable: FC<{
                       setElement(data);
                       setOpenDialog(true);
                     }}
-                    mychildren={buttons}
+                    mychildren={buttons} //left prop name in basic menu = right = variabele
                     // size="small"
                     // sx={{
                     //   textAlign: "left",
