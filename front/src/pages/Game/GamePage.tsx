@@ -218,11 +218,6 @@ const GamePage: FC<GamePageProps> = ({
     setRivalOffline(false);
   }
 
-  const canvasProps = {
-    width: "720",
-    height: "480",
-  } as canvasPropsI;
-
   return (
     <Box
       component={Paper}
