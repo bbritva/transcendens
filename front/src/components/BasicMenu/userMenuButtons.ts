@@ -18,10 +18,6 @@ function userMenuButtons(
     if (setOpen) setOpen(false);
   }
 
-  function createGetUserStatEvent() {
-    createUserEvent("getUserStats");
-  }
-
   function createPrivateMessageEvent() {
     createUserEvent("privateMessage");
   }
@@ -32,18 +28,14 @@ function userMenuButtons(
   function createRemoveFriendEvent() {
     createUserEvent("removeFriend");
   }
-  function createGetFriendsEvent() {
-    createUserEvent("getFriends");
-  }
+  
   function createBanPersonallyEvent() {
     createUserEvent("banPersonally");
   }
-  function createUnbanPersonallyEvent() {
-    createUserEvent("unbanPersonally");
-  }
-  function createGetPersonallyBannedEvent() {
-    createUserEvent("getPersonallyBanned");
-  }
+  // function createUnbanPersonallyEvent() {
+  //   createUserEvent("unbanPersonally");
+  // }
+  
 
   return (
     [
@@ -51,9 +43,52 @@ function userMenuButtons(
         component: StyledMenuItem as FC,
         compProps: {
           onClick: createPrivateMessageEvent,
-          children: "PM",
+          children: "Message",
         },
       },
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: createAddFriendEvent,
+          children: "Add to friend",
+        },
+      },
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: createAddFriendEvent,
+          children: "Profile", //event?
+        },
+      },
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: createAddFriendEvent, //event?
+          children: "Send invitation",
+        },
+      },
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: createRemoveFriendEvent,
+          children: "Remove from friends",
+        },
+      },
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: createBanPersonallyEvent,
+          children: "Ban user",
+        },
+      },
+      
+      // {
+      //   component: StyledMenuItem as FC,
+      //   compProps: {
+      //     onClick: createUnbanPersonallyEvent,
+      //     children: "Unban user",
+      //   },
+      // },
       {
         component: StyledMenuItem as FC,
         compProps: {

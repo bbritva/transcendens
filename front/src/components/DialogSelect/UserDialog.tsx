@@ -44,19 +44,19 @@ const UserDialog: FC<dialogProps> = (props: dialogProps) => {
 
   return (
     <Box>
-      <DialogTitle>'User' actions</DialogTitle>
-      <Button onClick={createPrivateMessageEvent}>Message</Button>
-      <Button>Pong's invite</Button>
-      <Button>Profile</Button>
-      <Button onClick={createGetUserStatEvent}>Show user stats</Button>
-      <Button onClick={createAddFriendEvent}>Add to Friends</Button>
-      <Button onClick={createRemoveFriendEvent}>Remove from Friends</Button>
-      <Button onClick={createGetFriendsEvent}>Get friends</Button>
-      <Button onClick={createBanPersonallyEvent}>Ban User</Button>
-      <Button onClick={createUnbanPersonallyEvent}>Unban User</Button>
-      <Button onClick={createGetPersonallyBannedEvent}>
+      <DialogTitle></DialogTitle>
+      {/* <Button onClick={createPrivateMessageEvent}>Message</Button> */}
+      {/* <Button>Pong's invite</Button>
+      <Button>Profile</Button> */}
+      {/* <Button onClick={createGetUserStatEvent}>Show user stats</Button>
+      <Button onClick={createAddFriendEvent}>Add to Friends</Button> */}
+      {/* <Button onClick={createRemoveFriendEvent}>Remove from Friends</Button> */}
+      {/* <Button onClick={createGetFriendsEvent}>Get friends</Button> */}
+      {/* <Button onClick={createBanPersonallyEvent}>Ban User</Button> */}
+      {/* <Button onClick={createUnbanPersonallyEvent}>Unban User</Button> */}
+      {/* <Button onClick={createGetPersonallyBannedEvent}>
         Get personnaly banned
-      </Button>
+      </Button> */}
     </Box>
   );
 };
