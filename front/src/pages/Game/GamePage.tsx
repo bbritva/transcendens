@@ -42,7 +42,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [openEndGameDialog, setOpenEndGameDialog] = useState<boolean>(false);
   const [gameResult, setGameResult] = useState<string>("");
-  const [singlePlayerRival, setSinglePlayerRival] = useState<string>("AI");
+  const [singlePlayerOpponent, setSinglePlayerOpponent] = useState<string>("AI");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
     useState<boolean>(false);
@@ -159,15 +159,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   function closeEndGamedialog() {
     setOpenEndGameDialog(false);
     setGameResult("");
-  }
-
-  function onEndGameOptionChange(value: string) {
-    setEndGameOption(value);
-  }
-
-  function finishGame() {
-    Game.finishGameManual(endGameOption);
-    setRivalOffline(false);
   }
 
   return (
@@ -295,57 +286,6 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
             onClick={closeEndGamedialog}
           >
             Ok
-          </Button>
-        </Box>
-      </DialogSelect>
-      <DialogSelect
-        options={{}}
-        open={isRivalOffline}
-        setOpen={setRivalOffline}
-      >
-        <Box
-          margin={"1rem"}
-          display={"flex"}
-          flexDirection={"column"}
-          alignItems={"flex-start"}
-        >
-          <DialogTitle>Rival is offline</DialogTitle>
-          <FormControl>
-            <RadioGroup
-              aria-labelledby="gameEndOptions"
-              defaultValue="meWinner"
-              name="gameEndOptions"
-              value={endGameOption}
-              onChange={(_event, value) => {
-                onEndGameOptionChange(value);
-              }}
-            >
-              <FormControlLabel
-                value="meWinner"
-                control={<Radio />}
-                label="Set me as a winner"
-              />
-              <FormControlLabel
-                value="current"
-                control={<Radio />}
-                label="Current result"
-              />
-              <FormControlLabel
-                value="drop"
-                control={<Radio />}
-                label="Drop game"
-              />
-            </RadioGroup>
-          </FormControl>
-          <Button
-            variant="outlined"
-            sx={{
-              alignSelf: "end",
-            }}
-            onClick={finishGame}
-            disabled={!isEndGameAvailable}
-          >
-            Finish game {isEndGameAvailable ? "" : `(${endGameTimeout})`}
           </Button>
         </Box>
       </DialogSelect>
