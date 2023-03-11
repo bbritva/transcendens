@@ -7,13 +7,13 @@ import {
   Paper,
   TextField,
 } from "@mui/material";
-import Canvas, { canvasPropsI } from "./components/Canvas";
 import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import socket from "src/services/socket";
 import { useStore } from "react-redux";
 import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
+import CanvasR from "./components/CanvasR";
 
 export interface point {
   x: number;
@@ -42,8 +42,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [openEndGameDialog, setOpenEndGameDialog] = useState<boolean>(false);
   const [gameResult, setGameResult] = useState<string>("");
-  const [singlePlayerOpponent, setSinglePlayerOpponent] =
-    useState<string>("AI");
+  const [singlePlayerRival, setSinglePlayerRival] = useState<string>("AI");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
     useState<boolean>(false);
@@ -162,13 +161,24 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     setGameResult("");
   }
 
-  const canvasProps = {
-    width: "720",
-    height: "480",
-  } as canvasPropsI;
+  function onEndGameOptionChange(value: string) {
+    setEndGameOption(value);
+  }
+
+  function finishGame() {
+    Game.finishGameManual(endGameOption);
+    setRivalOffline(false);
+  }
 
   return (
-    <Grid container component={Paper} display={"table-row"}>
+    <Box
+      component={Paper}
+      display={"flex"}
+      justifyContent={"center"}
+      flex={"wrap"}
+      flexDirection={"column"}
+      maxWidth={"md"}
+    >
       <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
         {declined ? (
           <Box
@@ -288,6 +298,57 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           </Button>
         </Box>
       </DialogSelect>
+      <DialogSelect
+        options={{}}
+        open={isRivalOffline}
+        setOpen={setRivalOffline}
+      >
+        <Box
+          margin={"1rem"}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"flex-start"}
+        >
+          <DialogTitle>Rival is offline</DialogTitle>
+          <FormControl>
+            <RadioGroup
+              aria-labelledby="gameEndOptions"
+              defaultValue="meWinner"
+              name="gameEndOptions"
+              value={endGameOption}
+              onChange={(_event, value) => {
+                onEndGameOptionChange(value);
+              }}
+            >
+              <FormControlLabel
+                value="meWinner"
+                control={<Radio />}
+                label="Set me as a winner"
+              />
+              <FormControlLabel
+                value="current"
+                control={<Radio />}
+                label="Current result"
+              />
+              <FormControlLabel
+                value="drop"
+                control={<Radio />}
+                label="Drop game"
+              />
+            </RadioGroup>
+          </FormControl>
+          <Button
+            variant="outlined"
+            sx={{
+              alignSelf: "end",
+            }}
+            onClick={finishGame}
+            disabled={!isEndGameAvailable}
+          >
+            Finish game {isEndGameAvailable ? "" : `(${endGameTimeout})`}
+          </Button>
+        </Box>
+      </DialogSelect>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"play VS AI"}
@@ -350,7 +411,8 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
-        <Canvas ref={canvasRef} {...canvasProps} />
+        {/* <Canvas ref={canvasRef}/> */}
+        <CanvasR canvasRef={canvasRef} />
         {/* <Webcam
           ref={webcamRef}
           style={{
@@ -376,7 +438,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           onClick={setPause}
         />
       </Grid>
-    </Grid>
+    </Box>
   );
 };
 
