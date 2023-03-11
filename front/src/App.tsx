@@ -170,7 +170,7 @@ function App() {
                   path={route.path}
                   element={
                     <PrivateRouteWrapper>
-                      <route.component channels={channels} setChannels={setChannels} gameData={gameData}/>
+                      <route.component channels={channels} setChannels={setChannels} gameData={gameData} setGameData={setGameData}/>
                     </PrivateRouteWrapper>
                   }
                 />

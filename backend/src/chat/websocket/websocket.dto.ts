@@ -106,6 +106,7 @@ export interface spectateGameI {
 
 export interface finishGameI {
   gameName: string;
+  option: string;
 }
 
 export interface pauseGameI {
