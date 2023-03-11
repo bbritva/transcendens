@@ -39,6 +39,13 @@ function channelMenuButtons(
         children: "Disconnect",
       },
     },
+    {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => {setOpen(true)},
+          children: "Settings",
+        },
+      },
   ];
 }
 

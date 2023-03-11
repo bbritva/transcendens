@@ -113,7 +113,7 @@ const ChatPage: FC<ChatPageProps> = ({
           user={user.user}
           loading={loading}
           elements={channels}
-          buttons={channelMenuButtons(()=> {}, setDestination, chosenChannel)}
+          buttons={channelMenuButtons(setOpenChannelsDialog, setDestination, chosenChannel)}
           openDialog={openChannelsDialog}
           setOpenDialog={setOpenChannelsDialog}
           chatStyles={chatStyles}
@@ -172,7 +172,7 @@ const ChatPage: FC<ChatPageProps> = ({
           elements={
             channels.find((el) => el.name === chosenChannel.name)?.users || []
           }
-          buttons={userMenuButtons(()=> {}, setDestination, chosenUser)}
+          buttons={userMenuButtons(setOpenUsersDialog, setDestination, chosenUser)}
           openDialog={openUsersDialog}
           setOpenDialog={setOpenUsersDialog}
           chatStyles={chatStyles}

@@ -54,6 +54,13 @@ function userMenuButtons(
           children: "PM",
         },
       },
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => {setOpen(true)},
+          children: "Channel settings",
+        },
+      },
     ]
   );
 };

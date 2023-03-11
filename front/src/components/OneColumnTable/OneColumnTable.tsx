@@ -109,7 +109,6 @@ const OneColumnTable: FC<{
                     title={data.name}
                     onClick={() => {
                       setElement(data);
-                      setOpenDialog(true);
                     }}
                     mychildren={buttons}
                   />

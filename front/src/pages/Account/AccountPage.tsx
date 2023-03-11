@@ -5,6 +5,7 @@ import {
   ForwardedRef,
   useState,
   useEffect,
+  ReactNode
 } from "react";
 import {
   Box,
@@ -35,6 +36,7 @@ import { selectBanned, selectFriends, UserInfoPublic } from "src/store/chatSlice
 import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
+import SportsCricketIcon from '@mui/icons-material/SportsCricket';
 
 function createHistoryData(
   score: string,
@@ -45,7 +47,7 @@ function createHistoryData(
   return { score, result, rival, id } as matchHistoryRowI;
 }
 
-function createPlayerData(data: string, rank: string, id: number) {
+function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id: number) {
   return { data, rank, id } as playerStatisticsRowI;
 }
 
@@ -88,9 +90,17 @@ const AccountPage: FC<any> = (): ReactElement => {
   }, [status]);
 
   const playerRows = [
-    createPlayerData("Game level: ", score + "", 1),
     createPlayerData("Total wins: ", winsNum + "", 2),
     createPlayerData("Total losses: ", losesNum + "", 3),
+    createPlayerData("Total score: ", score + "", 1),
+    createPlayerData(
+      <Box display="flex" alignItems="center">
+        <SportsCricketIcon color="primary" fontSize="large" />
+        Rating:
+      </Box>,
+        11+'',
+        4
+      ),
   ];
 
   const buttons = [
