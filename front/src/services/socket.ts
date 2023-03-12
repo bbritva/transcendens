@@ -102,8 +102,9 @@ export function initSocket(
     dispatch(setUsers(data));
   })
 
-  socket.on("newPersonnalyBanned",(data: fromBackI) => {
+  socket.on("newPersonnalyBanned",(data: UserInfoPublic) => {
     console.log("newPersonnalyBanned", data);
+    dispatch(setBanned([data]));
   })
 
   socket.on("exPersonnalyBanned",(data: fromBackI) => {

@@ -18,7 +18,10 @@ export interface chatState {
   banned: UserInfoPublic[],
 }
 
-const initialState = {} as chatState;
+const initialState = {
+  friends: [],
+  banned: []
+} as chatState;
 
 const chatSlice = createSlice({
   name: 'chat',
@@ -28,17 +31,9 @@ const chatSlice = createSlice({
       state.friends = action.payload;
     },
     setBanned(state, action: PayloadAction<UserInfoPublic[]>) {
-      state.banned = action.payload;
+      state.banned = state.banned.concat(action.payload);
     },
-    // setUserMessages(
-    //   state, 
-    //   action: PayloadAction<{user: userFromBackI, messages: newMessageI[]}>
-    // ) {
-    //   const ind = state.friends.findIndex(
-    //     (el) => el.user.name == action.payload.user.name
-    //   );
-    //   state.friends[ind].messages = action.payload.messages;
-    // }
+  
   }
 
 })

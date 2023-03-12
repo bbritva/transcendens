@@ -32,9 +32,9 @@ function userMenuButtons(
   function createBanPersonallyEvent() {
     createUserEvent("banPersonally");
   }
-  // function createUnbanPersonallyEvent() {
-  //   createUserEvent("unbanPersonally");
-  // }
+  function createUnbanPersonallyEvent() {
+    createUserEvent("unbanPersonally");
+  }
   
 
   return (
@@ -82,13 +82,13 @@ function userMenuButtons(
         },
       },
       
-      // {
-      //   component: StyledMenuItem as FC,
-      //   compProps: {
-      //     onClick: createUnbanPersonallyEvent,
-      //     children: "Unban user",
-      //   },
-      // },
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: createUnbanPersonallyEvent,
+          children: "Unban user",
+        },
+      },
       {
         component: StyledMenuItem as FC,
         compProps: {
