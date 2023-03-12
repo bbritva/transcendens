@@ -9,7 +9,7 @@ import NavButton from "../NavButton/NavButton";
 import BasicMenu from "../BasicMenu/BasicMenu";
 import { StyledMenuItem } from "../BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface NavbarProps {
   loginButtonText: string;
@@ -24,6 +24,19 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
   const theme = useTheme();
   const myHeight = "10vh";
   const navigate = useNavigate();
+  const [avatarSource, setAvatarSource] = useState<string>('');
+
+  useEffect(() => {
+    const test = user?.avatar;
+
+    if (test){
+      setAvatarSource(
+        process.env.REACT_APP_USERS_URL + `/avatar/${test}`
+      )
+    }
+    else if (user)
+      setAvatarSource(user.image);
+  }, [user?.avatar]);
 
   const buttons = [
     {
@@ -77,7 +90,10 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
           <Protected
             user={user}
             render={() => 
-            <BasicMenu  mychildren={buttons}/>            
+            <BasicMenu 
+              mychildren={buttons}
+              extAvatar={avatarSource}
+            />            
             }
 
             fail={() => (

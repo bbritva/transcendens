@@ -19,6 +19,7 @@ import { userI } from "src/store/userSlice";
 import React from "react";
 import BasicMenu from "../BasicMenu/BasicMenu";
 import { useNavigate } from "react-router-dom";
+import fakeAvatar from "src/assets/logo192.png";
 
 const anchorStyle = {
   overflowAnchor: "auto",
@@ -60,6 +61,7 @@ const OneColumnTable: FC<{
   const tableRef = useRef(null);
   const navigate = useNavigate();
   const child = Children.only(dialogChildren);
+  console.log({taper, elements})
  
   return (
     <Grid
@@ -99,8 +101,10 @@ const OneColumnTable: FC<{
       >
         {loading
           ? "LOADING"
-          : elements.map((data) => { // list of users
-              if (!(taper === "Users" && user?.name === data.name))
+          : elements.map((data) => {
+              if (!(taper === "Users" && user?.name === data.name)){
+                //@ts-ignore
+                let ava = data?.avatar || data.image || '';
                 return (
                   <BasicMenu
                     key={data.name}
@@ -109,9 +113,12 @@ const OneColumnTable: FC<{
                       setElement(data);
                     }}
                     mychildren={buttons}
+                    extAvatar={ava}
                   />
-                );
-            })}
+                );}
+              }
+            )
+        }
         <div style={anchorStyle as CSSProperties} />
       </Grid>
       <DialogSelect 
