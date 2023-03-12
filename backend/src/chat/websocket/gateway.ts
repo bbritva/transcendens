@@ -127,7 +127,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.ManageUserInChannelI
   ) {
-    this.gatewayService.unmuteUser(socket, data);
+    this.gatewayService.unmuteUser(socket.id, data);
   }
 
   @SubscribeMessage("unbanUser")
@@ -135,7 +135,7 @@ export class Gateway implements OnModuleInit {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.ManageUserInChannelI
   ) {
-    this.gatewayService.unbanUser(socket, data);
+    this.gatewayService.unbanUser(socket.id, data);
   }
 
   @SubscribeMessage("kickUser")
@@ -279,9 +279,10 @@ export class Gateway implements OnModuleInit {
 
   @SubscribeMessage("endGame")
   async onEndGame(
+    @ConnectedSocket() socket: Socket,
     @MessageBody() data: DTO.finishGameI
   ) {
-    this.gatewayService.finishGame(data);
+    this.gatewayService.finishGame(socket.id, data);
   }
 
   @SubscribeMessage("getActiveGames")

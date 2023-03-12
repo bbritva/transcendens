@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma, eStatus } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -233,85 +238,79 @@ export class UserService {
 
   async addFriend(userId: number, targetUserName: string): Promise<User> {
     const user = await this.getUser(userId);
+    if (!user) throw new NotFoundException();
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
-        if (targetUser && !targetUser.bannedIds.includes(userId)) {
-          if (!user.friendIds.includes(targetUser.id)) {
-            this.prisma.user
-              .update({
-                where: {
-                  id: userId,
+        if (!targetUser) throw new NotFoundException();
+        if (targetUser.bannedIds.includes(userId))
+          throw new ForbiddenException();
+        if (!user.friendIds.includes(targetUser.id)) {
+          this.prisma.user
+            .update({
+              where: {
+                id: userId,
+              },
+              data: {
+                friendIds: {
+                  push: targetUser.id,
                 },
-                data: {
-                  friendIds: {
-                    push: targetUser.id,
-                  },
-                },
-              })
-              .then()
-              .catch((e) => {
-                throw new BadRequestException(e.message);
-              });
-          }
+              },
+            })
+            .then()
+            .catch((e) => {
+              throw e;
+            });
         }
         this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
   async removeFriend(userId: number, targetUserName: string): Promise<User> {
     const user = await this.getUser(userId);
+    if (!user) throw new NotFoundException();
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
-        if (targetUser) {
-          if (user.friendIds.includes(targetUser.id))
-            this.prisma.user
-              .update({
-                where: {
-                  id: userId,
+        if (!targetUser) throw new NotFoundException();
+        if (user.friendIds.includes(targetUser.id))
+          this.prisma.user
+            .update({
+              where: {
+                id: userId,
+              },
+              data: {
+                friendIds: {
+                  set: user.friendIds.filter((id) => id != targetUser.id),
                 },
-                data: {
-                  friendIds: {
-                    set: user.friendIds.filter((id) => id != targetUser.id),
-                  },
-                },
-              })
-              .then()
-              .catch((e) => {
-                throw new BadRequestException(e.message);
-              });
-        }
+              },
+            })
+            .then()
+            .catch((e) => {
+              throw e;
+            });
         this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
   async getFriends(userId: number): Promise<UserInfoPublic[]> {
     let friendsList: UserInfoPublic[] = [];
-    try {
-      const user = await this.getUser(userId);
-      if (user) {
-        for (const friendId of user.friendIds) {
-          const friend = await this.getUser(friendId);
-          friendsList.push({
-            id: friend.id,
-            name: friend.name,
-            status: friend.status,
-            image: friend.image,
-            avatar: friend.avatar,
-          });
-        }
+    const user = await this.getUser(userId);
+    if (!user) throw new NotFoundException();
+    for (const friendId of user.friendIds) {
+      const friend = await this.getUser(friendId);
+      if (friend) {
+        this.filterUserdata(friend);
+        friendsList.push(friend);
       }
-      return friendsList;
-    } catch (e) {
-      console.log("err", e.meta.cause);
     }
+    return friendsList;
   }
 
   async getNamesSuggestion(name: string): Promise<string[]> {
@@ -340,84 +339,75 @@ export class UserService {
 
   async banPersonally(userId: number, targetUserName: string): Promise<User> {
     const user = await this.getUser(userId);
+    if (!user) throw new NotFoundException();
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
-        if (targetUser) {
-          if (!user.bannedIds.includes(targetUser.id))
-            this.prisma.user
-              .update({
-                where: {
-                  id: userId,
+        if (!targetUser) throw new NotFoundException();
+        if (!user.bannedIds.includes(targetUser.id))
+          this.prisma.user
+            .update({
+              where: {
+                id: userId,
+              },
+              data: {
+                bannedIds: {
+                  push: targetUser.id,
                 },
-                data: {
-                  bannedIds: {
-                    push: targetUser.id,
-                  },
-                },
-              })
-              .then()
-              .catch((e) => {
-                throw new BadRequestException(e.message);
-              });
-        }
+              },
+            })
+            .catch((e) => {
+              throw e;
+            });
         this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
   async unbanPersonally(userId: number, targetUserName: string): Promise<User> {
     const user = await this.getUser(userId);
+    if (!user) throw new NotFoundException();
     return this.getUserByName(targetUserName)
       .then((targetUser) => {
-        if (targetUser) {
-          if (user.bannedIds.includes(targetUser.id))
-            this.prisma.user
-              .update({
-                where: {
-                  id: userId,
+        if (!targetUser) throw new NotFoundException();
+        if (user.bannedIds.includes(targetUser.id))
+          this.prisma.user
+            .update({
+              where: {
+                id: userId,
+              },
+              data: {
+                bannedIds: {
+                  set: user.bannedIds.filter((id) => id != targetUser.id),
                 },
-                data: {
-                  bannedIds: {
-                    set: user.bannedIds.filter((id) => id != targetUser.id),
-                  },
-                },
-              })
-              .then()
-              .catch((e) => {
-                throw new BadRequestException(e.message);
-              });
-        }
+              },
+            })
+            .then()
+            .catch((e) => {
+              throw e;
+            });
         this.filterUserdata(targetUser);
         return targetUser;
       })
       .catch((e) => {
-        throw new BadRequestException(e.message);
+        throw e;
       });
   }
 
   async getPersonallyBanned(userId: number): Promise<UserInfoPublic[]> {
     let bannedList: UserInfoPublic[] = [];
-    try {
-      const user = await this.getUser(userId);
-      if (user) {
-        for (const bannedId of user.bannedIds) {
-          const banned = await this.getUser(bannedId);
-          bannedList.push({
-            id: banned.id,
-            name: banned.name,
-            status: banned.status,
-            image: banned.image,
-            avatar: banned.avatar,
-          });
-        }
+    const user = await this.getUser(userId);
+    if (!user) throw new NotFoundException();
+    for (const bannedId of user.bannedIds) {
+      const banned = await this.getUser(bannedId);
+      if (banned) {
+        this.filterUserdata(banned);
+        bannedList.push(banned);
       }
-      return bannedList;
-    } catch (e) {
-      console.log("err", e.meta.cause);
     }
+    return bannedList;
   }
 
   async addScores(gameResult: GameResultDto): Promise<CreateGameDto> {

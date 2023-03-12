@@ -1,5 +1,17 @@
 import { ReactElement, FC, useRef, useEffect, useState } from "react";
-import { Box, Button, DialogTitle, Grid, Paper, TextField, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  DialogTitle,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  Paper,
+  Radio,
+  RadioGroup,
+  TextField,
+  useTheme
+} from "@mui/material";
 import Canvas, { canvasPropsI } from "./components/Canvas";
 import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
@@ -24,16 +36,28 @@ export interface gameLineI {
 
 export interface GamePageProps {
   gameData: GameStateDataI | null;
+  setGameData: Function;
 }
 
-const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
+const GamePage: FC<GamePageProps> = ({
+  gameData,
+  setGameData,
+}): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [declined, setDeclined] = useState<boolean>(false);
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [singlePlayerOpponent, setSinglePlayerOpponent] =
+  const [isPaused, setPaused] = useState<boolean>(false);
+  const [isRivalOffline, setRivalOffline] = useState<boolean>(false);
+  const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
+  const [pauseTimeout, setPauseTimeout] = useState<number>(0);
+  const [openEndGameDialog, setOpenEndGameDialog] = useState<boolean>(false);
+  const [isEndGameAvailable, setEndGameAvailable] = useState<boolean>(false);
+  const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
+  const [endGameOption, setEndGameOption] = useState<string>("meWinner");
+  const [gameResult, setGameResult] = useState<string>("");
+  const [singlePlayerRival, setSinglePlayerRival] =
     useState<string>("AI");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
@@ -52,10 +76,14 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       Game.startGame(
         canvas,
         testUsername || user.user?.name || "",
-        null,
-        setGameOngoing
+        setGameOngoing,
+        setGameResult
       );
   }, [canvasRef]);
+
+  useEffect(() => {
+    if (gameResult != "") setOpenEndGameDialog(true);
+  }, [gameResult]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -65,8 +93,20 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     });
     socket.off("setPause");
     socket.on("setPause", (data: { isPaused: boolean }) => {
-      setIsPaused(data.isPaused);
+      setPaused(data.isPaused);
       Game.setPause(data.isPaused);
+      setPauseAvailable(false);
+      updatePauseTimeout(5);
+    });
+    socket.off("rivalOnline");
+    socket.on("rivalOnline", (data: { isOnline: boolean }) => {
+      setRivalOffline(!data.isOnline);
+      if (!data.isOnline) {
+        Game.setPause(true);
+        setPauseAvailable(false);
+        setEndGameAvailable(false);
+        updateEndGameTimeout(10);
+      }
     });
   }, []);
 
@@ -74,9 +114,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
     if (socket.connected && !!gameData) {
       startGame(gameData);
       sessionStorage.setItem("game", "true");
-      if (gameData.isPaused != isPaused) {
-        setPause();
-      }
+      setGameData(null);
     } else {
       sessionStorage.setItem("game", "false");
     }
@@ -89,17 +127,40 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
         Game.setGameData(
           canvasRef.current,
           testUsername || user.user?.name || "",
-          gameData,
-          null
+          gameData
         );
       }
     }
   }
 
-  function setPause() {
+  function clickPause() {
     Game.setPause(!isPaused);
-    setIsPaused(!isPaused);
+    setPaused(!isPaused);
     socket.emit("setPause", Game.getPaused());
+    setPauseAvailable(false);
+    updatePauseTimeout(5);
+  }
+
+  function updatePauseTimeout(t: number) {
+    if (t < 0) setPauseAvailable(true);
+    else {
+      setPauseTimeout(t);
+      setTimeout(() => {
+        --t;
+        updatePauseTimeout(t);
+      }, 1000);
+    }
+  }
+
+  function updateEndGameTimeout(t: number) {
+    if (t < 0) setEndGameAvailable(true);
+    else {
+      setEndGameTimeout(t);
+      setTimeout(() => {
+        --t;
+        updateEndGameTimeout(t);
+      }, 1000);
+    }
   }
 
   function onChange(
@@ -143,6 +204,20 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       });
     }
     setOpenSpectatorDialog(false);
+  }
+
+  function closeEndGamedialog() {
+    setOpenEndGameDialog(false);
+    setGameResult("");
+  }
+
+  function onEndGameOptionChange(value : string) {
+    setEndGameOption(value);
+  }
+
+  function finishGame() {
+    Game.finishGameManual(endGameOption);
+    setRivalOffline(false);
   }
 
   const canvasProps = {
@@ -247,20 +322,93 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
           </Button>
         </Box>
       </DialogSelect>
+      <DialogSelect
+        options={{}}
+        open={openEndGameDialog}
+        setOpen={setOpenEndGameDialog}
+      >
+        <Box
+          margin={"1rem"}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"flex-start"}
+        >
+          <DialogTitle>Game over</DialogTitle>
+          <h1>{gameResult}</h1>
+          <Button
+            variant="outlined"
+            sx={{
+              alignSelf: "end",
+            }}
+            onClick={closeEndGamedialog}
+          >
+            Ok
+          </Button>
+        </Box>
+      </DialogSelect>
+      <DialogSelect
+        options={{}}
+        open={isRivalOffline}
+        setOpen={setRivalOffline}
+      >
+        <Box
+          margin={"1rem"}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"flex-start"}
+        >
+          <DialogTitle>Rival is offline</DialogTitle>
+          <FormControl>
+            <RadioGroup
+              aria-labelledby="gameEndOptions"
+              defaultValue="meWinner"
+              name="gameEndOptions"
+              value={endGameOption}
+              onChange={(_event, value) => {onEndGameOptionChange(value)}}
+            >
+              <FormControlLabel
+                value="meWinner"
+                control={<Radio />}
+                label="Set me as a winner"
+              />
+              <FormControlLabel
+                value="current"
+                control={<Radio />}
+                label="Current result"
+              />
+              <FormControlLabel
+                value="drop"
+                control={<Radio />}
+                label="Drop game"
+              />
+            </RadioGroup>
+          </FormControl>
+          <Button
+            variant="outlined"
+            sx={{
+              alignSelf: "end",
+            }}
+            onClick={finishGame}
+            disabled={!isEndGameAvailable}
+          >
+            Finish game {(isEndGameAvailable ? "" : `(${endGameTimeout})`)}
+          </Button>
+        </Box>
+      </DialogSelect>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"play VS AI"}
           variant={"outlined"}
-          disabled={singlePlayerOpponent == "AI" || gameOngoing}
+          disabled={singlePlayerRival == "AI" || gameOngoing}
           size="large"
-          onClick={() => setSinglePlayerOpponent("AI")}
+          onClick={() => setSinglePlayerRival("AI")}
         />
         <Button
           children={"play VS hand"}
           variant={"outlined"}
           size="large"
-          disabled={singlePlayerOpponent == "hand" || gameOngoing}
-          onClick={() => setSinglePlayerOpponent("hand")}
+          disabled={singlePlayerRival == "hand" || gameOngoing}
+          onClick={() => setSinglePlayerRival("hand")}
         />
         <Button
           children={"Single player"}
@@ -276,7 +424,7 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
                 paddleY: 0,
               },
               playerSecond: {
-                name: singlePlayerOpponent,
+                name: singlePlayerRival,
                 score: 0,
                 paddleY: 0,
               },
@@ -328,11 +476,14 @@ const GamePage: FC<GamePageProps> = ({ gameData }): ReactElement => {
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
-          children={isPaused ? "Continue" : "Pause"}
+          children={
+            (isPaused ? "Continue" : "Pause") +
+            (isPauseAvailable ? "" : `(${pauseTimeout})`)
+          }
           variant={"outlined"}
-          // disabled={stopGame}
+          disabled={!isPauseAvailable}
           size="large"
-          onClick={setPause}
+          onClick={clickPause}
         />
       </Grid>
     </Grid>
