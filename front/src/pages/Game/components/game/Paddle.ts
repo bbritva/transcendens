@@ -161,8 +161,9 @@ class Paddle {
         } else if (this.upPressed && this.paddleY > 0) {
           this.paddleY -= this.paddleSpeed * k;
         }
-        if (this.paddleY < 0) this.paddleY = 0
-        else if (this.paddleY > 1 - this.paddleWidth) this.paddleY = 1 - this.paddleWidth
+        if (this.paddleY < 0) this.paddleY = 0;
+        else if (this.paddleY > 1 - this.paddleWidth)
+          this.paddleY = 1 - this.paddleWidth;
         break;
       }
     }

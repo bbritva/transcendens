@@ -470,31 +470,27 @@ class Game {
   }
 
   private drawBorder(ctx: CanvasRenderingContext2D) {
-    const offset = 1;
-    const lineWidth = 2;
+    const lineWidth = 4;
     if (!this.canvas) return;
     ctx.beginPath();
     ctx.strokeStyle = "#0090DD";
     ctx.lineWidth = lineWidth;
-    ctx.moveTo(offset, offset);
-    ctx.lineTo(offset, this.canvas.height - offset);
-    ctx.lineTo(this.canvas.width - offset, this.canvas.height - offset);
-    ctx.lineTo(this.canvas.width - offset, offset);
-    ctx.lineTo(offset, offset);
-    ctx.stroke();
+    ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.closePath();
   }
 
   private drawScore(ctx: CanvasRenderingContext2D) {
     if (!this.canvas) return;
-
+    ctx.beginPath();
     ctx.font = "16px Arial";
+    ctx.textAlign = "center";
     ctx.fillStyle = "#0095DD";
     ctx.fillText(
       `Score: ${this.leftPaddle.playerName} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.rightPaddle.playerName}`,
-      this.canvas.width / 2 - 70,
+      this.canvas.width / 2,
       20
     );
+    ctx.closePath();
   }
 
   private emitData(paddle: Paddle) {

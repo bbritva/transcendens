@@ -27,3 +27,8 @@
   align-items: center;
   /* display: grid; */
 }
+
+canvas {
+  width: 100%;
+  height: auto;
+}
