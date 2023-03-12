@@ -95,7 +95,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     createPlayerData("Total score: ", score + "", 1),
     createPlayerData(
       <Box display="flex" alignItems="center">
-        <SportsCricketIcon color="primary" fontSize="large" />
+        <SportsCricketIcon color="primary" fontSize="large"/>
         Rating:
       </Box>,
         11+'',

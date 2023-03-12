@@ -1,7 +1,6 @@
+import { Padding } from "@mui/icons-material";
 import {
   Button,
-  DialogTitle,
-  Paper,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -14,11 +13,10 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
   const theme = useTheme();
   return (
     <Box
-      // component={Paper}
-      sx={{ backgroundColor: theme.palette.secondary.main }}
       display="flex"
       flexDirection="column"
       alignItems="center"
+      padding="0px"
     >
       <Button
         fullWidth

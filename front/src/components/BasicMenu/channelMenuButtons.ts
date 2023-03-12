@@ -14,12 +14,11 @@ function channelMenuButtons(
       data: { name: element.name },
     };
     setDestination(["Channels", event]);
-    setOpen(false);
   }
   function disconnectFromChanel() {
     const event: EventI = {
-      name: "setPrivacy",
-      data: { channelName: element.name, isPrivate: false },
+      name: "leaveChannel",
+      data: {name : element.name},
     };
     setDestination(["Channels", event]);
   }

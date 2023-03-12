@@ -33,8 +33,11 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
   const [showPass, setShowPass] = useState(false);
   const [showName, setShowName] = useState(false);
   return (
-    <Box>
-      <DialogTitle>'Channel' settings</DialogTitle>
+    <Box 
+    display="flex"
+    flexDirection="column"
+    alignItems="center"
+    padding="0px" >
       {!showName && (
         <Button
           onClick={() => {
@@ -73,31 +76,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           Submit
         </Button>
       )}
-
-      <Button
-        onClick={() => {
-          const event: EventI = {
-            name: "connectToChannel",
-            data: {name : props.element.name},
-          };
-          props.setDestination(["Channels", event]);
-          if (props?.setOpen) props.setOpen(false);
-        }}
-      >
-        Connect to 'channel'
-      </Button>
-      <Button
-        onClick={() => {
-          const event: EventI = {
-            name: "leaveChannel",
-            data: {name : props.element.name},
-          };
-          props.setDestination(["Channels", event]);
-          if (props?.setOpen) props.setOpen(false);
-        }}
-      >
-        Leave 'channel'
-      </Button>
       {props.channel.isPrivate && (
         <Button
           onClick={() => {
