@@ -188,19 +188,13 @@ export class GatewayService {
   }
 
   async setPassword(socketId: string, data: DTO.SetPasswordI) {
-    console.log(data);
-
     this.channelService
       .setPassword(this.connections.get(socketId).id, data)
       .then((isSet) => {
-        console.log(isSet, data);
-        
         if (isSet) this.server.to(data.channelName).emit("passwordSet", data);
         else this.emitNotAllowed(socketId, "setPassword", data);
       })
-      .catch((e) => {console.log(e);
-      
-        this.emitExecutionError(socketId, "setPassword", e.cause)});
+      .catch((e) => this.emitExecutionError(socketId, "setPassword", e.cause));
   }
 
   async banUser(socketId: string, data: DTO.ManageUserInChannelI) {
