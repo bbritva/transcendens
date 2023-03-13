@@ -16,8 +16,13 @@ import CloudSyncIcon from "@mui/icons-material/CloudSync";
 import socket from "src/services/socket";
 import AddAPhotoOutlinedIcon from "@mui/icons-material/AddAPhotoOutlined";
 import { fromBackI } from "src/pages/Chat/ChatPage";
+import { UserInfoPublic } from "src/store/chatSlice";
 
-export default function SignUp(props: styledBoxI) {
+export interface AccountUpdateProps extends styledBoxI {
+  extUser: UserInfoPublic | boolean
+}
+
+export default function SignUp(props: AccountUpdateProps) {
   const username = sessionStorage.getItem("username");
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
@@ -27,6 +32,7 @@ export default function SignUp(props: styledBoxI) {
   const [inputValue, setInputValue] = React.useState<string>(username || user.user?.name || "");
   const [avatarSource, setAvatarSource] = React.useState<string>("");
   const dispatch = useAppDispatch();
+  const { extUser, ...styledProps} = props;
 
   const theme = useTheme();
 
@@ -97,7 +103,7 @@ export default function SignUp(props: styledBoxI) {
   }
 
   return (
-    <StyledBox {...props}>
+    <StyledBox {...styledProps}>
       <Box
         sx={{
           display: "flex",

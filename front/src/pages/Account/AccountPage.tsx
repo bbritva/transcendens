@@ -37,6 +37,7 @@ import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
+import userService from "src/services/user.service";
 
 function createHistoryData(
   score: string,
@@ -50,6 +51,13 @@ function createHistoryData(
 function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id: number) {
   return { data, rank, id } as playerStatisticsRowI;
 }
+
+export interface extUserState {
+  status: string,
+  id: number,
+  user: UserInfoPublic
+}
+
 
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
@@ -70,42 +78,37 @@ const AccountPage: FC<any> = (): ReactElement => {
   const dispatch = useAppDispatch();
   const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
   const username = sessionStorage.getItem("username");
+  const [extUser, setExtUser] = useState<extUserState>({status: 'idle', id: 0, user: {} as UserInfoPublic});
 
   let [searchParams, setSearchParams] = useSearchParams();
 
-  let [userData, setUserData] = useState<any>(null);
+  let newUser = searchParams.get("user");
 
   useEffect(() => {
-    // let newUser = searchParams.get("user");
-    // let abortController = new AbortController();
-    // console.log({searchParams});
+    let id = parseInt(newUser || '');
+    if (isNaN(id))
+      return;
+    else if (extUser.status !== 'idle' && id === extUser.id)
+      return;
+    let abortController = new AbortController();
+    async function getExtUser(id: number) {
+      let response = await userService.getById(id, abortController);
+      console.log(response);
+      // if (!abortController.signal.aborted) {
+      //   let data = await response.json();
+      //   setUserData(data);
+      // }
+    }
 
-    const params = [{}];
+    if (id > 0) {
+      setExtUser({status: 'loading', id: id, user:{} as UserInfoPublic});
+      getExtUser(id);
+    }
 
-    searchParams.forEach((value, key) => {
-      params.push({key, value});
-    });
-  
-    console.log(params); 
-
-    // async function getGitHubUser() {
-    //   let response = await fetch(`https://api.github.com/users/${newUser}`, {
-    //     signal: abortController.signal,
-    //   });
-    //   if (!abortController.signal.aborted) {
-    //     let data = await response.json();
-    //     setUserData(data);
-    //   }
-    // }
-    // if (newUser) {
-    //   // getGitHubUser();
-    //   console.log({newUser});
-    // }
-
-    // return () => {
-    //   abortController.abort();
-    // };
-  }, []);
+    return () => {
+      abortController.abort();
+    };
+  }, [newUser]);
 
 
   if (status === "idle" && (user?.id || username))
@@ -235,7 +238,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         },
       }}
     >
-      <SignUp myalign="end" />
+      <SignUp extUser={extUser.status === 'succeeded' && extUser.user} myalign="end" />
       <BasicTable
         title="PLAYER STATISTICS"
         tableHeadArray={null}
