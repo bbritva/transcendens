@@ -30,7 +30,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import StyledBox from "src/components/BasicTable/StyledBox";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { selectBanned, selectFriends, UserInfoPublic } from "src/store/chatSlice";
 import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
@@ -69,6 +69,43 @@ const AccountPage: FC<any> = (): ReactElement => {
   const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
   const username = sessionStorage.getItem("username");
 
+  let [searchParams, setSearchParams] = useSearchParams();
+
+  let [userData, setUserData] = useState<any>(null);
+
+  useEffect(() => {
+    // let newUser = searchParams.get("user");
+    // let abortController = new AbortController();
+    // console.log({searchParams});
+
+    const params = [{}];
+
+    searchParams.forEach((value, key) => {
+      params.push({key, value});
+    });
+  
+    console.log(params); 
+
+    // async function getGitHubUser() {
+    //   let response = await fetch(`https://api.github.com/users/${newUser}`, {
+    //     signal: abortController.signal,
+    //   });
+    //   if (!abortController.signal.aborted) {
+    //     let data = await response.json();
+    //     setUserData(data);
+    //   }
+    // }
+    // if (newUser) {
+    //   // getGitHubUser();
+    //   console.log({newUser});
+    // }
+
+    // return () => {
+    //   abortController.abort();
+    // };
+  }, []);
+
+
   if (status === "idle" && (user?.id || username))
     dispatch(getGames(parseInt(user?.id || "2")));
 
@@ -93,40 +130,42 @@ const AccountPage: FC<any> = (): ReactElement => {
     createPlayerData("Total losses: ", losesNum + "", 3),
   ];
 
-  const buttons = [
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/account", { replace: true }),
-        children: "Profile",
+  const createButtons = (friend: UserInfoPublic) =>{
+    return [
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => setSearchParams({user: friend.id + ''}, {replace: false}),
+          children: "Profile",
+        },
       },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/chat", { replace: true }),
-        children: "Message",
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => navigate("/chat", { replace: true }),
+          children: "Message",
+        },
       },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/game", { replace: true }),
-        children: "Game",
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => navigate("/game", { replace: true }),
+          children: "Game",
+        },
       },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/game", { replace: true }),
-        children: "Delete",
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => navigate("/game", { replace: true }),
+          children: "Delete",
+        },
       },
-    },
-  ];
+    ];
+  };
 
   const createFriendElem = (friend: UserInfoPublic): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={buttons} />
+      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend)} />
     );
     return { id: friend.id, button: FriendComponent };
   };

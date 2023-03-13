@@ -111,7 +111,11 @@ async function main() {
     create: {
       id: 73725,
       name: "tphung",
-      status: "OFFLINE"
+      status: "OFFLINE",
+      image:"https://media.tenor.com/fweny7uFfqcAAAAC/%D0%BA%D1%80%D0%BE%D1%88-%D0%B8%D0%B4%D1%91%D1%82.gif",
+      friendIds: [5, 9, 8, 7, 6],
+      bannedIds: [2, 4,  7],
+      score: 55,
     },
   });
 
@@ -124,7 +128,8 @@ async function main() {
       status: "OFFLINE",
       image:"https://cdn.intra.42.fr/users/202255b82453593a913e7b6a0ee2f2d0/ddiakova.jpg",
       friendIds: [5, 73725, 9, 8, 7, 6],
-      bannedIds: [2, 4, 73725, 7]
+      bannedIds: [2, 4, 73725, 7],
+      score: 55,
     },
   });
 
