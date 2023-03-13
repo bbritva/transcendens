@@ -17,9 +17,8 @@ import { fromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
 import { userI } from "src/store/userSlice";
 import React from "react";
-import BasicMenu from "../BasicMenu/BasicMenu";
+import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { useNavigate } from "react-router-dom";
-import fakeAvatar from "src/assets/logo192.png";
 
 const anchorStyle = {
   overflowAnchor: "auto",

@@ -1,8 +1,8 @@
 
 import { FC } from "react";
 import {userFromBackI } from "src/pages/Chat/ChatPage";
-import { EventI } from "../DialogSelect/ChannerSettingsDialog";
-import { StyledMenuItem } from "./StyledMenu";
+import { EventI } from "src/components/DialogSelect/ChannerSettingsDialog";
+import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 
 function userMenuButtons(
   setOpen: Function,
