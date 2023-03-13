@@ -31,6 +31,7 @@ export interface EventI {
 const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
   const [value, setValue] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [showPassConnect, setShowPassConnect] = useState(false);
   const [showName, setShowName] = useState(false);
   return (
     <Box>
@@ -63,7 +64,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           onClick={() => {
             const event: EventI = {
               name: "changeChannelName",
-              data: {channelName : props.element.name, newName: value},
+              data: { channelName: props.element.name, newName: value },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
@@ -74,23 +75,50 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
         </Button>
       )}
 
-      <Button
-        onClick={() => {
-          const event: EventI = {
-            name: "connectToChannel",
-            data: {name : props.element.name},
-          };
-          props.setDestination(["Channels", event]);
-          if (props?.setOpen) props.setOpen(false);
-        }}
-      >
-        Connect to 'channel'
-      </Button>
+      {!showPassConnect && (
+        <Button
+          onClick={() => {
+            setShowPassConnect(true);
+          }}
+        >
+          Connect to 'channel'
+        </Button>
+      )}
+      {showPassConnect && (
+        <TextField
+          autoFocus
+          margin="dense"
+          id="name"
+          label="enter password"
+          type="text"
+          variant="standard"
+          value={value}
+          onChange={(event) => {
+            setValue(event.target.value);
+          }}
+        />
+      )}
+      {showPassConnect && (
+        <Button
+          onClick={() => {
+            const event: EventI = {
+              name: "connectToChannel",
+              data: { name: props.element.name, password: value },
+            };
+            props.setDestination(["Channels", event]);
+            if (props?.setOpen) props.setOpen(false);
+            setShowPassConnect(false);
+          }}
+        >
+          Submit
+        </Button>
+      )}
+
       <Button
         onClick={() => {
           const event: EventI = {
             name: "leaveChannel",
-            data: {name : props.element.name},
+            data: { name: props.element.name },
           };
           props.setDestination(["Channels", event]);
           if (props?.setOpen) props.setOpen(false);
@@ -103,7 +131,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           onClick={() => {
             const event: EventI = {
               name: "setPrivacy",
-              data: {channelName : props.element.name, isPrivate: false},
+              data: { channelName: props.element.name, isPrivate: false },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
@@ -117,7 +145,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           onClick={() => {
             const event: EventI = {
               name: "setPrivacy",
-              data: {channelName : props.element.name, isPrivate: true},
+              data: { channelName: props.element.name, isPrivate: true },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
@@ -154,7 +182,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           onClick={() => {
             const event: EventI = {
               name: "setPassword",
-              data: {channelName : props.element.name, password: value},
+              data: { channelName: props.element.name, password: value },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
