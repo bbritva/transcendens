@@ -9,21 +9,17 @@ import {
   FC,
   useRef,
   CSSProperties,
-  useState,
   ReactNode,
-  cloneElement,
   Children,
 } from "react";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import { fromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
-import AdjustOutlinedIcon from "@mui/icons-material/AdjustOutlined";
 import { userI } from "src/store/userSlice";
 import React from "react";
-import { StyledMenuButton } from "../NavButton/StyledNavButton";
 import BasicMenu from "../BasicMenu/BasicMenu";
 import { useNavigate } from "react-router-dom";
-import { StyledMenuItem } from "../BasicMenu/StyledMenu";
+import fakeAvatar from "src/assets/logo192.png";
 
 const anchorStyle = {
   overflowAnchor: "auto",
@@ -39,6 +35,15 @@ const OneColumnTable: FC<{
   selectedElement: {};
   setElement: Function;
   dialogChildren: ReactNode;
+  buttons: {
+    component: React.FC,
+    compProps: {
+      onClick: Function
+    }
+  }[];
+  openDialog: boolean; 
+  setOpenDialog: Function;
+
 }> = ({
   taper,
   user,
@@ -48,42 +53,16 @@ const OneColumnTable: FC<{
   selectedElement,
   setElement,
   dialogChildren,
+  buttons,
+  openDialog,
+  setOpenDialog,
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
   const navigate = useNavigate();
-  const [openDialog, setOpenDialog] = useState(false);
   const child = Children.only(dialogChildren);
-  const buttons = [
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/account", { replace: true }),
-        children: "Profile",
-      },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/chat", { replace: true }),
-        children: "Message",
-      },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/game", { replace: true }),
-        children: "Game",
-      },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/game", { replace: true }),
-        children: "Delete",
-      },
-    },
-  ];
+  console.log({taper, elements})
+ 
   return (
     <Grid
       container
@@ -122,48 +101,32 @@ const OneColumnTable: FC<{
       >
         {loading
           ? "LOADING"
-
-          
           : elements.map((data) => {
-              if (!(taper === "Users" && user?.name === data.name))
+              if (!(taper === "Users" && user?.name === data.name)){
+                //@ts-ignore
+                let ava = data?.avatar || data.image || '';
                 return (
                   <BasicMenu
                     key={data.name}
                     title={data.name}
-                    // variant={selectedElement == data ? "contained" : "text"}
-                    // startIcon={
-                    //   data.connected && <AdjustOutlinedIcon fontSize="small" />
-                    // }
                     onClick={() => {
                       setElement(data);
-                      setOpenDialog(true);
                     }}
                     mychildren={buttons}
-                    // size="small"
-                    // sx={{
-                    //   textAlign: "left",
-                    //   maxHeight: "2rem",
-                    // }}
+                    extAvatar={ava}
                   />
-                  //   <Typography variant="subtitle1" noWrap>
-                  //     {data.name}
-                  //   </Typography>
-                  // </BasicMenu>
-                );
-            })}
+                );}
+              }
+            )
+        }
         <div style={anchorStyle as CSSProperties} />
       </Grid>
-      <DialogSelect
+      <DialogSelect 
         options={selectedElement}
         open={openDialog}
         setOpen={setOpenDialog}
       >
-        {React.isValidElement(child) ? (
-          //@ts-ignore
-          cloneElement(child, { setOpen: setOpenDialog })
-        ) : (
-          <></>
-        )}
+        {dialogChildren}
       </DialogSelect>
     </Grid>
   );

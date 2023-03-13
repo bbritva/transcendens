@@ -96,7 +96,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
         onClick={props.onClick}
         disabled={!props.value}
       >
-        <Typography variant="body1">{props.title} 2FA</Typography>
+        <Typography variant="subtitle1">{props.title} 2FA</Typography>
       </Button>
     </Box>
   );

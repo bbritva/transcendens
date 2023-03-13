@@ -2,7 +2,6 @@ import * as React from "react";
 import { StyledMenuButton } from "../NavButton/StyledNavButton";
 import { Avatar, Box, Typography } from "@mui/material";
 import MoreVert from "@mui/icons-material/MoreVert";
-import fakeAvatar from "src/assets/logo192.png";
 import { RootState } from "src/store/store";
 import { useStore } from "react-redux";
 import { StyledMenu } from "./StyledMenu";
@@ -28,7 +27,6 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick}: basi
     mouseX: number;
     mouseY: number;
   } | null>(null);
-  const [avatarSource, setAvatarSource] = React.useState<string>(fakeAvatar);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -49,23 +47,6 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick}: basi
     setContextMenu(null);
   };
   
-  React.useEffect(() => {
-    const test = user?.user?.avatar;
-
-    if (extAvatar){
-      setAvatarSource(
-        extAvatar
-      )
-    }
-    else if (test){
-      setAvatarSource(
-        process.env.REACT_APP_USERS_URL + `/avatar/${test}`
-      )
-    }
-    else
-      setAvatarSource( user.user?.image || fakeAvatar);
-  }, [user?.user?.avatar]);
-
   return (
     <>
       <StyledMenuButton
@@ -77,16 +58,13 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick}: basi
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        {
-          
           <>
               <Typography variant="subtitle1">{title}</Typography>
               <Box marginLeft={'auto'} display="flex"alignItems="center">
-              <Avatar src={avatarSource} />
+              {extAvatar && <Avatar src={extAvatar} />}
               <MoreVert color="secondary" />
               </Box>
           </>
-        }
       </StyledMenuButton>
       <StyledMenu
         anchorReference="anchorPosition"

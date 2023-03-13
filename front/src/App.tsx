@@ -68,40 +68,6 @@ const theme = createTheme({
   },
 });
 
-
-// import { useTheme } from '@mui/material/styles';
-
-// function DeepChild() {
-//   const theme = useTheme();
-//   return <span>{`spacing ${theme.spacing}`}</span>;
-// }
-
-// const theme = createTheme();
-
-// theme.typography.h3 = {
-//   fontSize: '1.2rem',
-//   '@media (min-width:600px)': {
-//     fontSize: '1.5rem',
-//   },
-//   [theme.breakpoints.up('md')]: {
-//     fontSize: '2.4rem',
-//   },
-// };
-
-// const theme = createTheme({
-//   typography: {
-//     subtitle1: {
-//       fontSize: 12,
-//     },
-//     body1: {
-//       fontWeight: 500,
-//     },
-//     button: {
-//       fontStyle: 'italic',
-//     },
-//   },
-// });
-
 function App() {
   const { getState } = useStore();
   const dispatch = useAppDispatch();
@@ -237,7 +203,7 @@ function App() {
                   path={route.path}
                   element={
                     <PrivateRouteWrapper>
-                      <route.component channels={channels} setChannels={setChannels} gameData={gameData}/>
+                      <route.component channels={channels} setChannels={setChannels} gameData={gameData} setGameData={setGameData}/>
                     </PrivateRouteWrapper>
                   }
                 />

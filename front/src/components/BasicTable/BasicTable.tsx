@@ -20,8 +20,8 @@ export interface matchHistoryRowI extends rowI {
 }
 
 export interface playerStatisticsRowI extends rowI {
-  data: string;
-  rank: string;
+  data: string | ReactNode;
+  rank: string | ReactNode;
 }
 
 export interface settingsRowI extends rowI {

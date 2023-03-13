@@ -10,6 +10,8 @@ import { chatStyles } from "./chatStyles";
 import socket from "src/services/socket";
 import { useAppDispatch } from "src/app/hooks";
 import { Box } from "@mui/system";
+import userMenuButtons from "src/components/BasicMenu/userMenuButtons";
+import channelMenuButtons from "src/components/BasicMenu/channelMenuButtons";
 
 export interface fromBackI {
   name: string;
@@ -61,6 +63,8 @@ const ChatPage: FC<ChatPageProps> = ({
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const testUsername = sessionStorage.getItem("username");
+  const [openUsersDialog, setOpenUsersDialog] = useState(false);
+  const [openChannelsDialog, setOpenChannelsDialog] = useState(false);
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
@@ -93,6 +97,7 @@ const ChatPage: FC<ChatPageProps> = ({
     setValue("");
   };
 
+  // props for the oneCol table - buttons styled items
   return (
     <>
       <Box
@@ -103,11 +108,14 @@ const ChatPage: FC<ChatPageProps> = ({
         marginBottom={"2rem"}
         sx={{ display: { xs: "none", sm: "none", md: "block" } }}
       >
-        <OneColumnTable
+        <OneColumnTable 
           taper="CHANNELS"
           user={user.user}
           loading={loading}
           elements={channels}
+          buttons={channelMenuButtons(setOpenChannelsDialog, setDestination, chosenChannel)}
+          openDialog={openChannelsDialog}
+          setOpenDialog={setOpenChannelsDialog}
           chatStyles={chatStyles}
           selectedElement={chosenChannel}
           setElement={(channel: channelFromBackI) => {
@@ -120,6 +128,7 @@ const ChatPage: FC<ChatPageProps> = ({
               element={chosenChannel}
               channel={chosenChannel}
               setDestination={setDestination}
+              setOpen={setOpenChannelsDialog}
             />
           }
         />
@@ -163,6 +172,9 @@ const ChatPage: FC<ChatPageProps> = ({
           elements={
             channels.find((el) => el.name === chosenChannel.name)?.users || []
           }
+          buttons={userMenuButtons(setOpenUsersDialog, setDestination, chosenUser)}
+          openDialog={openUsersDialog}
+          setOpenDialog={setOpenUsersDialog}
           chatStyles={chatStyles}
           selectedElement={chosenUser}
           setElement={setChosenUser}
@@ -173,6 +185,7 @@ const ChatPage: FC<ChatPageProps> = ({
               element={chosenUser}
               channel={chosenChannel}
               setDestination={setDestination}
+              setOpen={setOpenUsersDialog}
             />
           }
         />
