@@ -3,6 +3,7 @@ import messageReducer from 'src/store/messageSlice';
 import authReducer from 'src/store/authReducer';
 import userReducer from 'src/store/userSlice'
 import chatReducer from 'src/store/chatSlice'
+import gamesReducer from 'src/store/gamesSlice'
 
 
 //configureStore includes thunk middleware by default
@@ -11,7 +12,8 @@ export const store = configureStore({
     message: messageReducer,
     auth: authReducer,
     user: userReducer,
-    chat: chatReducer
+    chat: chatReducer,
+    games: gamesReducer
   },
 });
 

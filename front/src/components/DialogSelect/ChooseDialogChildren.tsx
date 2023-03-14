@@ -1,6 +1,5 @@
 import { DialogContent } from "@mui/material";
 import { FC } from "react";
-import UserDialog from "src/components/DialogSelect/UserDialog";
 import { userI } from "src/store/userSlice";
 import ChannelOwnerDialog from "src/components/DialogSelect/ChannerOwnerDialog";
 import ChannelSettingsDialog from "./ChannerSettingsDialog";
@@ -21,10 +20,7 @@ const ChooseDialogChildren: FC<dialogProps> = (props: dialogProps) => {
       <DialogContent>
         {
           props.dialogName == "Users"
-            ? <>
-                <UserDialog {...props} />
-                <ChannelOwnerDialog {...props}/>
-              </>
+            ? <ChannelOwnerDialog {...props}/>
             : <ChannelSettingsDialog {...props}/>
         }
       </DialogContent>

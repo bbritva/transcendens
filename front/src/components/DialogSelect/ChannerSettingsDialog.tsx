@@ -1,4 +1,4 @@
-import { Button, DialogTitle, TextField } from "@mui/material";
+import { Button, DialogTitle, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { FC, useState } from "react";
 import { dialogProps } from "./ChooseDialogChildren";
@@ -33,15 +33,23 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
   const [showPass, setShowPass] = useState(false);
   const [showName, setShowName] = useState(false);
   return (
-    <Box>
-      <DialogTitle>'Channel' settings</DialogTitle>
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      padding="0px"
+    >
       {!showName && (
         <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
           onClick={() => {
             setShowName(true);
           }}
         >
-          Change name 'channel'
+          <Typography variant="subtitle1"> Change name 'channel'</Typography>
         </Button>
       )}
       {showName && (
@@ -60,10 +68,14 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
       )}
       {showName && (
         <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
           onClick={() => {
             const event: EventI = {
               name: "changeChannelName",
-              data: {channelName : props.element.name, newName: value},
+              data: { channelName: props.element.name, newName: value },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
@@ -73,66 +85,56 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           Submit
         </Button>
       )}
-
-      <Button
-        onClick={() => {
-          const event: EventI = {
-            name: "connectToChannel",
-            data: {name : props.element.name},
-          };
-          props.setDestination(["Channels", event]);
-          if (props?.setOpen) props.setOpen(false);
-        }}
-      >
-        Connect to 'channel'
-      </Button>
-      <Button
-        onClick={() => {
-          const event: EventI = {
-            name: "leaveChannel",
-            data: {name : props.element.name},
-          };
-          props.setDestination(["Channels", event]);
-          if (props?.setOpen) props.setOpen(false);
-        }}
-      >
-        Leave 'channel'
-      </Button>
       {props.channel.isPrivate && (
         <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
           onClick={() => {
             const event: EventI = {
               name: "setPrivacy",
-              data: {channelName : props.element.name, isPrivate: false},
+              data: { channelName: props.element.name, isPrivate: false },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
           }}
         >
-          Make 'channel' public
+          <Typography variant="subtitle1"> Make 'channel' public</Typography>
         </Button>
       )}
       {!props.channel.isPrivate && (
         <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
           onClick={() => {
             const event: EventI = {
               name: "setPrivacy",
-              data: {channelName : props.element.name, isPrivate: true},
+              data: { channelName: props.element.name, isPrivate: true },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
           }}
         >
-          Make 'channel' private
+          <Typography variant="subtitle1"> Make 'channel' private</Typography>
         </Button>
       )}
       {!showPass && (
         <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
           onClick={() => {
             setShowPass(true);
           }}
         >
-          Change password 'channel'
+          <Typography variant="subtitle1">
+            {" "}
+            Change password 'channel'
+          </Typography>
         </Button>
       )}
       {showPass && (
@@ -151,17 +153,21 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
       )}
       {showPass && (
         <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
           onClick={() => {
             const event: EventI = {
               name: "setPassword",
-              data: {channelName : props.element.name, password: value},
+              data: { channelName: props.element.name, password: value },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
             setShowPass(false);
           }}
         >
-          Submit
+          <Typography variant="subtitle1">Submit</Typography>
         </Button>
       )}
     </Box>

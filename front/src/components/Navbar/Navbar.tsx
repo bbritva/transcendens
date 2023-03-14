@@ -1,86 +1,110 @@
 import { useSelector } from "react-redux";
-import { NavLink } from 'react-router-dom';
-import { Grid, Button, alpha, useTheme } from '@mui/material';
-import { routes } from 'src/routes';
-import { GridLogo } from 'src/components/Logo/GridLogo';
-import { selectUser } from 'src/store/userSlice';
-import Protected from "../Authentication/Protected";
-
-
-export const navButtonStyle = {
-  fontSize: "large", marginLeft: "2rem", color: 'white',
-  '&:hover': {
-    backgroundColor: '#fff',
-    color: '#3c52b2'
-  }
-} as const;
+import { Typography, AppBar, Box, useTheme } from "@mui/material";
+import { routes } from "src/routes";
+import { GridLogo } from "src/components/Logo/GridLogo";
+import { selectUser } from "src/store/userSlice";
+import Protected from "src/components/Authentication/Protected";
+import { StyledNavButton } from "src/components/NavButton/StyledNavButton";
+import NavButton from "src/components/NavButton/NavButton";
+import BasicMenu from "src/components/BasicMenu/BasicMenu";
+import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
+import { useNavigate } from "react-router-dom";
+import { FC, useEffect, useState } from "react";
 
 interface NavbarProps {
-  loginButtonText: string,
-  onLoginClick: () => void,
-  onLogoutClick: () => void
+  loginButtonText: string;
+  onLoginClick: React.MouseEventHandler;
+  onLogoutClick: () => void;
 }
 
-function Navbar({ loginButtonText, onLoginClick, onLogoutClick}: NavbarProps) {
+
+function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
   // const [anchorNav, setAnchorNav] = useState(null); //will use it for menu
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
-  const myHeight = 100;
+  const myHeight = "10vh";
+  const navigate = useNavigate();
+  const [avatarSource, setAvatarSource] = useState<string>('');
+
+  useEffect(() => {
+    const test = user?.avatar;
+
+    if (test){
+      setAvatarSource(
+        process.env.REACT_APP_USERS_URL + `/avatar/${test}`
+      )
+    }
+    else if (user)
+      setAvatarSource(user.image);
+  }, [user?.avatar]);
+
+  const buttons = [
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/account", { replace: true }),
+        children: user?.name || "Profile"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/", { replace: true }),
+        children: "Home"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/game", { replace: true }),
+        children: "Game"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => navigate("/chat", { replace: true }),
+        children: "Chat"
+      }
+    },
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => onLogoutClick(),
+        children: "Logout"
+      }
+    },
+  ];
+
   return (
-    <Grid container item xs={12} justifyContent={'flex-start'}
-      sx={{
-        background: alpha(theme.palette.secondary.light, 0.45),
-        height: myHeight
-      }}>
-      <Grid item sm={2} />{/* OFFSET */}
-      <GridLogo size={myHeight}></GridLogo>
-      {routes.map((page) => (
-        <Grid item sm={1}
-          key={page.key + 1}
-          display={'flex'}
-          alignItems={'center'}
-          // sx={{ display: { xs: "none", sm: "flex" } }}
-        >
-          <Button
-            key={page.key}
-            component={NavLink}
-            to={page.path}
-            variant={'text'}
-            sx={navButtonStyle}
-          >
-            {page.title == "Account" && user ? user.name : page.title}
-          </Button>
-        </Grid>
-      ))}
-      <Grid item sm={1}
-        display={'flex'}
-        alignItems={'center'}
-        sx={{ display: { xs: "none", sm: "flex" } }}
-      >{
-        <Protected
-          user={user}
-          render={() =>
-            <Button
-              sx={navButtonStyle}
-              variant={'outlined'}
-              onClick={onLogoutClick}
-            >
-              Logout
-            </Button>
-          }
-          fail={() =>
-            <Button
-              sx={navButtonStyle}
-              variant={'contained'}
-              onClick={onLoginClick}
-            >
-              {loginButtonText}
-            </Button>
-          }
-        />
-        }
-      </Grid>
-    </Grid>
+    <AppBar position="sticky">
+      <Box sx={{ flexGrow: 1, display: { xs: "flex" } }}>
+        <GridLogo size={100}></GridLogo>
+        {routes.map(
+          (page) =>
+            page.title !== "Account" && (
+              <NavButton key={page.key} page={page}>{page.title}</NavButton>
+            )
+        )}
+        <Box marginLeft={"auto"} marginRight={'2rem'} display='flex'>
+          <Protected
+            user={user}
+            render={() => 
+            <BasicMenu 
+              mychildren={buttons}
+              extAvatar={avatarSource}
+            />            
+            }
+
+            fail={() => (
+              <StyledNavButton showonxs variant={"text"} onClick={onLoginClick}>
+                <Typography color="secondary">{loginButtonText}</Typography>
+              </StyledNavButton>
+            )}
+          />
+        </Box>
+      </Box>
+    </AppBar>
   );
 }
 

@@ -2,7 +2,7 @@ import "src/App.css";
 import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box } from "@mui/material";
+import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box, Stack} from "@mui/material";
 import Navbar from 'src/components/Navbar/Navbar';
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
@@ -26,10 +26,44 @@ import { GameStateDataI } from "src/pages/Game/components/game/game";
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#283593',
+      main: '#56a2b8',
+      dark: '#3c7180',
+      contrastText: '#ffcc00',
     },
     secondary: {
-      main: '#e91e63',
+      main: '#ecebd9',
+      dark: '#ebebda',
+    },
+    info: {
+      main: '#8bd4d1'
+    }
+  },
+  typography: {
+    body1: {
+      fontFamily:  'Arial',
+      fontSize: 16,
+      fontWeight: 'bolder',
+      color: '#3c7180',
+    },
+    subtitle1: {
+      fontFamily:  'Arial',
+      fontSize: 15,
+      fontWeight: "bolder",
+      color: '#56a2b8',
+    },
+    subtitle2: {
+      fontFamily:  'Arial',
+      fontSize: 14,
+      fontWeight: "bolder",
+      fontStyle: 'oblique',
+      color: '#ebebda',
+    },
+    h6: {
+      fontFamily:  'Arial',
+      fontSize: 14,
+      fontWeight: "bolder",
+      fontStyle: 'oblique',
+      color: '#56a2b8',
     },
   },
 });
@@ -133,7 +167,6 @@ function App() {
           </Button>
         </DialogSelect>
         <FormDialog userName={userName} setUsername={setUsername} />
-        <Grid container spacing={2} justifyContent="center">
           <Navbar
             loginButtonText="login"
             onLoginClick={onLoginClick}
@@ -161,7 +194,7 @@ function App() {
                 Accept
               </Button>
           </DialogSelect>
-          <Grid item xs={8} margin={10} sx={{
+          <Grid display="flex" justifyContent="center" item xs={10} margin={3} sx={{
           }}>
             <Routes>
               {appRoutes.map((route) => (
@@ -177,7 +210,6 @@ function App() {
               ))}
             </Routes>
           </Grid>
-        </Grid>
       </div>
     </ThemeProvider>
   );

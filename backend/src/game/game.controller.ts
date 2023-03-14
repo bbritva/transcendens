@@ -28,7 +28,7 @@ export class GameController {
       });
   }
 
-  @Get(":id")
+  @Get("byId/:id")
   @ApiOkResponse({ type: GameEntity })
   async showGame(@Param("id") id: number): Promise<GameModel> {
     return this.gameService.getGame(id);
