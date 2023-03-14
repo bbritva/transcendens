@@ -77,7 +77,6 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             const event: EventI = {
               name: "changeChannelName",
               data: { channelName: props.element.name, newName: value },
-              data: { channelName: props.element.name, newName: value },
             };
             props.setDestination(["Channels", event]);
             if (props?.setOpen) props.setOpen(false);
