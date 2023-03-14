@@ -10,7 +10,6 @@ import {
   useRef,
   CSSProperties,
   ReactNode,
-  Children,
 } from "react";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import { fromBackI } from "src/pages/Chat/ChatPage";
@@ -18,7 +17,6 @@ import { chatStylesI } from "src/pages/Chat/chatStyles";
 import { userI } from "src/store/userSlice";
 import React from "react";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
-import { useNavigate } from "react-router-dom";
 
 const anchorStyle = {
   overflowAnchor: "auto",
@@ -58,9 +56,6 @@ const OneColumnTable: FC<{
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
-  const navigate = useNavigate();
-  const child = Children.only(dialogChildren);
-  console.log({taper, elements})
  
   return (
     <Grid
