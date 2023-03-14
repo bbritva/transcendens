@@ -11,7 +11,6 @@ import {
   Box,
   CardMedia,
   IconButton,
-  Paper,
   Slide,
   useTheme,
 } from "@mui/material";
@@ -37,31 +36,25 @@ import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
-import userService from "src/services/user.service";
+import { extUserState } from "./AccountPageWrapper";
 
 function createHistoryData(
   score: string,
   result: string,
   rival: string,
-  id: number
+  id: string
 ) {
   return { score, result, rival, id } as matchHistoryRowI;
 }
 
-function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id: number) {
+function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id: string) {
   return { data, rank, id } as playerStatisticsRowI;
-}
-
-export interface extUserState {
-  status: string,
-  id: number,
-  user: UserInfoPublic
 }
 
 
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
-const AccountPage: FC<any> = (): ReactElement => {
+const AccountPage: FC<{extUser: extUserState}> = ({extUser}): ReactElement => {
   const { user } = useSelector(selectUser);
   const { games, status, winsNum, losesNum, score } = useSelector(selectGames);
   const theme = useTheme();
@@ -78,42 +71,7 @@ const AccountPage: FC<any> = (): ReactElement => {
   const dispatch = useAppDispatch();
   const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
   const username = sessionStorage.getItem("username");
-  const [extUser, setExtUser] = useState<extUserState>({status: 'idle', id: 0, user: {} as UserInfoPublic});
-
   let [searchParams, setSearchParams] = useSearchParams();
-
-  let newUser = searchParams.get("user");
-
-  useEffect(() => {
-    let id = parseInt(newUser || '');
-    if (isNaN(id))
-      return;
-    else if (extUser.status !== 'idle' && id === extUser.id)
-      return;
-    let abortController = new AbortController();
-    async function getExtUser(id: number) {
-      let response = userService.getById(id, abortController);
-      if (!abortController.signal.aborted) {
-        await response
-          .then((userData) => {
-            console.log(userData);
-          })
-          .catch((error) => {
-            console.log({error});
-          })
-      }
-    }
-
-    if (id > 0) {
-      setExtUser({status: 'loading', id: id, user:{} as UserInfoPublic});
-      getExtUser(id);
-    }
-
-    return () => {
-      abortController.abort();
-    };
-  }, [newUser]);
-
 
   if (status === "idle" && (user?.id || username))
     dispatch(getGames(parseInt(user?.id || "2")));
@@ -134,16 +92,16 @@ const AccountPage: FC<any> = (): ReactElement => {
   }, [status]);
 
   const playerRows = [
-    createPlayerData("Total wins: ", winsNum + "", 2),
-    createPlayerData("Total losses: ", losesNum + "", 3),
-    createPlayerData("Total score: ", score + "", 1),
+    createPlayerData("Total wins: ", winsNum + "", '2'),
+    createPlayerData("Total losses: ", losesNum + "", '3'),
+    createPlayerData("Total score: ", score + "", '1'),
     createPlayerData(
       <Box display="flex" alignItems="center">
         <SportsCricketIcon color="primary" fontSize="large"/>
         Rating:
       </Box>,
         11+'',
-        4
+        '4'
       ),
   ];
 

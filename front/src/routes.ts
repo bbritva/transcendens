@@ -1,8 +1,8 @@
-import AccountPage from "src/pages/Account/AccountPage";
 import ChatPage, { ChatPageProps } from "src/pages/Chat/ChatPage";
 import GamePage, { GamePageProps } from "src/pages/Game/GamePage";
 import HomePage from "src/pages/Home/HomePage";
 import {FC} from "react";
+import AccountPageWrapper from "./pages/Account/AccountPageWrapper";
 
 
 // interface
@@ -41,6 +41,6 @@ export const routes: Array<Route> = [
         title: 'Account',
         path: '/account',
         enabled: true,
-        component: AccountPage
+        component: AccountPageWrapper
     },
 ]

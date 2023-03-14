@@ -1,16 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from 'src/store/store';
-import { newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
 
 
 export interface UserInfoPublic {
-  id: number
+  id: string
   name: string;
-  image?: string;
+  image: string;
   avatar?: string;
   status: any;
-  wins?: any;
-  loses?: any;
+  wins: any;
+  loses: any;
 }
 
 export interface chatState {

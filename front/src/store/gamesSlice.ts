@@ -4,7 +4,7 @@ import { RootState } from "src/store/store";
 
 
 export interface GameI {
-  id: number
+  id: string
   winnerId: number
   winnerScore: number
   loserId: number

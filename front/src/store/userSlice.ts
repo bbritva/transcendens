@@ -2,13 +2,10 @@ import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
 import { loginSuccess } from "./authActions";
+import { UserInfoPublic } from "./chatSlice";
 
 
-export interface userI {
-  id: string,
-  name: string,
-  image: string,
-  avatar: string,
+export interface userI extends UserInfoPublic{
   isTwoFaEnabled: boolean
 }
 
