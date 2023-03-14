@@ -8,7 +8,7 @@ import { Camera } from "@mediapipe/camera_utils";
 
 const gameBasicProps = {
   screenRatio: 3 / 2,
-  winScore: 2,
+  winScore: 200,
   paddleHeight: 0.015,
   paddleWidth: 0.2,
   paddleOffset: 3,

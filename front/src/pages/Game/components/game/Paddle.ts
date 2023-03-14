@@ -159,7 +159,10 @@ class Paddle {
         break;
       }
       case ControlE.HAND: {
-        this.paddleY = camY;
+        this.paddleY = camY - this.paddleWidth / 2;
+        if (this.paddleY < 0) this.paddleY = 0;
+        else if (this.paddleY > 1 - this.paddleWidth)
+          this.paddleY = 1 - this.paddleWidth;
         break;
       }
     }
