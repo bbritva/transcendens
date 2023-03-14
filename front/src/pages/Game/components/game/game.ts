@@ -69,6 +69,8 @@ class Game {
   private static instance: Game;
   private static isPaused: boolean = false;
   private static hasNewData: boolean;
+  private static mouseControl: boolean = true;
+  private static handY: number = 0;
   private static setGameOngoing: Function | null;
   private static setGameResult: Function | null;
   private static defaultGameData: GameStateDataI = {
@@ -90,9 +92,7 @@ class Game {
     ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
     isPaused: false,
   };
-  webcamRef: React.RefObject<Webcam> | null;
-  // var camera = null;
-  y: number = 0;
+  webcamRef: React.RefObject<Webcam> | null = null;
   handsMesh: Hands | null = null;
   camera: Camera | null = null;
 
@@ -100,11 +100,15 @@ class Game {
   private leftPaddle: Paddle;
   private ball: Ball;
 
-  private constructor(canvas: HTMLCanvasElement, myName: string) {
+  private constructor(
+    canvas: HTMLCanvasElement,
+    myName: string,
+    camRef: React.RefObject<Webcam> | null = null
+  ) {
     this.canvas = canvas;
     this.myName = myName;
     this.myRole = role.FIRST;
-    this.webcamRef = null;
+    this.webcamRef = camRef;
 
     this.rightPaddle = Paddle.getRightPaddle(gameBasicProps, ControlE.AI);
     this.leftPaddle = Paddle.getLeftPaddle(gameBasicProps, ControlE.AI);
@@ -118,6 +122,11 @@ class Game {
   public static setPause(value: boolean) {
     Game.isPaused = value;
     Game.instance.gameState.isPaused = value;
+  }
+
+  public static setMouseControl(isMouse: boolean) {
+    Game.mouseControl = isMouse;
+    console.log(Game.mouseControl);
   }
 
   public static finishGameManual(option: string) {
@@ -135,10 +144,18 @@ class Game {
   public static startGame(
     canvas: HTMLCanvasElement,
     myName: string,
+    camRef: React.RefObject<Webcam> | null,
     setGameOngoing: Function | null = null,
     setGameResult: Function | null = null
   ) {
-    Game.setGameData(canvas, myName, null, setGameOngoing, setGameResult);
+    Game.setGameData(
+      canvas,
+      myName,
+      null,
+      camRef,
+      setGameOngoing,
+      setGameResult
+    );
     Game.instance.initGame();
   }
 
@@ -146,12 +163,14 @@ class Game {
     canvas: HTMLCanvasElement,
     myName: string,
     initialGameData: GameStateDataI | null,
+    camRef: React.RefObject<Webcam> | null,
     setGameOngoing: Function | null = null,
     setGameResult: Function | null = null
   ) {
     if (!Game.instance) Game.instance = new Game(canvas, myName);
     if (!Game.setGameOngoing) Game.setGameOngoing = setGameOngoing;
     if (!Game.setGameResult) Game.setGameResult = setGameResult;
+    if (!Game.instance.webcamRef) Game.instance.webcamRef = camRef;
     Game.instance.canvas = canvas;
     Game.instance.gameInitState = initialGameData;
     Game.hasNewData = true;
@@ -182,6 +201,7 @@ class Game {
 
     this.initSocketListeners();
     this.initDocumentListeners();
+    this.initCamera();
 
     if (this.ctx) {
       if (Game.setGameOngoing) Game.setGameOngoing(Game.isGameOngoing);
@@ -276,13 +296,16 @@ class Game {
     this.rightPaddle.control =
       initData.playerFirst.name == this.myName ||
       initData.playerSecond.name == this.myName
-        ? ControlE.MOUSE
+        ? Game.mouseControl
+          ? ControlE.MOUSE
+          : ControlE.HAND
         : initData.playerFirst.name.endsWith("AI")
         ? ControlE.AI
         : ControlE.REMOTE;
     this.leftPaddle.paddleY = initData.playerSecond.paddleY
       ? initData.playerSecond.paddleY
       : this.leftPaddle.initY;
+    console.log(this.rightPaddle);
 
     this.leftPaddle.playerName =
       this.myRole == role.FIRST
@@ -349,10 +372,17 @@ class Game {
       results.multiHandLandmarks[0][0] &&
       results.multiHandLandmarks[0][0].y
     )
-      this.y = results.multiHandLandmarks[0][0].y;
+      Game.handY = results.multiHandLandmarks[0][0].y;
   }
 
   private initCamera() {
+    if (Game.mouseControl) {
+      this.handsMesh?.close();
+      this.handsMesh = null;
+      this.camera?.stop();
+      this.camera = null;
+      return;
+    }
     this.handsMesh = new Hands({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
@@ -385,6 +415,7 @@ class Game {
         width: 640,
         height: 480,
       });
+      console.log("create cam");
       this.camera.start();
     }
   }
@@ -402,7 +433,7 @@ class Game {
           this.ball.y;
       // } else this.rightPaddle.paddleY = this.canvas.height * this.y;
     }
-    this.rightPaddle.movePaddle();
+    this.rightPaddle.movePaddle(Game.handY);
 
     if (
       this.gameState.gameName == "single" ||

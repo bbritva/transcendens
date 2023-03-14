@@ -138,15 +138,7 @@ class Paddle {
     ctx.closePath();
   }
 
-  // static drawPaddles(ctx: CanvasRenderingContext2D) {
-  //   ctx.beginPath();
-  //   ctx.rect(this.paddleX, this.paddleY, this.paddleHeight, this.paddleWidth);
-  //   ctx.fillStyle = "#0096DD";
-  //   ctx.fill();
-  //   ctx.closePath();
-  // }
-
-  movePaddle() {
+  movePaddle(camY: number = 0) {
     switch (this.control) {
       case ControlE.REMOTE: {
         this.paddleY = this.remoteY - this.paddleWidth;
@@ -164,6 +156,10 @@ class Paddle {
         if (this.paddleY < 0) this.paddleY = 0;
         else if (this.paddleY > 1 - this.paddleWidth)
           this.paddleY = 1 - this.paddleWidth;
+        break;
+      }
+      case ControlE.HAND: {
+        this.paddleY = camY;
         break;
       }
     }
