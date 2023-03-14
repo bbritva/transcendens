@@ -15,11 +15,11 @@ export function initSocket(
   setChannels: Function,
   dispatch: Dispatch
 ) {
-  socket.on("connectError", (err) => {
-    if (err.message === "invalid username") {
-      dispatch(logout());
-    }
-  });
+  // socket.on("connectError", (err) => {
+  //   if (err.message === "invalid username") {
+  //     dispatch(logout());
+  //   }
+  // });
 
   socket.on("channels", (channels: channelFromBackI[]) => {
     setChannels(channels);

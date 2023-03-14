@@ -55,7 +55,6 @@ function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
 const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, variant}): ReactElement => {
-  const { games, status, winsNum, losesNum, score } = useSelector(selectGames);
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(
@@ -64,19 +63,19 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
   );
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
   const [slideBanned, setSlideBanned] = useState<boolean>(false);
-  const friends = useSelector(selectFriends) || [];
   const bannedList = useSelector(selectBanned ) || [];
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
   const username = sessionStorage.getItem("username");
   let [searchParams, setSearchParams] = useSearchParams();
+  const { games, winsNum, losesNum, score } = useSelector(selectGames);
+  const friends = useSelector(selectFriends) || [];
+  const [status, setStatus] = useState(false);
 
-  if (status === "idle" && (extUser.user?.id || username))
-    dispatch(getGames(parseInt(extUser.user?.id || "2")));
 
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status) {
       setHistoryRows(
         games.map((game) =>
           createHistoryData(
@@ -88,7 +87,10 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
         )
       );
     }
-  }, [status]);
+    else if (!status && (extUser.user.id || username)){
+      dispatch(getGames({userId: parseInt(extUser.user.id || "2"), set: setStatus}));
+    }
+  }, [status, extUser.user.id]);
 
   const playerRows = [
     createPlayerData("Total wins: ", winsNum + "", '2'),
@@ -183,8 +185,12 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
     <Box
       component={CardMedia}
       display="flex"
-      alignItems="center"
-      justifyContent="center"
+      alignItems={"center"}
+      justifyContent={
+        variant
+        ? "center"
+        : "space-evenly"
+      }
       flexWrap="wrap"
       sx={{
         boxShadow: "20",
@@ -201,7 +207,7 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
         },
       }}
     >
-      <SignUp extUser={extUser.status === 'succeeded' && extUser.user} myalign="end" />
+      <SignUp extUser={extUser.user} variant={variant} myalign="end" />
       <BasicTable
         title="PLAYER STATISTICS"
         tableHeadArray={null}
@@ -247,7 +253,7 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
           }
         </Slide>
       )}
-      {!open && !slideShow && (
+      {!open && !slideShow && variant && (
         <ButtonTable
           setOpen={setOpen}
           setSlideShow={setSlideShow}

@@ -32,8 +32,9 @@ const initialState: gamesStateI = {
 
 export const getGames = createAsyncThunk(
   'getGames',
-  async ( userId: number, thunkApi) => {
-      const response = await userService.getStats(userId);
+  async ( data: {userId: number, set: Function}, thunkApi) => {
+      const response = await userService.getStats(data.userId);
+      data.set(true);
       return {
         games: response.data.wins.concat(response.data.loses),
         score: response.data.score,

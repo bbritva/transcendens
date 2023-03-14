@@ -16,23 +16,29 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
   const { user } = useSelector(selectUser);
   const [extUser, setExtUser] = useState<extUserState>({status: 'idle', id: 0, user: user || {} as UserInfoPublic});
   let [searchParams, setSearchParams] = useSearchParams();
+  const [variant, setVariant] = useState<boolean>(true);
 
   let newUser = searchParams.get("user");
 
   useEffect(() => {
     console.log(extUser);
     let id = parseInt(newUser || '');
-    if (isNaN(id))
+    if (isNaN(id)){
+      setVariant(true);
+      setExtUser({status: 'idle', id: 0, user: user || {} as UserInfoPublic});
       return;
-    else if (extUser.status !== 'idle' && id === extUser.id)
+    }
+    else if (extUser.status !== 'idle' && id === extUser.id){
       return;
+    }
     let abortController = new AbortController();
+
     async function getExtUser(id: number) {
       let response = userService.getById(id, abortController);
       if (!abortController.signal.aborted) {
         await response
           .then((userData) => {
-            console.log(userData);
+            setExtUser({status: 'succeed', id: id, user: userData.data as UserInfoPublic});
           })
           .catch((error) => {
             console.log({error});
@@ -41,6 +47,7 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
     }
 
     if (id > 0) {
+      setVariant(false);
       setExtUser({status: 'loading', id: id, user:{} as UserInfoPublic});
       getExtUser(id);
     }
@@ -50,7 +57,7 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
     };
   }, [newUser]);
 
-  return <AccountPage key={extUser.id} extUser={extUser} variant={extUser.id + '' === user.id}/>;
+  return <AccountPage key={extUser.id} extUser={extUser} variant={variant}/>;
 }
 
 export default AccountPageWrapper;
