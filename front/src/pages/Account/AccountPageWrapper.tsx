@@ -3,15 +3,18 @@ import AccountPage from "./AccountPage";
 import { UserInfoPublic } from "src/store/chatSlice";
 import { useSearchParams } from "react-router-dom";
 import userService from "src/services/user.service";
+import { selectUser, userI } from "src/store/userSlice";
+import { useSelector } from "react-redux";
 
 export interface extUserState {
   status: string,
   id: number,
-  user: UserInfoPublic
+  user: UserInfoPublic | userI
 }
 
 const AccountPageWrapper: FC<any> = (): ReactElement => {
-  const [extUser, setExtUser] = useState<extUserState>({status: 'idle', id: 0, user: {} as UserInfoPublic});
+  const { user } = useSelector(selectUser);
+  const [extUser, setExtUser] = useState<extUserState>({status: 'idle', id: 0, user: user || {} as UserInfoPublic});
   let [searchParams, setSearchParams] = useSearchParams();
 
   let newUser = searchParams.get("user");
@@ -47,7 +50,7 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
     };
   }, [newUser]);
 
-  return <AccountPage key={extUser.id} extUser={extUser}/>;
+  return <AccountPage key={extUser.id} extUser={extUser} variant={extUser.id + '' === user.id}/>;
 }
 
 export default AccountPageWrapper;

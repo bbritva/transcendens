@@ -13,13 +13,13 @@ interface userStateI {
   // Multiple possible status enum values
   status: 'idle' | 'loading' | 'succeeded' | 'failed',
   error: string | undefined,
-  user: userI | null
+  user: userI
 }
 
 const initialState: userStateI = {
   status: 'idle',
   error: undefined,
-  user: null
+  user: {} as userI
 }
 
 export const getUser = createAsyncThunk(

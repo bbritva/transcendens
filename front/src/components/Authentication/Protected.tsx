@@ -1,14 +1,15 @@
 import { FC } from "react";
+import { userI } from "src/store/userSlice";
 
 export interface protectedProps {
-  user: {} | null,
+  user: userI,
   render: Function,
   fail: Function | null
 }
 
 const Protected: FC<protectedProps> = (props: protectedProps) => {
   const testUsername = sessionStorage.getItem('username');
-  if (!props.user && !testUsername) {
+  if (!props.user?.id && !testUsername) {
       if (props.fail) {
           return props.fail();
       }

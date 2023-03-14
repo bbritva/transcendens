@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
-import { selectUser } from "src/store/userSlice";
+import { userI } from "src/store/userSlice";
 import BasicTable, {
   basicTableI,
   matchHistoryRowI,
@@ -54,13 +54,12 @@ function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id
 
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
-const AccountPage: FC<{extUser: extUserState}> = ({extUser}): ReactElement => {
-  const { user } = useSelector(selectUser);
+const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, variant}): ReactElement => {
   const { games, status, winsNum, losesNum, score } = useSelector(selectGames);
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(
-    user,
+    extUser.user as userI,
     setSlideShow
   );
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
@@ -73,8 +72,8 @@ const AccountPage: FC<{extUser: extUserState}> = ({extUser}): ReactElement => {
   const username = sessionStorage.getItem("username");
   let [searchParams, setSearchParams] = useSearchParams();
 
-  if (status === "idle" && (user?.id || username))
-    dispatch(getGames(parseInt(user?.id || "2")));
+  if (status === "idle" && (extUser.user?.id || username))
+    dispatch(getGames(parseInt(extUser.user?.id || "2")));
 
   useEffect(() => {
     if (status === "succeeded") {
@@ -82,7 +81,7 @@ const AccountPage: FC<{extUser: extUserState}> = ({extUser}): ReactElement => {
         games.map((game) =>
           createHistoryData(
             `${game.winnerScore} : ${game.loserScore}`,
-            game.winnerId == parseInt(user?.id || "") ? "win" : "lose",
+            game.winnerId == parseInt(extUser.user?.id || "") ? "win" : "lose",
             `${game.id}`,
             game.id
           )
