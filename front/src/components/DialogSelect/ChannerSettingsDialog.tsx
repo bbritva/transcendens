@@ -50,7 +50,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             setShowName(true);
           }}
         >
-          <Typography variant="subtitle1"> Change name 'channel'</Typography>
+          <Typography variant="subtitle1"> Change name</Typography>
         </Button>
       )}
       {showName && (
@@ -83,17 +83,23 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             setShowName(false);
           }}
         >
-          Submit
+          <Typography variant="subtitle1"></Typography>Submit
         </Button>
       )}
 
       {!showPassConnect && (
         <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
           onClick={() => {
             setShowPassConnect(true);
           }}
         >
-          Connect to 'channel'
+          <Typography variant="subtitle1">
+            Connect to {props.element.name}
+          </Typography>
         </Button>
       )}
       {showPassConnect && (
@@ -112,6 +118,10 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
       )}
       {showPassConnect && (
         <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
           onClick={() => {
             const event: EventI = {
               name: "connectToChannel",
@@ -122,11 +132,15 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             setShowPassConnect(false);
           }}
         >
-          Submit
+          <Typography variant="subtitle1">Submit</Typography>
         </Button>
       )}
 
       <Button
+        fullWidth
+        sx={{
+          justifyContent: "flex-start",
+        }}
         onClick={() => {
           const event: EventI = {
             name: "leaveChannel",
@@ -136,7 +150,9 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           if (props?.setOpen) props.setOpen(false);
         }}
       >
-        Leave 'channel'
+        <Typography variant="subtitle1">
+          Leave {props.element.name}
+        </Typography>
       </Button>
       {props.channel.isPrivate && (
         <Button
@@ -153,7 +169,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             if (props?.setOpen) props.setOpen(false);
           }}
         >
-          <Typography variant="subtitle1"> Make 'channel' public</Typography>
+          <Typography variant="subtitle1"> Make { props.element.name } public</Typography>
         </Button>
       )}
       {!props.channel.isPrivate && (
@@ -171,7 +187,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             if (props?.setOpen) props.setOpen(false);
           }}
         >
-          <Typography variant="subtitle1"> Make 'channel' private</Typography>
+          <Typography variant="subtitle1"> Make {props.element.name} private</Typography>
         </Button>
       )}
       {!showPass && (
@@ -185,8 +201,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           }}
         >
           <Typography variant="subtitle1">
-            {" "}
-            Change password 'channel'
+            Change password for {props.element.name}
           </Typography>
         </Button>
       )}
