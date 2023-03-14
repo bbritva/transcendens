@@ -92,12 +92,16 @@ const AccountPage: FC<any> = (): ReactElement => {
       return;
     let abortController = new AbortController();
     async function getExtUser(id: number) {
-      let response = await userService.getById(id, abortController);
-      console.log(response);
-      // if (!abortController.signal.aborted) {
-      //   let data = await response.json();
-      //   setUserData(data);
-      // }
+      let response = userService.getById(id, abortController);
+      if (!abortController.signal.aborted) {
+        await response
+          .then((userData) => {
+            console.log(userData);
+          })
+          .catch((error) => {
+            console.log({error});
+          })
+      }
     }
 
     if (id > 0) {
@@ -148,7 +152,9 @@ const AccountPage: FC<any> = (): ReactElement => {
       {
         component: StyledMenuItem as FC,
         compProps: {
-          onClick: () => setSearchParams({user: friend.id + ''}, {replace: false}),
+          onClick: () => {
+            setSearchParams({user: friend.id + ''}, {replace: false})
+          },
           children: "Profile",
         },
       },

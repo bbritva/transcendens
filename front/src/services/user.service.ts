@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import authHeader from './authHeader';
 import { userI } from 'src/store/userSlice';
 import { UserInfoPublic } from 'src/store/chatSlice';
@@ -21,7 +21,7 @@ class UserService {
     return axios.get(API_URL + `/avatar/${avatarname}`);
   }
 
-  getById(id: number, controller: AbortController): Promise<UserInfoPublic> {
+  getById(id: number, controller: AbortController): Promise<AxiosResponse<UserInfoPublic>> {
     return axios.get(API_URL + '/' + id, {signal: controller.signal});
   }
 
