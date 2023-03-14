@@ -405,9 +405,12 @@ export class GatewayService {
       });
   }
 
-  getFriends(socketId: string) {
-    this.userService
-      .getFriends(this.connections.get(socketId).id)
+  async getFriends(socketId: string) {
+    const user = this.connections.get(socketId);
+    if (!user)
+      return ;
+    await this.userService
+      .getFriends(user.id)
       .then((friendList) => {
         this.server.to(socketId).emit("friendList", friendList);
       })
@@ -451,8 +454,11 @@ export class GatewayService {
   }
 
   async getPersonallyBanned(socketId: string) {
+    const temp = this.connections.get(socketId)
+      if (!temp)
+        return ;
     this.userService
-      .getPersonallyBanned(this.connections.get(socketId).id)
+      .getPersonallyBanned(temp.id)
       .then((bannedList) => {
         this.server.to(socketId).emit("personallyBannedList", bannedList);
       })

@@ -6,7 +6,7 @@ import {FC} from "react";
 
 
 // interface
-interface Route {
+export interface Route {
     key: string,
     title: string,
     path: string,

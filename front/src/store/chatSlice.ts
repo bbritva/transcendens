@@ -2,37 +2,44 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from 'src/store/store';
 import { newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
 
-export interface chatState {
-  users: [{
-    user: userFromBackI,
-    messages: newMessageI[]
-  }],
+
+export interface UserInfoPublic {
+  id: number
+  name: string;
+  image?: string;
+  avatar?: string;
+  status: any;
+  wins?: any;
+  loses?: any;
 }
 
-const initialState = {} as chatState;
+export interface chatState {
+  friends: UserInfoPublic[],
+  banned: UserInfoPublic[],
+}
+
+const initialState = {
+  friends: [],
+  banned: []
+} as chatState;
 
 const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    setUsers(state, action: PayloadAction<chatState>) {
-      state.users = action.payload.users;
+    setUsers(state, action: PayloadAction<UserInfoPublic[]>) {
+      state.friends = action.payload;
     },
-    setUserMessages(
-      state, 
-      action: PayloadAction<{user: userFromBackI, messages: newMessageI[]}>
-    ) {
-      const ind = state.users.findIndex(
-        (el) => el.user.name == action.payload.user.name
-      );
-      state.users[ind].messages = action.payload.messages;
-    }
+    setBanned(state, action: PayloadAction<UserInfoPublic[]>) {
+      state.banned = state.banned.concat(action.payload);
+    },
+  
   }
 
 })
 
-export const selectChatUser = (state: RootState, user: userFromBackI) => {
-  state.chat.users.find((el) => el.user.name == user.name)
-}
-export const {setUsers, setUserMessages} = chatSlice.actions;
+export const selectFriends = (state: RootState) => state.chat.friends;
+export const selectBanned = (state: RootState) => state.chat.banned;
+
+export const {setUsers, setBanned} = chatSlice.actions;
 export default chatSlice.reducer;

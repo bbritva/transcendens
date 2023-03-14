@@ -10,6 +10,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
+  useTheme
 } from "@mui/material";
 import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
@@ -65,6 +66,7 @@ const GamePage: FC<GamePageProps> = ({
   const testUsername = sessionStorage.getItem("username");
   const { getState } = useStore();
   const { user } = getState() as RootState;
+  const theme = useTheme();
 
   // const webcamRef = useRef<Webcam>(null);
 

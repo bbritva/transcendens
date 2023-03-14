@@ -1,13 +1,9 @@
-import { Dispatch } from "@reduxjs/toolkit";
-import { io } from "socket.io-client";
-import {
-  channelFromBackI,
-  fromBackI,
-  newMessageI,
-  userFromBackI,
-} from "src/pages/Chat/ChatPage";
-import { GameStateDataI } from "src/pages/Game/components/game/game";
-import { logout } from "src/store/authActions";
+import { Dispatch } from '@reduxjs/toolkit';
+import { io } from 'socket.io-client';
+import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
+import { GameStateDataI } from 'src/pages/Game/components/game/game';
+import { logout } from 'src/store/authActions';
+import { setBanned, setUsers, UserInfoPublic } from 'src/store/chatSlice';
 
 const URL = process.env.REACT_APP_AUTH_URL || "";
 const socket = io(URL, { autoConnect: false });
@@ -95,11 +91,9 @@ export function initSocket(
     console.log("userMuted", data);
   });
 
-
   socket.on("userBanned", (data: fromBackI) => {
     console.log("userBanned", data);
   });
-
 
   socket.on("userUnmuted", (data: fromBackI) => {
     console.log("userUnmuted", data);
@@ -119,21 +113,24 @@ export function initSocket(
     console.log("exFriend", data);
   });
 
-  socket.on("friendList", (data: fromBackI[]) => {
+  socket.on("friendList",(data: UserInfoPublic[]) => {
+    dispatch(setUsers(data));
     console.log("friendList", data);
-  });
+  })
 
-  socket.on("newPersonnalyBanned", (data: fromBackI) => {
+  socket.on("newPersonnalyBanned",(data: UserInfoPublic) => {
+    dispatch(setBanned([data]));
     console.log("newPersonnalyBanned", data);
-  });
+  })
 
   socket.on("exPersonnalyBanned", (data: fromBackI) => {
     console.log("exPersonnalyBanned", data);
   });
 
-  socket.on("personallyBannedList", (data: fromBackI[]) => {
+  socket.on("personallyBannedList",(data: UserInfoPublic[]) => {
+    dispatch(setBanned(data));
     console.log("personallyBannedList", data);
-  });
+  })
 
   socket.on("nameAvailable", (data: fromBackI) => {
     console.log("nameAvailable", data);
@@ -158,6 +155,11 @@ export function initSocket(
   socket.on("executionError", (data: any) => {
     console.log(data);
   });
+
+  setTimeout(() => {
+    socket.emit("getFriends");
+    socket.emit("getPersonallyBanned");
+  }, 1000)
 }
 
 export default socket;
