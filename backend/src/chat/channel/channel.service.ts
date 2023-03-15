@@ -118,29 +118,42 @@ export class ChannelService {
   }
 
   async leaveChannel(userId: number, channelName: string): Promise<Channel> {
-    return this.updateChannel({
-      where: {
-        name: channelName,
-      },
-      data: {
-        guests: {
-          disconnect: {
-            id: userId,
+    this.getChannel(channelName);
+    return this.getChannel(channelName, false, true).then(async (channel) => {
+      if (!channel) throw new NotFoundException();
+      const newOwnerId =
+        channel.ownerId != userId
+          ? channel.ownerId
+          : channel.admIds[0]
+          ? channel.admIds[0]
+          : channel.guests[0]
+          ? channel.guests[0].id
+          : channel.ownerId;
+      return this.updateChannel({
+        where: {
+          name: channelName,
+        },
+        data: {
+          ownerId : newOwnerId,
+          guests: {
+            disconnect: {
+              id: userId,
+            },
           },
         },
-      },
-    })
-      .then((channel) => channel)
-      .catch((e) => {
-        throw e;
-      });
+      })
+        .then((channel) => channel)
+        .catch((e) => {
+          throw e;
+        });
+    });
   }
 
   async getChannel(
     channelName: string,
     includeMessages = false,
     includeGuests = false
-  ): Promise<Channel> {
+  ): Promise<ChannelEntity> {
     return this.prisma.channel
       .findUnique({
         where: {
@@ -336,7 +349,7 @@ export class ChannelService {
   ): Promise<Message> {
     return this.isMuted(data.channelName, executorId)
       .then(async (isMuted) => {
-        if (isMuted)throw new ForbiddenException();
+        if (isMuted) throw new ForbiddenException();
         else
           return this.messageService
             .createMessage({
