@@ -10,6 +10,8 @@ import * as DTO from "src/chat/websocket/websocket.dto";
 import { MessageService } from "src/chat/message/message.service";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import { ChannelEntity } from "./entities/channel.entity";
+import * as bcrypt from "bcrypt";
+import { env } from "process";
 
 @Injectable()
 export class ChannelService {
@@ -68,7 +70,7 @@ export class ChannelService {
           channelList.push({
             name: channel.name,
             isPrivate: channel.isPrivate,
-            hasPassword: channel.password != null,
+            hasPassword: !!channel.password,
           });
         });
         return channelList;
@@ -81,37 +83,45 @@ export class ChannelService {
   async connectToChannel(
     data: Prisma.ChannelCreateInput
   ): Promise<ChannelEntity> {
-    return this.prisma.channel
-      .upsert({
-        include: {
-          guests: true,
-          messages: true,
-        },
-        where: { name: data.name },
-        // if channel exists
-        update: {
-          guests: {
-            connect: {
-              id: data.ownerId,
+    return bcrypt
+      .hash(data.password ? data.password : "", parseInt(env.HASH_SALT))
+      .then(async (hashedPassword) => {
+        try {
+          data.password = hashedPassword;
+          const ret = await this.prisma.channel.upsert({
+            include: {
+              guests: true,
+              messages: true,
             },
-          },
-        },
-        // if channel doesn't exist
-        create: {
-          name: data.name,
-          ownerId: data.ownerId,
-          password: data.password,
-          guests: {
-            connect: {
-              id: data.ownerId,
+            where: { name: data.name },
+            // if channel exists
+            update: {
+              guests: {
+                connect: {
+                  id: data.ownerId,
+                },
+              },
             },
-          },
-          isPrivate: data.isPrivate,
-          type: data.type,
-          admIds: [data.ownerId],
-        },
+            // if channel doesn't exist
+            create: {
+              name: data.name,
+              ownerId: data.ownerId,
+              password: data.password,
+              guests: {
+                connect: {
+                  id: data.ownerId,
+                },
+              },
+              isPrivate: data.isPrivate,
+              type: data.type,
+              admIds: [data.ownerId],
+            },
+          });
+          return ret;
+        } catch (e) {
+          throw e;
+        }
       })
-      .then((ret: any) => ret)
       .catch((e: any) => {
         throw e;
       });
@@ -183,19 +193,24 @@ export class ChannelService {
     executorId: number,
     data: DTO.SetPasswordI
   ): Promise<boolean> {
-    return this.prisma.channel
-      .updateMany({
-        where: {
-          name: data.channelName,
-          ownerId: executorId,
-        },
-        data: {
-          password: data.password,
-        },
-      })
-      .then((ret: any) => ret.count != 0)
-      .catch((e) => {
-        throw e;
+    return bcrypt
+      .hash(data.password ? data.password : "", parseInt(env.HASH_SALT))
+      .then(async (hashedPassword) => {
+        data.password = hashedPassword;
+        return this.prisma.channel
+          .updateMany({
+            where: {
+              name: data.channelName,
+              ownerId: executorId,
+            },
+            data: {
+              password: data.password,
+            },
+          })
+          .then((ret: any) => ret.count != 0)
+          .catch((e) => {
+            throw e;
+          });
       });
   }
 
@@ -336,7 +351,7 @@ export class ChannelService {
   ): Promise<Message> {
     return this.isMuted(data.channelName, executorId)
       .then(async (isMuted) => {
-        if (isMuted)throw new ForbiddenException();
+        if (isMuted) throw new ForbiddenException();
         else
           return this.messageService
             .createMessage({

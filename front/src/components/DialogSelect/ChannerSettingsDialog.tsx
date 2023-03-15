@@ -31,6 +31,7 @@ export interface EventI {
 const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
   const [value, setValue] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [showPassConnect, setShowPassConnect] = useState(false);
   const [showName, setShowName] = useState(false);
   return (
     <Box
@@ -49,7 +50,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             setShowName(true);
           }}
         >
-          <Typography variant="subtitle1"> Change name 'channel'</Typography>
+          <Typography variant="subtitle1"> Change name</Typography>
         </Button>
       )}
       {showName && (
@@ -82,9 +83,77 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             setShowName(false);
           }}
         >
-          Submit
+          <Typography variant="subtitle1"></Typography>Submit
         </Button>
       )}
+
+      {!showPassConnect && (
+        <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
+          onClick={() => {
+            setShowPassConnect(true);
+          }}
+        >
+          <Typography variant="subtitle1">
+            Connect to {props.element.name}
+          </Typography>
+        </Button>
+      )}
+      {showPassConnect && (
+        <TextField
+          autoFocus
+          margin="dense"
+          id="name"
+          label="enter password"
+          type="text"
+          variant="standard"
+          value={value}
+          onChange={(event) => {
+            setValue(event.target.value);
+          }}
+        />
+      )}
+      {showPassConnect && (
+        <Button
+          fullWidth
+          sx={{
+            justifyContent: "flex-start",
+          }}
+          onClick={() => {
+            const event: EventI = {
+              name: "connectToChannel",
+              data: { name: props.element.name, password: value },
+            };
+            props.setDestination(["Channels", event]);
+            if (props?.setOpen) props.setOpen(false);
+            setShowPassConnect(false);
+          }}
+        >
+          <Typography variant="subtitle1">Submit</Typography>
+        </Button>
+      )}
+
+      <Button
+        fullWidth
+        sx={{
+          justifyContent: "flex-start",
+        }}
+        onClick={() => {
+          const event: EventI = {
+            name: "leaveChannel",
+            data: { name: props.element.name },
+          };
+          props.setDestination(["Channels", event]);
+          if (props?.setOpen) props.setOpen(false);
+        }}
+      >
+        <Typography variant="subtitle1">
+          Leave {props.element.name}
+        </Typography>
+      </Button>
       {props.channel.isPrivate && (
         <Button
           fullWidth
@@ -100,7 +169,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             if (props?.setOpen) props.setOpen(false);
           }}
         >
-          <Typography variant="subtitle1"> Make 'channel' public</Typography>
+          <Typography variant="subtitle1"> Make { props.element.name } public</Typography>
         </Button>
       )}
       {!props.channel.isPrivate && (
@@ -118,7 +187,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
             if (props?.setOpen) props.setOpen(false);
           }}
         >
-          <Typography variant="subtitle1"> Make 'channel' private</Typography>
+          <Typography variant="subtitle1"> Make {props.element.name} private</Typography>
         </Button>
       )}
       {!showPass && (
@@ -132,8 +201,7 @@ const ChannelSettingsDialog: FC<dialogProps> = (props: dialogProps) => {
           }}
         >
           <Typography variant="subtitle1">
-            {" "}
-            Change password 'channel'
+            Change password for {props.element.name}
           </Typography>
         </Button>
       )}

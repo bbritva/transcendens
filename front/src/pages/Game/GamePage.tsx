@@ -228,6 +228,7 @@ const GamePage: FC<GamePageProps> = ({
       flex={"wrap"}
       flexDirection={"column"}
       maxWidth={"md"}
+      width = {"0.9"}
     >
       <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
         {declined ? (
@@ -459,7 +460,6 @@ const GamePage: FC<GamePageProps> = ({
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
-        {/* <Canvas ref={canvasRef}/> */}
         <CanvasR canvasRef={canvasRef} />
         {/* <Webcam
           ref={webcamRef}
