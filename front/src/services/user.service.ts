@@ -13,6 +13,10 @@ class UserService {
     return axios.get(API_URL + '/getMe')
   }
 
+  setUserName(data: {id: string, name: string}) {
+    return axios.patch(API_URL + '/setName', data);
+  }
+
   uploadAvatar(fileData: FormData): Promise<{data:userI}> {
     return axios.post(API_URL + '/upload', fileData);
   }

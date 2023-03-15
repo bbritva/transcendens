@@ -27,8 +27,6 @@ export default function SignUp(props: AccountUpdateProps) {
   const [file, setFile] = React.useState<any>();
   const [imageUrl, setImageUrl] = React.useState<any>();
   const [inputError, setInputError] = React.useState<boolean>(false);
-  const { getState } = useStore();
-  // const { user } = getState() as RootState;
   const { extUser, variant, ...styledProps } = props;
   const [inputValue, setInputValue] = React.useState<string>(username || extUser.name || "");
   const [avatarSource, setAvatarSource] = React.useState<string>("");
@@ -70,14 +68,23 @@ export default function SignUp(props: AccountUpdateProps) {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await userService.uploadAvatar(formData);
-    if (res.data?.avatar && extUser) {
-      dispatch(updateUser({ ...extUser as userI, avatar: res.data.avatar }));
+    if (file){
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await userService.uploadAvatar(formData);
+      if (res.data?.avatar && extUser) {
+        dispatch(updateUser({ ...extUser as userI, avatar: res.data.avatar }));
+      }
+      setFile(null);
+      setImageUrl("");
     }
-    setFile(null);
-    setImageUrl("");
+    if (!inputError && inputValue !== extUser.name){
+      const res = await userService.setUserName({id: extUser.id, name: inputValue})
+      if (res.status === 200){
+        console.log(res);
+        dispatch(updateUser({ ...extUser as userI, ...res.data }));
+      }
+    }
   };
 
   const onFileChange = async (iFile: React.ChangeEvent) => {
@@ -92,7 +99,6 @@ export default function SignUp(props: AccountUpdateProps) {
     this: any,
     event: React.ChangeEvent<HTMLTextAreaElement>
   ): void {
-    // event.preventDefault();
     const val = event.currentTarget.value
     setInputValue(val);
     const timeOutId = setTimeout(() => {
@@ -100,12 +106,6 @@ export default function SignUp(props: AccountUpdateProps) {
         socket.emit("checkNamePossibility", { targetUserName: val })
       }
     }, 800);
-  }
-
-  function nickSearch(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
-    // event.preventDefault();
-    setInputValue(event.currentTarget.value);
-    socket.emit("getNamesSuggestions", { targetUserName: event.currentTarget.value })
   }
 
   return (
@@ -197,16 +197,6 @@ export default function SignUp(props: AccountUpdateProps) {
                 }}
               />
             </Grid>
-            {/* <Grid item xs={12}>
-              <TextField
-                name="userSearch"
-                fullWidth
-                id="userSearch"
-                label="userSearch"
-                autoFocus
-                onChange={nickSearch}
-              />
-            </Grid> */}
           {
             variant &&
             <Grid
