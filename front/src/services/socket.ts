@@ -54,7 +54,13 @@ export function initSocket(
 
   socket.on("leftChannel", (channelName: string) => {
     setChannels((prev: channelFromBackI[]) => {
-      const res = prev.filter((channel: channelFromBackI) => channel.name != channelName)
+      const ind = prev.findIndex((el) => el.name === channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        res[ind].connected = false;
+        res[ind].messages = [];
+        res[ind].users = [];
+      }
       return res;
     });
   });
