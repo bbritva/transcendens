@@ -10,7 +10,6 @@ const filter = createFilterOptions<FilmOptionType>();
 export default function AutocompleteSearch() {
   const [value, setValue] = React.useState<string | null>(null);
   const [options, setOptions] = React.useState<string[]>([]);
-  const [flag, setFlag] = React.useState<number>(1);
   function nickSearch(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
     setValue(event.currentTarget.value);
     socket.emit("getNamesSuggestions", { targetUserName: event.currentTarget.value })
@@ -19,34 +18,30 @@ export default function AutocompleteSearch() {
   socket.on("nameSuggestions", (data: string[]) => {
     console.log("nameSuggestions", data);
     setOptions(data);
-    setFlag((prev) => prev + 1);
 
   });
 
   return (
     <Autocomplete
       value={value}
-      onInput={
-        (
-          event
-        ) => {
+      onInput={(event) => {
           //@ts-ignore
-        const newValue = event.target.value;
-        setValue(newValue);
-        socket.emit("getNamesSuggestions", { targetUserName: newValue })
-        // if (typeof newValue === 'string') {
-        //   setValue(
-        //     newValue,
-        //   );
-        // } else if (newValue) {
-        //   // Create a new value from the user input
-        //   setValue(
-        //     newValue,
-        //   );
-        // } else {
-        //   setValue(newValue);
-        // }
-      }}
+          const newValue = event.target.value;
+          setValue(newValue);
+          socket.emit("getNamesSuggestions", { targetUserName: newValue })
+          // if (typeof newValue === 'string') {
+          //   setValue(
+          //     newValue,
+          //   );
+          // } else if (newValue) {
+          //   // Create a new value from the user input
+          //   setValue(
+          //     newValue,
+          //   );
+          // } else {
+          //   setValue(newValue);
+          // }
+        }}
       filterOptions={(options, params) => {
         // const filtered = filter(options, params);
 
@@ -65,7 +60,7 @@ export default function AutocompleteSearch() {
       id="free-solo-with-text-demo"
       options={options}
       getOptionLabel={(option) => {
-          return option;
+        return option;
         // Value selected with enter, right from the input
         // if (typeof option === 'string') {
         //   return option;

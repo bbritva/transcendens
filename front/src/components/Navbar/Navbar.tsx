@@ -44,35 +44,40 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => navigate("/account", { replace: true }),
-        children: user?.name || "Profile"
+        children: user?.name || "Profile",
+        key: 1
       }
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => navigate("/", { replace: true }),
-        children: "Home"
+        children: "Home",
+        key: 2,
       }
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => navigate("/game", { replace: true }),
-        children: "Game"
+        children: "Game",
+        key: 3
       }
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => navigate("/chat", { replace: true }),
-        children: "Chat"
+        children: "Chat",
+        key: 4
       }
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => onLogoutClick(),
-        children: "Logout"
+        children: "Logout",
+        key: 5
       }
     },
   ];
@@ -101,7 +106,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
             }
 
             fail={() => (
-              <StyledNavButton showonxs variant={"text"} onClick={onLoginClick}>
+              <StyledNavButton showonxs={+true} variant={"text"} onClick={onLoginClick}>
                 <Typography color="secondary">{loginButtonText}</Typography>
               </StyledNavButton>
             )}
