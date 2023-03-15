@@ -482,11 +482,11 @@ class Game {
   private drawScore(ctx: CanvasRenderingContext2D) {
     if (!this.canvas) return;
     ctx.beginPath();
-    ctx.font = "16px Arial";
+    ctx.font = "14px Arial";
     ctx.textAlign = "center";
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = "#0090DD";
     ctx.fillText(
-      `Score: ${this.leftPaddle.playerName} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.rightPaddle.playerName}`,
+      `SCORE: ${this.leftPaddle.playerName} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.rightPaddle.playerName}`,
       this.canvas.width / 2,
       20
     );
