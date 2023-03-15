@@ -6,7 +6,6 @@ import Box from "@mui/material/Box";
 import { useStore } from "react-redux";
 import { updateUser, userI } from "src/store/userSlice";
 import userService from "src/services/user.service";
-import { RootState } from "src/store/store";
 import { useTheme } from "@mui/material";
 import { useAppDispatch } from "src/app/hooks";
 import StyledBox, { styledBoxI } from "../BasicTable/StyledBox";
@@ -47,7 +46,7 @@ export default function SignUp(props: AccountUpdateProps) {
   }
 
   React.useEffect(() => {
-    if(extUser.name)
+    if (extUser.name)
       setInputValue(extUser.name);
   }, [extUser.name])
 
@@ -119,7 +118,9 @@ export default function SignUp(props: AccountUpdateProps) {
         }}
       >
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-          <Grid container>
+          <Grid container
+            justifyContent="center"
+          >
             <Box
               overflow="hidden"
               display={"flex"}
@@ -165,7 +166,7 @@ export default function SignUp(props: AccountUpdateProps) {
             </Box>
             <Grid
               item
-              xs={11}
+              xs={12}
               display="flex"
               alignItems="flex-start"
               marginTop={3}
@@ -186,6 +187,7 @@ export default function SignUp(props: AccountUpdateProps) {
                 helperText={inputError ? "This nickname is taken" : ""}
                 onChange={nickChange}
                 sx={{
+                  marginRight: 1,
                   fieldset: {
                     borderColor: theme.palette.primary.dark,
                   },
@@ -205,14 +207,21 @@ export default function SignUp(props: AccountUpdateProps) {
                 onChange={nickSearch}
               />
             </Grid> */}
-          </Grid>
           {
             variant &&
-            <AccountButton type="submit">
-              <CloudSyncIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
-              Update
-            </AccountButton>
+            <Grid
+              item
+              xs={12}
+              display="flex"
+              alignItems="flex-start"
+            >
+              <AccountButton type="submit">
+                <CloudSyncIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
+                Update
+              </AccountButton>
+            </Grid>
           }
+          </Grid>
         </Box>
       </Box>
     </StyledBox>

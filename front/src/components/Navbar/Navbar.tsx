@@ -10,6 +10,7 @@ import BasicMenu from "../BasicMenu/BasicMenu";
 import { StyledMenuItem } from "../BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
 import { FC, useEffect, useState } from "react";
+import AutocompleteSearch from "../Autocomplete/AutocompleteSearch";
 
 interface NavbarProps {
   loginButtonText: string;
@@ -29,7 +30,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
   useEffect(() => {
     const test = user?.avatar;
 
-    if (test){
+    if (test) {
       setAvatarSource(
         process.env.REACT_APP_USERS_URL + `/avatar/${test}`
       )
@@ -89,11 +90,14 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
         <Box marginLeft={"auto"} marginRight={'2rem'} display='flex'>
           <Protected
             user={user}
-            render={() => 
-            <BasicMenu 
-              mychildren={buttons}
-              extAvatar={avatarSource}
-            />            
+            render={() =>
+              <>
+                <AutocompleteSearch />
+                <BasicMenu
+                  mychildren={buttons}
+                  extAvatar={avatarSource}
+                />
+              </>
             }
 
             fail={() => (

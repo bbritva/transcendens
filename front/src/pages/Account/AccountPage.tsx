@@ -187,9 +187,7 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
       display="flex"
       alignItems={"center"}
       justifyContent={
-        variant
-        ? "center"
-        : "space-evenly"
+         "center"
       }
       flexWrap="wrap"
       sx={{
