@@ -52,6 +52,13 @@ export function initSocket(
     });
   });
 
+  socket.on("leftChannel", (channelName: string) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const res = prev.filter((channel: channelFromBackI) => channel.name != channelName)
+      return res;
+    });
+  });
+
   socket.on("newMessage", (message: newMessageI) => {
     setChannels((prev: channelFromBackI[]) => {
       const ind = prev.findIndex((el) => el.name === message.channelName);
