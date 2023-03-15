@@ -26,13 +26,18 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    setUsers(state, action: PayloadAction<UserInfoPublic[]>) {
+    setFriends(state, action: PayloadAction<UserInfoPublic[]>) {
       state.friends = action.payload;
+    },
+    deleteFriend(state, action: PayloadAction<UserInfoPublic>) {
+      state.friends = state.friends.filter((friend) => friend.id !== action.payload.id);
     },
     setBanned(state, action: PayloadAction<UserInfoPublic[]>) {
       state.banned = state.banned.concat(action.payload);
     },
-  
+    deleteBanned(state, action: PayloadAction<UserInfoPublic>) {
+      state.banned = state.banned.filter((friend) => friend.id !== action.payload.id);
+    },
   }
 
 })
@@ -40,5 +45,5 @@ const chatSlice = createSlice({
 export const selectFriends = (state: RootState) => state.chat.friends;
 export const selectBanned = (state: RootState) => state.chat.banned;
 
-export const {setUsers, setBanned} = chatSlice.actions;
+export const {setFriends, deleteFriend, setBanned, deleteBanned} = chatSlice.actions;
 export default chatSlice.reducer;

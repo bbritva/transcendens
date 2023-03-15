@@ -81,7 +81,6 @@ export default function SignUp(props: AccountUpdateProps) {
     if (!inputError && inputValue !== extUser.name){
       const res = await userService.setUserName({id: extUser.id, name: inputValue})
       if (res.status === 200){
-        console.log(res);
         dispatch(updateUser({ ...extUser as userI, ...res.data }));
       }
     }

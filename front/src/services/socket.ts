@@ -2,8 +2,7 @@ import { Dispatch } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
 import { GameStateDataI } from 'src/pages/Game/components/game/game';
-import { logout } from 'src/store/authActions';
-import { setBanned, setUsers, UserInfoPublic } from 'src/store/chatSlice';
+import { deleteBanned, deleteFriend, setBanned, setFriends, UserInfoPublic } from 'src/store/chatSlice';
 
 const URL = process.env.REACT_APP_AUTH_URL || "";
 const socket = io(URL, { autoConnect: false });
@@ -15,11 +14,6 @@ export function initSocket(
   setChannels: Function,
   dispatch: Dispatch
 ) {
-  // socket.on("connectError", (err) => {
-  //   if (err.message === "invalid username") {
-  //     dispatch(logout());
-  //   }
-  // });
 
   socket.on("channels", (channels: channelFromBackI[]) => {
     setChannels(channels);
@@ -109,13 +103,12 @@ export function initSocket(
     console.log("userKicked", data);
   });
 
-  socket.on("exFriend", (data: fromBackI) => {
-    console.log("exFriend", data);
+  socket.on("exFriend", (data: UserInfoPublic) => {
+    dispatch(deleteFriend(data))
   });
 
   socket.on("friendList",(data: UserInfoPublic[]) => {
-    dispatch(setUsers(data));
-    console.log("friendList", data);
+    dispatch(setFriends(data));
   })
 
   socket.on("newPersonnalyBanned",(data: UserInfoPublic) => {
@@ -123,8 +116,8 @@ export function initSocket(
     console.log("newPersonnalyBanned", data);
   })
 
-  socket.on("exPersonnalyBanned", (data: fromBackI) => {
-    console.log("exPersonnalyBanned", data);
+  socket.on("exPersonnalyBanned", (data: UserInfoPublic) => {
+    dispatch(deleteBanned(data))
   });
 
   socket.on("personallyBannedList",(data: UserInfoPublic[]) => {

@@ -21,7 +21,6 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
   let newUser = searchParams.get("user");
 
   useEffect(() => {
-    console.log(extUser);
     let id = parseInt(newUser || '');
     if (isNaN(id)){
       setVariant(true);

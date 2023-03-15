@@ -37,6 +37,7 @@ import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
 import { extUserState } from "./AccountPageWrapper";
+import socket from "src/services/socket";
 
 function createHistoryData(
   score: string,
@@ -54,7 +55,7 @@ function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id
 
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
-const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, variant}): ReactElement => {
+const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser, variant }): ReactElement => {
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(
@@ -63,7 +64,7 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
   );
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
   const [slideBanned, setSlideBanned] = useState<boolean>(false);
-  const bannedList = useSelector(selectBanned ) || [];
+  const bannedList = useSelector(selectBanned) || [];
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
@@ -87,8 +88,8 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
         )
       );
     }
-    else if (!status && (extUser.user.id || username)){
-      dispatch(getGames({userId: parseInt(extUser.user.id || "2"), set: setStatus}));
+    else if (!status && (extUser.user.id || username)) {
+      dispatch(getGames({ userId: parseInt(extUser.user.id), set: setStatus }));
     }
   }, [status, extUser.user.id]);
 
@@ -98,21 +99,21 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
     createPlayerData("Total score: ", score + "", '1'),
     createPlayerData(
       <Box display="flex" alignItems="center">
-        <SportsCricketIcon color="primary" fontSize="large"/>
+        <SportsCricketIcon color="primary" fontSize="large" />
         Rating:
       </Box>,
-        11+'',
-        '4'
-      ),
+      11 + '',
+      '4'
+    ),
   ];
 
-  const createButtons = (friend: UserInfoPublic) =>{
-    return [
+  const createButtons = (friend: UserInfoPublic, banned?: boolean) => {
+    const res = [
       {
         component: StyledMenuItem as FC,
         compProps: {
           onClick: () => {
-            setSearchParams({user: friend.id + ''}, {replace: false})
+            setSearchParams({ user: friend.id + '' }, { replace: false })
           },
           children: "Profile",
         },
@@ -120,30 +121,41 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
       {
         component: StyledMenuItem as FC,
         compProps: {
+          onClick: () => {
+            socket.emit(
+              banned
+                ? "unbanPersonally"
+                : "removeFriend"
+              , { targetUserName: friend.name })
+          },
+          children: banned 
+          ? "Unban"
+          : "Delete",
+        },
+      },
+    ];
+    if (!banned) {
+      res.push({
+        component: StyledMenuItem as FC,
+        compProps: {
           onClick: () => navigate("/chat", { replace: true }),
           children: "Message",
         },
-      },
-      {
+      });
+      res.push({
         component: StyledMenuItem as FC,
         compProps: {
           onClick: () => navigate("/game", { replace: true }),
           children: "Game",
         },
-      },
-      {
-        component: StyledMenuItem as FC,
-        compProps: {
-          onClick: () => navigate("/game", { replace: true }),
-          children: "Delete",
-        },
-      },
-    ];
+      });
+    }
+    return res;
   };
 
-  const createFriendElem = (friend: UserInfoPublic): settingsRowI => {
+  const createFriendElem = (friend: UserInfoPublic, banned: boolean): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend)} />
+      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
     );
     return { id: friend.id, button: FriendComponent };
   };
@@ -161,7 +173,7 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
     mybackcolor: theme.palette.info.main,
     myalign: "start",
     tableRowArray: friends.map(
-      (friend): settingsRowI => createFriendElem(friend)
+      (friend): settingsRowI => createFriendElem(friend, false)
     ),
     onClose: () => {
       setOpen(false);
@@ -174,7 +186,7 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
     mybackcolor: theme.palette.info.main,
     myalign: "start",
     tableRowArray: bannedList.map(
-      (friend): settingsRowI => createFriendElem(friend)
+      (friend): settingsRowI => createFriendElem(friend, true)
     ),
     onClose: () => {
       setOpen(false);
@@ -187,7 +199,7 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
       display="flex"
       alignItems={"center"}
       justifyContent={
-         "center"
+        "center"
       }
       flexWrap="wrap"
       sx={{
@@ -228,12 +240,12 @@ const AccountPage: FC<{extUser: extUserState, variant: boolean}> = ({extUser, va
         >
           {
             slideFriends
-            ? <FriendsTableRef {
-              ...(slideBanned  
-              ? refBannedsProps
-              : refFriendsProps)
-            } />
-            : <StyledBox myalign="start" mybackcolor={theme.palette.info.main}>
+              ? <FriendsTableRef {
+                ...(slideBanned
+                  ? refBannedsProps
+                  : refFriendsProps)
+              } />
+              : <StyledBox myalign="start" mybackcolor={theme.palette.info.main}>
                 <IconButton
                   aria-label="close"
                   onClick={() => setOpen(false)}
