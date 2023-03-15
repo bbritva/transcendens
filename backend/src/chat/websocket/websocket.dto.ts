@@ -37,6 +37,11 @@ export class ClientInfo {
   inGame?: boolean;
 }
 
+export class NameSuggestionInfo {
+  readonly id: number;
+  readonly name: string;
+}
+
 export interface NotAllowedI {
   eventName: string;
   data: any;
