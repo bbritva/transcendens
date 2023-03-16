@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
+import { UserInfoPublic } from "./chatSlice";
 
 
 export interface GameI {
@@ -9,6 +10,8 @@ export interface GameI {
   winnerScore: number
   loserId: number
   loserScore: number
+  winner: UserInfoPublic
+  loser: UserInfoPublic
 }
 
 interface gamesStateI {

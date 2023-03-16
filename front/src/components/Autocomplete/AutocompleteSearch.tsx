@@ -2,6 +2,9 @@ import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import socket from 'src/services/socket';
+import { StyledMenuButton } from '../NavButton/StyledNavButton';
+import { useNavigate } from 'react-router-dom';
+import { NameSuggestionInfoI } from 'src/pages/Chat/ChatPage';
 
 const filter = createFilterOptions<FilmOptionType>();
 
@@ -9,21 +12,17 @@ const filter = createFilterOptions<FilmOptionType>();
 
 export default function AutocompleteSearch() {
   const [value, setValue] = React.useState<string | null>(null);
-  const [options, setOptions] = React.useState<string[]>([]);
-  function nickSearch(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
-    setValue(event.currentTarget.value);
-    socket.emit("getNamesSuggestions", { targetUserName: event.currentTarget.value })
-  }
+  const [options, setOptions] = React.useState<NameSuggestionInfoI[]>([]);
+  const navigate = useNavigate();
 
-  socket.on("nameSuggestions", (data: string[]) => {
-    console.log("nameSuggestions", data);
+  socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
     setOptions(data);
-
   });
 
   return (
     <Autocomplete
       value={value}
+      clearOnBlur={true}
       onInput={(event) => {
           //@ts-ignore
           const newValue = event.target.value;
@@ -60,19 +59,29 @@ export default function AutocompleteSearch() {
       id="free-solo-with-text-demo"
       options={options}
       getOptionLabel={(option) => {
-        return option;
         // Value selected with enter, right from the input
-        // if (typeof option === 'string') {
-        //   return option;
-        // }
-        // // Add "xxx" option created dynamically
+        if (typeof option === 'string') {
+          return option;
+        }
+        // Add "xxx" option created dynamically
         // if (option.inputValue) {
         //   return option.inputValue;
         // }
-        // // Regular option
-        // return option.title;
+        // Regular option
+        return option.name;
       }}
-      renderOption={(props, option) => <li {...props}>{option}</li>}
+      renderOption={(props, option) =>
+        <li {...props}>
+          <StyledMenuButton
+            fullWidth
+            showonxs={+true}
+            onClick={() => {
+              setValue('');
+              navigate('/account?user=' + option.id);
+          }}>
+            {option.name}
+          </StyledMenuButton>
+        </li>}
       sx={{ width: 300 }}
       freeSolo
       renderInput={(params) => (

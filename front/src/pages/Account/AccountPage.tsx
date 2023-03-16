@@ -77,11 +77,13 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
 
   useEffect(() => {
     if (status) {
+      console.log(games);
       setHistoryRows(
         games.map((game) =>
           createHistoryData(
             `${game.winnerScore} : ${game.loserScore}`,
             game.winnerId == parseInt(extUser.user?.id || "") ? "win" : "lose",
+            // game.winnerId == parseInt(extUser.user?.id || "") ? game.loser.name : game.winner.name,
             `${game.id}`,
             game.id
           )
