@@ -75,7 +75,10 @@ export class GatewayService {
         user.channels.forEach((channel) => {
           this.server
             .to(channel.name)
-            .emit("userDisconnected", channel.name, user.name);
+            .emit("userDisconnected", {
+              channelName: channel.name,
+              userName: user.name,
+            });
         });
       })
       .catch((e) => console.log(e.message));
@@ -310,20 +313,19 @@ export class GatewayService {
       );
   }
 
-  async connectToChannel(socketId: string, channelIn: DTO.ChannelInfoIn) {
+  async joinChannel(socketId: string, channelIn: DTO.ChannelInfoIn) {
     const user = this.connections.get(socketId);
     const channel = await this.channelService.getChannel(channelIn.name);
     // check possibility
-    if (!user)
-      this.emitExecutionError(socketId, "connectToChannel", "user unknown");
+    if (!user) this.emitExecutionError(socketId, "joinChannel", "user unknown");
     else if (!channel)
-      this.emitExecutionError(socketId, "connectToChannel", "channel unknown");
-    else if (this.canConnect(socketId, user, channel, channelIn, user)) {
+      this.emitExecutionError(socketId, "joinChannel", "channel unknown");
+    else if (this.canJoin(socketId, user, channel, channelIn, user)) {
       await this.connectUserToChannel(
         channelIn,
         this.connections.get(socketId)
       ).catch((e) =>
-        this.emitExecutionError(socketId, "connectToChannel", e.getResponse())
+        this.emitExecutionError(socketId, "joinChannel", e.getResponse())
       );
 
       // i suppose, we don't need this part of function
@@ -332,13 +334,9 @@ export class GatewayService {
           const targetUser = await this.userService.getUserByName(
             userName.name
           );
-          if (this.canConnect(socketId, user, channel, channelIn, targetUser))
+          if (this.canJoin(socketId, user, channel, channelIn, targetUser))
             this.connectUserToChannel(channelIn, targetUser).catch((e) =>
-              this.emitExecutionError(
-                socketId,
-                "connectToChannel",
-                e.getResponse()
-              )
+              this.emitExecutionError(socketId, "joinChannel", e.getResponse())
             );
         });
       }
@@ -358,7 +356,11 @@ export class GatewayService {
       .then(() => {
         this.server.to(user.socketId).emit("leftChannel", channelName);
         this.server.in(user.socketId).socketsLeave(channelName);
-        this.server.to(channelName).emit("userLeft", channelName, user);
+        this.server.to(channelName).emit("userLeft", {
+          channelName: channelName,
+          userName: user.name,
+          userId: user.id,
+        });
       });
   }
 
@@ -393,8 +395,7 @@ export class GatewayService {
 
   async getFriends(socketId: string) {
     const user = this.connections.get(socketId);
-    if (!user)
-      return ;
+    if (!user) return;
     await this.userService
       .getFriends(user.id)
       .then((friendList) => {
@@ -440,9 +441,8 @@ export class GatewayService {
   }
 
   async getPersonallyBanned(socketId: string) {
-    const temp = this.connections.get(socketId)
-      if (!temp)
-        return ;
+    const temp = this.connections.get(socketId);
+    if (!temp) return;
     this.userService
       .getPersonallyBanned(temp.id)
       .then((bannedList) => {
@@ -751,7 +751,7 @@ export class GatewayService {
         };
         this.connections.forEach((client: DTO.ClientInfo, socketId: string) => {
           if (client.name == user.name) {
-            this.server.to(socketId).emit("joinedToChannel", channelInfo);
+            this.server.to(socketId).emit("channelInfo", channelInfo);
             this.server.in(socketId).socketsJoin(channelIn.name);
           }
         });
@@ -778,7 +778,7 @@ export class GatewayService {
   // 1 - channel is private
   // 2 - user banned
   // 3 - pasword incorrect
-  private canConnect(
+  private canJoin(
     socketId: string,
     executor: DTO.ClientInfo,
     channel: ChannelEntity,

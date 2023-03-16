@@ -8,14 +8,14 @@ function channelMenuButtons(
   setDestination: Function,
   element: userFromBackI
 ) {
-  function connectToChannel() {
+  function joinChannel() {
     const event: EventI = {
-      name: "connectToChannel",
+      name: "joinChannel",
       data: { name: element.name },
     };
     setDestination(["Channels", event]);
   }
-  function disconnectFromChanel() {
+  function leaveChannel() {
     const event: EventI = {
       name: "leaveChannel",
       data: {name : element.name},
@@ -27,15 +27,15 @@ function channelMenuButtons(
     {
       component: StyledMenuItem as FC,
       compProps: {
-        onClick: connectToChannel,
-        children: "Connect",
+        onClick: joinChannel,
+        children: "Join",
       },
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
-        onClick: disconnectFromChanel,
-        children: "Disconnect",
+        onClick: leaveChannel,
+        children: "Leave",
       },
     },
     {
