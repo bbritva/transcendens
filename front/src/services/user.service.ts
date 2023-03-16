@@ -51,7 +51,6 @@ class UserService {
 
   getStats(id: number) {
     const res = axios.get(API_URL + '/stats/' + id);
-    debugger;
     return res;
   }
 }

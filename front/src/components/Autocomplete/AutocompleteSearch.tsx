@@ -5,19 +5,21 @@ import socket from 'src/services/socket';
 import { StyledMenuButton } from '../NavButton/StyledNavButton';
 import { useNavigate } from 'react-router-dom';
 import { NameSuggestionInfoI } from 'src/pages/Chat/ChatPage';
-
-const filter = createFilterOptions<FilmOptionType>();
-
-
+import { Typography, useTheme } from '@mui/material';
 
 export default function AutocompleteSearch() {
   const [value, setValue] = React.useState<string | null>(null);
   const [options, setOptions] = React.useState<NameSuggestionInfoI[]>([]);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
     setOptions(data);
   });
+
+  const labelStyle = {
+      color: theme.palette.secondary.main, 
+    };
 
   return (
     <Autocomplete
@@ -28,46 +30,17 @@ export default function AutocompleteSearch() {
           const newValue = event.target.value;
           setValue(newValue);
           socket.emit("getNamesSuggestions", { targetUserName: newValue })
-          // if (typeof newValue === 'string') {
-          //   setValue(
-          //     newValue,
-          //   );
-          // } else if (newValue) {
-          //   // Create a new value from the user input
-          //   setValue(
-          //     newValue,
-          //   );
-          // } else {
-          //   setValue(newValue);
-          // }
         }}
       filterOptions={(options, params) => {
-        // const filtered = filter(options, params);
-
-        // const { inputValue } = params;
-        // // Suggest the creation of a new value
-        // const isExisting = options.some((option) => inputValue === option.title);
-        // if (inputValue !== '' && !isExisting) {
-        //   filtered.push({
-        //     inputValue,
-        //     title: `Add "${inputValue}"`,
-        //   });
-        // }
 
         return options;
       }}
       id="free-solo-with-text-demo"
       options={options}
       getOptionLabel={(option) => {
-        // Value selected with enter, right from the input
         if (typeof option === 'string') {
           return option;
         }
-        // Add "xxx" option created dynamically
-        // if (option.inputValue) {
-        //   return option.inputValue;
-        // }
-        // Regular option
         return option.name;
       }}
       renderOption={(props, option) =>
@@ -82,11 +55,25 @@ export default function AutocompleteSearch() {
             {option.name}
           </StyledMenuButton>
         </li>}
-      sx={{ width: 300 }}
+      sx={{ width: 300, 
+      backgroundColor: theme.palette.primary.main }}
       freeSolo
-      renderInput={(params) => (
-        <TextField {...params} label="Free solo with text demo" />
-      )}
+      renderInput={(params) => {
+        return <Typography variant="subtitle2">
+        <TextField 
+        {...params} label="Search user..." style={labelStyle}
+        variant='standard'
+        sx={{
+          fieldset: {
+            borderColor: theme.palette.secondary.main,
+          },
+          input: {
+            color: theme.palette.secondary.main,
+          }
+        }}
+        />
+        </Typography>;
+      }}
     />
   );
 }
