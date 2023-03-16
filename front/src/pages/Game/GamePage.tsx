@@ -176,8 +176,8 @@ const GamePage: FC<GamePageProps> = ({
       setInputValue(undefined);
       socket.on("declineInvite", (data) => {
         setDeclined(true);
-        setDeclinedCause(data.cause);
-        setOpenMPDialog(true);
+        // setDeclinedCause(data.cause);
+        // setOpenMPDialog(true);
         sessionStorage.setItem("game", "false");
       });
     }
