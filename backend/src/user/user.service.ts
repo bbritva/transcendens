@@ -7,9 +7,13 @@ import {
 import { PrismaService } from "src/prisma/prisma.service";
 import { User, Prisma, eStatus } from "@prisma/client";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UserInfoPublic } from "src/chat/websocket/websocket.dto";
+import {
+  NameSuggestionInfo,
+  UserInfoPublic,
+} from "src/chat/websocket/websocket.dto";
 import { CreateGameDto, GameResultDto } from "src/game/dto/create-game.dto";
 import { UserEntity } from "./entities/user.entity";
+import { GameEntity } from "src/game/entities/game.entity";
 
 @Injectable()
 export class UserService {
@@ -103,19 +107,42 @@ export class UserService {
     userName: string,
     includeGames = false,
     includeChannels = false
-  ): Promise<User> {
+  ): Promise<UserEntity> {
     return this.prisma.user
       .findUnique({
         where: {
           name: userName,
         },
         include: {
-          wins: includeGames,
-          loses: includeGames,
+          wins: includeGames && {
+            include: {
+              winner: true,
+              loser: true,
+            },
+          },
+          loses: includeGames && {
+            include: {
+              winner: true,
+              loser: true,
+            },
+          },
           channels: includeChannels,
         },
       })
-      .then((ret: any) => ret)
+      .then((ret: UserEntity) => {
+        this.filterUserdata(ret);
+        if (includeGames) {
+          for (const game of ret.wins) {
+            this.filterUserdata(game.winner);
+            this.filterUserdata(game.loser);
+          }
+          for (const game of ret.loses) {
+            this.filterUserdata(game.winner);
+            this.filterUserdata(game.loser);
+          }
+        }
+        return ret;
+      })
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
@@ -313,8 +340,8 @@ export class UserService {
     return friendsList;
   }
 
-  async getNamesSuggestion(name: string): Promise<string[]> {
-    let names: string[] = [];
+  async getNamesSuggestion(name: string): Promise<NameSuggestionInfo[]> {
+    let names: NameSuggestionInfo[] = [];
     try {
       if (!!name) {
         const users = await this.prisma.user.findMany({
@@ -327,7 +354,12 @@ export class UserService {
         });
         if (users) {
           for (const user of users) {
-            names.push(user.name);
+            this.filterUserdata(user);
+            delete user.avatar;
+            delete user.image;
+            delete user.status;
+            delete user.score;
+            names.push(user);
           }
         }
       }

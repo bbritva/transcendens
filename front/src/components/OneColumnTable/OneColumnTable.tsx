@@ -16,7 +16,7 @@ import { fromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
 import { userI } from "src/store/userSlice";
 import React from "react";
-import BasicMenu from "../BasicMenu/BasicMenu";
+import BasicMenu from "src/components/BasicMenu/BasicMenu";
 
 const anchorStyle = {
   overflowAnchor: "auto",

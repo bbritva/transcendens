@@ -18,3 +18,8 @@
   object-fit: cover;
   align-items: center;
 }
+
+canvas {
+  width: 100%;
+  height: auto;
+}

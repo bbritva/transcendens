@@ -12,13 +12,13 @@ import {
   TextField,
   useTheme
 } from "@mui/material";
-import Canvas, { canvasPropsI } from "./components/Canvas";
 import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import socket from "src/services/socket";
 import { useStore } from "react-redux";
 import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
+import CanvasR from "./components/CanvasR";
 
 export interface point {
   x: number;
@@ -220,13 +220,15 @@ const GamePage: FC<GamePageProps> = ({
     setRivalOffline(false);
   }
 
-  const canvasProps = {
-    width: "720",
-    height: "480",
-  } as canvasPropsI;
-
   return (
-    <Grid container component={Paper} display={"table-row"}       sx={{backgroundColor: theme.palette.secondary.main}}>
+    <Box
+      component={Paper}
+      display={"flex"}
+      justifyContent={"center"}
+      flex={"wrap"}
+      flexDirection={"column"}
+      maxWidth={"md"}
+    >
       <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
         {declined ? (
           <Box
@@ -457,7 +459,8 @@ const GamePage: FC<GamePageProps> = ({
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
-        <Canvas ref={canvasRef} {...canvasProps} />
+        {/* <Canvas ref={canvasRef}/> */}
+        <CanvasR canvasRef={canvasRef} />
         {/* <Webcam
           ref={webcamRef}
           style={{
@@ -486,7 +489,7 @@ const GamePage: FC<GamePageProps> = ({
           onClick={clickPause}
         />
       </Grid>
-    </Grid>
+    </Box>
   );
 };
 

@@ -1,6 +1,6 @@
 import { Dispatch } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
-import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
+import { channelFromBackI, fromBackI, NameSuggestionInfoI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
 import { GameStateDataI } from 'src/pages/Game/components/game/game';
 import { deleteBanned, deleteFriend, setBanned, setFriends, UserInfoPublic } from 'src/store/chatSlice';
 
@@ -133,7 +133,7 @@ export function initSocket(
     console.log("nameTaken", data);
   });
 
-  socket.on("nameSuggestions", (data: string[]) => {
+  socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
     console.log("nameSuggestions", data);
   });
 
