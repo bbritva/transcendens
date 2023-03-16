@@ -26,8 +26,8 @@ export interface UserInfoPublic {
   image?: string;
   avatar?: string;
   status: eStatus;
-  wins?: GameEntity;
-  loses?: GameEntity;
+  wins?: GameEntity[];
+  loses?: GameEntity[];
 }
 
 export class ClientInfo {

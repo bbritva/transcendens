@@ -60,7 +60,7 @@ export class UserService {
   }
 
   async getStats(id: number): Promise<User> {
-    return this.getUser(id, true)
+    return this.getUserPublic(id, true)
       .then((user) => {
         this.filterUserdata(user);
         return user;
@@ -152,10 +152,20 @@ export class UserService {
     userId: number,
     includeGames = false,
     includeChannels = false
-  ): Promise<User> {
+  ): Promise<UserEntity> {
     return this.getUser(userId, includeGames, includeChannels)
       .then((user) => {
         this.filterUserdata(user);
+        if (includeGames) {
+          for (const game of user.wins) {
+            this.filterUserdata(game.winner);
+            this.filterUserdata(game.loser);
+          }
+          for (const game of user.loses) {
+            this.filterUserdata(game.winner);
+            this.filterUserdata(game.loser);
+          }
+        }
         return user;
       })
       .catch((e: any) => {
@@ -167,7 +177,7 @@ export class UserService {
     userId: number,
     includeGames = false,
     includeChannels = false
-  ): Promise<User> {
+  ): Promise<UserEntity> {
     return this.prisma.user
       .findUnique({
         where: {
@@ -189,20 +199,7 @@ export class UserService {
           channels: includeChannels,
         },
       })
-      .then((ret: UserEntity) => {
-        this.filterUserdata(ret);
-        if (includeGames) {
-          for (const game of ret.wins) {
-            this.filterUserdata(game.winner);
-            this.filterUserdata(game.loser);
-          }
-          for (const game of ret.loses) {
-            this.filterUserdata(game.winner);
-            this.filterUserdata(game.loser);
-          }
-        }
-        return ret;
-      })
+      .then((ret: UserEntity) => ret)
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
