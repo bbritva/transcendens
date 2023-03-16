@@ -12,6 +12,8 @@ import {
 } from "@nestjs/common";
 import { GameResultDto } from "src/game/dto/create-game.dto";
 import { GameService } from "src/game/game.service";
+import * as bcrypt from "bcrypt";
+import { env } from "process";
 
 @Injectable()
 export class GatewayService {
@@ -73,12 +75,10 @@ export class GatewayService {
       .setUserStatus(this.connections.get(socket.id).id, "OFFLINE")
       .then((user) => {
         user.channels.forEach((channel) => {
-          this.server
-            .to(channel.name)
-            .emit("userDisconnected", {
-              channelName: channel.name,
-              userName: user.name,
-            });
+          this.server.to(channel.name).emit("userDisconnected", {
+            channelName: channel.name,
+            userName: user.name,
+          });
         });
       })
       .catch((e) => console.log(e.message));
@@ -320,7 +320,7 @@ export class GatewayService {
     if (!user) this.emitExecutionError(socketId, "joinChannel", "user unknown");
     else if (!channel)
       this.emitExecutionError(socketId, "joinChannel", "channel unknown");
-    else if (this.canJoin(socketId, user, channel, channelIn, user)) {
+    else if (await this.canJoin(socketId, user, channel, channelIn, user)) {
       await this.connectUserToChannel(
         channelIn,
         this.connections.get(socketId)
@@ -334,10 +334,16 @@ export class GatewayService {
           const targetUser = await this.userService.getUserByName(
             userName.name
           );
-          if (this.canJoin(socketId, user, channel, channelIn, targetUser))
-            this.connectUserToChannel(channelIn, targetUser).catch((e) =>
-              this.emitExecutionError(socketId, "joinChannel", e.getResponse())
+          if (!targetUser)
+            this.emitExecutionError(
+              socketId,
+              "connectToChannel",
+              "user unknown"
             );
+          else if (
+            await this.canJoin(socketId, user, channel, channelIn, targetUser)
+          )
+            this.connectUserToChannel(channelIn, targetUser);
         });
       }
     }
@@ -778,13 +784,13 @@ export class GatewayService {
   // 1 - channel is private
   // 2 - user banned
   // 3 - pasword incorrect
-  private canJoin(
+  private async canJoin(
     socketId: string,
     executor: DTO.ClientInfo,
     channel: ChannelEntity,
     channelIn: DTO.ChannelInfoIn,
     target: DTO.ClientInfo
-  ): boolean {
+  ): Promise<boolean> {
     if (channel == null || channel.admIds.includes(executor.id)) return true;
     if (channel.isPrivate) {
       this.emitNotAllowed(
@@ -804,16 +810,22 @@ export class GatewayService {
       );
       return false;
     }
-    if (channel.password != channelIn.password) {
-      this.emitNotAllowed(
-        socketId,
-        "connectToChannel",
-        channelIn,
-        "password incorrect"
-      );
-      return false;
-    }
-    return true;
+    if (!channelIn.password) channelIn.password = "";
+    return bcrypt
+      .compare(channelIn.password, channel.password)
+      .then((isMatch) => {
+        if (isMatch) return true;
+        this.emitNotAllowed(
+          socketId,
+          "connectToChannel",
+          channelIn,
+          "password incorrect"
+        );
+        return false;
+      })
+      .catch((e) => {
+        throw e;
+      });
   }
 
   private connectionByName(name: string): string {
