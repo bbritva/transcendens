@@ -772,12 +772,8 @@ export class GatewayService {
       banned.name,
       this.connections.get(socketId).name,
     ]);
-    this.leaveChannel(socketId, PMChannel.name, banned).catch((e) => {
-      throw e;
-    });
-    this.leaveChannel(socketId, PMChannel.name).catch((e) => {
-      throw e;
-    });
+    this.leaveChannel(socketId, PMChannel.name, banned).catch(() => {});
+    this.leaveChannel(socketId, PMChannel.name).catch(() => {});
   }
 
   // user can not connect to channel:
