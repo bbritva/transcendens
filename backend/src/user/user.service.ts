@@ -174,12 +174,35 @@ export class UserService {
           id: userId,
         },
         include: {
-          wins: includeGames,
-          loses: includeGames,
+          wins: includeGames && {
+            include: {
+              winner: true,
+              loser: true,
+            },
+          },
+          loses: includeGames && {
+            include: {
+              winner: true,
+              loser: true,
+            },
+          },
           channels: includeChannels,
         },
       })
-      .then((ret: any) => ret)
+      .then((ret: UserEntity) => {
+        this.filterUserdata(ret);
+        if (includeGames) {
+          for (const game of ret.wins) {
+            this.filterUserdata(game.winner);
+            this.filterUserdata(game.loser);
+          }
+          for (const game of ret.loses) {
+            this.filterUserdata(game.winner);
+            this.filterUserdata(game.loser);
+          }
+        }
+        return ret;
+      })
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });
