@@ -10,6 +10,7 @@ import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
 import { FC, useEffect, useState } from "react";
+import AutocompleteSearch from "../Autocomplete/AutocompleteSearch";
 
 interface NavbarProps {
   loginButtonText: string;
@@ -29,7 +30,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
   useEffect(() => {
     const test = user?.avatar;
 
-    if (test){
+    if (test) {
       setAvatarSource(
         process.env.REACT_APP_USERS_URL + `/avatar/${test}`
       )
@@ -43,35 +44,40 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => navigate("/account", { replace: true }),
-        children: user?.name || "Profile"
+        children: user?.name || "Profile",
+        key: 1
       }
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => navigate("/", { replace: true }),
-        children: "Home"
+        children: "Home",
+        key: 2,
       }
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => navigate("/game", { replace: true }),
-        children: "Game"
+        children: "Game",
+        key: 3
       }
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => navigate("/chat", { replace: true }),
-        children: "Chat"
+        children: "Chat",
+        key: 4
       }
     },
     {
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => onLogoutClick(),
-        children: "Logout"
+        children: "Logout",
+        key: 5
       }
     },
   ];
@@ -89,15 +95,18 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
         <Box marginLeft={"auto"} marginRight={'2rem'} display='flex'>
           <Protected
             user={user}
-            render={() => 
-            <BasicMenu 
-              mychildren={buttons}
-              extAvatar={avatarSource}
-            />            
+            render={() =>
+              <>
+                <AutocompleteSearch />
+                <BasicMenu
+                  mychildren={buttons}
+                  extAvatar={avatarSource}
+                />
+              </>
             }
 
             fail={() => (
-              <StyledNavButton showonxs variant={"text"} onClick={onLoginClick}>
+              <StyledNavButton showonxs={+true} variant={"text"} onClick={onLoginClick}>
                 <Typography color="secondary">{loginButtonText}</Typography>
               </StyledNavButton>
             )}

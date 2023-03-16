@@ -22,6 +22,11 @@ export interface fromBackI {
   data: any;
 }
 
+export interface NameSuggestionInfoI {
+  readonly id: number;
+  readonly name: string;
+}
+
 export interface userFromBackI extends fromBackI {}
 
 export interface channelFromBackI extends fromBackI {

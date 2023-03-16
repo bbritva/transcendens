@@ -50,7 +50,7 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick}: basi
   return (
     <>
       <StyledMenuButton
-        showonxs
+        showonxs={+true}
         fullWidth
         id="basic-button"
         aria-controls={open ? "basic-menu" : undefined}

@@ -56,8 +56,10 @@ async function main() {
       id: 5,
       name: "Tom2",
       status: "OFFLINE",
-      image: "https://imageresizer.static9.net.au/TIEZnRR7cK4eRYkoO-Z2mbWolB0=/0x93:1812x1905/400x0/https%3A%2F%2Fprod.static9.net.au%2Ffs%2F42a3eb1e-2a8a-46c7-a342-fb2fa175671a"
-
+      image: "https://imageresizer.static9.net.au/TIEZnRR7cK4eRYkoO-Z2mbWolB0=/0x93:1812x1905/400x0/https%3A%2F%2Fprod.static9.net.au%2Ffs%2F42a3eb1e-2a8a-46c7-a342-fb2fa175671a",
+      score: 44,
+      bannedIds: [4, 7],
+      friendIds: [5, 7, 73725 ],
     },
   });
 
@@ -111,7 +113,11 @@ async function main() {
     create: {
       id: 73725,
       name: "tphung",
-      status: "OFFLINE"
+      status: "OFFLINE",
+      image:"https://media.tenor.com/fweny7uFfqcAAAAC/%D0%BA%D1%80%D0%BE%D1%88-%D0%B8%D0%B4%D1%91%D1%82.gif",
+      friendIds: [5, 9, 8, 7, 6],
+      bannedIds: [2, 4,  7],
+      score: 55,
     },
   });
 
@@ -124,7 +130,8 @@ async function main() {
       status: "OFFLINE",
       image:"https://cdn.intra.42.fr/users/202255b82453593a913e7b6a0ee2f2d0/ddiakova.jpg",
       friendIds: [5, 73725, 9, 8, 7, 6],
-      bannedIds: [2, 4, 73725, 7]
+      bannedIds: [2, 4, 73725, 7],
+      score: 55,
     },
   });
 
@@ -230,11 +237,46 @@ async function main() {
       id: 5223,
       winnerId: 2,
       winnerScore: 10,
-      loserId: 1,
+      loserId: 5,
       loserScore: 5
     },
   })
 
+  await prisma.game.upsert({
+    where: { id: 13211 },
+    update: {},
+    create: {
+      id: 13211,
+      winnerId: 5,
+      winnerScore: 11,
+      loserId: 3,
+      loserScore: 4
+    },
+  })
+
+  await prisma.game.upsert({
+    where: { id: 13322 },
+    update: {},
+    create: {
+      id: 13322,
+      winnerId: 5,
+      winnerScore: 13,
+      loserId: 74587,
+      loserScore: 5
+    },
+  })
+
+  await prisma.game.upsert({
+    where: { id: 52233 },
+    update: {},
+    create: {
+      id: 52233,
+      winnerId: 2,
+      winnerScore: 10,
+      loserId: 5,
+      loserScore: 5
+    },
+  })
   const users = await prisma.user.findMany({
     include: { channels: true },
   });

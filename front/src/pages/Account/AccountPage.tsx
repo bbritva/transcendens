@@ -11,13 +11,12 @@ import {
   Box,
   CardMedia,
   IconButton,
-  Paper,
   Slide,
   useTheme,
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
-import { selectUser } from "src/store/userSlice";
+import { userI } from "src/store/userSlice";
 import BasicTable, {
   basicTableI,
   matchHistoryRowI,
@@ -31,112 +30,134 @@ import CloseIcon from "@mui/icons-material/Close";
 import StyledBox from "src/components/BasicTable/StyledBox";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { selectBanned, selectFriends, UserInfoPublic } from "src/store/chatSlice";
 import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
+import { extUserState } from "./AccountPageWrapper";
+import socket from "src/services/socket";
 
 function createHistoryData(
   score: string,
   result: string,
   rival: string,
-  id: number
+  id: string
 ) {
   return { score, result, rival, id } as matchHistoryRowI;
 }
 
-function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id: number) {
+function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id: string) {
   return { data, rank, id } as playerStatisticsRowI;
 }
 
+
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
-const AccountPage: FC<any> = (): ReactElement => {
-  const { user } = useSelector(selectUser);
-  const { games, status, winsNum, losesNum, score } = useSelector(selectGames);
+const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser, variant }): ReactElement => {
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(
-    user,
+    extUser.user as userI,
     setSlideShow
   );
   const [slideFriends, setSlideFriends] = useState<boolean>(false);
   const [slideBanned, setSlideBanned] = useState<boolean>(false);
-  const friends = useSelector(selectFriends) || [];
-  const bannedList = useSelector(selectBanned ) || [];
+  const bannedList = useSelector(selectBanned) || [];
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
   const username = sessionStorage.getItem("username");
+  let [searchParams, setSearchParams] = useSearchParams();
+  const { games, winsNum, losesNum, score } = useSelector(selectGames);
+  const friends = useSelector(selectFriends) || [];
+  const [status, setStatus] = useState(false);
 
-  if (status === "idle" && (user?.id || username))
-    dispatch(getGames(parseInt(user?.id || "2")));
 
   useEffect(() => {
-    if (status === "succeeded") {
+    if (status) {
+      console.log(games);
       setHistoryRows(
         games.map((game) =>
           createHistoryData(
             `${game.winnerScore} : ${game.loserScore}`,
-            game.winnerId == parseInt(user?.id || "") ? "win" : "lose",
+            game.winnerId == parseInt(extUser.user?.id || "") ? "win" : "lose",
+            // game.winnerId == parseInt(extUser.user?.id || "") ? game.loser.name : game.winner.name,
             `${game.id}`,
             game.id
           )
         )
       );
     }
-  }, [status]);
+    else if (!status && (extUser.user.id || username)) {
+      dispatch(getGames({ userId: parseInt(extUser.user.id), set: setStatus }));
+    }
+  }, [status, extUser.user.id]);
 
   const playerRows = [
-    createPlayerData("Total wins: ", winsNum + "", 2),
-    createPlayerData("Total losses: ", losesNum + "", 3),
-    createPlayerData("Total score: ", score + "", 1),
+    createPlayerData("Total wins: ", winsNum + "", '2'),
+    createPlayerData("Total losses: ", losesNum + "", '3'),
+    createPlayerData("Total score: ", score + "", '1'),
     createPlayerData(
       <Box display="flex" alignItems="center">
-        <SportsCricketIcon color="primary" fontSize="large"/>
+        <SportsCricketIcon color="primary" fontSize="large" />
         Rating:
       </Box>,
-        11+'',
-        4
-      ),
+      11 + '',
+      '4'
+    ),
   ];
 
-  const buttons = [
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/account", { replace: true }),
-        children: "Profile",
+  const createButtons = (friend: UserInfoPublic, banned?: boolean) => {
+    const res = [
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => {
+            setSearchParams({ user: friend.id + '' }, { replace: false })
+          },
+          children: "Profile",
+        },
       },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/chat", { replace: true }),
-        children: "Message",
+      {
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => {
+            socket.emit(
+              banned
+                ? "unbanPersonally"
+                : "removeFriend"
+              , { targetUserName: friend.name })
+          },
+          children: banned 
+          ? "Unban"
+          : "Delete",
+        },
       },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/game", { replace: true }),
-        children: "Game",
-      },
-    },
-    {
-      component: StyledMenuItem as FC,
-      compProps: {
-        onClick: () => navigate("/game", { replace: true }),
-        children: "Delete",
-      },
-    },
-  ];
+    ];
+    if (!banned) {
+      res.push({
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => navigate("/chat", { replace: true }),
+          children: "Message",
+        },
+      });
+      res.push({
+        component: StyledMenuItem as FC,
+        compProps: {
+          onClick: () => navigate("/game", { replace: true }),
+          children: "Game",
+        },
+      });
+    }
+    return res;
+  };
 
-  const createFriendElem = (friend: UserInfoPublic): settingsRowI => {
+  const createFriendElem = (friend: UserInfoPublic, banned: boolean): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={buttons} />
+      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
     );
     return { id: friend.id, button: FriendComponent };
   };
@@ -154,7 +175,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     mybackcolor: theme.palette.info.main,
     myalign: "start",
     tableRowArray: friends.map(
-      (friend): settingsRowI => createFriendElem(friend)
+      (friend): settingsRowI => createFriendElem(friend, false)
     ),
     onClose: () => {
       setOpen(false);
@@ -167,7 +188,7 @@ const AccountPage: FC<any> = (): ReactElement => {
     mybackcolor: theme.palette.info.main,
     myalign: "start",
     tableRowArray: bannedList.map(
-      (friend): settingsRowI => createFriendElem(friend)
+      (friend): settingsRowI => createFriendElem(friend, true)
     ),
     onClose: () => {
       setOpen(false);
@@ -178,8 +199,10 @@ const AccountPage: FC<any> = (): ReactElement => {
     <Box
       component={CardMedia}
       display="flex"
-      alignItems="center"
-      justifyContent="center"
+      alignItems={"center"}
+      justifyContent={
+        "center"
+      }
       flexWrap="wrap"
       sx={{
         boxShadow: "20",
@@ -196,7 +219,7 @@ const AccountPage: FC<any> = (): ReactElement => {
         },
       }}
     >
-      <SignUp myalign="end" />
+      <SignUp extUser={extUser.user} variant={variant} myalign="end" />
       <BasicTable
         title="PLAYER STATISTICS"
         tableHeadArray={null}
@@ -219,12 +242,12 @@ const AccountPage: FC<any> = (): ReactElement => {
         >
           {
             slideFriends
-            ? <FriendsTableRef {
-              ...(slideBanned  
-              ? refBannedsProps
-              : refFriendsProps)
-            } />
-            : <StyledBox myalign="start" mybackcolor={theme.palette.info.main}>
+              ? <FriendsTableRef {
+                ...(slideBanned
+                  ? refBannedsProps
+                  : refFriendsProps)
+              } />
+              : <StyledBox myalign="start" mybackcolor={theme.palette.info.main}>
                 <IconButton
                   aria-label="close"
                   onClick={() => setOpen(false)}
@@ -242,7 +265,7 @@ const AccountPage: FC<any> = (): ReactElement => {
           }
         </Slide>
       )}
-      {!open && !slideShow && (
+      {!open && !slideShow && variant && (
         <ButtonTable
           setOpen={setOpen}
           setSlideShow={setSlideShow}

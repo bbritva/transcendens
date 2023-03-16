@@ -1,6 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import authHeader from './authHeader';
 import { userI } from 'src/store/userSlice';
+import { UserInfoPublic } from 'src/store/chatSlice';
 
 const API_URL = process.env.REACT_APP_AUTH_URL +'/user'
 
@@ -12,12 +13,20 @@ class UserService {
     return axios.get(API_URL + '/getMe')
   }
 
+  setUserName(data: {id: string, name: string}) {
+    return axios.patch(API_URL + '/setName', data);
+  }
+
   uploadAvatar(fileData: FormData): Promise<{data:userI}> {
     return axios.post(API_URL + '/upload', fileData);
   }
 
   findAvatar(avatarname: string){
     return axios.get(API_URL + `/avatar/${avatarname}`);
+  }
+
+  getById(id: number, controller: AbortController): Promise<AxiosResponse<UserInfoPublic>> {
+    return axios.get(API_URL + '/' + id, {signal: controller.signal});
   }
 
   getUsers() {
@@ -41,7 +50,9 @@ class UserService {
   }
 
   getStats(id: number) {
-    return axios.get(API_URL + '/stats/' + id);
+    const res = axios.get(API_URL + '/stats/' + id);
+    debugger;
+    return res;
   }
 }
 

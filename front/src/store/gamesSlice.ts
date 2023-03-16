@@ -1,14 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
+import { UserInfoPublic } from "./chatSlice";
 
 
 export interface GameI {
-  id: number
+  id: string
   winnerId: number
   winnerScore: number
   loserId: number
   loserScore: number
+  winner: UserInfoPublic
+  loser: UserInfoPublic
 }
 
 interface gamesStateI {
@@ -32,8 +35,9 @@ const initialState: gamesStateI = {
 
 export const getGames = createAsyncThunk(
   'getGames',
-  async ( userId: number, thunkApi) => {
-      const response = await userService.getStats(userId);
+  async ( data: {userId: number, set: Function}, thunkApi) => {
+      const response = await userService.getStats(data.userId);
+      data.set(true);
       return {
         games: response.data.wins.concat(response.data.loses),
         score: response.data.score,
