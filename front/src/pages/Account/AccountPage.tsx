@@ -36,6 +36,7 @@ import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { extUserState } from "./AccountPageWrapper";
 import socket from "src/services/socket";
 
@@ -106,6 +107,10 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
         sx={{
           color: theme.palette.primary.dark,
           marginLeft: "1rem"
+        }} />
+        <EmojiEventsIcon fontSize="large"
+        sx={{
+          color: theme.palette.primary.dark,
         }} />
       </Box>,
       11 + '',
