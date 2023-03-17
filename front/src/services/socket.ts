@@ -66,8 +66,7 @@ export function initSocket(
   socket.on("leftChannel", (channelName: string) => {
     setChannels((prev: channelFromBackI[]) => {
       const ind = prev.findIndex((el) => el.name === channelName);
-      let res = [...prev];
-
+      const res = [...prev];
       if (ind !== -1) {
         if (channelName.endsWith("pm"))
           return res.filter((channel) => channel.name != channelName);
