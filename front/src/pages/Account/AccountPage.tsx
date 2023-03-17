@@ -140,14 +140,14 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
       res.push({
         component: StyledMenuItem as FC,
         compProps: {
-          onClick: () => navigate("/chat", { replace: true }),
+          onClick: () => navigate("/chat", { replace: false }),
           children: "Message",
         },
       });
       res.push({
         component: StyledMenuItem as FC,
         compProps: {
-          onClick: () => navigate("/game", { replace: true }),
+          onClick: () => navigate("/game", { replace: false }),
           children: "Game",
         },
       });

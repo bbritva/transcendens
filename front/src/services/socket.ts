@@ -60,7 +60,7 @@ export function initSocket(
   socket.on("connectToGame", (game) => {
     if (socket.connected) {
       setGameData(game);
-      navigate("/game", { replace: true });
+      navigate("/game", { replace: false });
     }
   });
 

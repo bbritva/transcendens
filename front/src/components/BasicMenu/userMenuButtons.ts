@@ -1,14 +1,15 @@
-
 import { FC } from "react";
 import {userFromBackI } from "src/pages/Chat/ChatPage";
 import { EventI } from "src/components/DialogSelect/ChannerSettingsDialog";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
+import { NavigateFunction } from "react-router-dom";
 
 function userMenuButtons(
   setOpen: Function,
   setDestination: Function,
-  element: userFromBackI
-){
+  element: userFromBackI,
+  navigate: NavigateFunction
+): any{
   function createUserEvent(eventName: string) {
     const event: EventI = {
       name: eventName,
@@ -35,7 +36,9 @@ function userMenuButtons(
   function createUnbanPersonallyEvent() {
     createUserEvent("unbanPersonally");
   }
-  
+  function navigateToProfile(id: string) {
+    navigate("/account?user=" + id);
+  }
 
   return (
     [
@@ -56,7 +59,7 @@ function userMenuButtons(
       {
         component: StyledMenuItem as FC,
         compProps: {
-          onClick: createAddFriendEvent,
+          onClick: () => navigateToProfile(element.id),
           children: "Profile", //event?
         },
       },

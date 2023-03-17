@@ -1,5 +1,7 @@
-import axios from "axios"
+import { myAxios } from "src";
 import { userI } from "src/store/userSlice";
+import authHeader from "./authHeader";
+import { authRefreshInterceptor } from "./authRefreshInterceptor";
 
 const API_URL = process.env.REACT_APP_AUTH_URL;
 
@@ -10,7 +12,7 @@ class AuthService {
       throw "no Token!";
     const refreshToken = JSON.parse(storageData);
     let urlAuth = API_URL + "/auth/refresh";
-    const response = axios.get(
+    const response = myAxios.get(
       urlAuth,
       {
         headers: {
@@ -24,12 +26,14 @@ class AuthService {
 
   login(accessCode: string, accessState: string) {
     let urlAuth = API_URL + "/auth";
-    const responseData = axios
+    const responseData = myAxios
       .post(urlAuth, {accessCode, accessState})
       .then((response) => {
         if (response.status === 201){
             localStorage.setItem("access_token", JSON.stringify(response.data.access_token));
             localStorage.setItem("refreshToken", JSON.stringify(response.data.refreshToken));
+        // authHeader();
+        // authRefreshInterceptor();
         }
         else {
           throw "Not authorized!";
@@ -41,7 +45,7 @@ class AuthService {
 
   otpGenerateQR() {
     let urlAuth = API_URL + "/auth/2fa/generate";
-    const responseData = axios
+    const responseData = myAxios
       .post(urlAuth, {})
       .then((response) => {
         if (response.status !== 201){
@@ -55,7 +59,7 @@ class AuthService {
   otpTurnOn(twoFaCode: string): Promise<userI> {
 
     let urlAuth = API_URL + "/auth/2fa/turn-on";
-    const responseData = axios
+    const responseData = myAxios
       .post(urlAuth, { twoFaCode })
       .then((response) => {
         if (response.status !== 201){
@@ -71,7 +75,7 @@ class AuthService {
 
   otpTurnOff(twoFaCode: string): Promise<userI> {
     let urlAuth = API_URL + "/auth/2fa/turn-off";
-    const responseData = axios
+    const responseData = myAxios
       .post(urlAuth, { twoFaCode })
       .then((response) => {
         if (response.status !== 201){
@@ -87,12 +91,14 @@ class AuthService {
 
   otpAuth(twoFaCode: string, user: string) {
     let urlAuth = API_URL + "/auth/2fa/auth";
-    const responseData = axios
+    const responseData = myAxios
       .post(urlAuth, { twoFaCode, user })
       .then((response) => {
         if (response.status === 201){
             localStorage.setItem("access_token", JSON.stringify(response.data.access_token));
             localStorage.setItem("refreshToken", JSON.stringify(response.data.refreshToken));
+        // authHeader();
+        // authRefreshInterceptor();
         }
         else {
           throw "Not authorized!";
@@ -103,15 +109,16 @@ class AuthService {
   }
 
   logout() {
+    // debugger;
     const inter = localStorage.getItem("interceptor");
-    axios.interceptors.request.eject(parseInt(inter || ''));
+    myAxios.interceptors.request.eject(parseInt(inter || ''));
     localStorage.removeItem("access_token");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("interceptor");
   }
 
   register(username:string, email:string, password:string) {
-    return axios.post(API_URL + "signup", {
+    return myAxios.post(API_URL + "signup", {
       username,
       email,
       password,

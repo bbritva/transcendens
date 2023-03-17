@@ -6,9 +6,13 @@ import reportWebVitals from 'src/reportWebVitals';
 import 'src/index.css';
 import App from 'src/App';
 import { BrowserRouter } from 'react-router-dom';
+import axios from 'axios';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
+
+export const myAxios = axios.create({
+});
 
 root.render(
   <React.StrictMode>

@@ -12,6 +12,7 @@ import { useAppDispatch } from "src/app/hooks";
 import { Box } from "@mui/system";
 import userMenuButtons from "src/components/BasicMenu/userMenuButtons";
 import channelMenuButtons from "src/components/BasicMenu/channelMenuButtons";
+import { useNavigate } from "react-router-dom";
 
 export interface fromBackI {
   name: string;
@@ -63,6 +64,7 @@ const ChatPage: FC<ChatPageProps> = ({
     "",
     {} as fromBackI,
   ]);
+  const navigate = useNavigate();
   const { getState } = useStore();
   const { user, auth } = getState() as RootState;
   const dispatch = useAppDispatch();
@@ -177,7 +179,7 @@ const ChatPage: FC<ChatPageProps> = ({
           elements={
             channels.find((el) => el.name === chosenChannel.name)?.users || []
           }
-          buttons={userMenuButtons(setOpenUsersDialog, setDestination, chosenUser)}
+          buttons={userMenuButtons(setOpenUsersDialog, setDestination, chosenUser, navigate)}
           openDialog={openUsersDialog}
           setOpenDialog={setOpenUsersDialog}
           chatStyles={chatStyles}

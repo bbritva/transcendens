@@ -43,7 +43,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
     {
       component: StyledMenuItem as FC,
       compProps: {
-        onClick: () => navigate("/account", { replace: true }),
+        onClick: () => navigate("/account", { replace: false }),
         children: user?.name || "Profile",
         key: 1
       }
@@ -51,7 +51,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
     {
       component: StyledMenuItem as FC,
       compProps: {
-        onClick: () => navigate("/", { replace: true }),
+        onClick: () => navigate("/", { replace: false }),
         children: "Home",
         key: 2,
       }
@@ -59,7 +59,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
     {
       component: StyledMenuItem as FC,
       compProps: {
-        onClick: () => navigate("/game", { replace: true }),
+        onClick: () => navigate("/game", { replace: false }),
         children: "Game",
         key: 3
       }
@@ -67,7 +67,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
     {
       component: StyledMenuItem as FC,
       compProps: {
-        onClick: () => navigate("/chat", { replace: true }),
+        onClick: () => navigate("/chat", { replace: false }),
         children: "Chat",
         key: 4
       }

@@ -30,11 +30,9 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
     else if (extUser.status !== 'idle' && id === extUser.id){
       return;
     }
-    let abortController = new AbortController();
 
     async function getExtUser(id: number) {
-      let response = userService.getById(id, abortController);
-      if (!abortController.signal.aborted) {
+      let response = userService.getById(id);
         await response
           .then((userData) => {
             setExtUser({status: 'succeed', id: id, user: userData.data as UserInfoPublic});
@@ -42,7 +40,6 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
           .catch((error) => {
             console.log({error});
           })
-      }
     }
 
     if (id > 0) {
@@ -51,9 +48,6 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
       getExtUser(id);
     }
 
-    return () => {
-      abortController.abort();
-    };
   }, [newUser]);
 
   return <AccountPage key={extUser.id} extUser={extUser} variant={variant}/>;
