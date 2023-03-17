@@ -109,7 +109,6 @@ class AuthService {
   }
 
   logout() {
-    // debugger;
     const inter = localStorage.getItem("interceptor");
     myAxios.interceptors.request.eject(parseInt(inter || ''));
     localStorage.removeItem("access_token");

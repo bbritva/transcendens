@@ -19,7 +19,6 @@ export const authRefreshInterceptor = () => {
         ) {
         // Access Token was expired
         if (err.response.status === 401 && !originalConfig._retry) {
-          // debugger ;
           localStorage.removeItem("access_token");
           originalConfig._retry = true;
           try {
@@ -31,7 +30,6 @@ export const authRefreshInterceptor = () => {
         }
       }
       else  {
-        // debugger;
         dispatch(logout)
       };
       return Promise.reject(err);
