@@ -30,6 +30,11 @@ export interface channelFromBackI extends fromBackI {
   isPrivate: boolean;
 }
 
+export interface userInChannelMovementI {
+  channelName: string;
+  userName: string;
+}
+
 export interface newMessageI {
   id: number | null;
   channelName: string;
@@ -108,12 +113,16 @@ const ChatPage: FC<ChatPageProps> = ({
         marginBottom={"2rem"}
         sx={{ display: { xs: "none", sm: "none", md: "block" } }}
       >
-        <OneColumnTable 
+        <OneColumnTable
           taper="CHANNELS"
           user={user.user}
           loading={loading}
           elements={channels}
-          buttons={channelMenuButtons(setOpenChannelsDialog, setDestination, chosenChannel)}
+          buttons={channelMenuButtons(
+            setOpenChannelsDialog,
+            setDestination,
+            chosenChannel
+          )}
           openDialog={openChannelsDialog}
           setOpenDialog={setOpenChannelsDialog}
           chatStyles={chatStyles}
@@ -172,7 +181,11 @@ const ChatPage: FC<ChatPageProps> = ({
           elements={
             channels.find((el) => el.name === chosenChannel.name)?.users || []
           }
-          buttons={userMenuButtons(setOpenUsersDialog, setDestination, chosenUser)}
+          buttons={userMenuButtons(
+            setOpenUsersDialog,
+            setDestination,
+            chosenUser
+          )}
           openDialog={openUsersDialog}
           setOpenDialog={setOpenUsersDialog}
           chatStyles={chatStyles}

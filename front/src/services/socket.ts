@@ -1,9 +1,15 @@
-import { Dispatch } from '@reduxjs/toolkit';
-import { io } from 'socket.io-client';
-import { channelFromBackI, fromBackI, newMessageI, userFromBackI } from 'src/pages/Chat/ChatPage';
-import { GameStateDataI } from 'src/pages/Game/components/game/game';
-import { logout } from 'src/store/authActions';
-import { setBanned, setUsers, UserInfoPublic } from 'src/store/chatSlice';
+import { Dispatch } from "@reduxjs/toolkit";
+import { io } from "socket.io-client";
+import {
+  channelFromBackI,
+  fromBackI,
+  newMessageI,
+  userFromBackI,
+  userInChannelMovementI,
+} from "src/pages/Chat/ChatPage";
+import { GameStateDataI } from "src/pages/Game/components/game/game";
+import { logout } from "src/store/authActions";
+import { setBanned, setUsers, UserInfoPublic } from "src/store/chatSlice";
 
 const URL = process.env.REACT_APP_AUTH_URL || "";
 const socket = io(URL, { autoConnect: false });
@@ -11,7 +17,6 @@ const socket = io(URL, { autoConnect: false });
 export function initSocket(
   navigate: Function,
   setGameData: Function,
-  // gameData: InitialGameDataI | null,
   setChannels: Function,
   dispatch: Dispatch
 ) {
@@ -25,29 +30,74 @@ export function initSocket(
     setChannels(channels);
   });
 
-  socket.on("userConnected", (channelName: string, userName: string) => {
+  socket.on("userConnected", (channelName: string, user: userFromBackI) => {
     setChannels((prev: channelFromBackI[]) => {
       const channelInd = prev.findIndex((el) => el.name === channelName);
       if (channelInd !== -1) {
         const res = [...prev];
         const userInd = res[channelInd].users.findIndex(
-          (el) => el.name === userName
+          (el) => el.name === user.name
         );
-        if (userInd === -1) return prev;
-        res[channelInd].users[userInd].connected = true;
+        if (userInd === -1) {
+          user.connected = true;
+          res[channelInd].users.push(user);
+        } else {
+          res[channelInd].users[userInd].connected = true;
+        }
         return res;
       }
       return prev;
     });
   });
 
-  socket.on("joinedToChannel", (channel: channelFromBackI) => {
+  socket.on("channelInfo", (channel: channelFromBackI) => {
     setChannels((prev: channelFromBackI[]) => {
       const ind = prev.findIndex((el) => el.name === channel.name);
       const res = [...prev];
       channel.connected = true;
       if (ind !== -1) res[ind] = channel;
       else res.push(channel);
+      return res;
+    });
+  });
+
+  socket.on("leftChannel", (channelName: string) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        res[ind].connected = false;
+        res[ind].messages = [];
+        res[ind].users = [];
+      }
+      return res;
+    });
+  });
+
+  socket.on("userLeft", (data: userInChannelMovementI) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === data.channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        res[ind].users = res[ind].users.filter(
+          (user) => user.name != data.userName
+        );
+      }
+      return res;
+    });
+  });
+
+  socket.on("userDisconnected", (data: userInChannelMovementI) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === data.channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        for (const user of res[ind].users) {
+          if (user.name == data.userName) {
+            user.connected = false;
+          }
+        }
+      }
       return res;
     });
   });
@@ -86,7 +136,6 @@ export function initSocket(
     console.log("newFriend", data);
   });
 
-
   socket.on("userMuted", (data: fromBackI) => {
     console.log("userMuted", data);
   });
@@ -99,11 +148,9 @@ export function initSocket(
     console.log("userUnmuted", data);
   });
 
-
   socket.on("userUnbanned", (data: fromBackI) => {
     console.log("userUnbanned", data);
   });
-
 
   socket.on("userKicked", (data: fromBackI) => {
     console.log("userKicked", data);
@@ -113,24 +160,24 @@ export function initSocket(
     console.log("exFriend", data);
   });
 
-  socket.on("friendList",(data: UserInfoPublic[]) => {
+  socket.on("friendList", (data: UserInfoPublic[]) => {
     dispatch(setUsers(data));
     console.log("friendList", data);
-  })
+  });
 
-  socket.on("newPersonnalyBanned",(data: UserInfoPublic) => {
+  socket.on("newPersonnalyBanned", (data: UserInfoPublic) => {
     dispatch(setBanned([data]));
     console.log("newPersonnalyBanned", data);
-  })
+  });
 
   socket.on("exPersonnalyBanned", (data: fromBackI) => {
     console.log("exPersonnalyBanned", data);
   });
 
-  socket.on("personallyBannedList",(data: UserInfoPublic[]) => {
+  socket.on("personallyBannedList", (data: UserInfoPublic[]) => {
     dispatch(setBanned(data));
     console.log("personallyBannedList", data);
-  })
+  });
 
   socket.on("nameAvailable", (data: fromBackI) => {
     console.log("nameAvailable", data);
@@ -159,7 +206,7 @@ export function initSocket(
   setTimeout(() => {
     socket.emit("getFriends");
     socket.emit("getPersonallyBanned");
-  }, 1000)
+  }, 1000);
 }
 
 export default socket;

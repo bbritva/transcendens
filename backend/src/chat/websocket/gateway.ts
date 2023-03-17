@@ -10,7 +10,6 @@ import { Server, Socket } from "socket.io";
 import { CreateMessageDTO } from "src/chat/message/dto/create-message.dto";
 import * as DTO from "./websocket.dto";
 import { GatewayService } from "./gateway.service";
-import { GameResultDto } from "src/game/dto/create-game.dto";
 
 @WebSocketGateway({
   cors: true,
@@ -42,12 +41,12 @@ export class Gateway implements OnModuleInit {
     });
   }
 
-  @SubscribeMessage("connectToChannel")
-  async onConnectToChannel(
+  @SubscribeMessage("joinChannel")
+  async onJoinChannel(
     @ConnectedSocket() socket: Socket,
     @MessageBody() channelIn: DTO.ChannelInfoIn
   ) {
-    this.gatewayService.connectToChannel(socket.id, channelIn);
+    this.gatewayService.joinChannel(socket.id, channelIn);
   }
 
   @SubscribeMessage("leaveChannel")
