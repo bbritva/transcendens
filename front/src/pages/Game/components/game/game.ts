@@ -305,7 +305,6 @@ class Game {
     this.leftPaddle.paddleY = initData.playerSecond.paddleY
       ? initData.playerSecond.paddleY
       : this.leftPaddle.initY;
-    console.log(this.rightPaddle);
 
     this.leftPaddle.playerName =
       this.myRole == role.FIRST
@@ -325,7 +324,7 @@ class Game {
     this.ball.y = initData.ball.y ? initData.ball.y : 0.5;
     this.ball.speedX = initData.ball.speedX
       ? initData.ball.speedX
-      : this.ball.speedH;
+      :  - this.ball.speedH;
     this.ball.speedY = initData.ball.speedY
       ? initData.ball.speedY
       : -this.ball.speedV;
