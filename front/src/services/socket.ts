@@ -18,6 +18,7 @@ export function initSocket(
   navigate: Function,
   setGameData: Function,
   setChannels: Function,
+  setNotifyMessage: Function,
   dispatch: Dispatch
 ) {
   socket.on("connectError", (err) => {
@@ -196,10 +197,18 @@ export function initSocket(
   });
 
   socket.on("notAllowed", (data: any) => {
+    setNotifyMessage(data.cause)
+    console.log(data);
+  });
+
+  socket.on("declineInvite", (data: any) => {
+    setNotifyMessage(data.cause)
     console.log(data);
   });
 
   socket.on("executionError", (data: any) => {
+    setNotifyMessage(data.cause)
+
     console.log(data);
   });
 
