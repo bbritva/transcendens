@@ -96,7 +96,7 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
   }, [status]);
 
   useEffect(() => {
-    if (games.status !== 'loading' && (extUser.user.id || username)) {
+    if (extUser.user.id && extUser.status === 'succeed') {
       dispatch(getGames({ userId: parseInt(extUser.user.id), set: setStatus }));
     }
   }, [extUser.user.id]);

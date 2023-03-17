@@ -20,16 +20,6 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
 
   let newUser = searchParams.get("user");
 
-  useEffect(() => {
-    let id = parseInt(newUser || '');
-    if (isNaN(id)){
-      setVariant(true);
-      setExtUser({status: 'idle', id: 0, user: user || {} as UserInfoPublic});
-      return;
-    }
-    else if (extUser.status !== 'idle' && id === extUser.id){
-      return;
-    }
 
     async function getExtUser(id: number) {
       let response = userService.getById(id);
@@ -42,10 +32,16 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
           })
     }
 
-    if (id > 0) {
+  useEffect(() => {
+    let id = parseInt(newUser || '');
+    if (!isNaN(id) && id > 0) {
       setVariant(false);
       setExtUser({status: 'loading', id: id, user:{} as UserInfoPublic});
       getExtUser(id);
+    }
+    else{
+      setVariant(true);
+      setExtUser({status: 'succeed', id: 0, user: user || {} as UserInfoPublic});
     }
 
   }, [newUser]);
