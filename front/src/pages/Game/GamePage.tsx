@@ -10,7 +10,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
@@ -48,6 +48,7 @@ const GamePage: FC<GamePageProps> = ({
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
+  const [gameSingle, setGameSingle] = useState<boolean>(false);
   const [isPaused, setPaused] = useState<boolean>(false);
   const [isRivalOffline, setRivalOffline] = useState<boolean>(false);
   const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
@@ -127,8 +128,10 @@ const GamePage: FC<GamePageProps> = ({
         Game.setGameData(
           canvasRef.current,
           testUsername || user.user?.name || "",
-          gameData, webcamRef
+          gameData,
+          webcamRef
         );
+        setGameSingle(gameData.gameName == "single");
       }
     }
   }
@@ -220,6 +223,12 @@ const GamePage: FC<GamePageProps> = ({
     setRivalOffline(false);
   }
 
+  function finishSingleGame() {
+    Game.finishGameManual("drop");
+    setRivalOffline(false);
+    setGameSingle(false);
+  }
+
   return (
     <Box
       component={Paper}
@@ -228,7 +237,7 @@ const GamePage: FC<GamePageProps> = ({
       flex={"wrap"}
       flexDirection={"column"}
       maxWidth={"md"}
-      width = {"0.9"}
+      width={"0.9"}
     >
       <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
         {declined ? (
@@ -419,7 +428,6 @@ const GamePage: FC<GamePageProps> = ({
           onClick={() => {
             setPlayerController("Hand");
             Game.setMouseControl(false);
-
           }}
         />
         <Button
@@ -496,6 +504,13 @@ const GamePage: FC<GamePageProps> = ({
           disabled={!isPauseAvailable}
           size="large"
           onClick={clickPause}
+        />
+        <Button
+          children={"finish game"}
+          variant={"outlined"}
+          disabled={!gameSingle}
+          size="large"
+          onClick={finishSingleGame}
         />
       </Grid>
     </Box>
