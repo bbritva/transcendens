@@ -14,7 +14,7 @@ import {
   Slide,
   useTheme,
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useSelector, useStore } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
 import { userI } from "src/store/userSlice";
 import BasicTable, {
@@ -38,6 +38,7 @@ import fakeAvatar from "src/assets/logo192.png";
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
 import { extUserState } from "./AccountPageWrapper";
 import socket from "src/services/socket";
+import { RootState } from "src/store/store";
 
 function createHistoryData(
   score: string,
@@ -70,16 +71,18 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
   const [historyRows, setHistoryRows] = useState<matchHistoryRowI[]>([]);
   const username = sessionStorage.getItem("username");
   let [searchParams, setSearchParams] = useSearchParams();
-  const { games, winsNum, losesNum, score } = useSelector(selectGames);
+  const { winsNum, losesNum, score } = useSelector(selectGames);
   const friends = useSelector(selectFriends) || [];
   const [status, setStatus] = useState(false);
+  const {getState} = useStore();
+  const {games} = getState() as RootState;
 
 
   useEffect(() => {
     if (status) {
       console.log(games);
       setHistoryRows(
-        games.map((game) =>
+        games.games.map((game) =>
           createHistoryData(
             `${game.winnerScore} : ${game.loserScore}`,
             game.winnerId == parseInt(extUser.user?.id || "") ? "win" : "lose",
@@ -90,10 +93,13 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
         )
       );
     }
-    else if (!status && (extUser.user.id || username)) {
+  }, [status]);
+
+  useEffect(() => {
+    if (games.status !== 'loading' && (extUser.user.id || username)) {
       dispatch(getGames({ userId: parseInt(extUser.user.id), set: setStatus }));
     }
-  }, [status, extUser.user.id]);
+  }, [extUser.user.id]);
 
   const playerRows = [
     createPlayerData("Total wins: ", winsNum + "", '2'),
