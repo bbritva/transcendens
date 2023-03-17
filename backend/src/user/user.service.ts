@@ -130,7 +130,6 @@ export class UserService {
         },
       })
       .then((ret: UserEntity) => {
-        this.filterUserdata(ret);
         if (includeGames) {
           for (const game of ret.wins) {
             this.filterUserdata(game.winner);
