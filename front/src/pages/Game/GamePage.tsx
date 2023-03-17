@@ -2,6 +2,7 @@ import { ReactElement, FC, useRef, useEffect, useState } from "react";
 import {
   Box,
   Button,
+  Dialog,
   DialogTitle,
   FormControl,
   FormControlLabel,
@@ -121,7 +122,7 @@ const GamePage: FC<GamePageProps> = ({
     }
   }, [gameData]);
 
-  function startGame(gameData: GameStateDataI, isMouse: boolean = true) {
+  function startGame(gameData: GameStateDataI) {
     const canvas = canvasRef.current;
     if (canvas) {
       if (gameData && (testUsername || user.user?.name)) {
@@ -358,10 +359,9 @@ const GamePage: FC<GamePageProps> = ({
           </Button>
         </Box>
       </DialogSelect>
-      <DialogSelect
-        options={{}}
+      <Dialog disableEscapeKeyDown
         open={isRivalOffline}
-        setOpen={setRivalOffline}
+        onClose={setRivalOffline}
       >
         <Box
           margin={"1rem"}
@@ -408,7 +408,7 @@ const GamePage: FC<GamePageProps> = ({
             Finish game {isEndGameAvailable ? "" : `(${endGameTimeout})`}
           </Button>
         </Box>
-      </DialogSelect>
+      </Dialog>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"Mouse"}

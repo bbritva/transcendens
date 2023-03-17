@@ -305,7 +305,6 @@ class Game {
     this.leftPaddle.paddleY = initData.playerSecond.paddleY
       ? initData.playerSecond.paddleY
       : this.leftPaddle.initY;
-    console.log(this.rightPaddle);
 
     this.leftPaddle.playerName =
       this.myRole == role.FIRST
@@ -528,8 +527,7 @@ class Game {
     if (
       !this.canvas ||
       this.gameState.gameName == "single" ||
-      this.gameState.gameName == "demo" ||
-      Game.isPaused
+      this.gameState.gameName == "demo"
     )
       return;
 
