@@ -130,7 +130,7 @@ async function main() {
       status: "OFFLINE",
       image:"https://cdn.intra.42.fr/users/202255b82453593a913e7b6a0ee2f2d0/ddiakova.jpg",
       friendIds: [5, 73725, 9, 8, 7, 6],
-      bannedIds: [2, 4, 73725, 7],
+      bannedIds: [2, 4, 7],
       score: 55,
     },
   });

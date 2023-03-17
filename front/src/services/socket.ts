@@ -76,8 +76,8 @@ export function initSocket(
     console.log("userStat", data);
   });
 
-  socket.on("newFriend", (data: fromBackI) => {
-    console.log("newFriend", data);
+  socket.on("newFriend", (data: UserInfoPublic) => {
+    dispatch(setFriends([data]));
   });
 
 
@@ -113,7 +113,6 @@ export function initSocket(
 
   socket.on("newPersonnalyBanned",(data: UserInfoPublic) => {
     dispatch(setBanned([data]));
-    console.log("newPersonnalyBanned", data);
   })
 
   socket.on("exPersonnalyBanned", (data: UserInfoPublic) => {
@@ -122,7 +121,6 @@ export function initSocket(
 
   socket.on("personallyBannedList",(data: UserInfoPublic[]) => {
     dispatch(setBanned(data));
-    console.log("personallyBannedList", data);
   })
 
   socket.on("nameAvailable", (data: fromBackI) => {

@@ -27,7 +27,7 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     setFriends(state, action: PayloadAction<UserInfoPublic[]>) {
-      state.friends = action.payload;
+      state.friends = state.friends.concat(action.payload);
     },
     deleteFriend(state, action: PayloadAction<UserInfoPublic>) {
       state.friends = state.friends.filter((friend) => friend.id !== action.payload.id);
