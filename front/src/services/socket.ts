@@ -141,12 +141,10 @@ export function initSocket(
       message: `${data.name} added to your friends`,
       severity: "success",
     });
-    console.log("newFriend", data);
   });
 
   socket.on("userMuted", (data: fromBackI) => {
     setNotify({ message: `you muted ${data.name}`, severity: "success" });
-    console.log("userMuted", data);
   });
 
   socket.on("userBanned", (data: fromBackI) => {
@@ -154,22 +152,18 @@ export function initSocket(
       message: `you banned ${data.name}`,
       severity: "success",
     });
-    console.log("userBanned", data);
   });
 
   socket.on("userUnmuted", (data: fromBackI) => {
     setNotify({ message: `you unmuted ${data.name}`, severity: "success" });
-    console.log("userUnmuted", data);
   });
 
   socket.on("userUnbanned", (data: fromBackI) => {
     setNotify({ message: `you unbanned ${data.name}`, severity: "success" });
-    console.log("userUnbanned", data);
   });
 
   socket.on("userKicked", (data: fromBackI) => {
     setNotify({ message: `you kicked ${data.name}`, severity: "success" });
-    console.log("userKicked", data);
   });
 
   socket.on("exFriend", (data: fromBackI) => {
@@ -187,12 +181,10 @@ export function initSocket(
   socket.on("newPersonnalyBanned", (data: UserInfoPublic) => {
     dispatch(setBanned([data]));
     setNotify({ message: `you banned ${data.name}`, severity: "success" });
-    console.log("newPersonnalyBanned", data);
   });
 
   socket.on("exPersonnalyBanned", (data: fromBackI) => {
     setNotify({ message: `you unbanned ${data.name}`, severity: "success" });
-    console.log("exPersonnalyBanned", data);
   });
 
   socket.on("personallyBannedList", (data: UserInfoPublic[]) => {
@@ -218,12 +210,10 @@ export function initSocket(
 
   socket.on("notAllowed", (data: any) => {
     setNotify({ message: data.cause, severity: "warning" });
-    console.log("notAllowed", data);
   });
 
   socket.on("declineInvite", (data: any) => {
     setNotify({ message: data.cause, severity: "warning" });
-    console.log(data);
   });
 
   socket.on("executionError", (data: any) => {
