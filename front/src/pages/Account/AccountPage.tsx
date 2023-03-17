@@ -101,8 +101,12 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
     createPlayerData("Total score: ", score + "", '1'),
     createPlayerData(
       <Box display="flex" alignItems="center">
-        <SportsCricketIcon color="primary" fontSize="large" />
-        Rating:
+        Rating 
+        <SportsCricketIcon fontSize="large"
+        sx={{
+          color: theme.palette.primary.dark,
+          marginLeft: "1rem"
+        }} />
       </Box>,
       11 + '',
       '4'
