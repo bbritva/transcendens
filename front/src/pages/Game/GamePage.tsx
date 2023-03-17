@@ -57,8 +57,7 @@ const GamePage: FC<GamePageProps> = ({
   const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
   const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
-  const [singlePlayerRival, setSinglePlayerRival] =
-    useState<string>("AI");
+  const [playerController, setPlayerController] = useState<string>("Mouse");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
     useState<boolean>(false);
@@ -68,7 +67,7 @@ const GamePage: FC<GamePageProps> = ({
   const { user } = getState() as RootState;
   const theme = useTheme();
 
-  // const webcamRef = useRef<Webcam>(null);
+  const webcamRef = useRef<Webcam>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -76,6 +75,7 @@ const GamePage: FC<GamePageProps> = ({
       Game.startGame(
         canvas,
         testUsername || user.user?.name || "",
+        webcamRef,
         setGameOngoing,
         setGameResult
       );
@@ -120,14 +120,14 @@ const GamePage: FC<GamePageProps> = ({
     }
   }, [gameData]);
 
-  function startGame(gameData: GameStateDataI) {
+  function startGame(gameData: GameStateDataI, isMouse: boolean = true) {
     const canvas = canvasRef.current;
     if (canvas) {
       if (gameData && (testUsername || user.user?.name)) {
         Game.setGameData(
           canvasRef.current,
           testUsername || user.user?.name || "",
-          gameData
+          gameData, webcamRef
         );
       }
     }
@@ -211,7 +211,7 @@ const GamePage: FC<GamePageProps> = ({
     setGameResult("");
   }
 
-  function onEndGameOptionChange(value : string) {
+  function onEndGameOptionChange(value: string) {
     setEndGameOption(value);
   }
 
@@ -367,7 +367,9 @@ const GamePage: FC<GamePageProps> = ({
               defaultValue="meWinner"
               name="gameEndOptions"
               value={endGameOption}
-              onChange={(_event, value) => {onEndGameOptionChange(value)}}
+              onChange={(_event, value) => {
+                onEndGameOptionChange(value);
+              }}
             >
               <FormControlLabel
                 value="meWinner"
@@ -394,24 +396,31 @@ const GamePage: FC<GamePageProps> = ({
             onClick={finishGame}
             disabled={!isEndGameAvailable}
           >
-            Finish game {(isEndGameAvailable ? "" : `(${endGameTimeout})`)}
+            Finish game {isEndGameAvailable ? "" : `(${endGameTimeout})`}
           </Button>
         </Box>
       </DialogSelect>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
-          children={"play VS AI"}
+          children={"Mouse"}
           variant={"outlined"}
-          disabled={singlePlayerRival == "AI" || gameOngoing}
+          disabled={playerController == "Mouse" || gameOngoing}
           size="large"
-          onClick={() => setSinglePlayerRival("AI")}
+          onClick={() => {
+            setPlayerController("Mouse");
+            Game.setMouseControl(true);
+          }}
         />
         <Button
-          children={"play VS hand"}
+          children={"Hand"}
           variant={"outlined"}
           size="large"
-          disabled={singlePlayerRival == "hand" || gameOngoing}
-          onClick={() => setSinglePlayerRival("hand")}
+          disabled={playerController == "Hand" || gameOngoing}
+          onClick={() => {
+            setPlayerController("Hand");
+            Game.setMouseControl(false);
+
+          }}
         />
         <Button
           children={"Single player"}
@@ -427,7 +436,7 @@ const GamePage: FC<GamePageProps> = ({
                 paddleY: 0,
               },
               playerSecond: {
-                name: singlePlayerRival,
+                name: "ClapTrapAI",
                 score: 0,
                 paddleY: 0,
               },
@@ -461,7 +470,7 @@ const GamePage: FC<GamePageProps> = ({
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <CanvasR canvasRef={canvasRef} />
-        {/* <Webcam
+        <Webcam
           ref={webcamRef}
           style={{
             position: "absolute",
@@ -475,7 +484,7 @@ const GamePage: FC<GamePageProps> = ({
             height: 480,
             visibility: "hidden",
           }}
-        /> */}
+        />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
