@@ -5,7 +5,8 @@ import socket from 'src/services/socket';
 import { StyledMenuButton } from '../NavButton/StyledNavButton';
 import { useNavigate } from 'react-router-dom';
 import { NameSuggestionInfoI } from 'src/pages/Chat/ChatPage';
-import { Typography, useTheme } from '@mui/material';
+import { InputAdornment, Typography, useTheme } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function AutocompleteSearch() {
   const [value, setValue] = React.useState<string | null>(null);
@@ -16,10 +17,6 @@ export default function AutocompleteSearch() {
   socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
     setOptions(data);
   });
-
-  const labelStyle = {
-      color: theme.palette.secondary.main, 
-    };
 
   return (
     <Autocomplete
@@ -56,20 +53,29 @@ export default function AutocompleteSearch() {
           </StyledMenuButton>
         </li>}
       sx={{ width: 300, 
-      backgroundColor: theme.palette.primary.main }}
+      display: 'flex', 
+      flexDirection: 'column',
+      justifyContent:'center',
+      [theme.breakpoints.only("xs")]: {
+        width: 150
+    },
+      "& #free-solo-with-text-demo": {
+        color: theme.palette.secondary.main,
+      },
+    }}
       freeSolo
       renderInput={(params) => {
-        return <Typography variant="subtitle2">
+        return <Typography variant="subtitle2" >
         <TextField 
-        {...params} label="Search user..." style={labelStyle}
+        {...params}  
         variant='standard'
-        sx={{
-          fieldset: {
-            borderColor: theme.palette.secondary.main,
-          },
-          input: {
-            color: theme.palette.secondary.main,
-          }
+        color='secondary'
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon color='secondary'/>
+            </InputAdornment>
+          ),
         }}
         />
         </Typography>;
@@ -78,9 +84,4 @@ export default function AutocompleteSearch() {
   );
 }
 
-interface FilmOptionType {
-  inputValue?: string;
-  title: string;
-  year?: number;
-}
 
