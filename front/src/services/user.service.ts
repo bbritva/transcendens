@@ -3,6 +3,7 @@ import authHeader from './authHeader';
 import { userI } from 'src/store/userSlice';
 import { UserInfoPublic } from 'src/store/chatSlice';
 import { myAxios } from 'src';
+import { fromBackI } from 'src/pages/Chat/ChatPage';
 
 const API_URL = process.env.REACT_APP_AUTH_URL +'/user'
 
@@ -32,6 +33,10 @@ class UserService {
 
   getUsers() {
     return myAxios.get("https://swapi.dev/api" + '/starships');
+  }
+
+  getLadder(): Promise<AxiosResponse<fromBackI[]>> {
+    return myAxios.get(API_URL + '/ladder')
   }
 
   getPublicContent() {

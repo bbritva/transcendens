@@ -32,7 +32,7 @@ import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { selectBanned, selectFriends, UserInfoPublic } from "src/store/chatSlice";
-import { getGames, selectGames } from "src/store/gamesSlice";
+import { getGames, getLadder, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
@@ -77,6 +77,7 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
   const [status, setStatus] = useState(false);
   const {getState} = useStore();
   const {games} = getState() as RootState;
+  const [rating , setRating] = useState<string>('0');
 
 
   useEffect(() => {
@@ -87,8 +88,7 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
           createHistoryData(
             `${game.winnerScore} : ${game.loserScore}`,
             game.winnerId == parseInt(extUser.user?.id || "") ? "win" : "lose",
-            // game.winnerId == parseInt(extUser.user?.id || "") ? game.loser.name : game.winner.name,
-            `${game.id}`,
+            game.winnerId == parseInt(extUser.user?.id || "") ? game.loser.name : game.winner.name,
             game.id
           )
         )
@@ -97,10 +97,20 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
   }, [status]);
 
   useEffect(() => {
-    if (extUser.user.id && extUser.status === 'succeed') {
+    if (extUser.user.id && extUser.status !== 'loading') {
       dispatch(getGames({ userId: parseInt(extUser.user.id), set: setStatus }));
+      dispatch(getLadder());
     }
   }, [extUser.user.id]);
+
+  useEffect(() => {
+    if (games?.ladder?.length)
+      setRating(
+        (games.ladder.findIndex((player) => 
+          player.id + '' === extUser.user.id + ''
+        ) + 1) + ''
+    )
+  }, [games.ladder?.length])
 
   const playerRows = [
     createPlayerData("Total wins: ", winsNum + "", '2'),
@@ -119,7 +129,7 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
           color: theme.palette.primary.dark,
         }} />
       </Box>,
-      11 + '',
+      rating,
       '4'
     ),
   ];
