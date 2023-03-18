@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { myAxios } from 'src';
 import { logout, refresh } from 'src/store/authActions';
 import { store } from 'src/store/store'
 
@@ -6,7 +6,7 @@ const API_URL = process.env.REACT_APP_AUTH_URL;
 
 export const authRefreshInterceptor = () => {
   const { dispatch } = store;
-  axios.interceptors.response.use(
+  myAxios.interceptors.response.use(
     (res) => {
       return res;
     },
@@ -23,13 +23,15 @@ export const authRefreshInterceptor = () => {
           originalConfig._retry = true;
           try {
             await dispatch(refresh()).unwrap();
-            return axios(originalConfig);
+            return myAxios(originalConfig);
           } catch (_error) {
             return Promise.reject(_error);
           }
         }
       }
-      else  dispatch(logout);
+      else  {
+        dispatch(logout)
+      };
       return Promise.reject(err);
     }
   );

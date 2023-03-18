@@ -19,6 +19,8 @@ export class AuthRefreshTokenUserDto {
   username : string
   @ApiProperty()
   refreshToken : string
+  @ApiProperty()
+  id: number 
 }
 
 

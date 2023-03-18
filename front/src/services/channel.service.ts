@@ -1,14 +1,13 @@
-import axios from 'axios';
+import { myAxios } from "src";
 
 const API_URL = process.env.REACT_APP_AUTH_URL + '/channel';
-
 class ChannelService {
   get(id: string) {
-    return axios.get(API_URL + '/' + id)
+    return myAxios.get(API_URL + '/' + id)
   }
 
   create(name: string, ownerId: string) {
-    return axios.post(
+    return myAxios.post(
       API_URL + 'connect',
       {
         name,
@@ -18,7 +17,7 @@ class ChannelService {
   }
 
   setName(oldName: string, newName: string) {
-    return axios.post(
+    return myAxios.post(
       API_URL + 'connect',
       {
         oldName,

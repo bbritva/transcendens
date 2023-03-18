@@ -21,6 +21,8 @@ import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
 import CanvasR from "./components/CanvasR";
 
+
+
 export interface point {
   x: number;
   y: number;
@@ -241,7 +243,10 @@ const GamePage: FC<GamePageProps> = ({
       flex={"wrap"}
       flexDirection={"column"}
       maxWidth={"md"}
-      width={"0.9"}
+      width = {"0.9"}
+      sx={{
+        backgroundColor: theme.palette.secondary.main,
+      }}
     >
       <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
         {declined ? (

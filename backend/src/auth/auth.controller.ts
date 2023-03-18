@@ -58,11 +58,12 @@ export class AuthController {
     required: true,
     type: AuthRefreshTokenDto,
   })
+
   @Public()
   @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   refreshTokens(@Request() req : AuthRefreshTokenDto) {
-    return this.authService.refreshTokens(req.user.username, req.user.refreshToken);
+    return this.authService.refreshTokens(req.user.id, req.user.username, req.user.refreshToken);
   }
 
   @Post('2fa/generate')

@@ -801,7 +801,7 @@ export class GatewayService {
       return false;
     }
     if (!channelIn.password) channelIn.password = "";
-    return bcrypt
+    return !channel.password || bcrypt
       .compare(channelIn.password, channel.password)
       .then((isMatch) => {
         if (isMatch) return true;
@@ -814,7 +814,8 @@ export class GatewayService {
         return false;
       })
       .catch((e) => {
-        throw e;
+        console.log(e.cause);
+        return false;
       });
   }
 
