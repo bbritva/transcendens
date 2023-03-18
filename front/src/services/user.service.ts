@@ -10,8 +10,6 @@ const API_URL = process.env.REACT_APP_AUTH_URL +'/user'
 class UserService {
 
   getMe() {
-    const storageData = localStorage.getItem('access_token') || '{}';
-    const token = JSON.parse(storageData);
     return myAxios.get(API_URL + '/getMe')
   }
 

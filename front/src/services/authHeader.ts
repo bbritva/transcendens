@@ -4,7 +4,7 @@ export default function authHeader() {
   const headers = {'authorization': ''};
   const interceptor = myAxios.interceptors.request.use(
     config => {
-      const storageData = localStorage.getItem('access_token') || undefined;
+      const storageData = JSON.parse(localStorage.getItem('access_token') || '') || undefined;
       if (storageData){
         const token = JSON.parse(storageData);
         // for Node.js Express back-end

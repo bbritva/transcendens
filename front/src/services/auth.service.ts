@@ -7,7 +7,7 @@ const API_URL = process.env.REACT_APP_AUTH_URL;
 
 class AuthService {
   refresh() {
-    const storageData = localStorage.getItem('refreshToken') || undefined;
+    const storageData = JSON.parse(localStorage.getItem('refreshToken') || '') || undefined;
     if (! storageData)
       throw "no Token!";
     const refreshToken = JSON.parse(storageData);
