@@ -102,9 +102,14 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
   useEffect(() => {
     if (extUser.user.id && extUser.status !== 'loading') {
       dispatch(getGames({ userId: parseInt(extUser.user.id), set: setStatus }));
-      dispatch(getLadder());
     }
   }, [extUser.user.id]);
+
+  useEffect(() => {
+    if (status && extUser.user.id && extUser.status !== 'loading') {
+      dispatch(getLadder());
+    }
+  }, [status]);
 
   useEffect(() => {
     if (games?.ladder?.length)
