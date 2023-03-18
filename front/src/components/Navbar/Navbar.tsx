@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { Typography, AppBar, Box, useTheme } from "@mui/material";
+import { Typography, AppBar, Box, useTheme, Switch } from "@mui/material";
 import { routes } from "src/routes";
 import { GridLogo } from "src/components/Logo/GridLogo";
 import { selectUser } from "src/store/userSlice";
@@ -11,6 +11,8 @@ import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
 import { FC, useEffect, useState } from "react";
 import AutocompleteSearch from "../Autocomplete/AutocompleteSearch";
+import { useAppDispatch } from "src/app/hooks";
+import { selectMode, switchMode } from "src/store/colorModeSlice";
 
 interface NavbarProps {
   loginButtonText: string;
@@ -20,12 +22,13 @@ interface NavbarProps {
 
 
 function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
-  // const [anchorNav, setAnchorNav] = useState(null); //will use it for menu
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
   const myHeight = "10vh";
   const navigate = useNavigate();
   const [avatarSource, setAvatarSource] = useState<string>('');
+  const dispatch = useAppDispatch();
+  const mode = useSelector(selectMode);
 
   useEffect(() => {
     const test = user?.avatar;
@@ -97,6 +100,12 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
             user={user}
             render={() =>
               <>
+                <Switch
+                  checked={ mode === 'dark'} 
+                  onClick={() => {
+                    dispatch(switchMode())
+                  }}
+                />
                 <AutocompleteSearch />
                 <BasicMenu
                   mychildren={buttons}
