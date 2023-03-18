@@ -10,7 +10,8 @@ import {
   Radio,
   RadioGroup,
   TextField,
-  useTheme
+  Typography,
+  useTheme,
 } from "@mui/material";
 import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
@@ -19,8 +20,6 @@ import { useStore } from "react-redux";
 import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
 import CanvasR from "./components/CanvasR";
-
-
 
 export interface point {
   x: number;
@@ -59,8 +58,7 @@ const GamePage: FC<GamePageProps> = ({
   const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
   const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
-  const [singlePlayerRival, setSinglePlayerRival] =
-    useState<string>("AI");
+  const [singlePlayerRival, setSinglePlayerRival] = useState<string>("AI");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
     useState<boolean>(false);
@@ -213,7 +211,7 @@ const GamePage: FC<GamePageProps> = ({
     setGameResult("");
   }
 
-  function onEndGameOptionChange(value : string) {
+  function onEndGameOptionChange(value: string) {
     setEndGameOption(value);
   }
 
@@ -230,7 +228,7 @@ const GamePage: FC<GamePageProps> = ({
       flex={"wrap"}
       flexDirection={"column"}
       maxWidth={"md"}
-      width = {"0.9"}
+      width={"0.9"}
       sx={{
         backgroundColor: theme.palette.secondary.main,
       }}
@@ -263,46 +261,47 @@ const GamePage: FC<GamePageProps> = ({
             flexDirection={"column"}
             alignItems={"flex-start"}
           >
-            <DialogTitle>Invite 2nd player</DialogTitle>
+            <DialogTitle>Invite a 2nd player</DialogTitle>
             <TextField
-              label={"player nickname"}
+              label={"enter player's nickname"}
               onChange={onChange}
               margin="dense"
-            />
-            <Button
-              variant="outlined"
               sx={{
-                alignSelf: "end",
+                fieldset: {
+                  borderColor: theme.palette.primary.dark,
+                },
+                input: {
+                  color: theme.palette.primary.dark,
+                }
               }}
-              onClick={sendInvite}
-            >
-              Pong's invite
-            </Button>
-            {!inLine ? (
+            />
+            <Box display={"flex"} flexDirection={"row"}>
               <Button
                 variant="outlined"
-                sx={{
-                  alignSelf: "center",
-                }}
-                onClick={() => {
-                  getInLine(true);
-                }}
+                onClick={sendInvite}
               >
-                Get in line
+                Pong's invite
               </Button>
-            ) : (
-              <Button
-                variant="outlined"
-                sx={{
-                  alignSelf: "center",
-                }}
-                onClick={() => {
-                  getInLine(false);
-                }}
-              >
-                Leave line
-              </Button>
-            )}
+              {!inLine ? (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    getInLine(true);
+                  }}
+                >
+                  Get in line
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    getInLine(false);
+                  }}
+                >
+                  Leave line
+                </Button>
+              )}
+            </Box>
           </Box>
         )}
       </DialogSelect>
@@ -339,10 +338,11 @@ const GamePage: FC<GamePageProps> = ({
           margin={"1rem"}
           display={"flex"}
           flexDirection={"column"}
-          alignItems={"flex-start"}
+          alignItems={"center"}
         >
           <DialogTitle>Game over</DialogTitle>
-          <h1>{gameResult}</h1>
+          <Typography variant="body1" marginBottom='0.5rem' >
+            {gameResult}</Typography>
           <Button
             variant="outlined"
             sx={{
@@ -372,7 +372,9 @@ const GamePage: FC<GamePageProps> = ({
               defaultValue="meWinner"
               name="gameEndOptions"
               value={endGameOption}
-              onChange={(_event, value) => {onEndGameOptionChange(value)}}
+              onChange={(_event, value) => {
+                onEndGameOptionChange(value);
+              }}
             >
               <FormControlLabel
                 value="meWinner"
@@ -399,7 +401,7 @@ const GamePage: FC<GamePageProps> = ({
             onClick={finishGame}
             disabled={!isEndGameAvailable}
           >
-            Finish game {(isEndGameAvailable ? "" : `(${endGameTimeout})`)}
+            Finish game {isEndGameAvailable ? "" : `(${endGameTimeout})`}
           </Button>
         </Box>
       </DialogSelect>
