@@ -86,7 +86,8 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
   ];
 
   return (
-    <AppBar position="sticky">
+    <AppBar position="sticky" 
+    color="transparent" >
       <Box sx={{ flexGrow: 1, display: { xs: "flex" } }}>
         <GridLogo size={100}></GridLogo>
         {routes.map(
@@ -95,12 +96,14 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
               <NavButton key={page.key} page={page}>{page.title}</NavButton>
             )
         )}
-        <Box marginLeft={"auto"} marginRight={'2rem'} display='flex' width={'200px'} maxWidth={"30vw"}>
+        <Box marginLeft={"auto"} marginRight={'2rem'} display='flex' width={'300px'} maxWidth={"50vw"}>
           <Protected
             user={user}
             render={() =>
               <>
                 <Switch
+                  color="secondary"
+                  sx={{ marginTop: '1rem', marginRight: '1rem'}}
                   checked={ mode === 'dark'} 
                   onClick={() => {
                     dispatch(switchMode())
