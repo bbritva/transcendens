@@ -172,10 +172,10 @@ class Paddle {
     const paddleX = isLeft ? this.paddleHeight : 1 - this.paddleHeight;
     const hitY =
       ball.y + (ball.speedY * (paddleX - ball.x)) / ball.speedX - this.paddleY;
-    if (hitY < 0 || hitY > this.paddleWidth) return 0;
+    if (hitY < - ball.ballRadius / 2 || hitY > this.paddleWidth) return 0;
     if (hitY < this.paddleWidth / 3) return 1;
     if (hitY < (2 * this.paddleWidth) / 3) return 3;
-    if (hitY < this.paddleWidth) return -1;
+    if (hitY < this.paddleWidth + ball.ballRadius / 2) return -1;
     return 0;
   }
 
