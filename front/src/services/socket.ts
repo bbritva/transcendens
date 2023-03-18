@@ -222,6 +222,12 @@ export function initSocket(
     console.log("executionError", data);
   });
 
+  socket.on("connectionError", (data: any) => {
+    dispatch(logout());
+    window.location.reload();
+    setNotify({ message: data.cause, severity: "warning" });
+  });
+
   setTimeout(() => {
     socket.emit("getFriends");
     socket.emit("getPersonallyBanned");
