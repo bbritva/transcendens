@@ -5,69 +5,52 @@ import socket from 'src/services/socket';
 import { StyledMenuButton } from '../NavButton/StyledNavButton';
 import { useNavigate } from 'react-router-dom';
 import { NameSuggestionInfoI } from 'src/pages/Chat/ChatPage';
-
-const filter = createFilterOptions<FilmOptionType>();
-
-
+import { InputAdornment, Typography, useTheme } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function AutocompleteSearch() {
-  const [value, setValue] = React.useState<string | null>(null);
+  const [value, setValue] = React.useState<string | NameSuggestionInfoI | null>(null);
   const [options, setOptions] = React.useState<NameSuggestionInfoI[]>([]);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
     setOptions(data);
   });
 
+  const handleChange = (event: React.SyntheticEvent<Element, Event>, value: string | null) => {
+    setValue(value);
+}
+  const handleSubmit = (event: React.SyntheticEvent<Element, Event>, value: any) => {
+    if (typeof(value) === 'object'){
+      navigate('/account?user=' + value.id);
+    }
+    setValue('');
+    setOptions([]);
+}
+
   return (
     <Autocomplete
       value={value}
       clearOnBlur={true}
+      onInputChange={handleChange}
+      onChange={handleSubmit}
       onInput={(event) => {
           //@ts-ignore
           const newValue = event.target.value;
           setValue(newValue);
           socket.emit("getNamesSuggestions", { targetUserName: newValue })
-          // if (typeof newValue === 'string') {
-          //   setValue(
-          //     newValue,
-          //   );
-          // } else if (newValue) {
-          //   // Create a new value from the user input
-          //   setValue(
-          //     newValue,
-          //   );
-          // } else {
-          //   setValue(newValue);
-          // }
         }}
       filterOptions={(options, params) => {
-        // const filtered = filter(options, params);
-
-        // const { inputValue } = params;
-        // // Suggest the creation of a new value
-        // const isExisting = options.some((option) => inputValue === option.title);
-        // if (inputValue !== '' && !isExisting) {
-        //   filtered.push({
-        //     inputValue,
-        //     title: `Add "${inputValue}"`,
-        //   });
-        // }
 
         return options;
       }}
       id="free-solo-with-text-demo"
       options={options}
       getOptionLabel={(option) => {
-        // Value selected with enter, right from the input
         if (typeof option === 'string') {
           return option;
         }
-        // Add "xxx" option created dynamically
-        // if (option.inputValue) {
-        //   return option.inputValue;
-        // }
-        // Regular option
         return option.name;
       }}
       renderOption={(props, option) =>
@@ -82,18 +65,39 @@ export default function AutocompleteSearch() {
             {option.name}
           </StyledMenuButton>
         </li>}
-      sx={{ width: 300 }}
+      sx={{ width: 300, 
+      display: 'flex', 
+      flexDirection: 'column',
+      justifyContent:'center',
+      [theme.breakpoints.only("xs")]: {
+        width: 150
+    },
+      "& #free-solo-with-text-demo": {
+        color: theme.palette.secondary.main,
+      },
+    }}
       freeSolo
-      renderInput={(params) => (
-        <TextField {...params} label="Free solo with text demo" />
-      )}
+      renderInput={(params) => {
+        return (
+          <Typography variant="subtitle2" >
+            <TextField 
+            {...params}  
+            variant='standard'
+            color='secondary'
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon color='secondary'/>
+                </InputAdornment>
+              ),
+            }}
+            />
+          </Typography>
+        );
+      }}
     />
   );
 }
 
-interface FilmOptionType {
-  inputValue?: string;
-  title: string;
-  year?: number;
-}
 

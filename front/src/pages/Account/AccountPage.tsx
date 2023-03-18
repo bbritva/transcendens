@@ -36,6 +36,7 @@ import { getGames, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
 import SportsCricketIcon from '@mui/icons-material/SportsCricket';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { extUserState } from "./AccountPageWrapper";
 import socket from "src/services/socket";
 import { RootState } from "src/store/store";
@@ -107,8 +108,16 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
     createPlayerData("Total score: ", score + "", '1'),
     createPlayerData(
       <Box display="flex" alignItems="center">
-        <SportsCricketIcon color="primary" fontSize="large" />
-        Rating:
+        Rating 
+        <SportsCricketIcon fontSize="large"
+        sx={{
+          color: theme.palette.primary.dark,
+          marginLeft: "1rem"
+        }} />
+        <EmojiEventsIcon fontSize="large"
+        sx={{
+          color: theme.palette.primary.dark,
+        }} />
       </Box>,
       11 + '',
       '4'
@@ -163,7 +172,7 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
 
   const createFriendElem = (friend: UserInfoPublic, banned: boolean): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
+      <BasicMenu fullwidth={true} title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
     );
     return { id: friend.id, button: FriendComponent };
   };

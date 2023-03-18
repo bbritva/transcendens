@@ -89,7 +89,7 @@ const ChatPage: FC<ChatPageProps> = ({
 
   const onSubmit = () => {
     const [taper, destinationChannel] = destination;
-    if (!destinationChannel.name) {
+    if (!destinationChannel.name || !value || value == "\n") {
       setValue("");
       return;
     }

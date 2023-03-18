@@ -8,6 +8,7 @@ import { StyledMenu } from "./StyledMenu";
 
 interface basicMenuI {
   extAvatar?: string
+  fullwidth?: boolean
   title?: string
   onClick?: Function
   mychildren: {
@@ -18,7 +19,7 @@ interface basicMenuI {
   }[]
 }
 
-export default function BasicMenu({ extAvatar, title, mychildren, onClick}: basicMenuI) {
+export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullwidth}: basicMenuI) {
   const { getState } = useStore();
 
   const { user } = getState() as RootState;
@@ -51,7 +52,7 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick}: basi
     <>
       <StyledMenuButton
         showonxs={+true}
-        fullWidth
+        fullWidth={fullwidth}
         id="basic-button"
         aria-controls={open ? "basic-menu" : undefined}
         aria-haspopup="true"

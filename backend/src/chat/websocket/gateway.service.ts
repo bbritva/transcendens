@@ -12,6 +12,8 @@ import {
 } from "@nestjs/common";
 import { GameResultDto } from "src/game/dto/create-game.dto";
 import { GameService } from "src/game/game.service";
+import * as bcrypt from "bcrypt";
+import { env } from "process";
 
 @Injectable()
 export class GatewayService {
@@ -318,29 +320,41 @@ export class GatewayService {
       this.emitExecutionError(socketId, "connectToChannel", "user unknown");
     else if (!channel)
       this.emitExecutionError(socketId, "connectToChannel", "channel unknown");
-    else if (this.canConnect(socketId, user, channel, channelIn, user)) {
-      await this.connectUserToChannel(
-        channelIn,
-        this.connections.get(socketId)
-      ).catch((e) =>
-        this.emitExecutionError(socketId, "connectToChannel", e.getResponse())
-      );
-
-      // i suppose, we don't need this part of function
-      if (channelIn.users) {
-        channelIn.users.forEach(async (userName) => {
-          const targetUser = await this.userService.getUserByName(
-            userName.name
+    else {
+      try {
+        if (await this.canConnect(socketId, user, channel, channelIn, user)) {
+          await this.connectUserToChannel(
+            channelIn,
+            this.connections.get(socketId)
           );
-          if (this.canConnect(socketId, user, channel, channelIn, targetUser))
-            this.connectUserToChannel(channelIn, targetUser).catch((e) =>
-              this.emitExecutionError(
-                socketId,
-                "connectToChannel",
-                e.getResponse()
+
+          // i suppose, we don't need this part of function
+          if (channelIn.users) {
+            channelIn.users.forEach(async (userName) => {
+              const targetUser = await this.userService.getUserByName(
+                userName.name
+              );
+              if (!targetUser)
+                this.emitExecutionError(
+                  socketId,
+                  "connectToChannel",
+                  "user unknown"
+                );
+              else if (
+                await this.canConnect(
+                  socketId,
+                  user,
+                  channel,
+                  channelIn,
+                  targetUser
+                )
               )
-            );
-        });
+                this.connectUserToChannel(channelIn, targetUser);
+            });
+          }
+        }
+      } catch (e) {
+        this.emitExecutionError(socketId, "connectToChannel", e.getResponse());
       }
     }
   }
@@ -778,13 +792,13 @@ export class GatewayService {
   // 1 - channel is private
   // 2 - user banned
   // 3 - pasword incorrect
-  private canConnect(
+  private async canConnect(
     socketId: string,
     executor: DTO.ClientInfo,
     channel: ChannelEntity,
     channelIn: DTO.ChannelInfoIn,
     target: DTO.ClientInfo
-  ): boolean {
+  ): Promise<boolean> {
     if (channel == null || channel.admIds.includes(executor.id)) return true;
     if (channel.isPrivate) {
       this.emitNotAllowed(
@@ -804,16 +818,22 @@ export class GatewayService {
       );
       return false;
     }
-    if (channel.password != channelIn.password) {
-      this.emitNotAllowed(
-        socketId,
-        "connectToChannel",
-        channelIn,
-        "password incorrect"
-      );
-      return false;
-    }
-    return true;
+    if (!channelIn.password) channelIn.password = "";
+    return bcrypt
+      .compare(channelIn.password, channel.password)
+      .then((isMatch) => {
+        if (isMatch) return true;
+        this.emitNotAllowed(
+          socketId,
+          "connectToChannel",
+          channelIn,
+          "password incorrect"
+        );
+        return false;
+      })
+      .catch((e) => {
+        throw e;
+      });
   }
 
   private connectionByName(name: string): string {
