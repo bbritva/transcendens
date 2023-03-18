@@ -39,7 +39,12 @@ export class GatewayService {
       socket.handshake.auth.token
     );
     if (authorizedUser || authName) {
-      if (authorizedUser) {
+      if (this.connectionByName(authorizedUser?.name || authName)) {
+        this.server.to(socket.id).emit("connectionError", {
+          cause: "you're already logged in",
+        });
+        return false;
+      } else if (authorizedUser) {
         this.connections.set(socket.id, authorizedUser);
       } else if (authName) {
         const user = await this.userService.getUserByName(authName);
@@ -66,7 +71,9 @@ export class GatewayService {
       this.connectUserToGames(socket.id);
       return true;
     }
-    this.server.emit("connectError", { message: "invalid username" });
+    this.server.to(socket.id).emit("connectionError", {
+      cause: "invalid username",
+    });
     return false;
   }
 

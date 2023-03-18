@@ -21,12 +21,6 @@ export function initSocket(
   setNotifyMessage: Function,
   dispatch: Dispatch
 ) {
-  socket.on("connectError", (err) => {
-    if (err.message === "invalid username") {
-      dispatch(logout());
-    }
-  });
-
   socket.on("channels", (channels: channelFromBackI[]) => {
     setChannels(channels);
   });
@@ -210,6 +204,12 @@ export function initSocket(
     setNotifyMessage(data.cause)
 
     console.log(data);
+  });
+
+  socket.on("connectionError", (data: any) => {
+    dispatch(logout());
+    window.location.reload();
+    setNotifyMessage(data.cause)
   });
 
   setTimeout(() => {
