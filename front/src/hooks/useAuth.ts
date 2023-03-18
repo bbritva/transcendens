@@ -14,7 +14,7 @@ export default function useAuth(): [string, string] {
   const dispatch = useAppDispatch();
   const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
   const storageToken = {
-    refreshToken: JSON.parse(localStorage.getItem('refreshToken') || '')
+    refreshToken: localStorage.getItem('refreshToken') || ''
   };
   const { user, auth } = getState() as RootState;
 
