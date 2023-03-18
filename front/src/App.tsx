@@ -9,11 +9,10 @@ import {
   DialogTitle,
   TextField,
   Button,
-  Box,
-  Stack,
   IconButton,
   Snackbar,
   Alert,
+  AlertColor,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -35,6 +34,11 @@ import { getAuthorizeHref } from "src/utils/oauthConfig";
 import useAuth from "src/hooks/useAuth";
 import useTwoFA from "src/hooks/useTwoFA";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
+
+export interface notifyI {
+  message: string;
+  severity: AlertColor;
+}
 
 const theme = createTheme({
   palette: {
@@ -92,7 +96,7 @@ function App() {
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
   const [gameData, setGameData] = useState<GameStateDataI | null>(null);
   const [notifyOpen, setNotifyOpen] = useState(false);
-  const [notifyMessage, setNotiyfyMessage] = useState<string>("");
+  const [notify, setNotify] = useState<notifyI | null>(null);
 
   authHeader();
   authRefreshInterceptor();
@@ -110,7 +114,7 @@ function App() {
       return;
     }
     setNotifyOpen(false);
-    setNotiyfyMessage("");
+    setNotify(null);
   };
 
   const action = (
@@ -129,7 +133,7 @@ function App() {
   function connectUser(tokenConnect: {}) {
     socket.auth = tokenConnect;
     socket.connect();
-    initSocket(navigate, setGameData, setChannels, setNotiyfyMessage, dispatch);
+    initSocket(navigate, setGameData, setChannels, setNotify, dispatch);
   }
 
   useEffect(() => {
@@ -156,8 +160,8 @@ function App() {
   }, [socket?.connected]);
 
   useEffect(() => {
-    if (notifyMessage && notifyMessage != "") setNotifyOpen(true);
-  }, [notifyMessage]);
+    if (notify) setNotifyOpen(true);
+  }, [notify]);
 
   function onLogoutClick() {
     sessionStorage.setItem("username", ""); //testUserName
@@ -262,17 +266,16 @@ function App() {
         </Grid>
         <Snackbar
           open={notifyOpen}
-          autoHideDuration={6000}
+          autoHideDuration={3000}
           onClose={handleClose}
-          // message={notifyMessage}
           action={action}
         >
           <Alert
             onClose={handleClose}
-            severity="warning"
+            severity={notify ? notify.severity : "error"}
             sx={{ width: "100%" }}
           >
-            {notifyMessage}
+            {notify?.message}
           </Alert>
         </Snackbar>
       </div>

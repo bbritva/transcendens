@@ -1,5 +1,6 @@
 import { Dispatch } from "@reduxjs/toolkit";
 import { io } from "socket.io-client";
+import { notifyI } from "src/App";
 import {
   channelFromBackI,
   fromBackI,
@@ -18,7 +19,7 @@ export function initSocket(
   navigate: Function,
   setGameData: Function,
   setChannels: Function,
-  setNotifyMessage: Function,
+  setNotify: Function,
   dispatch: Dispatch
 ) {
   socket.on("channels", (channels: channelFromBackI[]) => {
@@ -61,6 +62,8 @@ export function initSocket(
       const ind = prev.findIndex((el) => el.name === channelName);
       const res = [...prev];
       if (ind !== -1) {
+        if (channelName.endsWith("pm"))
+          return res.filter((channel) => channel.name != channelName);
         res[ind].connected = false;
         res[ind].messages = [];
         res[ind].users = [];
@@ -124,35 +127,44 @@ export function initSocket(
   });
 
   socket.on("ladder", (data: fromBackI[]) => {
-    console.log("userStat", data);
+    console.log("ladder", data);
   });
 
   socket.on("newFriend", (data: fromBackI) => {
-    console.log("newFriend", data);
+    setNotify({
+      message: `${data.name} added to your friends`,
+      severity: "success",
+    });
   });
 
   socket.on("userMuted", (data: fromBackI) => {
-    console.log("userMuted", data);
+    setNotify({ message: `you muted ${data.name}`, severity: "success" });
   });
 
   socket.on("userBanned", (data: fromBackI) => {
-    console.log("userBanned", data);
+    setNotify({
+      message: `you banned ${data.name}`,
+      severity: "success",
+    });
   });
 
   socket.on("userUnmuted", (data: fromBackI) => {
-    console.log("userUnmuted", data);
+    setNotify({ message: `you unmuted ${data.name}`, severity: "success" });
   });
 
   socket.on("userUnbanned", (data: fromBackI) => {
-    console.log("userUnbanned", data);
+    setNotify({ message: `you unbanned ${data.name}`, severity: "success" });
   });
 
   socket.on("userKicked", (data: fromBackI) => {
-    console.log("userKicked", data);
+    setNotify({ message: `you kicked ${data.name}`, severity: "success" });
   });
 
   socket.on("exFriend", (data: fromBackI) => {
-    console.log("exFriend", data);
+    setNotify({
+      message: `${data.name} removed from your friends`,
+      severity: "success",
+    });
   });
 
   socket.on("friendList", (data: UserInfoPublic[]) => {
@@ -162,11 +174,11 @@ export function initSocket(
 
   socket.on("newPersonnalyBanned", (data: UserInfoPublic) => {
     dispatch(setBanned([data]));
-    console.log("newPersonnalyBanned", data);
+    setNotify({ message: `you banned ${data.name}`, severity: "success" });
   });
 
   socket.on("exPersonnalyBanned", (data: fromBackI) => {
-    console.log("exPersonnalyBanned", data);
+    setNotify({ message: `you unbanned ${data.name}`, severity: "success" });
   });
 
   socket.on("personallyBannedList", (data: UserInfoPublic[]) => {
@@ -191,19 +203,15 @@ export function initSocket(
   });
 
   socket.on("notAllowed", (data: any) => {
-    setNotifyMessage(data.cause)
-    console.log(data);
+    setNotify({ message: data.cause, severity: "warning" });
   });
 
   socket.on("declineInvite", (data: any) => {
-    setNotifyMessage(data.cause)
-    console.log(data);
+    setNotify({ message: data.cause, severity: "warning" });
   });
 
   socket.on("executionError", (data: any) => {
-    setNotifyMessage(data.cause)
-
-    console.log(data);
+    console.log("executionError", data);
   });
 
   socket.on("connectionError", (data: any) => {
