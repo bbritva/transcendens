@@ -61,7 +61,11 @@ export class GatewayService {
         this.connections.get(socket.id).id,
         "ONLINE"
       );
-      //send to new user all channels
+      this.server.emit("userStatus", {
+        name: this.connections.get(socket.id).name,
+        id: this.connections.get(socket.id).id,
+        status: "ONLINE",
+      }); //send to new user all channels
       this.server
         .to(socket.id)
         .emit("channels", await this.channelService.ChannelList());
@@ -99,6 +103,11 @@ export class GatewayService {
       )
         this.server.to(el.gameName).emit("rivalOnline", { isOnline: false });
     }
+    this.server.emit("userStatus", {
+      name: this.connections.get(socket.id).name,
+      id: this.connections.get(socket.id).id,
+      status: "OFFLINE",
+    });
     this.connections.delete(socket.id);
   }
 
@@ -388,7 +397,10 @@ export class GatewayService {
 
   removeFriend(socketId: string, data: DTO.ManageUserI) {
     this.userService
-      .removeFriend(this.connections.get(socketId)?.id || -1, data.targetUserName)
+      .removeFriend(
+        this.connections.get(socketId)?.id || -1,
+        data.targetUserName
+      )
       .then((exFriend) => {
         if (exFriend) this.server.to(socketId).emit("exFriend", exFriend);
       })
@@ -416,7 +428,10 @@ export class GatewayService {
 
   async banPersonally(socketId: string, data: DTO.ManageUserI) {
     this.userService
-      .banPersonally(this.connections.get(socketId)?.id || -1, data.targetUserName)
+      .banPersonally(
+        this.connections.get(socketId)?.id || -1,
+        data.targetUserName
+      )
       .then((banned) => {
         if (banned) {
           this.server.to(socketId).emit("newPersonnalyBanned", banned);
@@ -433,7 +448,10 @@ export class GatewayService {
 
   async unbanPersonally(socketId: string, data: DTO.ManageUserI) {
     this.userService
-      .unbanPersonally(this.connections.get(socketId)?.id || -1, data.targetUserName)
+      .unbanPersonally(
+        this.connections.get(socketId)?.id || -1,
+        data.targetUserName
+      )
       .then((exBanned) => {
         if (exBanned)
           this.server.to(socketId).emit("exPersonnalyBanned", exBanned);
@@ -661,6 +679,12 @@ export class GatewayService {
               client.name == gameResults.loserName
             ) {
               client.inGame = false;
+              this.userService.setUserStatus(client.id, "ONLINE");
+              this.server.emit("userStatus", {
+                name: client.name,
+                id: client.id,
+                status: "ONLINE",
+              });
             }
           });
         })
@@ -691,6 +715,12 @@ export class GatewayService {
         el[1].name == game.playerSecond.name
       ) {
         el[1].inGame = true;
+        this.userService.setUserStatus(el[1].id, "ONGAME");
+        this.server.emit("userStatus", {
+          name: el[1].name,
+          id: el[1].id,
+          status: "ONGAME",
+        });
         this.server.in(el[0]).socketsJoin(game.gameName);
         this.server.to(el[0]).emit("gameLine", { inLine: false });
       }
@@ -808,22 +838,25 @@ export class GatewayService {
       return false;
     }
     if (!channelIn.password) channelIn.password = "";
-    return !channel.password || bcrypt
-      .compare(channelIn.password, channel.password)
-      .then((isMatch) => {
-        if (isMatch) return true;
-        this.emitNotAllowed(
-          socketId,
-          "connectToChannel",
-          channelIn,
-          "password incorrect"
-        );
-        return false;
-      })
-      .catch((e) => {
-        console.log(e.cause);
-        return false;
-      });
+    return (
+      !channel.password ||
+      bcrypt
+        .compare(channelIn.password, channel.password)
+        .then((isMatch) => {
+          if (isMatch) return true;
+          this.emitNotAllowed(
+            socketId,
+            "connectToChannel",
+            channelIn,
+            "password incorrect"
+          );
+          return false;
+        })
+        .catch((e) => {
+          console.log(e.cause);
+          return false;
+        })
+    );
   }
 
   private connectionByName(name: string): string {
