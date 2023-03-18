@@ -138,15 +138,7 @@ class Paddle {
     ctx.closePath();
   }
 
-  // static drawPaddles(ctx: CanvasRenderingContext2D) {
-  //   ctx.beginPath();
-  //   ctx.rect(this.paddleX, this.paddleY, this.paddleHeight, this.paddleWidth);
-  //   ctx.fillStyle = "#0096DD";
-  //   ctx.fill();
-  //   ctx.closePath();
-  // }
-
-  movePaddle() {
+  movePaddle(camY: number = 0) {
     switch (this.control) {
       case ControlE.REMOTE: {
         this.paddleY = this.remoteY - this.paddleWidth;
@@ -166,6 +158,13 @@ class Paddle {
           this.paddleY = 1 - this.paddleWidth;
         break;
       }
+      case ControlE.HAND: {
+        this.paddleY = camY - this.paddleWidth / 2;
+        if (this.paddleY < 0) this.paddleY = 0;
+        else if (this.paddleY > 1 - this.paddleWidth)
+          this.paddleY = 1 - this.paddleWidth;
+        break;
+      }
     }
   }
 
@@ -173,10 +172,10 @@ class Paddle {
     const paddleX = isLeft ? this.paddleHeight : 1 - this.paddleHeight;
     const hitY =
       ball.y + (ball.speedY * (paddleX - ball.x)) / ball.speedX - this.paddleY;
-    if (hitY < 0 || hitY > this.paddleWidth) return 0;
+    if (hitY < - ball.ballRadius / 2 || hitY > this.paddleWidth) return 0;
     if (hitY < this.paddleWidth / 3) return 1;
     if (hitY < (2 * this.paddleWidth) / 3) return 3;
-    if (hitY < this.paddleWidth) return -1;
+    if (hitY < this.paddleWidth + ball.ballRadius / 2) return -1;
     return 0;
   }
 

@@ -1,14 +1,27 @@
 import "src/App.css";
-import { useEffect, useState } from "react";
+import { Fragment, SyntheticEvent, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSelector, useStore } from "react-redux";
-import { createTheme, ThemeProvider, Grid, DialogTitle, TextField, Button, Box, Stack} from "@mui/material";
-import Navbar from 'src/components/Navbar/Navbar';
+import {
+  createTheme,
+  ThemeProvider,
+  Grid,
+  DialogTitle,
+  TextField,
+  Button,
+  IconButton,
+  Snackbar,
+  Alert,
+  AlertColor,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+
+import Navbar from "src/components/Navbar/Navbar";
 import { routes as appRoutes } from "src/routes";
 import Allerts from "src/components/Allerts/Allerts";
 import authHeader from "src/services/authHeader";
 import { authRefreshInterceptor } from "src/services/authRefreshInterceptor";
-import { RootState } from 'src/store/store'
+import { RootState } from "src/store/store";
 import { selectLoggedIn } from "src/store/authReducer";
 import { logout } from "src/store/authActions";
 import DialogSelect from "./components/DialogSelect/DialogSelect";
@@ -17,53 +30,57 @@ import FormDialog from "src/components/FormDialog/FormDialog";
 import { channelFromBackI } from "src/pages/Chat/ChatPage";
 import { useAppDispatch } from "src/app/hooks";
 import PrivateRouteWrapper from "src/components/Authentication/PrivateRouteWrapper";
-import { getAuthorizeHref } from 'src/utils/oauthConfig';
+import { getAuthorizeHref } from "src/utils/oauthConfig";
 import useAuth from "src/hooks/useAuth";
 import useTwoFA from "src/hooks/useTwoFA";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
 
+export interface notifyI {
+  message: string;
+  severity: AlertColor;
+}
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#56a2b8',
-      dark: '#3c7180',
-      contrastText: '#ffcc00',
+      main: "#56a2b8",
+      dark: "#3c7180",
+      contrastText: "#ffcc00",
     },
     secondary: {
-      main: '#ecebd9',
-      dark: '#ebebda',
+      main: "#ecebd9",
+      dark: "#ebebda",
     },
     info: {
-      main: '#8bd4d1'
-    }
+      main: "#8bd4d1",
+    },
   },
   typography: {
     body1: {
-      fontFamily:  'Arial',
+      fontFamily: "Arial",
       fontSize: 16,
-      fontWeight: 'bolder',
-      color: '#3c7180',
+      fontWeight: "bolder",
+      color: "#3c7180",
     },
     subtitle1: {
-      fontFamily:  'Arial',
+      fontFamily: "Arial",
       fontSize: 15,
       fontWeight: "bolder",
-      color: '#56a2b8',
+      color: "#56a2b8",
     },
     subtitle2: {
-      fontFamily:  'Arial',
+      fontFamily: "Arial",
       fontSize: 14,
       fontWeight: "bolder",
-      fontStyle: 'oblique',
-      color: '#ebebda',
+      fontStyle: "oblique",
+      color: "#ebebda",
     },
     h6: {
-      fontFamily:  'Arial',
+      fontFamily: "Arial",
       fontSize: 14,
       fontWeight: "bolder",
-      fontStyle: 'oblique',
-      color: '#56a2b8',
+      fontStyle: "oblique",
+      color: "#56a2b8",
     },
   },
 });
@@ -72,39 +89,64 @@ function App() {
   const { getState } = useStore();
   const dispatch = useAppDispatch();
   const [openNick, setOpenNick] = useState(false);
-  const [inputValue, setInputValue] = useState('');
-  const [inviteSender, setInviteSender] = useState('');
+  const [inputValue, setInputValue] = useState("");
+  const [inviteSender, setInviteSender] = useState("");
   const isLoggedIn = useSelector(selectLoggedIn);
-  const [userName, setUsername] = useState<string>('');
+  const [userName, setUsername] = useState<string>("");
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
   const [gameData, setGameData] = useState<GameStateDataI | null>(null);
+  const [notifyOpen, setNotifyOpen] = useState(false);
+  const [notify, setNotify] = useState<notifyI | null>(null);
 
   authHeader();
   authRefreshInterceptor();
   const [accessCode, accessState] = useAuth();
-  const [openTwoFa, setTwoFaOpen, login2fa] = useTwoFA(accessCode, accessState, inputValue);
+  const [openTwoFa, setTwoFaOpen, login2fa] = useTwoFA(
+    accessCode,
+    accessState,
+    inputValue
+  );
   const navigate = useNavigate();
   let notConnected = true;
 
+  const handleClose = (event: SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setNotifyOpen(false);
+    setNotify(null);
+  };
+
+  const action = (
+    <Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </Fragment>
+  );
 
   function connectUser(tokenConnect: {}) {
     socket.auth = tokenConnect;
     socket.connect();
-    initSocket(navigate, setGameData, setChannels, dispatch);
+    initSocket(navigate, setGameData, setChannels, setNotify, dispatch);
   }
 
   useEffect(() => {
     const { auth } = getState() as RootState;
     if (isLoggedIn) {
       connectUser({ token: auth.accessToken.access_token });
-    }
-    else if (userName && notConnected) {
-      sessionStorage.setItem('username', userName);
+    } else if (userName && notConnected) {
+      sessionStorage.setItem("username", userName);
       connectUser({ username: userName });
       notConnected = false;
     }
     return () => {
-      socket.disconnect()
+      socket.disconnect();
     };
   }, [userName, isLoggedIn]);
 
@@ -113,15 +155,19 @@ function App() {
       socket.on("inviteToGame", (data) => {
         setInviteSender(data.sender);
         setOpenNick(true);
-      })
+      });
     }
   }, [socket?.connected]);
 
+  useEffect(() => {
+    if (notify) setNotifyOpen(true);
+  }, [notify]);
+
   function onLogoutClick() {
-    sessionStorage.setItem('username', '');//testUserName
+    sessionStorage.setItem("username", ""); //testUserName
     dispatch(logout());
     window.location.reload();
-  };
+  }
 
   function onLoginClick() {
     const stateArray = new Uint32Array(10);
@@ -129,7 +175,10 @@ function App() {
     window.open(getAuthorizeHref(stateArray), '_self')
   }
 
-  function onChange(this: any, event: React.ChangeEvent<HTMLTextAreaElement>): void {
+  function onChange(
+    this: any,
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ): void {
     // event.preventDefault();
     setInputValue(event.currentTarget.value);
   }
@@ -137,16 +186,14 @@ function App() {
   function accept() {
     if (socket.connected) {
       setOpenNick(false);
-      socket.emit("acceptInvite", { sender: inviteSender })
-      // sessionStorage.setItem("game", "true");
-      // navigate('/game', { replace: true });
+      socket.emit("acceptInvite", { sender: inviteSender });
     }
   }
 
   function decline() {
     if (socket.connected) {
       setOpenNick(false);
-      socket.emit("declineInvite", { sender: inviteSender })
+      socket.emit("declineInvite", { sender: inviteSender });
     }
   }
 
@@ -155,11 +202,11 @@ function App() {
       <div className="landing-background">
         <DialogSelect open={openTwoFa} setOpen={setTwoFaOpen} options>
           <DialogTitle>Enter 2fa code</DialogTitle>
-          <TextField label={'otp code'} onChange={onChange} margin="dense" />
+          <TextField label={"otp code"} onChange={onChange} margin="dense" />
           <Button
             variant="outlined"
             sx={{
-              alignSelf: 'end'
+              alignSelf: "end",
             }}
             onClick={login2fa}
           >
@@ -167,52 +214,73 @@ function App() {
           </Button>
         </DialogSelect>
         <FormDialog userName={userName} setUsername={setUsername} />
-          <Navbar
-            loginButtonText="login"
-            onLoginClick={onLoginClick}
-            onLogoutClick={onLogoutClick}
-          />
-          <Allerts />
-          <DialogSelect
-            options={{}}
-            open={openNick}
-            setOpen={setOpenNick}
+        <Navbar
+          loginButtonText="login"
+          onLoginClick={onLoginClick}
+          onLogoutClick={onLogoutClick}
+        />
+        <Allerts />
+        <DialogSelect options={{}} open={openNick} setOpen={setOpenNick}>
+          <DialogTitle>{inviteSender || "NICKNAME"} invited you</DialogTitle>
+          <Button
+            variant="outlined"
+            sx={{ alignSelf: "end" }}
+            onClick={decline}
           >
-              <DialogTitle>{inviteSender || 'NICKNAME'} invited you</DialogTitle>
-              <Button
-                variant="outlined"
-                sx={{ alignSelf: 'end' }}
-                onClick={decline}
-              >
-                Decline
-              </Button>
-              <Button
-                variant="contained"
-                sx={{ alignSelf: 'end' }}
-                onClick={accept}
-              >
-                Accept
-              </Button>
-          </DialogSelect>
-          <Grid display="flex" justifyContent="center" item xs={10} margin={3} sx={{
-          }}>
-            <Routes>
-              {appRoutes.map((route) => (
-                <Route
-                  key={route.key}
-                  path={route.path}
-                  element={
-                    <PrivateRouteWrapper>
-                      <route.component channels={channels} setChannels={setChannels} gameData={gameData} setGameData={setGameData}/>
-                    </PrivateRouteWrapper>
-                  }
-                />
-              ))}
-            </Routes>
-          </Grid>
+            Decline
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ alignSelf: "end" }}
+            onClick={accept}
+          >
+            Accept
+          </Button>
+        </DialogSelect>
+        <Grid
+          display="flex"
+          justifyContent="center"
+          item
+          xs={10}
+          margin={3}
+          sx={{}}
+        >
+          <Routes>
+            {appRoutes.map((route) => (
+              <Route
+                key={route.key}
+                path={route.path}
+                element={
+                  <PrivateRouteWrapper>
+                    <route.component
+                      channels={channels}
+                      setChannels={setChannels}
+                      gameData={gameData}
+                      setGameData={setGameData}
+                    />
+                  </PrivateRouteWrapper>
+                }
+              />
+            ))}
+          </Routes>
+        </Grid>
+        <Snackbar
+          open={notifyOpen}
+          autoHideDuration={3000}
+          onClose={handleClose}
+          action={action}
+        >
+          <Alert
+            onClose={handleClose}
+            severity={notify ? notify.severity : "error"}
+            sx={{ width: "100%" }}
+          >
+            {notify?.message}
+          </Alert>
+        </Snackbar>
       </div>
     </ThemeProvider>
   );
-};
+}
 
 export default App;
