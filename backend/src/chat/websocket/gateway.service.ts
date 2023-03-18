@@ -120,7 +120,12 @@ export class GatewayService {
       else if (targetUser.bannedIds.includes(executor.id))
         this.emitNotAllowed(socket.id, "privateMessage", data, "you're banned");
       else if (executor.bannedIds.includes(targetUser.id))
-        this.emitNotAllowed(socket.id, "privateMessage", data, "user is banned");
+        this.emitNotAllowed(
+          socket.id,
+          "privateMessage",
+          data,
+          "user is banned"
+        );
       else {
         const channelIn = this.createPMChannelInfo([
           executor.name,
@@ -741,6 +746,8 @@ export class GatewayService {
     channelIn: DTO.ChannelInfoIn,
     user: DTO.ClientInfo
   ) {
+    const userDB = await this.userService.getUser(user.id);
+    if (!user) throw new NotFoundException();
     return this.channelService
       .connectToChannel({
         name: channelIn.name,
@@ -763,7 +770,9 @@ export class GatewayService {
         const channelInfo: DTO.ChannelInfoOut = {
           name: channel.name,
           users: channel.guests,
-          messages: channel.messages,
+          messages: channel.messages.filter(
+            (message) => !userDB.bannedIds.includes(message.authorId)
+          ),
           isPrivate: channel.isPrivate,
           hasPassword: !!channel.password,
         };
