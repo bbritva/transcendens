@@ -19,7 +19,7 @@ interface basicMenuI {
   }[]
 }
 
-export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullwidth}: basicMenuI) {
+export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullwidth }: basicMenuI) {
   const { getState } = useStore();
 
   const { user } = getState() as RootState;
@@ -31,15 +31,15 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullw
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (onClick){
+    if (onClick) {
       onClick();
     }
     setContextMenu(
       contextMenu === null
         ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6,
-          }
+          mouseX: event.clientX + 2,
+          mouseY: event.clientY - 6,
+        }
         : null,
     );
   };
@@ -47,7 +47,7 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullw
   const handleClose = () => {
     setContextMenu(null);
   };
-  
+
   return (
     <>
       <StyledMenuButton
@@ -59,26 +59,26 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullw
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-          <>
-              <Typography variant="subtitle1" maxWidth={'80px'} sx={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 1,
-                        WebkitBoxOrient: "vertical"
-              }}>{title}</Typography>
-              <Box marginLeft={'auto'} display="flex"alignItems="center">
-                {extAvatar && <Avatar src={extAvatar} />}
-              <MoreVert color="secondary" />
-              </Box>
-          </>
+        <>
+          <Typography variant="subtitle1" maxWidth={'80px'} sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 1,
+            WebkitBoxOrient: "vertical"
+          }}>{title}</Typography>
+          <Box marginLeft={'auto'} display="flex" alignItems="center">
+            {extAvatar && <Avatar src={extAvatar} />}
+            <MoreVert color="secondary" />
+          </Box>
+        </>
       </StyledMenuButton>
       <StyledMenu
         anchorReference="anchorPosition"
         anchorPosition={
           contextMenu !== null
-          ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-          : undefined
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
         }
         id="basic-menu"
         open={contextMenu !== null}
@@ -90,7 +90,7 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullw
         {mychildren.map((element) => {
           const MButton = element.component;
           //@ts-ignore
-          return (<MButton {...element.compProps}  onClick={() => {element.compProps.onClick();handleClose();}}/>
+          return (<MButton {...element.compProps} onClick={() => { element.compProps.onClick(); handleClose(); }} />
           );
         })}
       </StyledMenu>
