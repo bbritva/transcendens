@@ -166,7 +166,7 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
 
   const createFriendElem = (friend: UserInfoPublic, banned: boolean): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
+      <BasicMenu fullwidth={true} title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
     );
     return { id: friend.id, button: FriendComponent };
   };

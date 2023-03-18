@@ -92,7 +92,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
               <NavButton key={page.key} page={page}>{page.title}</NavButton>
             )
         )}
-        <Box marginLeft={"auto"} marginRight={'2rem'} display='flex'>
+        <Box marginLeft={"auto"} marginRight={'2rem'} display='flex' width={'200px'} maxWidth={"30vw"}>
           <Protected
             user={user}
             render={() =>
