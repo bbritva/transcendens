@@ -2,6 +2,7 @@ import { ReactElement, FC, useRef, useEffect, useState } from "react";
 import {
   Box,
   Button,
+  Dialog,
   DialogTitle,
   FormControl,
   FormControlLabel,
@@ -10,7 +11,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
@@ -50,6 +51,7 @@ const GamePage: FC<GamePageProps> = ({
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
+  const [gameSingle, setGameSingle] = useState<boolean>(false);
   const [isPaused, setPaused] = useState<boolean>(false);
   const [isRivalOffline, setRivalOffline] = useState<boolean>(false);
   const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
@@ -122,15 +124,17 @@ const GamePage: FC<GamePageProps> = ({
     }
   }, [gameData]);
 
-  function startGame(gameData: GameStateDataI, isMouse: boolean = true) {
+  function startGame(gameData: GameStateDataI) {
     const canvas = canvasRef.current;
     if (canvas) {
       if (gameData && (testUsername || user.user?.name)) {
         Game.setGameData(
           canvasRef.current,
           testUsername || user.user?.name || "",
-          gameData, webcamRef
+          gameData,
+          webcamRef
         );
+        setGameSingle(gameData.gameName == "single");
       }
     }
   }
@@ -220,6 +224,15 @@ const GamePage: FC<GamePageProps> = ({
   function finishGame() {
     Game.finishGameManual(endGameOption);
     setRivalOffline(false);
+  }
+
+  function finishSingleGame() {
+    Game.finishGameManual("drop");
+    setRivalOffline(false);
+    setGameSingle(false);
+    setPauseAvailable(true);
+    setPauseTimeout(0);
+    setPaused(false);
   }
 
   return (
@@ -354,10 +367,9 @@ const GamePage: FC<GamePageProps> = ({
           </Button>
         </Box>
       </DialogSelect>
-      <DialogSelect
-        options={{}}
+      <Dialog disableEscapeKeyDown
         open={isRivalOffline}
-        setOpen={setRivalOffline}
+        onClose={setRivalOffline}
       >
         <Box
           margin={"1rem"}
@@ -404,7 +416,7 @@ const GamePage: FC<GamePageProps> = ({
             Finish game {isEndGameAvailable ? "" : `(${endGameTimeout})`}
           </Button>
         </Box>
-      </DialogSelect>
+      </Dialog>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"Mouse"}
@@ -424,7 +436,6 @@ const GamePage: FC<GamePageProps> = ({
           onClick={() => {
             setPlayerController("Hand");
             Game.setMouseControl(false);
-
           }}
         />
         <Button
@@ -501,6 +512,13 @@ const GamePage: FC<GamePageProps> = ({
           disabled={!isPauseAvailable}
           size="large"
           onClick={clickPause}
+        />
+        <Button
+          children={"finish game"}
+          variant={"outlined"}
+          disabled={!gameSingle}
+          size="large"
+          onClick={finishSingleGame}
         />
       </Grid>
     </Box>

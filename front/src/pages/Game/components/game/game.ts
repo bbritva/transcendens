@@ -527,8 +527,7 @@ class Game {
     if (
       !this.canvas ||
       this.gameState.gameName == "single" ||
-      this.gameState.gameName == "demo" ||
-      Game.isPaused
+      this.gameState.gameName == "demo"
     )
       return;
 
