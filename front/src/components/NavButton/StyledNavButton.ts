@@ -6,7 +6,7 @@ interface styledNavButtonProps extends ButtonProps {
   to?: any;
   children: React.ReactNode | React.ReactNode[];
   onClick?: React.MouseEventHandler,
-  showonxs?: boolean
+  showonxs?: number
 }
 
 export const StyledNavButton = styled(Button)<styledNavButtonProps>(

@@ -137,9 +137,9 @@ function App() {
   }
 
   useEffect(() => {
-    const { auth } = getState() as RootState;
-    if (isLoggedIn) {
-      connectUser({ token: auth.accessToken.access_token });
+    const token = localStorage.getItem('access_token')
+    if (isLoggedIn && token) {
+      connectUser({ token: JSON.parse(token) });
     } else if (userName && notConnected) {
       sessionStorage.setItem("username", userName);
       connectUser({ username: userName });

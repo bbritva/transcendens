@@ -7,10 +7,11 @@ import {
   newMessageI,
   userFromBackI,
   userInChannelMovementI,
+  NameSuggestionInfoI
 } from "src/pages/Chat/ChatPage";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
 import { logout } from "src/store/authActions";
-import { setBanned, setUsers, UserInfoPublic } from "src/store/chatSlice";
+import { deleteBanned, deleteFriend, setBanned, setFriends, UserInfoPublic } from 'src/store/chatSlice';
 
 const URL = process.env.REACT_APP_AUTH_URL || "";
 const socket = io(URL, { autoConnect: false });
@@ -22,11 +23,10 @@ export function initSocket(
   setNotify: Function,
   dispatch: Dispatch
 ) {
-  socket.on("connectError", (err) => {
-    if (err.message === "invalid username") {
-      dispatch(logout());
-    }
-  });
+
+  socket.on('connect_error', err => console.log(err))
+  socket.on('connect_failed', err => console.log(err))
+  socket.on('disconnect', err => console.log(err))
 
   socket.on("channels", (channels: channelFromBackI[]) => {
     setChannels(channels);
@@ -120,7 +120,7 @@ export function initSocket(
   socket.on("connectToGame", (game) => {
     if (socket.connected) {
       setGameData(game);
-      navigate("/game", { replace: true });
+      navigate("/game", { replace: false });
     }
   });
 
@@ -136,7 +136,8 @@ export function initSocket(
     console.log("ladder", data);
   });
 
-  socket.on("newFriend", (data: fromBackI) => {
+  socket.on("newFriend", (data: UserInfoPublic) => {
+    dispatch(setFriends([data]));
     setNotify({
       message: `${data.name} added to your friends`,
       severity: "success",
@@ -166,24 +167,25 @@ export function initSocket(
     setNotify({ message: `you kicked ${data.name}`, severity: "success" });
   });
 
-  socket.on("exFriend", (data: fromBackI) => {
+  socket.on("exFriend", (data: UserInfoPublic) => {
+    dispatch(deleteFriend(data))
     setNotify({
       message: `${data.name} removed from your friends`,
       severity: "success",
     });
   });
 
-  socket.on("friendList", (data: UserInfoPublic[]) => {
-    dispatch(setUsers(data));
-    console.log("friendList", data);
-  });
+  socket.on("friendList",(data: UserInfoPublic[]) => {
+    dispatch(setFriends(data));
+  })
 
   socket.on("newPersonnalyBanned", (data: UserInfoPublic) => {
     dispatch(setBanned([data]));
     setNotify({ message: `you banned ${data.name}`, severity: "success" });
-  });
+  })
 
-  socket.on("exPersonnalyBanned", (data: fromBackI) => {
+  socket.on("exPersonnalyBanned", (data: UserInfoPublic) => {
+    dispatch(deleteBanned(data));
     setNotify({ message: `you unbanned ${data.name}`, severity: "success" });
   });
 
@@ -200,7 +202,7 @@ export function initSocket(
     console.log("nameTaken", data);
   });
 
-  socket.on("nameSuggestions", (data: string[]) => {
+  socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
     console.log("nameSuggestions", data);
   });
 
