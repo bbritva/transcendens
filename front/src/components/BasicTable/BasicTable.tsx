@@ -10,7 +10,7 @@ import { ForwardedRef, ReactNode } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 
 export interface rowI {
-  id: number;
+  id: string;
 }
 
 export interface matchHistoryRowI extends rowI {

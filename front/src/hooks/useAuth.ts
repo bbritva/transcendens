@@ -6,11 +6,7 @@ import { getUser } from 'src/store/userSlice';
 import { getSearchParams, removeAllParamsFromUrl } from 'src/utils/urlUtils';
 import { login } from 'src/store/authActions';
 import { selectIsTwoFAEnabled } from 'src/store/authReducer';
-
-const intraOAuthParams = getSearchParams();
-const accessCode = intraOAuthParams?.code;
-const accessState = intraOAuthParams?.state;
-removeAllParamsFromUrl();
+import { useSearchParams } from 'react-router-dom';
 
 
 export default function useAuth(): [string, string] {
@@ -21,6 +17,12 @@ export default function useAuth(): [string, string] {
     refreshToken: localStorage.getItem('refreshToken') || ''
   };
   const { user, auth } = getState() as RootState;
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const accessCode = searchParams.get("code") || '';
+  const accessState = searchParams.get("state") || '';
+  searchParams.delete("code");
+  searchParams.delete("state");
 
   if (
     !auth.isLoggedIn &&

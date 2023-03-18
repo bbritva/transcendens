@@ -1,8 +1,8 @@
-import axios from "axios";
+import { myAxios } from "src";
 
 export default function authHeader() {
   const headers = {'authorization': ''};
-  const interceptor = axios.interceptors.request.use(
+  const interceptor = myAxios.interceptors.request.use(
     config => {
       const storageData = localStorage.getItem('access_token') || undefined;
       if (storageData){

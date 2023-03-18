@@ -26,8 +26,8 @@ export interface UserInfoPublic {
   image?: string;
   avatar?: string;
   status: eStatus;
-  wins?: GameEntity;
-  loses?: GameEntity;
+  wins?: GameEntity[];
+  loses?: GameEntity[];
 }
 
 export class ClientInfo {
@@ -35,6 +35,11 @@ export class ClientInfo {
   readonly name: string;
   readonly socketId?: string;
   inGame?: boolean;
+}
+
+export class NameSuggestionInfo {
+  readonly id: number;
+  readonly name: string;
 }
 
 export interface NotAllowedI {

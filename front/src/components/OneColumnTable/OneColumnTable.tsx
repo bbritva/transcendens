@@ -107,6 +107,7 @@ const OneColumnTable: FC<{
                       setElement(data);
                     }}
                     mychildren={buttons}
+                    fullwidth={true}
                     extAvatar={ava}
                   />
                 );}

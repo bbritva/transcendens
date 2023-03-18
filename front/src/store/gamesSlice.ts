@@ -1,14 +1,18 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "src/services/user.service";
 import { RootState } from "src/store/store";
+import { UserInfoPublic } from "./chatSlice";
+import { fromBackI } from "src/pages/Chat/ChatPage";
 
 
 export interface GameI {
-  id: number
+  id: string
   winnerId: number
   winnerScore: number
   loserId: number
   loserScore: number
+  winner: UserInfoPublic
+  loser: UserInfoPublic
 }
 
 interface gamesStateI {
@@ -18,7 +22,8 @@ interface gamesStateI {
   games: GameI[],
   score: number,
   losesNum: number,
-  winsNum: number
+  winsNum: number,
+  ladder: fromBackI[]
 }
 
 const initialState: gamesStateI = {
@@ -27,18 +32,30 @@ const initialState: gamesStateI = {
   games: [],
   score: 0,
   losesNum: 0,
-  winsNum: 0
+  winsNum: 0,
+  ladder: []
 }
 
 export const getGames = createAsyncThunk(
   'getGames',
-  async ( userId: number, thunkApi) => {
-      const response = await userService.getStats(userId);
+  async ( data: {userId: number, set: Function}, thunkApi) => {
+      const response = await userService.getStats(data.userId);
+      data.set(true);
       return {
         games: response.data.wins.concat(response.data.loses),
         score: response.data.score,
         losesNum: response.data.loses.length,
         winsNum: response.data.wins.length,
+      };
+  }
+)
+
+export const getLadder = createAsyncThunk(
+  'getladder',
+  async ( thunkApi) => {
+      const response = await userService.getLadder();
+      return {
+        ladder: response.data
       };
   }
 )
@@ -64,6 +81,13 @@ const gamesSlice = createSlice({
       .addCase(getGames.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message
+      })
+      .addCase(getLadder.pending, (state, action) => {
+      })
+      .addCase(getLadder.fulfilled, (state, action) => {
+        state.ladder = action.payload.ladder;
+      })
+      .addCase(getLadder.rejected, (state, action) => {
       })
   }
 })
