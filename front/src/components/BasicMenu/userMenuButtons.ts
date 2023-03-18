@@ -3,6 +3,7 @@ import {userFromBackI } from "src/pages/Chat/ChatPage";
 import { EventI } from "src/components/DialogSelect/ChannerSettingsDialog";
 import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { NavigateFunction } from "react-router-dom";
+import socket from "src/services/socket";
 
 function userMenuButtons(
   setOpen: Function,
@@ -39,6 +40,9 @@ function userMenuButtons(
   function navigateToProfile(id: string) {
     navigate("/account?user=" + id);
   }
+  function inviteToGame(name: string) {
+    socket.emit("inviteToGame", { recipient: name});
+  }
 
   return (
     [
@@ -66,7 +70,7 @@ function userMenuButtons(
       {
         component: StyledMenuItem as FC,
         compProps: {
-          onClick: createAddFriendEvent, //event?
+          onClick: () => inviteToGame(element.name), //event?
           children: "Send invitation",
         },
       },
