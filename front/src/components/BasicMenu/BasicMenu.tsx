@@ -60,9 +60,15 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullw
         onClick={handleClick}
       >
           <>
-              <Typography variant="subtitle1">{title}</Typography>
+              <Typography variant="subtitle1" maxWidth={'80px'} sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 1,
+                        WebkitBoxOrient: "vertical"
+              }}>{title}</Typography>
               <Box marginLeft={'auto'} display="flex"alignItems="center">
-              {extAvatar && <Avatar src={extAvatar} />}
+                {extAvatar && <Avatar src={extAvatar} />}
               <MoreVert color="secondary" />
               </Box>
           </>

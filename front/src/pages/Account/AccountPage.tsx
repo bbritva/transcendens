@@ -40,6 +40,9 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { extUserState } from "./AccountPageWrapper";
 import socket from "src/services/socket";
 import { RootState } from "src/store/store";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 function createHistoryData(
   score: string,
@@ -182,7 +185,12 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
 
   const createFriendElem = (friend: UserInfoPublic, banned: boolean): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu fullwidth={true} title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
+      <Box display='flex' alignItems={'center'}>
+          { friend.status === 'ONLINE' && <CheckCircleIcon color="info" />}
+          { friend.status === 'OFFLINE' && <CancelIcon color="primary" />}
+          { friend.status === 'ONGAME' && <SportsEsportsIcon color="info" />}
+        <BasicMenu fullwidth={true} title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
+      </Box>
     );
     return { id: friend.id, button: FriendComponent };
   };
