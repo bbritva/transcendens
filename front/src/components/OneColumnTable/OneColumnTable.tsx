@@ -68,7 +68,12 @@ const OneColumnTable: FC<{
         height: "100%",
         ...chatStyles.borderStyle,
         borderRadius: "0.5rem",
-        background: "linear-gradient(to top, #8bd4d1, 15%, #ecebd9)",
+        background:
+          "linear-gradient(to top, " +
+          theme.palette.primary.main +
+          ", 15%, " +
+          theme.palette.secondary.main +
+          ")",
       }}
     >
       <Grid item xs={12} display="inherit" justifyContent={"inherit"}>
