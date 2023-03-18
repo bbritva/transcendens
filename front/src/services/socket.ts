@@ -217,7 +217,7 @@ export function initSocket(
   socket.on("connectionError", (data: any) => {
     dispatch(logout());
     window.location.reload();
-    setNotifyMessage(data.cause)
+    setNotify({ message: data.cause, severity: "warning" });
   });
 
   setTimeout(() => {
