@@ -228,6 +228,9 @@ const GamePage: FC<GamePageProps> = ({
     Game.finishGameManual("drop");
     setRivalOffline(false);
     setGameSingle(false);
+    setPauseAvailable(true);
+    setPauseTimeout(0);
+    setPaused(false);
   }
 
   return (
