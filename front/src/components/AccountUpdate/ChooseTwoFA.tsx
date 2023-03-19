@@ -10,8 +10,6 @@ import {
 import { ChangeEventHandler, FC } from "react";
 import Link from "@mui/material/Link";
 
-
-
 export interface twoFAdialogProps {
   title: string;
   urlQR: string;
@@ -23,21 +21,30 @@ export interface twoFAdialogProps {
 }
 
 const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
-    <Box display={"flex"}  flexDirection={"column"} padding={"0"} marginLeft='25px' marginBottom={"0.5rem"}
+    <Box
+      display={"flex"}
+      flexDirection={"column"}
+      padding={"0"}
+      marginLeft="25px"
+      marginBottom={"0.5rem"}
     >
       <DialogTitle sx={{ padding: "3px" }}>
-        <Typography paddingTop={"5px"} variant="body1" marginLeft={"4rem"}>{props.title + " 2FA"}
+        <Typography paddingTop={"5px"} variant="body1" marginLeft={"4rem"}>
+          {props.title + " 2FA"}
         </Typography>
       </DialogTitle>
       {props.isEnabled && (
         <>
-          <DialogContentText>
-            <Typography variant="subtitle2" marginLeft="3rem" marginRight="1rem" marginTop={"7px"}>
-              SCAN THE CODE
-            </Typography>
-          </DialogContentText>
+          <Typography
+            variant="subtitle2"
+            marginLeft="3rem"
+            marginRight="1rem"
+            marginTop={"7px"}
+          >
+            SCAN THE CODE
+          </Typography>
           <Box display={"flex"}>
             <Box
               marginLeft={"3rem"}
@@ -65,11 +72,15 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
               </Link>
             </Typography>
           </Box>
-          <DialogContentText>
-            <Typography variant="subtitle2" marginLeft="3rem" marginRight="1rem" marginTop="1rem">
-              ENTER YOUR DIGIT CODE
-            </Typography>
-          </DialogContentText>
+
+          <Typography
+            variant="subtitle2"
+            marginLeft="3rem"
+            marginRight="1rem"
+            marginTop="1rem"
+          >
+            ENTER YOUR DIGIT CODE
+          </Typography>
         </>
       )}
       <TextField
@@ -80,17 +91,21 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
           if (e.key === "Enter") props.onClick();
         }}
         margin="dense"
-        sx={{ marginLeft: '3rem', marginRight: "2rem",
-        fieldset: {
-          borderColor: theme.palette.primary.dark,},
-        input:   {
-          color: theme.palette.primary.dark,
-         }}}
+        sx={{
+          marginLeft: "3rem",
+          marginRight: "2rem",
+          fieldset: {
+            borderColor: theme.palette.primary.dark,
+          },
+          input: {
+            color: theme.palette.primary.dark,
+          },
+        }}
       />
       <Button
         variant="outlined"
         sx={{
-          alignSelf: 'end', 
+          alignSelf: "end",
           marginRight: "2rem",
         }}
         onClick={props.onClick}
