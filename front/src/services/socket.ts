@@ -17,6 +17,7 @@ import {
   deleteFriend,
   setBanned,
   setFriends,
+  setFriendStatus,
   UserInfoPublic,
 } from "src/store/chatSlice";
 
@@ -135,6 +136,7 @@ export function initSocket(
       message: `${data.name} changed status to ${data.status}`,
       severity: "success",
     });
+    dispatch(setFriendStatus(data));
   });
 
   socket.on("connect", () => {});
