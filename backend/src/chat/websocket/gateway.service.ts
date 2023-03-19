@@ -66,7 +66,11 @@ export class GatewayService {
         this.connections.get(socket.id).id,
         "ONLINE"
       );
-      //send to new user all channels
+      this.server.emit("userStatus", {
+        name: this.connections.get(socket.id).name,
+        id: this.connections.get(socket.id).id,
+        status: "ONLINE",
+      }); //send to new user all channels
       this.server
         .to(socket.id)
         .emit("channels", await this.channelService.ChannelList());
@@ -104,6 +108,11 @@ export class GatewayService {
       )
         this.server.to(el.gameName).emit("rivalOnline", { isOnline: false });
     }
+    this.server.emit("userStatus", {
+      name: this.connections.get(socket.id).name,
+      id: this.connections.get(socket.id).id,
+      status: "OFFLINE",
+    });
     this.connections.delete(socket.id);
   }
 
@@ -684,6 +693,12 @@ export class GatewayService {
               client.name == gameResults.loserName
             ) {
               client.inGame = false;
+              this.userService.setUserStatus(client.id, "ONLINE");
+              this.server.emit("userStatus", {
+                name: client.name,
+                id: client.id,
+                status: "ONLINE",
+              });
             }
           });
         })
@@ -714,6 +729,12 @@ export class GatewayService {
         el[1].name == game.playerSecond.name
       ) {
         el[1].inGame = true;
+        this.userService.setUserStatus(el[1].id, "ONGAME");
+        this.server.emit("userStatus", {
+          name: el[1].name,
+          id: el[1].id,
+          status: "ONGAME",
+        });
         this.server.in(el[0]).socketsJoin(game.gameName);
         this.server.to(el[0]).emit("gameLine", { inLine: false });
       }

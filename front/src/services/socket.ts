@@ -8,6 +8,7 @@ import {
   userFromBackI,
   userInChannelMovementI,
   NameSuggestionInfoI,
+  UserStatusI
 } from "src/pages/Chat/ChatPage";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
 import { logout } from "src/store/authActions";
@@ -127,6 +128,13 @@ export function initSocket(
       setGameData(game);
       navigate("/game", { replace: false });
     }
+  });
+
+  socket.on("userStatus", (data: UserStatusI) => {
+    setNotify({
+      message: `${data.name} changed status to ${data.status}`,
+      severity: "success",
+    });
   });
 
   socket.on("connect", () => {});

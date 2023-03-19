@@ -28,6 +28,12 @@ export interface NameSuggestionInfoI {
   readonly name: string;
 }
 
+export interface UserStatusI {
+  readonly id: number;
+  readonly name: string;
+  readonly status: string;
+}
+
 export interface userFromBackI extends fromBackI {}
 
 export interface channelFromBackI extends fromBackI {
