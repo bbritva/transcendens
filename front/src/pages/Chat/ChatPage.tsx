@@ -29,7 +29,7 @@ export interface NameSuggestionInfoI {
 }
 
 export interface UserStatusI {
-  readonly id: number;
+  readonly id: string;
   readonly name: string;
   readonly status: string;
 }

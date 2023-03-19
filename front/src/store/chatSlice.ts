@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { UserStatusI } from 'src/pages/Chat/ChatPage';
 import { RootState } from 'src/store/store';
 
 
@@ -29,6 +30,14 @@ const chatSlice = createSlice({
     setFriends(state, action: PayloadAction<UserInfoPublic[]>) {
       state.friends = state.friends.concat(action.payload);
     },
+    setFriendStatus(state, action: PayloadAction<UserStatusI>) {
+      for (let i = 0; i < state.friends.length; i++) {
+        if (state.friends[i].id === action.payload.id){
+          state.friends[i].status = action.payload.status;
+          break ;
+        }
+      }
+    },
     deleteFriend(state, action: PayloadAction<UserInfoPublic>) {
       state.friends = state.friends.filter((friend) => friend.id !== action.payload.id);
     },
@@ -45,5 +54,5 @@ const chatSlice = createSlice({
 export const selectFriends = (state: RootState) => state.chat.friends;
 export const selectBanned = (state: RootState) => state.chat.banned;
 
-export const {setFriends, deleteFriend, setBanned, deleteBanned} = chatSlice.actions;
+export const {setFriends, deleteFriend, setBanned, deleteBanned, setFriendStatus} = chatSlice.actions;
 export default chatSlice.reducer;
