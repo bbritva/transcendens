@@ -46,6 +46,7 @@ export interface newMessageI {
   channelName: string;
   sentAt: string | null;
   authorName: string;
+  authorId: string;
   text: string;
 }
 
@@ -103,6 +104,7 @@ const ChatPage: FC<ChatPageProps> = ({
       channelName: destinationChannel.name,
       sentAt: null,
       authorName: testUsername || user.user?.name || "",
+      authorId: user.user.id || "",
       text: value,
     };
     socket.emit("newMessage", newMessage);
