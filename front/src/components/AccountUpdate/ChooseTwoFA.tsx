@@ -25,7 +25,7 @@ export interface twoFAdialogProps {
 const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
   const theme = useTheme()
   return (
-    <Box display={"flex"}  flexDirection={"column"} padding={"0"} marginLeft='10px' marginBottom={"0.5rem"}
+    <Box display={"flex"}  flexDirection={"column"} padding={"0"} marginLeft='25px' marginBottom={"0.5rem"}
     >
       <DialogTitle sx={{ padding: "3px" }}>
         <Typography paddingTop={"5px"} variant="body1" marginLeft={"4rem"}>{props.title + " 2FA"}

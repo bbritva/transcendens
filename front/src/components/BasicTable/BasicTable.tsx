@@ -39,7 +39,7 @@ export interface basicTableI extends styledBoxI {
 function drawHeader(element: string) {
   return (
     <TableCell padding="checkbox" key={element}>
-      <Typography marginLeft={"1.5rem"} paddingTop={"0.5rem"} variant="subtitle1">{element}</Typography>
+      <Typography marginLeft={"2rem"} paddingTop={"0.5rem"} variant="subtitle1">{element}</Typography>
     </TableCell>
   );
 }

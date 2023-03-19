@@ -55,4 +55,18 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         fontStyle: 'oblique',
       },
     },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            "&.Mui-disabled": {
+              borderColor: mode === 'light'
+              ?'#56a2b8'
+              :'#2e3544',
+            }
+          }
+        }
+      }
+    }
   });
+  
