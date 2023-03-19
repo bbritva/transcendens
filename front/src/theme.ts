@@ -1,5 +1,4 @@
 import { PaletteMode } from "@mui/material";
-import { amber, deepOrange, grey } from "@mui/material/colors";
 
 export const getDesignTokens = (mode: PaletteMode) => ({
     palette: {
@@ -45,7 +44,6 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         fontFamily:  'Arial',
         fontSize: 14,
         fontWeight: "bolder",
-        fontStyle: 'oblique',
       },
       h6: {
         color: mode === 'light'

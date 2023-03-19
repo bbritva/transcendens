@@ -15,6 +15,9 @@ export class MessageEntity implements Message {
   authorName: string;
   
   @ApiProperty()
+  authorId: number;
+  
+  @ApiProperty()
   text: string;
 
   toString(): string {

@@ -35,7 +35,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
         <>
           <DialogContentText>
             <Typography variant="subtitle2" marginLeft="3rem" marginRight="1rem" marginTop={"7px"}>
-              1. SCAN YOUR QR CODE WITH THE GOOGLE APP
+              SCAN THE CODE
             </Typography>
           </DialogContentText>
           <Box display={"flex"}>
@@ -67,7 +67,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
           </Box>
           <DialogContentText>
             <Typography variant="subtitle2" marginLeft="3rem" marginRight="1rem" marginTop="1rem">
-              2. ENTER YOUR 6-DIGIT CODE
+              ENTER YOUR DIGIT CODE
             </Typography>
           </DialogContentText>
         </>

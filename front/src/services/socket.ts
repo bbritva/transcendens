@@ -7,11 +7,17 @@ import {
   newMessageI,
   userFromBackI,
   userInChannelMovementI,
-  NameSuggestionInfoI
+  NameSuggestionInfoI,
 } from "src/pages/Chat/ChatPage";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
 import { logout } from "src/store/authActions";
-import { deleteBanned, deleteFriend, setBanned, setFriends, UserInfoPublic } from 'src/store/chatSlice';
+import {
+  deleteBanned,
+  deleteFriend,
+  setBanned,
+  setFriends,
+  UserInfoPublic,
+} from "src/store/chatSlice";
 
 const URL = process.env.REACT_APP_AUTH_URL || "";
 const socket = io(URL, { autoConnect: false });
@@ -23,10 +29,9 @@ export function initSocket(
   setNotify: Function,
   dispatch: Dispatch
 ) {
-
-  socket.on('connect_error', err => console.log(err))
-  socket.on('connect_failed', err => console.log(err))
-  socket.on('disconnect', err => console.log(err))
+  socket.on("connect_error", (err) => console.log(err));
+  socket.on("connect_failed", (err) => console.log(err));
+  socket.on("disconnect", (err) => console.log(err));
 
   socket.on("channels", (channels: channelFromBackI[]) => {
     setChannels(channels);
@@ -168,21 +173,21 @@ export function initSocket(
   });
 
   socket.on("exFriend", (data: UserInfoPublic) => {
-    dispatch(deleteFriend(data))
+    dispatch(deleteFriend(data));
     setNotify({
       message: `${data.name} removed from your friends`,
       severity: "success",
     });
   });
 
-  socket.on("friendList",(data: UserInfoPublic[]) => {
+  socket.on("friendList", (data: UserInfoPublic[]) => {
     dispatch(setFriends(data));
-  })
+  });
 
   socket.on("newPersonnalyBanned", (data: UserInfoPublic) => {
     dispatch(setBanned([data]));
     setNotify({ message: `you banned ${data.name}`, severity: "success" });
-  })
+  });
 
   socket.on("exPersonnalyBanned", (data: UserInfoPublic) => {
     dispatch(deleteBanned(data));
@@ -220,6 +225,12 @@ export function initSocket(
 
   socket.on("executionError", (data: any) => {
     console.log("executionError", data);
+  });
+
+  socket.on("connectionError", (data: any) => {
+    dispatch(logout());
+    window.location.reload();
+    setNotify({ message: data.cause, severity: "warning" });
   });
 
   setTimeout(() => {

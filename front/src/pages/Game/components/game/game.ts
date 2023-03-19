@@ -67,6 +67,7 @@ enum role {
 
 class Game {
   private static instance: Game;
+  private static color: string;
   private static isPaused: boolean = false;
   private static hasNewData: boolean;
   private static mouseControl: boolean = true;
@@ -117,6 +118,14 @@ class Game {
 
   public static isGameOngoing(): boolean {
     return Game.instance.gameState.gameName != "demo";
+  }
+
+  public static setColor(color : string) {
+    Game.color = color;
+  }
+
+  public static getColor() {
+    return Game.color;
   }
 
   public static setPause(value: boolean) {
@@ -493,6 +502,7 @@ class Game {
     this.drawBorder(ctx);
 
     // mods.bricks && bricks.drawBricks(ctx);
+    ctx.fillStyle = Game.color;
     this.ball.drawBall(ctx);
     this.rightPaddle.drawPaddle(ctx, false);
     this.leftPaddle.drawPaddle(ctx, true);
@@ -503,7 +513,7 @@ class Game {
     const lineWidth = 4;
     if (!this.canvas) return;
     ctx.beginPath();
-    ctx.strokeStyle = "#0090DD";
+    ctx.strokeStyle = Game.color;
     ctx.lineWidth = lineWidth;
     ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.closePath();
@@ -514,7 +524,7 @@ class Game {
     ctx.beginPath();
     ctx.font = "14px Arial";
     ctx.textAlign = "center";
-    ctx.fillStyle = "#0090DD";
+    ctx.fillStyle = Game.color;
     ctx.fillText(
       `SCORE: ${this.leftPaddle.playerName} ${this.leftPaddle.score} : ${this.rightPaddle.score} ${this.rightPaddle.playerName}`,
       this.canvas.width / 2,
@@ -527,8 +537,7 @@ class Game {
     if (
       !this.canvas ||
       this.gameState.gameName == "single" ||
-      this.gameState.gameName == "demo" ||
-      Game.isPaused
+      this.gameState.gameName == "demo"
     )
       return;
 

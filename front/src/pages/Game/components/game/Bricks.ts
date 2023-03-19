@@ -1,4 +1,5 @@
 import Ball from "./Ball";
+import Game from "./game";
 
 interface brick{
   x: number,
@@ -36,7 +37,7 @@ class Bricks{
           this.bricks[c][r].y = brickY;
           ctx.beginPath();
           ctx.rect(brickX, brickY, this.brickWidth, this.brickHeight);
-          ctx.fillStyle = "#0095DD";
+          ctx.fillStyle = Game.getColor();
           ctx.fill();
           ctx.closePath();
         }
