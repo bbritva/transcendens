@@ -394,7 +394,7 @@ export class ChannelService {
     if (!channel) throw new NotFoundException();
     if (channel.admIds.includes(executorId)) {
       if (!channel.bannedIds.includes(targetId))
-        this.updateChannel({
+        return this.updateChannel({
           where: {
             name: channelName,
           },

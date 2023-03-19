@@ -388,8 +388,8 @@ export class GatewayService {
         this.server.in(user.socketId).socketsLeave(channelName);
         this.server.to(channelName).emit("userLeft", {
           channelName: channelName,
-          userName: user.name,
-          userId: user.id,
+          targetUserName: user.name,
+          targetUserId: user.id,
         });
       });
   }
