@@ -49,17 +49,20 @@ function drawRow(row: rowI) {
   return (
     <TableRow key={row.id}>
       {keys.map(
-        (cellData, index) =>
-          cellData !== "id" && (
+        (cellData, index) =>{
+          //@ts-ignore
+          const res = row[cellData]
+          return cellData !== "id" && (
             <TableCell  key={row.id + String(index)}>
-              <Typography marginLeft={"1.5rem"} variant="body1">
-                {
-                  //@ts-ignore
-                  row[cellData]
-                }
-              </Typography>
+              {
+                typeof(res) === "string"
+                ? <Typography marginLeft={"1.5rem"} variant="body1">
+                    { res }
+                  </Typography>
+                : res 
+              }
             </TableCell>
-          )
+          )}
       )}
     </TableRow>
   );

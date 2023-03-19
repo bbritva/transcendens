@@ -7,7 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { Box, CardMedia, IconButton, Slide, useTheme } from "@mui/material";
+import { Box, CardMedia, IconButton, Slide, Typography, useTheme } from "@mui/material";
 import { useSelector, useStore } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
 import { userI } from "src/store/userSlice";
@@ -125,8 +125,10 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
     createPlayerData("Total losses: ", losesNum + "", "3"),
     createPlayerData("Total score: ", score + "", "1"),
     createPlayerData(
-      <Box display="flex" alignItems="center">
-        Rating
+      <Box display="flex" alignItems="center"  marginLeft={"1.5rem"} >
+        <Typography variant="body1">
+          Rating
+        </Typography>
         <SportsCricketIcon
           fontSize='medium'
           sx={{
