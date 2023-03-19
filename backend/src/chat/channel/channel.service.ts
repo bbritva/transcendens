@@ -372,6 +372,7 @@ export class ChannelService {
                 connect: { name: data.channelName },
               },
               authorName: data.authorName,
+              authorId: parseInt( data.authorId),
               text: data.text,
             })
             .then((message) => message)

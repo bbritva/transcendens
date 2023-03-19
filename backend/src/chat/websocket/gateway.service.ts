@@ -45,7 +45,12 @@ export class GatewayService {
         });
         return false;
       } else if (authorizedUser) {
-        this.connections.set(socket.id, authorizedUser);
+        this.connections.set(socket.id, {
+          id: authorizedUser.id,
+          name: authorizedUser.name,
+          socketId: socket.id,
+          inGame: false,
+        });
       } else if (authName) {
         const user = await this.userService.getUserByName(authName);
         if (!user) return false;
@@ -116,24 +121,33 @@ export class GatewayService {
       const targetUser = await this.userService.getUserByName(
         data.targetUserName
       );
-      const executror = this.connections.get(socket.id);
-      if (!targetUser || !executror)
+      const executor = await this.userService.getUser(
+        this.connections.get(socket.id)?.id || -1
+      );
+      if (!targetUser || !executor)
         this.emitExecutionError(socket.id, "privateMessage", "user unknown");
-      else if (targetUser.name == executror.name)
+      else if (targetUser.name == executor.name)
         this.emitNotAllowed(
           socket.id,
           "privateMessage",
           data,
           "self-talks are strange"
         );
-      else if (targetUser.bannedIds.includes(executror.id))
+      else if (targetUser.bannedIds.includes(executor.id))
         this.emitNotAllowed(socket.id, "privateMessage", data, "you're banned");
+      else if (executor.bannedIds.includes(targetUser.id))
+        this.emitNotAllowed(
+          socket.id,
+          "privateMessage",
+          data,
+          "user is banned"
+        );
       else {
         const channelIn = this.createPMChannelInfo([
-          executror.name,
+          executor.name,
           data.targetUserName,
         ]);
-        await this.connectUserToChannel(channelIn, executror);
+        await this.connectUserToChannel(channelIn, executor);
         this.connectUserToChannel(channelIn, targetUser);
       }
     } catch (e) {
@@ -760,6 +774,8 @@ export class GatewayService {
     channelIn: DTO.ChannelInfoIn,
     user: DTO.ClientInfo
   ) {
+    const userDB = await this.userService.getUser(user.id);
+    if (!user) throw new NotFoundException();
     return this.channelService
       .connectToChannel({
         name: channelIn.name,
@@ -782,7 +798,9 @@ export class GatewayService {
         const channelInfo: DTO.ChannelInfoOut = {
           name: channel.name,
           users: channel.guests,
-          messages: channel.messages,
+          messages: channel.messages.filter(
+            (message) => !userDB.bannedIds.includes(message.authorId)
+          ),
           isPrivate: channel.isPrivate,
           hasPassword: !!channel.password,
         };

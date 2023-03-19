@@ -69,6 +69,7 @@ model Message {
   channelName String    
   sentAt      DateTime  @default(now())
   authorName  String
+  authorId    Int
   text        String
 }
 

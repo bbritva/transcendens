@@ -16,10 +16,11 @@ import {
 import Game, { GameStateDataI } from "./components/game/game";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import socket from "src/services/socket";
-import { useStore } from "react-redux";
+import { useSelector, useStore } from "react-redux";
 import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
 import CanvasR from "./components/CanvasR";
+import { selectMode} from "src/store/colorModeSlice";
 
 
 
@@ -70,6 +71,8 @@ const GamePage: FC<GamePageProps> = ({
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const theme = useTheme();
+  const mode = useSelector(selectMode);
+
 
   const webcamRef = useRef<Webcam>(null);
 
@@ -90,7 +93,12 @@ const GamePage: FC<GamePageProps> = ({
   }, [gameResult]);
 
   useEffect(() => {
+    Game.setColor(theme.palette.primary.main)
+  }, [mode]);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
+    // Game.setColor(theme.palette.primary.main)
     socket.off("gameLine");
     socket.on("gameLine", (data: gameLineI) => {
       setInLine(data.inLine);

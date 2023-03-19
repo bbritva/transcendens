@@ -1,5 +1,5 @@
 import Ball from "./Ball";
-import { gameBasicPropsI } from "./game";
+import Game, { gameBasicPropsI } from "./game";
 
 export enum ControlE {
   REMOTE,
@@ -133,7 +133,7 @@ class Paddle {
       this.paddleHeight * ctx.canvas.width,
       this.paddleWidth * ctx.canvas.height
     );
-    ctx.fillStyle = "#0096DD";
+    ctx.fillStyle = Game.getColor();
     ctx.fill();
     ctx.closePath();
   }
