@@ -76,7 +76,7 @@ export default function SignUp(props: AccountUpdateProps) {
         dispatch(updateUser({ ...extUser as userI, avatar: res.data.avatar }));
       }
       setFile(null);
-      setImageUrl("");
+      // setImageUrl("");
     }
     if (!inputError && inputValue !== extUser.name){
       const res = await userService.setUserName({id: extUser.id, name: inputValue})
