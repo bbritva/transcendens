@@ -326,9 +326,7 @@ export class GatewayService {
               else
                 this.leaveChannel(socketId, data.channelName, targetUser).then(
                   () => {
-                    this.server
-                      .to(socketId)
-                      .emit("userKicked", data);
+                    this.server.to(socketId).emit("userKicked", data);
                   }
                 );
             })

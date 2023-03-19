@@ -421,7 +421,7 @@ export class ChannelService {
       .then((channel: Channel) => {
         if (channel.admIds.includes(executorId)) {
           if (!channel.mutedIds.includes(targetId))
-            this.updateChannel({
+            return this.updateChannel({
               where: {
                 name: channelName,
               },
