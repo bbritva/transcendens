@@ -3,7 +3,7 @@ import { Divider, useTheme } from "@mui/material";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import ChatTable from "src/components/OneColumnTable/ChatTable";
 import { RootState } from "src/store/store";
-import { useStore } from "react-redux";
+import { useSelector, useStore } from "react-redux";
 import ChatInput from "src/components/ChatInput/ChatInput";
 import ChooseDialogChildren from "src/components/DialogSelect/ChooseDialogChildren";
 import { chatStyles } from "./chatStyles";
@@ -13,10 +13,14 @@ import { Box } from "@mui/system";
 import userMenuButtons from "src/components/BasicMenu/userMenuButtons";
 import channelMenuButtons from "src/components/BasicMenu/channelMenuButtons";
 import { useNavigate } from "react-router-dom";
+import { selectBanned } from "src/store/chatSlice";
 
-export interface fromBackI {
+interface idI {
+  id: string
+}
+
+export interface fromBackI extends idI{
   name: string;
-  id: string;
   hasNewMessages: boolean;
   messages: newMessageI[];
   connected: boolean;
@@ -29,7 +33,7 @@ export interface NameSuggestionInfoI {
 }
 
 export interface UserStatusI {
-  readonly id: number;
+  readonly id: string;
   readonly name: string;
   readonly status: string;
 }
@@ -47,8 +51,7 @@ export interface userInChannelMovementI {
   targetUserName: string;
 }
 
-export interface newMessageI {
-  id: number | null;
+export interface newMessageI extends idI{
   channelName: string;
   sentAt: string | null;
   authorName: string;
@@ -84,6 +87,7 @@ const ChatPage: FC<ChatPageProps> = ({
   const testUsername = sessionStorage.getItem("username");
   const [openUsersDialog, setOpenUsersDialog] = useState(false);
   const [openChannelsDialog, setOpenChannelsDialog] = useState(false);
+  const banned = useSelector(selectBanned);
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
@@ -106,7 +110,7 @@ const ChatPage: FC<ChatPageProps> = ({
       return;
     }
     const newMessage: newMessageI = {
-      id: null,
+      id: '',
       channelName: destinationChannel.name,
       sentAt: null,
       authorName: testUsername || user.user?.name || "",
@@ -116,6 +120,28 @@ const ChatPage: FC<ChatPageProps> = ({
     socket.emit("newMessage", newMessage);
     setValue("");
   };
+
+  const filterBannedByElemIf = (elem: idI) => {
+    for (let i = 0; i < banned.length; i++){
+      if (banned[i].id === elem.id)
+        return false;
+    }
+    return true;
+  }
+
+  function filterBannedUsers(users: userFromBackI[]){
+    return users.filter(filterBannedByElemIf)
+  }
+
+  function filterBannedMessages(messages: newMessageI[]){
+    return messages.filter((elem) => {
+      for (let i = 0; i < banned.length; i++){
+        if (banned[i].id === elem.authorId)
+          return false;
+      }
+      return true;
+    })
+  }
 
   // props for the oneCol table - buttons styled items
   return (
@@ -163,8 +189,7 @@ const ChatPage: FC<ChatPageProps> = ({
           name={"Chat"}
           loading={loading}
           messages={
-            channels.find((el) => el.name === chosenChannel.name)?.messages ||
-            []
+            filterBannedMessages(channels.find((el) => el.name === chosenChannel.name)?.messages || [])
           }
           socket={socket}
           chatStyles={chatStyles}
@@ -194,7 +219,7 @@ const ChatPage: FC<ChatPageProps> = ({
           user={user.user}
           loading={loading}
           elements={
-            channels.find((el) => el.name === chosenChannel.name)?.users || []
+            filterBannedUsers(channels.find((el) => el.name === chosenChannel.name)?.users || [])
           }
           buttons={userMenuButtons(setOpenUsersDialog, setDestination, chosenUser, navigate)}
           openDialog={openUsersDialog}
