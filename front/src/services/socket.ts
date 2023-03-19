@@ -159,7 +159,7 @@ export function initSocket(
 
   socket.on("newAdmin", (data: userInChannelMovementI) => {
     setNotify({
-      message: `${data.targetUserName} set as administrator in ${data.channelName}`,
+      message: `${data.targetUserName} is an administrator in ${data.channelName} now`,
       severity: "success",
     });
   });
