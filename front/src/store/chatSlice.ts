@@ -37,6 +37,12 @@ const chatSlice = createSlice({
           break ;
         }
       }
+      for (let i = 0; i < state.banned.length; i++) {
+        if (state.banned[i].id === action.payload.id){
+          state.banned[i].status = action.payload.status;
+          break ;
+        }
+      }
     },
     deleteFriend(state, action: PayloadAction<UserInfoPublic>) {
       state.friends = state.friends.filter((friend) => friend.id !== action.payload.id);
