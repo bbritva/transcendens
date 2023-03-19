@@ -157,6 +157,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
             setSearchParams({ user: friend.id + "" }, { replace: false });
           },
           children: "Profile",
+          key: "Profile",
         },
       },
       {
@@ -168,6 +169,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
             });
           },
           children: banned ? "Unban" : "Delete",
+          key: banned ? "Unban" : "Delete",
         },
       },
     ];
@@ -177,6 +179,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
         compProps: {
           onClick: () => navigate("/chat", { replace: false }),
           children: "Message",
+          key: "Message",
         },
       });
       res.push({
@@ -184,6 +187,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
         compProps: {
           onClick: () => navigate("/game", { replace: false }),
           children: "Game",
+          key: "Game",
         },
       });
     }
@@ -195,7 +199,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
     banned: boolean
   ): settingsRowI => {
     const FriendComponent = (
-      <Box display='flex' alignItems={'center'}>
+      <Box key={friend.id} display='flex' alignItems={'center'}>
           { friend.status === 'ONLINE' && <WifiIcon color="info" />}
           { friend.status === 'OFFLINE' && <WifiOffIcon color="primary" />}
           { friend.status === 'ONGAME' && <SportsEsportsIcon color="info" />}

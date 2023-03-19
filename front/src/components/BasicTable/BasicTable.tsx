@@ -70,9 +70,9 @@ function drawRow(row: rowI) {
 
 export default function BasicTable(props: basicTableI) {
   const theme = useTheme();
-  const { tableHeadArray, tableRowArray, ...styledProps } = props;
+  const { tableHeadArray, tableRowArray, myRef, ...styledProps } = props;
   return (
-    <StyledBox {...styledProps} ref={props.myRef}>
+    <StyledBox {...styledProps} ref={myRef}>
       {props.onClose && (
         <IconButton
           aria-label="close"
