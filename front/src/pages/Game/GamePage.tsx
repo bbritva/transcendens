@@ -11,6 +11,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
+  Typography,
   useTheme,
 } from "@mui/material";
 import Game, { GameStateDataI } from "./components/game/game";
@@ -20,9 +21,7 @@ import { useSelector, useStore } from "react-redux";
 import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
 import CanvasR from "./components/CanvasR";
-import { selectMode} from "src/store/colorModeSlice";
-
-
+import { selectMode } from "src/store/colorModeSlice";
 
 export interface point {
   x: number;
@@ -73,7 +72,6 @@ const GamePage: FC<GamePageProps> = ({
   const theme = useTheme();
   const mode = useSelector(selectMode);
 
-
   const webcamRef = useRef<Webcam>(null);
 
   useEffect(() => {
@@ -93,7 +91,7 @@ const GamePage: FC<GamePageProps> = ({
   }, [gameResult]);
 
   useEffect(() => {
-    Game.setColor(theme.palette.primary.main)
+    Game.setColor(theme.palette.primary.main);
   }, [mode]);
 
   useEffect(() => {
@@ -251,7 +249,7 @@ const GamePage: FC<GamePageProps> = ({
       flex={"wrap"}
       flexDirection={"column"}
       maxWidth={"md"}
-      width = {"0.9"}
+      width={"0.9"}
       sx={{
         backgroundColor: theme.palette.secondary.main,
       }}
@@ -375,7 +373,8 @@ const GamePage: FC<GamePageProps> = ({
           </Button>
         </Box>
       </DialogSelect>
-      <Dialog disableEscapeKeyDown
+      <Dialog
+        disableEscapeKeyDown
         open={isRivalOffline}
         onClose={setRivalOffline}
       >
@@ -529,6 +528,16 @@ const GamePage: FC<GamePageProps> = ({
           onClick={finishSingleGame}
         />
       </Grid>
+      <Typography
+        variant="h6"
+        marginLeft="3rem"
+        marginRight="1rem"
+        marginTop={"7px"}
+      >
+        {playerController === "Mouse"
+          ? "You have chosen an old-fashioned way to control with the mouse. Just move it to control the racket =("
+          : "You have chosen a cool incredible innovative way to remote control. Just move your hand in front of the camera =)"}
+      </Typography>
     </Box>
   );
 };
