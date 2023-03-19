@@ -99,10 +99,17 @@ const OneColumnTable: FC<{
               if (!(taper === "Users" && user?.name === data.name)){
                 //@ts-ignore
                 let ava = data?.avatar || data.image || '';
+                let name = data.name;
+                if(data.name.endsWith(" pm")) {
+                  
+
+                  const names = data.name.split(" ");
+                  name = (names[0] === user?.name) ? names[0] : names[1];
+                }
                 return (
                   <BasicMenu
                     key={data.name}
-                    title={data.name}
+                    title={name}
                     onClick={() => {
                       setElement(data);
                     }}
