@@ -384,8 +384,9 @@ export class GatewayService {
       .leaveChannel(user.id, channelName)
       .catch((e) => this.emitExecutionError(socketId, "leaveChannel", e.cause))
       .then(() => {
-        this.server.to(user.socketId).emit("leftChannel", channelName);
-        this.server.in(user.socketId).socketsLeave(channelName);
+        const targetSocket = (user?.socketId) || this.connectionByName(user.name)
+        this.server.to(targetSocket).emit("leftChannel", channelName);
+        this.server.in(targetSocket).socketsLeave(channelName);
         this.server.to(channelName).emit("userLeft", {
           channelName: channelName,
           targetUserName: user.name,
