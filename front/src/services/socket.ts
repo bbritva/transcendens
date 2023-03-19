@@ -157,6 +157,13 @@ export function initSocket(
     });
   });
 
+  socket.on("newAdmin", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `${data.targetUserName} set as administrator in ${data.channelName}`,
+      severity: "success",
+    });
+  });
+
   socket.on("userMuted", (data: userInChannelMovementI) => {
     setNotify({ message: `you muted ${data.targetUserName}`, severity: "success" });
   });
