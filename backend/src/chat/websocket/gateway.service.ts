@@ -328,7 +328,7 @@ export class GatewayService {
                   () => {
                     this.server
                       .to(socketId)
-                      .emit("userKicked", data.channelName);
+                      .emit("userKicked", data);
                   }
                 );
             })
