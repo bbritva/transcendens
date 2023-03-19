@@ -1,4 +1,4 @@
-import { gameBasicPropsI } from "./game";
+import Game, { gameBasicPropsI } from "./game";
 import Paddle from "./Paddle";
 
 class Ball {
@@ -80,7 +80,7 @@ class Ball {
       0,
       Math.PI * 2
     );
-    ctx.fillStyle = "#0090DD";
+    ctx.fillStyle = Game.getColor();
     ctx.fill();
     ctx.closePath();
   }

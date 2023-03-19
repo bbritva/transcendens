@@ -1,24 +1,4 @@
 
-.landing-background {
-  color: #fff;
-  width: 100%;
-  height: 100%;
-  background-color: #56a2b8;
-  font-family: Inter;
-  background-position: center;
-  background-size: cover;
-}
-
-.logo-text {
-  width: 143px;
-  height: 134px;
-  background-color: black;
-  letter-spacing: -2px;
-  margin-bottom: -5%;
-  object-fit: cover;
-  align-items: center;
-}
-
 canvas {
   width: 100%;
   height: auto;

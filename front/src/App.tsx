@@ -11,8 +11,11 @@ import {
   Button,
   IconButton,
   Snackbar,
+  PaletteMode,
   Alert,
   AlertColor,
+  Box,
+  Stack
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -34,57 +37,15 @@ import { getAuthorizeHref } from "src/utils/oauthConfig";
 import useAuth from "src/hooks/useAuth";
 import useTwoFA from "src/hooks/useTwoFA";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
+import { selectMode } from "./store/colorModeSlice";
+import { getDesignTokens } from "./theme";
+import StyledBackground from "./StyledBackground";
+
 
 export interface notifyI {
   message: string;
   severity: AlertColor;
 }
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#56a2b8",
-      dark: "#3c7180",
-      contrastText: "#ffcc00",
-    },
-    secondary: {
-      main: "#ecebd9",
-      dark: "#ebebda",
-    },
-    info: {
-      main: "#8bd4d1",
-    },
-  },
-  typography: {
-    body1: {
-      fontFamily: "Arial",
-      fontSize: 16,
-      fontWeight: "bolder",
-      color: "#3c7180",
-    },
-    subtitle1: {
-      fontFamily: "Arial",
-      fontSize: 15,
-      fontWeight: "bolder",
-      color: "#56a2b8",
-    },
-    subtitle2: {
-      fontFamily: "Arial",
-      fontSize: 14,
-      fontWeight: "bolder",
-      fontStyle: "oblique",
-      color: "#ebebda",
-    },
-    h6: {
-      fontFamily: "Arial",
-      fontSize: 14,
-      fontWeight: "bolder",
-      fontStyle: "oblique",
-      color: "#56a2b8",
-    },
-  },
-});
-
 function App() {
   const { getState } = useStore();
   const dispatch = useAppDispatch();
@@ -95,9 +56,11 @@ function App() {
   const [userName, setUsername] = useState<string>("");
   const [channels, setChannels] = useState<channelFromBackI[]>([]);
   const [gameData, setGameData] = useState<GameStateDataI | null>(null);
+  const mode = useSelector(selectMode);
   const [notifyOpen, setNotifyOpen] = useState(false);
   const [notify, setNotify] = useState<notifyI | null>(null);
 
+  const theme = createTheme(getDesignTokens(mode));
   authHeader();
   authRefreshInterceptor();
   const [accessCode, accessState] = useAuth();
@@ -199,7 +162,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="landing-background">
+      <StyledBackground>
         <DialogSelect open={openTwoFa} setOpen={setTwoFaOpen} options>
           <DialogTitle>Enter 2fa code</DialogTitle>
           <TextField label={"otp code"} onChange={onChange} margin="dense" />
@@ -278,7 +241,7 @@ function App() {
             {notify?.message}
           </Alert>
         </Snackbar>
-      </div>
+      </StyledBackground>
     </ThemeProvider>
   );
 }

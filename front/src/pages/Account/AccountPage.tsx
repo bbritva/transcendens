@@ -5,15 +5,9 @@ import {
   ForwardedRef,
   useState,
   useEffect,
-  ReactNode
+  ReactNode,
 } from "react";
-import {
-  Box,
-  CardMedia,
-  IconButton,
-  Slide,
-  useTheme,
-} from "@mui/material";
+import { Box, CardMedia, IconButton, Slide, useTheme } from "@mui/material";
 import { useSelector, useStore } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
 import { userI } from "src/store/userSlice";
@@ -35,11 +29,14 @@ import { selectBanned, selectFriends, UserInfoPublic } from "src/store/chatSlice
 import { getGames, getLadder, selectGames } from "src/store/gamesSlice";
 import { useAppDispatch } from "src/app/hooks";
 import fakeAvatar from "src/assets/logo192.png";
-import SportsCricketIcon from '@mui/icons-material/SportsCricket';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import SportsCricketIcon from "@mui/icons-material/SportsCricket";
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import { extUserState } from "./AccountPageWrapper";
 import socket from "src/services/socket";
 import { RootState } from "src/store/store";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 
 function createHistoryData(
   score: string,
@@ -50,14 +47,20 @@ function createHistoryData(
   return { score, result, rival, id } as matchHistoryRowI;
 }
 
-function createPlayerData(data: string | ReactNode, rank: string | ReactNode, id: string) {
+function createPlayerData(
+  data: string | ReactNode,
+  rank: string | ReactNode,
+  id: string
+) {
   return { data, rank, id } as playerStatisticsRowI;
 }
 
-
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
-const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser, variant }): ReactElement => {
+const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
+  extUser,
+  variant,
+}): ReactElement => {
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
   const [open, setOpen, twoFaProps, setUrlQR] = useEnableTwoFA(
@@ -99,9 +102,14 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
   useEffect(() => {
     if (extUser.user.id && extUser.status !== 'loading') {
       dispatch(getGames({ userId: parseInt(extUser.user.id), set: setStatus }));
-      dispatch(getLadder());
     }
   }, [extUser.user.id]);
+
+  useEffect(() => {
+    if (status && extUser.user.id && extUser.status !== 'loading') {
+      dispatch(getLadder());
+    }
+  }, [status]);
 
   useEffect(() => {
     if (games?.ladder?.length)
@@ -113,21 +121,25 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
   }, [games.ladder?.length])
 
   const playerRows = [
-    createPlayerData("Total wins: ", winsNum + "", '2'),
-    createPlayerData("Total losses: ", losesNum + "", '3'),
-    createPlayerData("Total score: ", score + "", '1'),
+    createPlayerData("Total wins: ", winsNum + "", "2"),
+    createPlayerData("Total losses: ", losesNum + "", "3"),
+    createPlayerData("Total score: ", score + "", "1"),
     createPlayerData(
       <Box display="flex" alignItems="center">
-        Rating 
-        <SportsCricketIcon fontSize="large"
-        sx={{
-          color: theme.palette.primary.dark,
-          marginLeft: "1rem"
-        }} />
-        <EmojiEventsIcon fontSize="large"
-        sx={{
-          color: theme.palette.primary.dark,
-        }} />
+        Rating
+        <SportsCricketIcon
+          fontSize='medium'
+          sx={{
+            color: theme.palette.primary.dark,
+            marginLeft: "1rem",
+          }}
+        />
+        <EmojiEventsOutlinedIcon
+          fontSize="large"
+          sx={{
+            color: theme.palette.primary.dark,
+          }}
+        />
       </Box>,
       rating,
       '4'
@@ -140,7 +152,7 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
         component: StyledMenuItem as FC,
         compProps: {
           onClick: () => {
-            setSearchParams({ user: friend.id + '' }, { replace: false })
+            setSearchParams({ user: friend.id + "" }, { replace: false });
           },
           children: "Profile",
         },
@@ -149,15 +161,11 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
         component: StyledMenuItem as FC,
         compProps: {
           onClick: () => {
-            socket.emit(
-              banned
-                ? "unbanPersonally"
-                : "removeFriend"
-              , { targetUserName: friend.name })
+            socket.emit(banned ? "unbanPersonally" : "removeFriend", {
+              targetUserName: friend.name,
+            });
           },
-          children: banned 
-          ? "Unban"
-          : "Delete",
+          children: banned ? "Unban" : "Delete",
         },
       },
     ];
@@ -180,9 +188,17 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
     return res;
   };
 
-  const createFriendElem = (friend: UserInfoPublic, banned: boolean): settingsRowI => {
+  const createFriendElem = (
+    friend: UserInfoPublic,
+    banned: boolean
+  ): settingsRowI => {
     const FriendComponent = (
-      <BasicMenu fullwidth={true} title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
+      <Box display='flex' alignItems={'center'}>
+          { friend.status === 'ONLINE' && <CheckCircleIcon color="info" />}
+          { friend.status === 'OFFLINE' && <CancelIcon color="primary" />}
+          { friend.status === 'ONGAME' && <SportsEsportsIcon color="info" />}
+        <BasicMenu fullwidth={true} title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
+      </Box>
     );
     return { id: friend.id, button: FriendComponent };
   };
@@ -225,13 +241,16 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
       component={CardMedia}
       display="flex"
       alignItems={"center"}
-      justifyContent={
-        "center"
-      }
+      justifyContent={"center"}
       flexWrap="wrap"
       sx={{
         boxShadow: "20",
-        background: "linear-gradient(to top, #8bd4d1, 15%, #ecebd9)",
+        background:
+          "linear-gradient(to top, " +
+          theme.palette.primary.main +
+          ", 15%, " +
+          theme.palette.secondary.main +
+          ")",
         width: "65vw",
         height: "90vh",
         overflow: "scroll",
@@ -265,29 +284,27 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
               }, 600);
           }}
         >
-          {
-            slideFriends
-              ? <FriendsTableRef {
-                ...(slideBanned
-                  ? refBannedsProps
-                  : refFriendsProps)
-              } />
-              : <StyledBox myalign="start" mybackcolor={theme.palette.info.main}>
-                <IconButton
-                  aria-label="close"
-                  onClick={() => setOpen(false)}
-                  sx={{
-                    position: "absolute",
-                    right: "2px",
-                    top: "1px",
-                    color: (theme) => theme.palette.grey[500],
-                  }}
-                >
-                  <CloseIcon />
-                </IconButton>
-                <ChooseTwoFA {...twoFaProps} />
-              </StyledBox>
-          }
+          {slideFriends ? (
+            <FriendsTableRef
+              {...(slideBanned ? refBannedsProps : refFriendsProps)}
+            />
+          ) : (
+            <StyledBox myalign="start" mybackcolor={theme.palette.info.main}>
+              <IconButton
+                aria-label="close"
+                onClick={() => setOpen(false)}
+                sx={{
+                  position: "absolute",
+                  right: "2px",
+                  top: "1px",
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+              <ChooseTwoFA {...twoFaProps} />
+            </StyledBox>
+          )}
         </Slide>
       )}
       {!open && !slideShow && variant && (
@@ -306,7 +323,7 @@ const AccountPage: FC<{ extUser: extUserState, variant: boolean }> = ({ extUser,
         title="MATCH HISTORY"
         tableHeadArray={header}
         tableRowArray={historyRows}
-        mybackcolor={theme.palette.primary.main}
+        mybackcolor={theme.palette.info.main}
         myalign="start"
       />
     </Box>

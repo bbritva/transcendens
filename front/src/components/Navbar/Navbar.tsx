@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { Typography, AppBar, Box, useTheme } from "@mui/material";
+import { Typography, AppBar, Box, useTheme, Switch } from "@mui/material";
 import { routes } from "src/routes";
 import { GridLogo } from "src/components/Logo/GridLogo";
 import { selectUser } from "src/store/userSlice";
@@ -11,6 +11,8 @@ import { StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
 import { useNavigate } from "react-router-dom";
 import { FC, useEffect, useState } from "react";
 import AutocompleteSearch from "../Autocomplete/AutocompleteSearch";
+import { useAppDispatch } from "src/app/hooks";
+import { selectMode, switchMode } from "src/store/colorModeSlice";
 
 interface NavbarProps {
   loginButtonText: string;
@@ -20,12 +22,13 @@ interface NavbarProps {
 
 
 function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
-  // const [anchorNav, setAnchorNav] = useState(null); //will use it for menu
   const { user, status, error } = useSelector(selectUser);
   const theme = useTheme();
   const myHeight = "10vh";
   const navigate = useNavigate();
   const [avatarSource, setAvatarSource] = useState<string>('');
+  const dispatch = useAppDispatch();
+  const mode = useSelector(selectMode);
 
   useEffect(() => {
     const test = user?.avatar;
@@ -83,7 +86,8 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
   ];
 
   return (
-    <AppBar position="sticky">
+    <AppBar position="sticky" 
+    color="transparent" >
       <Box sx={{ flexGrow: 1, display: { xs: "flex" } }}>
         <GridLogo size={100}></GridLogo>
         {routes.map(
@@ -92,11 +96,19 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
               <NavButton key={page.key} page={page}>{page.title}</NavButton>
             )
         )}
-        <Box marginLeft={"auto"} marginRight={'2rem'} display='flex' width={'200px'} maxWidth={"30vw"}>
+        <Box marginLeft={"auto"} marginRight={'2rem'} display='flex' width={'300px'} maxWidth={"50vw"}>
           <Protected
             user={user}
             render={() =>
               <>
+                <Switch
+                  color="secondary"
+                  sx={{ marginTop: '1rem', marginRight: '1rem'}}
+                  checked={ mode === 'dark'} 
+                  onClick={() => {
+                    dispatch(switchMode())
+                  }}
+                />
                 <AutocompleteSearch />
                 <BasicMenu
                   mychildren={buttons}
