@@ -22,6 +22,9 @@ import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
 import CanvasR from "./components/CanvasR";
 import { selectMode } from "src/store/colorModeSlice";
+import GamesTable from "src/components/OneColumnTable/GamesTable";
+import GameSpectateButtons from "src/components/BasicMenu/GamesSpectateButtons";
+import { chatStyles } from "../Chat/chatStyles";
 
 export interface point {
   x: number;
@@ -61,17 +64,22 @@ const GamePage: FC<GamePageProps> = ({
   const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
   const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
-  const [singlePlayerRival, setSinglePlayerRival] = useState<string>("AI");
+  const [gameList, setGameList] = useState<GameStateDataI[]>([]);
   const [playerController, setPlayerController] = useState<string>("Mouse");
-  const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
-  const [openSpectatorDialog, setOpenSpectatorDialog] =
-    useState<boolean>(false);
+  const [openMPDialog, setOpenMPDialog] = useState(false);
   const [inputValue, setInputValue] = useState<string>();
   const testUsername = sessionStorage.getItem("username");
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const theme = useTheme();
   const mode = useSelector(selectMode);
+  const [loading, setLoading] = useState(false);
+  const [event, setEvent] = useState<[string, { gameName: string }]>([
+    "",
+    { gameName: "" },
+  ]);
+  const [chosenGame, setChosenGame] = useState({} as GameStateDataI);
+  const [openGamesDialog, setOpenGamesDialog] = useState(false);
 
   const webcamRef = useRef<Webcam>(null);
 
@@ -92,12 +100,17 @@ const GamePage: FC<GamePageProps> = ({
   }, [gameResult]);
 
   useEffect(() => {
+    const [eventName, data] = event;
+    socket.emit(eventName, data);
+  }, [event]);
+
+  useEffect(() => {
     Game.setColor(theme.palette.primary.main);
   }, [mode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    // Game.setColor(theme.palette.primary.main)
+    getActiveGames();
     socket.off("gameLine");
     socket.on("gameLine", (data: gameLineI) => {
       setInLine(data.inLine);
@@ -118,6 +131,11 @@ const GamePage: FC<GamePageProps> = ({
         setEndGameAvailable(false);
         updateEndGameTimeout(10);
       }
+    });
+    socket.off("activeGames");
+    socket.on("activeGames", (data: GameStateDataI[]) => {
+      console.log("activeGames", data);
+      setGameList(data);
     });
   }, []);
 
@@ -208,15 +226,6 @@ const GamePage: FC<GamePageProps> = ({
     if (socket.connected) {
       socket.emit("getActiveGames", {});
     }
-  }
-
-  async function spectateGame() {
-    if (socket.connected) {
-      socket.emit("spectateGame", {
-        gameName: inputValue,
-      });
-    }
-    setOpenSpectatorDialog(false);
   }
 
   function closeEndGamedialog() {
@@ -326,30 +335,6 @@ const GamePage: FC<GamePageProps> = ({
       </DialogSelect>
       <DialogSelect
         options={{}}
-        open={openSpectatorDialog}
-        setOpen={setOpenSpectatorDialog}
-      >
-        <Box
-          margin={"1rem"}
-          display={"flex"}
-          flexDirection={"column"}
-          alignItems={"flex-start"}
-        >
-          <DialogTitle>Connect to game</DialogTitle>
-          <TextField label={"Game name"} onChange={onChange} margin="dense" />
-          <Button
-            variant="outlined"
-            sx={{
-              alignSelf: "end",
-            }}
-            onClick={spectateGame}
-          >
-            Connect to game
-          </Button>
-        </Box>
-      </DialogSelect>
-      <DialogSelect
-        options={{}}
         open={openEndGameDialog}
         setOpen={setOpenEndGameDialog}
       >
@@ -448,17 +433,6 @@ const GamePage: FC<GamePageProps> = ({
             Game.setMouseControl(false);
           }}
         />
-        <Button
-          children={"Watch games"}
-          sx={{ margin: "0.5px" }}
-          variant={"outlined"}
-          disabled={gameOngoing}
-          size="large"
-          onClick={() => {
-            getActiveGames();
-            setOpenSpectatorDialog(true);
-          }}
-        />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
@@ -546,6 +520,18 @@ const GamePage: FC<GamePageProps> = ({
           ? "You have chosen an old-fashioned way to control with the mouse. Just move it to control the racket =("
           : "You have chosen a cool incredible innovative way to remote control. Just move your hand in front of the camera =)"}
       </Typography>
+      <GamesTable
+        taper="Games"
+        user={user.user}
+        loading={loading}
+        elements={gameList}
+        buttons={GameSpectateButtons(setEvent, chosenGame)}
+        openDialog={openGamesDialog}
+        setOpenDialog={setOpenGamesDialog}
+        chatStyles={chatStyles}
+        selectedElement={chosenGame}
+        setElement={setChosenGame}
+      />
     </Box>
   );
 };

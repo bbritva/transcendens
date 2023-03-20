@@ -256,10 +256,6 @@ export function initSocket(
     console.log("nameSuggestions", data);
   });
 
-  socket.on("activeGames", (data: GameStateDataI[]) => {
-    console.log("activeGames", data);
-  });
-
   socket.on("notAllowed", (data: any) => {
     setNotify({ message: data.cause, severity: "warning" });
   });
