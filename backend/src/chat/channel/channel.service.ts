@@ -402,6 +402,11 @@ export class ChannelService {
             bannedIds: {
               push: targetId,
             },
+            admIds : {
+              set: (await this.getChannel(channelName)).admIds.filter(
+                (id) => id != targetId
+              ),
+            }
           },
         })
           .then(() => true)
