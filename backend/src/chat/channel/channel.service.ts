@@ -464,6 +464,8 @@ export class ChannelService {
     executorId: number,
     targetId: number
   ): boolean {
+    console.log(channel, executorId, targetId);
+    
     return (
       executorId != targetId &&
       (executorId === channel.ownerId ||

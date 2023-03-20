@@ -250,6 +250,9 @@ export class GatewayService {
               if (isBanned) {
                 this.leaveChannel(socketId, data.channelName, targetUser);
                 this.server.to(socketId).emit("userBanned", data);
+                setTimeout(() => {
+                  this.unbanUser(socketId, data)
+                }, 1000);
               } else this.emitNotAllowed(socketId, "banUser", data);
             })
             .catch((e) =>
