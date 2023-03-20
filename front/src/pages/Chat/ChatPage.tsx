@@ -48,7 +48,7 @@ export interface channelFromBackI extends fromBackI {
 
 export interface userInChannelMovementI {
   channelName: string;
-  userName: string;
+  targetUserName: string;
 }
 
 export interface newMessageI extends idI{

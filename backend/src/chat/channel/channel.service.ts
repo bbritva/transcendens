@@ -394,7 +394,7 @@ export class ChannelService {
     if (!channel) throw new NotFoundException();
     if (this.canBan(channel, executorId, targetId)) {
       if (!channel.bannedIds.includes(targetId))
-        this.updateChannel({
+        return this.updateChannel({
           where: {
             name: channelName,
           },
@@ -426,7 +426,7 @@ export class ChannelService {
       .then((channel: Channel) => {
         if (this.canBan(channel, executorId, targetId)) {
           if (!channel.mutedIds.includes(targetId))
-            this.updateChannel({
+            return this.updateChannel({
               where: {
                 name: channelName,
               },
