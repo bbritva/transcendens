@@ -182,6 +182,20 @@ export function initSocket(
     setNotify({ message: `you kicked ${data.name}`, severity: "success" });
   });
 
+  socket.on("newChannelName", (data: { channelName: string, newName: string }) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === data.channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        res[ind].name = data.newName;
+      }
+      return res;
+    });
+    setNotify({ message: `channel ${data.channelName} became ${data.newName}`, severity: "success" });
+  });
+
+  
+
   socket.on("exFriend", (data: UserInfoPublic) => {
     dispatch(deleteFriend(data));
     setNotify({
