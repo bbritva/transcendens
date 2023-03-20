@@ -11,7 +11,8 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       secondary: {
         main: mode === 'light'
                 ?'#ecebd9' //bezhevyi
-                :'#f8ece6',
+                : '#a8a4a4',
+
       },
       info: {
         main: mode === 'light'
@@ -40,7 +41,8 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       subtitle2: {
         color: mode === 'light'
                 ?'#ebebda'
-                :'#f8ece6',
+                : '#a8a4a4',
+
         fontFamily:  'Arial',
         fontSize: 14,
         fontWeight: "bolder",

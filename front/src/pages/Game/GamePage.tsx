@@ -21,9 +21,7 @@ import { useSelector, useStore } from "react-redux";
 import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
 import CanvasR from "./components/CanvasR";
-import { selectMode} from "src/store/colorModeSlice";
-
-
+import { selectMode } from "src/store/colorModeSlice";
 
 export interface point {
   x: number;
@@ -75,7 +73,6 @@ const GamePage: FC<GamePageProps> = ({
   const theme = useTheme();
   const mode = useSelector(selectMode);
 
-
   const webcamRef = useRef<Webcam>(null);
 
   useEffect(() => {
@@ -95,7 +92,7 @@ const GamePage: FC<GamePageProps> = ({
   }, [gameResult]);
 
   useEffect(() => {
-    Game.setColor(theme.palette.primary.main)
+    Game.setColor(theme.palette.primary.main);
   }, [mode]);
 
   useEffect(() => {
@@ -297,14 +294,11 @@ const GamePage: FC<GamePageProps> = ({
                 },
                 input: {
                   color: theme.palette.primary.dark,
-                }
+                },
               }}
             />
             <Box display={"flex"} flexDirection={"row"}>
-              <Button
-                variant="outlined"
-                onClick={sendInvite}
-              >
+              <Button variant="outlined" onClick={sendInvite}>
                 Pong's invite
               </Button>
               {!inLine ? (
@@ -366,8 +360,9 @@ const GamePage: FC<GamePageProps> = ({
           alignItems={"center"}
         >
           <DialogTitle>Game over</DialogTitle>
-          <Typography variant="body1" marginBottom='0.5rem' >
-            {gameResult}</Typography>
+          <Typography variant="body1" marginBottom="0.5rem">
+            {gameResult}
+          </Typography>
           <Button
             variant="outlined"
             sx={{
@@ -379,7 +374,8 @@ const GamePage: FC<GamePageProps> = ({
           </Button>
         </Box>
       </DialogSelect>
-      <Dialog disableEscapeKeyDown
+      <Dialog
+        disableEscapeKeyDown
         open={isRivalOffline}
         onClose={setRivalOffline}
       >
@@ -432,6 +428,7 @@ const GamePage: FC<GamePageProps> = ({
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"Mouse"}
+          sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={playerController == "Mouse" || gameOngoing}
           size="large"
@@ -442,6 +439,7 @@ const GamePage: FC<GamePageProps> = ({
         />
         <Button
           children={"Hand"}
+          sx={{ margin: "0.5px" }}
           variant={"outlined"}
           size="large"
           disabled={playerController == "Hand" || gameOngoing}
@@ -451,7 +449,21 @@ const GamePage: FC<GamePageProps> = ({
           }}
         />
         <Button
+          children={"Watch games"}
+          sx={{ margin: "0.5px" }}
+          variant={"outlined"}
+          disabled={gameOngoing}
+          size="large"
+          onClick={() => {
+            getActiveGames();
+            setOpenSpectatorDialog(true);
+          }}
+        />
+      </Grid>
+      <Grid item display={"flex"} justifyContent={"center"}>
+        <Button
           children={"Single player"}
+          sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={gameOngoing}
           size="large"
@@ -473,26 +485,15 @@ const GamePage: FC<GamePageProps> = ({
             })
           }
         />
-      </Grid>
-      <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"Multi player"}
+          sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={gameOngoing}
           size="large"
           onClick={() => {
             setDeclined(false);
             setOpenMPDialog(true);
-          }}
-        />
-        <Button
-          children={"Watch games"}
-          variant={"outlined"}
-          disabled={gameOngoing}
-          size="large"
-          onClick={() => {
-            getActiveGames();
-            setOpenSpectatorDialog(true);
           }}
         />
       </Grid>
@@ -521,6 +522,7 @@ const GamePage: FC<GamePageProps> = ({
             (isPauseAvailable ? "" : `(${pauseTimeout})`)
           }
           variant={"outlined"}
+          sx={{ margin: "0.5px" }}
           disabled={!isPauseAvailable}
           size="large"
           onClick={clickPause}
@@ -528,6 +530,7 @@ const GamePage: FC<GamePageProps> = ({
         <Button
           children={"finish game"}
           variant={"outlined"}
+          sx={{ margin: "0.5px" }}
           disabled={!gameSingle}
           size="large"
           onClick={finishSingleGame}
