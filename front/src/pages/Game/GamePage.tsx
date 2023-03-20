@@ -61,6 +61,7 @@ const GamePage: FC<GamePageProps> = ({
   const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
   const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
+  const [singlePlayerRival, setSinglePlayerRival] = useState<string>("AI");
   const [playerController, setPlayerController] = useState<string>("Mouse");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
@@ -282,46 +283,44 @@ const GamePage: FC<GamePageProps> = ({
             flexDirection={"column"}
             alignItems={"flex-start"}
           >
-            <DialogTitle>Invite 2nd player</DialogTitle>
+            <DialogTitle>Invite a 2nd player</DialogTitle>
             <TextField
-              label={"player nickname"}
+              label={"enter player's nickname"}
               onChange={onChange}
               margin="dense"
-            />
-            <Button
-              variant="outlined"
               sx={{
-                alignSelf: "end",
+                fieldset: {
+                  borderColor: theme.palette.primary.dark,
+                },
+                input: {
+                  color: theme.palette.primary.dark,
+                },
               }}
-              onClick={sendInvite}
-            >
-              Pong's invite
-            </Button>
-            {!inLine ? (
-              <Button
-                variant="outlined"
-                sx={{
-                  alignSelf: "center",
-                }}
-                onClick={() => {
-                  getInLine(true);
-                }}
-              >
-                Get in line
+            />
+            <Box display={"flex"} flexDirection={"row"}>
+              <Button variant="outlined" onClick={sendInvite}>
+                Pong's invite
               </Button>
-            ) : (
-              <Button
-                variant="outlined"
-                sx={{
-                  alignSelf: "center",
-                }}
-                onClick={() => {
-                  getInLine(false);
-                }}
-              >
-                Leave line
-              </Button>
-            )}
+              {!inLine ? (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    getInLine(true);
+                  }}
+                >
+                  Get in line
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    getInLine(false);
+                  }}
+                >
+                  Leave line
+                </Button>
+              )}
+            </Box>
           </Box>
         )}
       </DialogSelect>
@@ -358,10 +357,12 @@ const GamePage: FC<GamePageProps> = ({
           margin={"1rem"}
           display={"flex"}
           flexDirection={"column"}
-          alignItems={"flex-start"}
+          alignItems={"center"}
         >
           <DialogTitle>Game over</DialogTitle>
-          <h1>{gameResult}</h1>
+          <Typography variant="body1" marginBottom="0.5rem">
+            {gameResult}
+          </Typography>
           <Button
             variant="outlined"
             sx={{
@@ -427,6 +428,7 @@ const GamePage: FC<GamePageProps> = ({
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"Mouse"}
+          sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={playerController == "Mouse" || gameOngoing}
           size="large"
@@ -437,6 +439,7 @@ const GamePage: FC<GamePageProps> = ({
         />
         <Button
           children={"Hand"}
+          sx={{ margin: "0.5px" }}
           variant={"outlined"}
           size="large"
           disabled={playerController == "Hand" || gameOngoing}
@@ -446,7 +449,21 @@ const GamePage: FC<GamePageProps> = ({
           }}
         />
         <Button
+          children={"Watch games"}
+          sx={{ margin: "0.5px" }}
+          variant={"outlined"}
+          disabled={gameOngoing}
+          size="large"
+          onClick={() => {
+            getActiveGames();
+            setOpenSpectatorDialog(true);
+          }}
+        />
+      </Grid>
+      <Grid item display={"flex"} justifyContent={"center"}>
+        <Button
           children={"Single player"}
+          sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={gameOngoing}
           size="large"
@@ -468,26 +485,15 @@ const GamePage: FC<GamePageProps> = ({
             })
           }
         />
-      </Grid>
-      <Grid item display={"flex"} justifyContent={"center"}>
         <Button
           children={"Multi player"}
+          sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={gameOngoing}
           size="large"
           onClick={() => {
             setDeclined(false);
             setOpenMPDialog(true);
-          }}
-        />
-        <Button
-          children={"Watch games"}
-          variant={"outlined"}
-          disabled={gameOngoing}
-          size="large"
-          onClick={() => {
-            getActiveGames();
-            setOpenSpectatorDialog(true);
           }}
         />
       </Grid>
@@ -516,6 +522,7 @@ const GamePage: FC<GamePageProps> = ({
             (isPauseAvailable ? "" : `(${pauseTimeout})`)
           }
           variant={"outlined"}
+          sx={{ margin: "0.5px" }}
           disabled={!isPauseAvailable}
           size="large"
           onClick={clickPause}
@@ -523,6 +530,7 @@ const GamePage: FC<GamePageProps> = ({
         <Button
           children={"finish game"}
           variant={"outlined"}
+          sx={{ margin: "0.5px" }}
           disabled={!gameSingle}
           size="large"
           onClick={finishSingleGame}

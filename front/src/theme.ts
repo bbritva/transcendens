@@ -11,12 +11,13 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       secondary: {
         main: mode === 'light'
                 ?'#ecebd9' //bezhevyi
-                :'#f8ece6',
+                : '#a8a4a4',
+
       },
       info: {
         main: mode === 'light'
                 ? '#8bd4d1'
-                : '#aba8a6',
+                :'#c9c5c5',
       },
     },
     typography: {
@@ -40,7 +41,8 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       subtitle2: {
         color: mode === 'light'
                 ?'#ebebda'
-                :'#f8ece6',
+                : '#a8a4a4',
+
         fontFamily:  'Arial',
         fontSize: 14,
         fontWeight: "bolder",
@@ -55,4 +57,18 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         fontStyle: 'oblique',
       },
     },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            "&.Mui-disabled": {
+              borderColor: mode === 'light'
+              ?'#56a2b8'
+              :'#2e3544',
+            }
+          }
+        }
+      }
+    }
   });
+  

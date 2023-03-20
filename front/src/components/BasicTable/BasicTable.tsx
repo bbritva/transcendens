@@ -39,7 +39,7 @@ export interface basicTableI extends styledBoxI {
 function drawHeader(element: string) {
   return (
     <TableCell padding="checkbox" key={element}>
-      <Typography marginLeft={"1.5rem"} paddingTop={"0.5rem"} variant="subtitle1">{element}</Typography>
+      <Typography marginLeft={"2rem"} paddingTop={"0.5rem"} variant="subtitle1">{element}</Typography>
     </TableCell>
   );
 }
@@ -49,17 +49,20 @@ function drawRow(row: rowI) {
   return (
     <TableRow key={row.id}>
       {keys.map(
-        (cellData, index) =>
-          cellData !== "id" && (
+        (cellData, index) =>{
+          //@ts-ignore
+          const res = row[cellData]
+          return cellData !== "id" && (
             <TableCell  key={row.id + String(index)}>
-              <Typography marginLeft={"1.5rem"} variant="body1">
-                {
-                  //@ts-ignore
-                  row[cellData]
-                }
-              </Typography>
+              {
+                typeof(res) === "string"
+                ? <Typography marginLeft={"1.5rem"} variant="body1">
+                    { res }
+                  </Typography>
+                : res 
+              }
             </TableCell>
-          )
+          )}
       )}
     </TableRow>
   );
@@ -67,9 +70,9 @@ function drawRow(row: rowI) {
 
 export default function BasicTable(props: basicTableI) {
   const theme = useTheme();
-  const { tableHeadArray, tableRowArray, ...styledProps } = props;
+  const { tableHeadArray, tableRowArray, myRef, ...styledProps } = props;
   return (
-    <StyledBox {...styledProps} ref={props.myRef}>
+    <StyledBox {...styledProps} ref={myRef}>
       {props.onClose && (
         <IconButton
           aria-label="close"

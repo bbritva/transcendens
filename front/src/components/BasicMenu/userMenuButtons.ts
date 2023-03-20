@@ -51,6 +51,7 @@ function userMenuButtons(
         compProps: {
           onClick: createPrivateMessageEvent,
           children: "Message",
+          key: "Message",
         },
       },
       {
@@ -58,6 +59,7 @@ function userMenuButtons(
         compProps: {
           onClick: createAddFriendEvent,
           children: "Add to friend",
+          key: "Add to friend",
         },
       },
       {
@@ -65,6 +67,7 @@ function userMenuButtons(
         compProps: {
           onClick: () => navigateToProfile(element.id),
           children: "Profile", //event?
+          key: "Profile", //event?
         },
       },
       {
@@ -72,6 +75,7 @@ function userMenuButtons(
         compProps: {
           onClick: () => inviteToGame(element.name), //event?
           children: "Send invitation",
+          key: "Send invitation",
         },
       },
       {
@@ -79,6 +83,7 @@ function userMenuButtons(
         compProps: {
           onClick: createRemoveFriendEvent,
           children: "Remove from friends",
+          key: "Remove from friends",
         },
       },
       {
@@ -86,6 +91,7 @@ function userMenuButtons(
         compProps: {
           onClick: createBanPersonallyEvent,
           children: "Ban user",
+          key: "Ban user",
         },
       },
       
@@ -94,6 +100,7 @@ function userMenuButtons(
         compProps: {
           onClick: createUnbanPersonallyEvent,
           children: "Unban user",
+          key: "Unban user",
         },
       },
       {
@@ -101,6 +108,7 @@ function userMenuButtons(
         compProps: {
           onClick: () => {setOpen(true)},
           children: "Channel settings",
+          key: "Channel settings",
         },
       },
     ]

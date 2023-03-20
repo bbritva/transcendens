@@ -192,6 +192,9 @@ export default function SignUp(props: AccountUpdateProps) {
                   },
                   input: {
                     color: theme.palette.primary.dark,
+                  },
+                  "& .MuiInputBase-input.Mui-disabled" : {
+                    WebkitTextFillColor: theme.palette.primary.dark,
                   }
                 }}
               />
