@@ -17,7 +17,7 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       info: {
         main: mode === 'light'
                 ? '#8bd4d1'
-                : '#aba8a6',
+                :'#c9c5c5',
       },
     },
     typography: {
