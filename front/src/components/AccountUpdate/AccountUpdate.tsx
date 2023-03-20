@@ -31,14 +31,22 @@ export default function SignUp(props: AccountUpdateProps) {
   const [inputValue, setInputValue] = React.useState<string>(username || extUser.name || "");
   const [avatarSource, setAvatarSource] = React.useState<string>("");
   const dispatch = useAppDispatch();
+  const nameRegex= /^[A-Za-z0-9]+$/;
 
   const theme = useTheme();
 
+  function isNameValid(name: string){
+   if(name.match(nameRegex))
+      return true;
+   else
+     return false;
+  }
+
   if (socket.connected) {
-    socket.on("nameAvailable", (data: fromBackI) => {
+    socket.on("nameAvailable", (data: {targetUserName: string}) => {
       setInputError(false);
     })
-    socket.on("nameTaken", (data: fromBackI) => {
+    socket.on("nameTaken", (data: {targetUserName: string}) => {
       setInputError(true);
     })
   }
@@ -79,8 +87,12 @@ export default function SignUp(props: AccountUpdateProps) {
       // setImageUrl("");
     }
     if (!inputError && inputValue !== extUser.name){
-      const res = await userService.setUserName({id: extUser.id, name: inputValue})
-      if (res.status === 200){
+      let res;
+      if (isNameValid(inputValue))
+        res = await userService.setUserName({id: extUser.id, name: inputValue})
+      else
+        setInputError(true);
+      if (res?.status === 200){
         dispatch(updateUser({ ...extUser as userI, ...res.data }));
       }
     }
