@@ -230,7 +230,7 @@ export class GatewayService {
   }
 
   async banUser(socketId: string, data: DTO.ManageUserInChannelI) {
-    if (this.connections.get(socketId).name == data.targetUserName)
+    if (this.connections.get(socketId)?.name == data.targetUserName)
       this.emitNotAllowed(
         socketId,
         "banUser",
@@ -251,9 +251,11 @@ export class GatewayService {
               if (isBanned) {
                 this.leaveChannel(socketId, data.channelName, targetUser);
                 this.server.to(socketId).emit("userBanned", data);
+                this.emitToName(data.targetUserName, "youBanned", data);
                 setTimeout(() => {
-                  this.unbanUser(socketId, data)
-                }, 1000);
+                  this.unbanUser(socketId, data);
+                  console.log("unban", data, socketId);
+                }, 5000);
               } else this.emitNotAllowed(socketId, "banUser", data);
             })
             .catch((e) =>
@@ -264,7 +266,7 @@ export class GatewayService {
   }
 
   async muteUser(socketId: string, data: DTO.ManageUserInChannelI) {
-    if (this.connections.get(socketId).name == data.targetUserName)
+    if (this.connections.get(socketId)?.name == data.targetUserName)
       this.emitNotAllowed(
         socketId,
         "muteUser",
@@ -324,8 +326,10 @@ export class GatewayService {
             targetUser.id
           )
           .then((isUnbanned) => {
-            if (isUnbanned) this.server.to(socketId).emit("userUnbanned", data);
-            else this.emitNotAllowed(socketId, "unbanUser", data);
+            if (isUnbanned) {
+              this.server.to(socketId).emit("userUnbanned", data);
+              this.emitToName(data.targetUserName, "youUnbanned", data);
+            } else this.emitNotAllowed(socketId, "unbanUser", data);
           })
           .catch((e) =>
             this.emitExecutionError(socketId, "unbanUser", e.cause)
@@ -335,13 +339,8 @@ export class GatewayService {
   }
 
   async kickUser(socketId: string, data: DTO.ManageUserInChannelI) {
-    if (this.connections.get(socketId).name === data.targetUserName)
-      this.emitNotAllowed(
-        socketId,
-        "kickUser",
-        data,
-        "you can just leave..."
-      );
+    if (this.connections.get(socketId)?.name === data.targetUserName)
+      this.emitNotAllowed(socketId, "kickUser", data, "you can just leave...");
     else
       this.channelService
         .getChannel(data.channelName)
@@ -477,7 +476,7 @@ export class GatewayService {
   }
 
   async banPersonally(socketId: string, data: DTO.ManageUserI) {
-    if (this.connections.get(socketId).name === data.targetUserName)
+    if (this.connections.get(socketId)?.name === data.targetUserName)
       this.emitNotAllowed(
         socketId,
         "banPersonnaly",
@@ -863,7 +862,7 @@ export class GatewayService {
   private leavePMChannels(socketId: string, banned: DTO.ClientInfo) {
     const PMChannel = this.createPMChannelInfo([
       banned.name,
-      this.connections.get(socketId).name,
+      this.connections.get(socketId)?.name,
     ]);
     this.leaveChannel(socketId, PMChannel.name, banned).catch(() => {});
     this.leaveChannel(socketId, PMChannel.name).catch(() => {});
@@ -988,5 +987,14 @@ export class GatewayService {
     this.server
       .to(socketId)
       .emit("executionError", { eventName: eventName, cause: cause });
+  }
+
+  private emitToName(
+    targetUserName: string,
+    eventName: string,
+    data: DTO.ManageUserInChannelI
+  ) {
+    const socketId = this.connectionByName(targetUserName);
+    if (socketId) this.server.to(socketId).emit(eventName, data);
   }
 }

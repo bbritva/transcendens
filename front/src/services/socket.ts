@@ -177,12 +177,26 @@ export function initSocket(
     });
   });
 
+  socket.on("youBanned", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `you're banned in ${data.channelName}`,
+      severity: "warning",
+    });
+  });
+
   socket.on("userUnmuted", (data: userInChannelMovementI) => {
     setNotify({ message: `you unmuted ${data.targetUserName}`, severity: "success" });
   });
 
   socket.on("userUnbanned", (data: userInChannelMovementI) => {
     setNotify({ message: `you unbanned ${data.targetUserName}`, severity: "success" });
+  });
+
+  socket.on("youUnbanned", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `you're unbanned in ${data.channelName}`,
+      severity: "success",
+    });
   });
 
   socket.on("userKicked", (data: userInChannelMovementI) => {
