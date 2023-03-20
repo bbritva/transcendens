@@ -7,14 +7,14 @@ import { dialogProps } from "./ChooseDialogChildren";
 
 const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
   const theme = useTheme();
-  const [inputValue, setInputValue] = useState("");
+  const [punishTime, setPunishTime] = useState("");
   const [punishAvailable, setPunishAvailable] = useState(false);
 
   function onChange(
     this: any,
     event: React.ChangeEvent<HTMLTextAreaElement>
   ): void {
-    setInputValue(event.currentTarget.value);
+    setPunishTime(event.currentTarget.value);
     const regex = /^[0-9]{1,3}$/;
       if (regex.test(event.currentTarget.value)) {
         setPunishAvailable(true);
@@ -71,6 +71,7 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
               data: {
                 channelName: props.channel.name,
                 targetUserName: props.element.name,
+                punishTime: punishTime
               },
             };
             props.setDestination(["Channels", event]);
@@ -92,6 +93,7 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
               data: {
                 channelName: props.channel.name,
                 targetUserName: props.element.name,
+                punishTime: punishTime,
               },
             };
             props.setDestination(["Channels", event]);

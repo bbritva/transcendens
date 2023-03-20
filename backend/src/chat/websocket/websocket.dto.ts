@@ -53,7 +53,7 @@ export interface ManageChannelI {
 
 export interface ManageUserInChannelI extends ManageChannelI {
   targetUserName: string;
-  timeout?: string;
+  punishTime?: string;
 }
 
 export interface ChangeChannelNameI extends ManageChannelI {

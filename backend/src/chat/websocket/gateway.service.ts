@@ -28,6 +28,7 @@ export class GatewayService {
   connections: Map<string, DTO.ClientInfo> = new Map();
   readyToPlayUsers: DTO.ClientInfo[] = [];
   server: Server;
+  timeoutMultiplier = 1000;
 
   setServer(server: Server) {
     this.server = server;
@@ -241,26 +242,30 @@ export class GatewayService {
       this.userService
         .getUserByName(data.targetUserName)
         .then((targetUser) => {
-          this.channelService
-            .banUser(
-              this.connections.get(socketId)?.id || -1,
-              data.channelName,
-              targetUser.id
-            )
-            .then((isBanned: boolean) => {
-              if (isBanned) {
-                this.leaveChannel(socketId, data.channelName, targetUser);
-                this.server.to(socketId).emit("userBanned", data);
-                this.emitToName(data.targetUserName, "youBanned", data);
-                setTimeout(() => {
-                  this.unbanUser(socketId, data);
-                  console.log("unban", data, socketId);
-                }, 5000);
-              } else this.emitNotAllowed(socketId, "banUser", data);
-            })
-            .catch((e) =>
-              this.emitExecutionError(socketId, "banUser", e.cause)
-            );
+          const timeout = parseInt(data.punishTime);
+          if (!timeout)
+            this.emitNotAllowed(socketId, "banUser", data, "wrong punish time");
+          else
+            this.channelService
+              .banUser(
+                this.connections.get(socketId)?.id || -1,
+                data.channelName,
+                targetUser.id
+              )
+              .then((isBanned: boolean) => {
+                if (isBanned) {
+                  this.leaveChannel(socketId, data.channelName, targetUser);
+                  this.server.to(socketId).emit("userBanned", data);
+                  this.emitToName(data.targetUserName, "youBanned", data);
+                  setTimeout(
+                    () => this.unbanUser(socketId, data),
+                    this.timeoutMultiplier * timeout
+                  );
+                } else this.emitNotAllowed(socketId, "banUser", data);
+              })
+              .catch((e) =>
+                this.emitExecutionError(socketId, "banUser", e.cause)
+              );
         })
         .catch((e) => this.emitExecutionError(socketId, "banUser", e.cause));
   }
@@ -277,6 +282,14 @@ export class GatewayService {
       this.userService
         .getUserByName(data.targetUserName)
         .then((targetUser) => {
+          const timeout = parseInt(data.punishTime);
+          if (!timeout)
+            this.emitNotAllowed(
+              socketId,
+              "muteUser",
+              data,
+              "wrong punish time"
+            );
           this.channelService
             .muteUser(
               this.connections.get(socketId)?.id || -1,
@@ -284,8 +297,13 @@ export class GatewayService {
               targetUser.id
             )
             .then((isMuted) => {
-              if (isMuted) this.server.to(socketId).emit("userMuted", data);
-              else this.emitNotAllowed(socketId, "muteUser", data);
+              if (isMuted) {
+                this.server.to(socketId).emit("userMuted", data);
+                setTimeout(
+                  () => this.unmuteUser(socketId, data),
+                  this.timeoutMultiplier * timeout
+                );
+              } else this.emitNotAllowed(socketId, "muteUser", data);
             })
             .catch((e) =>
               this.emitExecutionError(socketId, "muteUser", e.cause)
