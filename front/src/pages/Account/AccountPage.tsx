@@ -85,7 +85,6 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
 
   useEffect(() => {
     if (status) {
-      console.log(games);
       setHistoryRows(
         games.games.map((game) =>
           createHistoryData(

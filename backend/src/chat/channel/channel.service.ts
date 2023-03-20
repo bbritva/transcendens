@@ -144,7 +144,7 @@ export class ChannelService {
           name: channelName,
         },
         data: {
-          ownerId : newOwnerId,
+          ownerId: newOwnerId,
           guests: {
             disconnect: {
               id: userId,
@@ -372,7 +372,7 @@ export class ChannelService {
                 connect: { name: data.channelName },
               },
               authorName: data.authorName,
-              authorId: parseInt( data.authorId),
+              authorId: parseInt(data.authorId),
               text: data.text,
             })
             .then((message) => message)
@@ -392,9 +392,9 @@ export class ChannelService {
   ): Promise<boolean> {
     const channel = await this.getChannel(channelName);
     if (!channel) throw new NotFoundException();
-    if (channel.admIds.includes(executorId)) {
+    if (this.canBan(channel, executorId, targetId)) {
       if (!channel.bannedIds.includes(targetId))
-        this.updateChannel({
+        return this.updateChannel({
           where: {
             name: channelName,
           },
@@ -402,6 +402,11 @@ export class ChannelService {
             bannedIds: {
               push: targetId,
             },
+            admIds : {
+              set: (await this.getChannel(channelName)).admIds.filter(
+                (id) => id != targetId
+              ),
+            }
           },
         })
           .then(() => true)
@@ -419,9 +424,9 @@ export class ChannelService {
   ): Promise<boolean> {
     return this.getChannel(channelName)
       .then((channel: Channel) => {
-        if (channel.admIds.includes(executorId)) {
+        if (this.canBan(channel, executorId, targetId)) {
           if (!channel.mutedIds.includes(targetId))
-            this.updateChannel({
+            return this.updateChannel({
               where: {
                 name: channelName,
               },
@@ -452,5 +457,18 @@ export class ChannelService {
       .catch((e: any) => {
         throw e;
       });
+  }
+
+  canBan(
+    channel: ChannelEntity,
+    executorId: number,
+    targetId: number
+  ): boolean {
+    return (
+      executorId != targetId &&
+      (executorId === channel.ownerId ||
+        (channel.admIds.includes(executorId) &&
+          !channel.admIds.includes(targetId)))
+    );
   }
 }

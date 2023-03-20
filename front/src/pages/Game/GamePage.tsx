@@ -536,6 +536,16 @@ const GamePage: FC<GamePageProps> = ({
           onClick={finishSingleGame}
         />
       </Grid>
+      <Typography
+        variant="h6"
+        marginLeft="3rem"
+        marginRight="1rem"
+        marginTop={"7px"}
+      >
+        {playerController === "Mouse"
+          ? "You have chosen an old-fashioned way to control with the mouse. Just move it to control the racket =("
+          : "You have chosen a cool incredible innovative way to remote control. Just move your hand in front of the camera =)"}
+      </Typography>
     </Box>
   );
 };

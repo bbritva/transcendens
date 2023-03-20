@@ -21,7 +21,7 @@ export interface ChannelInfoOut {
 }
 
 export interface UserInfoPublic {
-  id: number
+  id: number;
   name: string;
   image?: string;
   avatar?: string;
@@ -51,8 +51,9 @@ export interface ManageChannelI {
   channelName: string;
 }
 
-export interface ManageUserInChannelI  extends ManageChannelI {
+export interface ManageUserInChannelI extends ManageChannelI {
   targetUserName: string;
+  punishTime?: string;
 }
 
 export interface ChangeChannelNameI extends ManageChannelI {
@@ -90,9 +91,9 @@ export interface playerDataI {
   paddleY: number;
 }
 
-export interface ballDataI{
+export interface ballDataI {
   x: number;
-  y: number ;
+  y: number;
   speedX: number;
   speedY: number;
 }
@@ -102,7 +103,7 @@ export interface gameStateDataI {
   playerFirst: playerDataI;
   playerSecond: playerDataI;
   ball: ballDataI;
-  isPaused : boolean;
+  isPaused: boolean;
 }
 
 export interface spectateGameI {
