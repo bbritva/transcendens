@@ -85,6 +85,26 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
         }}
         onClick={() => {
           const event: EventI = {
+            name: "unmuteUser",
+            data: {
+              channelName: props.channel.name,
+              targetUserName: props.element.name,
+            },
+          };
+          props.setDestination(["Channels", event]);
+          if (props?.setOpen) props.setOpen(false);
+        }}
+      >
+        <Typography variant="subtitle1">Unmute in 'channel'</Typography>
+      </Button>
+
+      <Button
+        fullWidth
+        sx={{
+          justifyContent: "flex-start",
+        }}
+        onClick={() => {
+          const event: EventI = {
             name: "kickUser",
             data: {
               channelName: props.channel.name,

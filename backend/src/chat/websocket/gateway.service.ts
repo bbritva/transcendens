@@ -184,6 +184,7 @@ export class GatewayService {
           .then((isAdded) => {
             if (isAdded)
               this.server.to(data.channelName).emit("newAdmin", data);
+            else this.emitNotAllowed(socketId, "addAdmin", data);
           })
           .catch((e: ForbiddenException) =>
             this.emitNotAllowed(socketId, "addAdmin", data)
@@ -325,9 +326,7 @@ export class GatewayService {
               else
                 this.leaveChannel(socketId, data.channelName, targetUser).then(
                   () => {
-                    this.server
-                      .to(socketId)
-                      .emit("userKicked", data.channelName);
+                    this.server.to(socketId).emit("userKicked", data);
                   }
                 );
             })
@@ -384,12 +383,13 @@ export class GatewayService {
       .leaveChannel(user.id, channelName)
       .catch((e) => this.emitExecutionError(socketId, "leaveChannel", e.cause))
       .then(() => {
-        this.server.to(user.socketId).emit("leftChannel", channelName);
-        this.server.in(user.socketId).socketsLeave(channelName);
+        const targetSocket = user?.socketId || this.connectionByName(user.name);
+        this.server.to(targetSocket).emit("leftChannel", channelName);
+        this.server.in(targetSocket).socketsLeave(channelName);
         this.server.to(channelName).emit("userLeft", {
           channelName: channelName,
-          userName: user.name,
-          userId: user.id,
+          targetUserName: user.name,
+          targetUserId: user.id,
         });
       });
   }

@@ -91,7 +91,7 @@ export function initSocket(
       const res = [...prev];
       if (ind !== -1) {
         res[ind].users = res[ind].users.filter(
-          (user) => user.name != data.userName
+          (user) => user.name != data.targetUserName
         );
       }
       return res;
@@ -104,7 +104,7 @@ export function initSocket(
       const res = [...prev];
       if (ind !== -1) {
         for (const user of res[ind].users) {
-          if (user.name == data.userName) {
+          if (user.name == data.targetUserName) {
             user.connected = false;
           }
         }
@@ -159,27 +159,34 @@ export function initSocket(
     });
   });
 
-  socket.on("userMuted", (data: fromBackI) => {
-    setNotify({ message: `you muted ${data.name}`, severity: "success" });
-  });
-
-  socket.on("userBanned", (data: fromBackI) => {
+  socket.on("newAdmin", (data: userInChannelMovementI) => {
     setNotify({
-      message: `you banned ${data.name}`,
+      message: `${data.targetUserName} is an administrator in ${data.channelName} now`,
       severity: "success",
     });
   });
 
-  socket.on("userUnmuted", (data: fromBackI) => {
-    setNotify({ message: `you unmuted ${data.name}`, severity: "success" });
+  socket.on("userMuted", (data: userInChannelMovementI) => {
+    setNotify({ message: `you muted ${data.targetUserName}`, severity: "success" });
   });
 
-  socket.on("userUnbanned", (data: fromBackI) => {
-    setNotify({ message: `you unbanned ${data.name}`, severity: "success" });
+  socket.on("userBanned", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `you banned ${data.targetUserName}`,
+      severity: "success",
+    });
   });
 
-  socket.on("userKicked", (data: fromBackI) => {
-    setNotify({ message: `you kicked ${data.name}`, severity: "success" });
+  socket.on("userUnmuted", (data: userInChannelMovementI) => {
+    setNotify({ message: `you unmuted ${data.targetUserName}`, severity: "success" });
+  });
+
+  socket.on("userUnbanned", (data: userInChannelMovementI) => {
+    setNotify({ message: `you unbanned ${data.targetUserName}`, severity: "success" });
+  });
+
+  socket.on("userKicked", (data: userInChannelMovementI) => {
+    setNotify({ message: `you kicked ${data.targetUserName}`, severity: "success" });
   });
 
   socket.on("exFriend", (data: UserInfoPublic) => {

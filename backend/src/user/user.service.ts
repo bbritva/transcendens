@@ -143,6 +143,8 @@ export class UserService {
         return ret;
       })
       .catch((e: any) => {
+        console.log(userName);
+        
         throw new BadRequestException(e.message);
       });
   }
