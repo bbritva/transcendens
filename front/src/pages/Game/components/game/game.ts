@@ -284,7 +284,11 @@ class Game {
           if (Game.setGameOngoing) Game.setGameOngoing(false);
           if (Game.setGameResult)
             Game.setGameResult(
-              result.winnerName == this.myName ? "You won! =)" : "You lost! :'("
+              this.myRole === role.SPECTATOR
+                ? `${result.winnerName} won! 8-|`
+                : result.winnerName == this.myName
+                ? "You won! =)"
+                : "You lost! :'("
             );
           socket.off("gameState");
           socket.off("gameFinished");
