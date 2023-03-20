@@ -41,6 +41,12 @@ export interface GamePageProps {
   gameData: GameStateDataI | null;
   setGameData: Function;
 }
+export enum GameTypeE {
+  DEMO,
+  SINGLE,
+  PLAY,
+  SPECTATE,
+}
 
 const GamePage: FC<GamePageProps> = ({
   gameData,
@@ -51,7 +57,7 @@ const GamePage: FC<GamePageProps> = ({
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
-  const [gameSingle, setGameSingle] = useState<boolean>(false);
+  const [gameType, setGameType] = useState<GameTypeE>(GameTypeE.DEMO);
   const [isPaused, setPaused] = useState<boolean>(false);
   const [isRivalOffline, setRivalOffline] = useState<boolean>(false);
   const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
@@ -96,7 +102,6 @@ const GamePage: FC<GamePageProps> = ({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    // Game.setColor(theme.palette.primary.main)
     socket.off("gameLine");
     socket.on("gameLine", (data: gameLineI) => {
       setInLine(data.inLine);
@@ -109,15 +114,22 @@ const GamePage: FC<GamePageProps> = ({
       updatePauseTimeout(5);
     });
     socket.off("rivalOnline");
-    socket.on("rivalOnline", (data: { isOnline: boolean }) => {
-      setRivalOffline(!data.isOnline);
-      if (!data.isOnline) {
-        Game.setPause(true);
-        setPauseAvailable(false);
-        setEndGameAvailable(false);
-        updateEndGameTimeout(10);
-      }
-    });
+    if (gameType !== GameTypeE.SPECTATE)
+      socket.on("rivalOnline", (data: { isOnline: boolean }) => {
+        let gameTypeCurr;
+        setGameType((prev) => {
+          gameTypeCurr = prev;
+          return prev;
+        });
+        if (gameTypeCurr === GameTypeE.SPECTATE) return;
+        setRivalOffline(!data.isOnline);
+        if (!data.isOnline) {
+          Game.setPause(true);
+          setPauseAvailable(false);
+          setEndGameAvailable(false);
+          updateEndGameTimeout(10);
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -140,7 +152,12 @@ const GamePage: FC<GamePageProps> = ({
           gameData,
           webcamRef
         );
-        setGameSingle(gameData.gameName == "single");
+       setGameType(gameData.gameName === "single"
+            ? GameTypeE.SINGLE
+            : gameData.playerFirst.name === (testUsername || user.user?.name) ||
+              gameData.playerSecond.name === (testUsername || user.user?.name)
+            ? GameTypeE.PLAY
+            : GameTypeE.SPECTATE)
       }
     }
   }
@@ -230,12 +247,13 @@ const GamePage: FC<GamePageProps> = ({
   function finishGame() {
     Game.finishGameManual(endGameOption);
     setRivalOffline(false);
+    setGameType(GameTypeE.DEMO);
   }
 
   function finishSingleGame() {
     Game.finishGameManual("drop");
     setRivalOffline(false);
-    setGameSingle(false);
+    setGameType(GameTypeE.DEMO);
     setPauseAvailable(true);
     setPauseTimeout(0);
     setPaused(false);
@@ -513,17 +531,23 @@ const GamePage: FC<GamePageProps> = ({
         <Button
           children={
             (isPaused ? "Continue" : "Pause") +
-            (isPauseAvailable ? "" : `(${pauseTimeout})`)
+            (isPauseAvailable || gameType === GameTypeE.SPECTATE
+              ? ""
+              : `(${pauseTimeout})`)
           }
           variant={"outlined"}
-          disabled={!isPauseAvailable}
+          disabled={!isPauseAvailable || gameType === GameTypeE.SPECTATE}
           size="large"
           onClick={clickPause}
         />
         <Button
-          children={"finish game"}
+          children={
+            gameType === GameTypeE.SPECTATE ? "Leave game" : "finish game"
+          }
           variant={"outlined"}
-          disabled={!gameSingle}
+          disabled={
+            gameType !== GameTypeE.SINGLE && gameType !== GameTypeE.SPECTATE
+          }
           size="large"
           onClick={finishSingleGame}
         />

@@ -120,7 +120,7 @@ class Game {
     return Game.instance.gameState.gameName != "demo";
   }
 
-  public static setColor(color : string) {
+  public static setColor(color: string) {
     Game.color = color;
   }
 
@@ -333,7 +333,7 @@ class Game {
     this.ball.y = initData.ball.y ? initData.ball.y : 0.5;
     this.ball.speedX = initData.ball.speedX
       ? initData.ball.speedX
-      :  - this.ball.speedH;
+      : -this.ball.speedH;
     this.ball.speedY = initData.ball.speedY
       ? initData.ball.speedY
       : -this.ball.speedV;
@@ -562,10 +562,11 @@ class Game {
           ? "Boring... =("
           : "You lost! :'("
       );
-    socket.emit("endGame", {
-      gameName: this.gameState.gameName,
-      option: option,
-    });
+    if (this.myRole == role.FIRST)
+      socket.emit("endGame", {
+        gameName: this.gameState.gameName,
+        option: option,
+      });
   }
 }
 
