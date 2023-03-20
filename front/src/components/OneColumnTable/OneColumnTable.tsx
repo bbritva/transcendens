@@ -40,7 +40,7 @@ const OneColumnTable: FC<{
   }[];
   openDialog: boolean; 
   setOpenDialog: Function;
-
+  handleRightClick?: React.MouseEventHandler<HTMLDivElement>
 }> = ({
   taper,
   user,
@@ -53,6 +53,7 @@ const OneColumnTable: FC<{
   buttons,
   openDialog,
   setOpenDialog,
+  handleRightClick
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
@@ -64,6 +65,7 @@ const OneColumnTable: FC<{
       color={theme.palette.primary.dark}
       display="flex"
       justifyContent="center"
+      onContextMenu={handleRightClick}
       sx={{
         height: "100%",
         ...chatStyles.borderStyle,
