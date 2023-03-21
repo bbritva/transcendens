@@ -132,8 +132,8 @@ class Game {
     return Game.instance?.myRole === role.SPECTATOR;
   }
 
-  public static isSingle(): boolean {
-    return Game.instance?.gameState.gameName === "Single";
+  public static isSingle() : boolean {
+    return Game.instance?.gameState.gameName === "single";
   }
 
   public static setPause(value: boolean) {
