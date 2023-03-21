@@ -50,8 +50,6 @@ const GamePage: FC<GamePageProps> = ({
   setGameData,
 }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [declined, setDeclined] = useState<boolean>(false);
-  const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
   const [gameSingle, setGameSingle] = useState<boolean>(false);
@@ -66,8 +64,6 @@ const GamePage: FC<GamePageProps> = ({
   const [gameResult, setGameResult] = useState<string>("");
   const [gameList, setGameList] = useState<GameStateDataI[]>([]);
   const [playerController, setPlayerController] = useState<string>("Mouse");
-  const [openMPDialog, setOpenMPDialog] = useState(false);
-  const [inputValue, setInputValue] = useState<string>();
   const testUsername = sessionStorage.getItem("username");
   const { getState } = useStore();
   const { user } = getState() as RootState;
@@ -204,32 +200,10 @@ const GamePage: FC<GamePageProps> = ({
     }
   }
 
-  function onChange(
-    this: any,
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ): void {
-    setInputValue(event.currentTarget.value);
-  }
-
-  async function sendInvite() {
-    if (socket.connected) {
-      socket.emit("inviteToGame", { recipient: inputValue });
-      setInputValue(undefined);
-      socket.on("declineInvite", (data) => {
-        setDeclined(true);
-        // setDeclinedCause(data.cause);
-        // setOpenMPDialog(true);
-        sessionStorage.setItem("game", "false");
-      });
-    }
-    setOpenMPDialog(false);
-  }
-
   async function getInLine(inLine: boolean) {
     if (socket.connected) {
       socket.emit("gameLine", { inLine: inLine });
     }
-    setOpenMPDialog(false);
   }
 
   async function getActiveGames() {
@@ -276,75 +250,6 @@ const GamePage: FC<GamePageProps> = ({
         backgroundColor: theme.palette.secondary.main,
       }}
     >
-      <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
-        {declined ? (
-          <Box
-            margin={"1rem"}
-            display={"flex"}
-            flexDirection={"column"}
-            alignItems={"flex-start"}
-          >
-            <DialogTitle>
-              {inputValue} declined! {declinedCause}
-            </DialogTitle>
-            <Button
-              variant="outlined"
-              sx={{
-                alignSelf: "end",
-              }}
-              onClick={() => setOpenMPDialog(false)}
-            >
-              OK
-            </Button>
-          </Box>
-        ) : (
-          <Box
-            margin={"1rem"}
-            display={"flex"}
-            flexDirection={"column"}
-            alignItems={"flex-start"}
-          >
-            <DialogTitle>Invite a 2nd player</DialogTitle>
-            <TextField
-              label={"enter player's nickname"}
-              onChange={onChange}
-              margin="dense"
-              sx={{
-                fieldset: {
-                  borderColor: theme.palette.primary.dark,
-                },
-                input: {
-                  color: theme.palette.primary.dark,
-                },
-              }}
-            />
-            <Box display={"flex"} flexDirection={"row"}>
-              <Button variant="outlined" onClick={sendInvite}>
-                Pong's invite
-              </Button>
-              {!inLine ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    getInLine(true);
-                  }}
-                >
-                  Get in line
-                </Button>
-              ) : (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    getInLine(false);
-                  }}
-                >
-                  Leave line
-                </Button>
-              )}
-            </Box>
-          </Box>
-        )}
-      </DialogSelect>
       <DialogSelect
         options={{}}
         open={openEndGameDialog}
@@ -471,17 +376,28 @@ const GamePage: FC<GamePageProps> = ({
             })
           }
         />
-        <Button
-          children={"Multi player"}
+        {!inLine ? (
+          <Button
+          children={"Get in line"}
           sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={gameOngoing}
           size="large"
-          onClick={() => {
-            setDeclined(false);
-            setOpenMPDialog(true);
-          }}
-        />
+            onClick={() => {
+              getInLine(true);
+            }}
+          />
+        ) : (
+          <Button
+          children={"Leave the line"}
+          sx={{ margin: "0.5px" }}
+          variant={"outlined"}
+          size="large"
+            onClick={() => {
+              getInLine(false);
+            }}
+          />
+        )}
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <CanvasR canvasRef={canvasRef} />
