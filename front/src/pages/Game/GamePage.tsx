@@ -149,6 +149,16 @@ const GamePage: FC<GamePageProps> = ({
     }
   }, [gameData]);
 
+  document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+      console.log("beep");
+
+      getActiveGames();
+    },
+    false
+  );
+
   function startGame(gameData: GameStateDataI) {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -223,9 +233,11 @@ const GamePage: FC<GamePageProps> = ({
   }
 
   async function getActiveGames() {
-    if (socket.connected) {
-      socket.emit("getActiveGames", {});
-    }
+    if (socket.connected) socket.emit("getActiveGames", {});
+    else
+      setTimeout(() => {
+        getActiveGames();
+      }, 1000);
   }
 
   function closeEndGamedialog() {
