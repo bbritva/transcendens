@@ -128,11 +128,11 @@ class Game {
     return Game.color;
   }
 
-  public static isSpectator() : boolean {
+  public static isSpectator(): boolean {
     return Game.instance?.myRole === role.SPECTATOR;
   }
 
-  public static isSingle() : boolean {
+  public static isSingle(): boolean {
     return Game.instance?.gameState.gameName === "Single";
   }
 
@@ -445,14 +445,19 @@ class Game {
     if (!this.canvas) return;
 
     if (this.gameState.gameName == "demo") {
-      this.rightPaddle.upPressed =
-        this.ball.speedX > 0 &&
-        this.rightPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
-      this.rightPaddle.downPressed =
-        this.ball.speedX > 0 &&
-        this.rightPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+      if (this.ball.speedX > 0) {
+        this.rightPaddle.upPressed =
+          this.rightPaddle.paddleY + gameBasicProps.paddleWidth / 4 >
           this.ball.y;
-      // } else this.rightPaddle.paddleY = this.canvas.height * this.y;
+        this.rightPaddle.downPressed =
+          this.rightPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+          this.ball.y;
+      } else {
+        this.rightPaddle.upPressed =
+          this.rightPaddle.paddleY > 0.4 + gameBasicProps.paddleWidth / 4;
+        this.rightPaddle.downPressed =
+          this.rightPaddle.paddleY < 0.4 - gameBasicProps.paddleWidth / 4;
+      }
     }
     this.rightPaddle.movePaddle(Game.handY);
 
@@ -460,14 +465,19 @@ class Game {
       this.gameState.gameName == "single" ||
       this.gameState.gameName == "demo"
     ) {
-      this.leftPaddle.upPressed =
-        this.ball.speedX < 0 &&
-        this.leftPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
-      this.leftPaddle.downPressed =
-        this.ball.speedX < 0 &&
-        this.leftPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+      if (this.ball.speedX < 0) {
+        this.leftPaddle.upPressed =
+          this.leftPaddle.paddleY + gameBasicProps.paddleWidth / 4 >
           this.ball.y;
-      // } else this.leftPaddle.paddleY = this.canvas.height * this.y;
+        this.leftPaddle.downPressed =
+          this.leftPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+          this.ball.y;
+      } else {
+        this.leftPaddle.upPressed =
+          this.leftPaddle.paddleY > 0.4 + gameBasicProps.paddleWidth / 4;
+        this.leftPaddle.downPressed =
+          this.leftPaddle.paddleY < 0.4 - gameBasicProps.paddleWidth / 4;
+      }
     }
     this.leftPaddle.movePaddle();
     this.ball.moveBall(Game.isPaused);
@@ -567,7 +577,11 @@ class Game {
     Game.hasNewData = true;
     Game.instance.gameInitState = null;
     if (Game.setGameOngoing) Game.setGameOngoing(false);
-    if (Game.setGameResult && option != "drop" && this.gameState.gameName !== "demo")
+    if (
+      Game.setGameResult &&
+      option != "drop" &&
+      this.gameState.gameName !== "demo"
+    )
       Game.setGameResult(
         this.rightPaddle.score > this.leftPaddle.score || option == "meWinner"
           ? "You won! =)"
