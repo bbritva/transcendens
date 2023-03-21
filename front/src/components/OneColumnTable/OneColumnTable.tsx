@@ -100,7 +100,7 @@ const OneColumnTable: FC<{
       >
         {loading
           ? "LOADING"
-          : elements.map((data) => {
+          : elements.map((data) => { 
               if (!(taper === "Users" && user?.name === data.name)){
                 //@ts-ignore
                 let ava = data?.avatar || data.image || '';

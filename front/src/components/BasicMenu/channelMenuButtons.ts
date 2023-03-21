@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { userFromBackI } from "src/pages/Chat/ChatPage";
-import { EventI } from "../DialogSelect/ChannerSettingsDialog";
+import { EventI } from "src/components/DialogSelect/ChannerSettingsDialog";
 import { StyledMenuItem } from "./StyledMenu";
 
 function channelMenuButtons(
@@ -29,6 +29,7 @@ function channelMenuButtons(
       compProps: {
         onClick: joinChannel,
         children: "Join",
+        key: 'Join',
       },
     },
     {
@@ -36,6 +37,7 @@ function channelMenuButtons(
       compProps: {
         onClick: leaveChannel,
         children: "Leave",
+        key: 'Leave',
       },
     },
     {
@@ -43,6 +45,7 @@ function channelMenuButtons(
         compProps: {
           onClick: () => {setOpen(true)},
           children: "Settings",
+          key: "Settings",
         },
       },
   ];

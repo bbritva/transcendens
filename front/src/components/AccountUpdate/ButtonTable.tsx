@@ -19,7 +19,7 @@ export interface buttonTableI extends styledBoxI {
 export default function ButtonTable(props: buttonTableI) {
   const { getState } = useStore();
   const { user } = getState() as RootState;
-  const { setOpen, setUrlQR, setSlideFriends, ...styledProps } = props;
+  const { setOpen, setUrlQR, setSlideFriends, setSlideShow, setSlideBanned, ...styledProps } = props;
   async function generateTwoFA() {
     const src = await authService.otpGenerateQR();
     props.setSlideFriends(false);
