@@ -533,13 +533,9 @@ const GamePage: FC<GamePageProps> = ({
           : "You have chosen a cool incredible innovative way to remote control. Just move your hand in front of the camera =)"}
       </Typography>
       <GamesTable
-        taper="Games"
-        user={user.user}
         loading={loading}
         elements={gameList}
         buttons={GameSpectateButtons(setEvent, chosenGame)}
-        openDialog={openGamesDialog}
-        setOpenDialog={setOpenGamesDialog}
         chatStyles={chatStyles}
         selectedElement={chosenGame}
         setElement={setChosenGame}

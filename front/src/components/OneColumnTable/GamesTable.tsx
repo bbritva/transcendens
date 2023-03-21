@@ -25,8 +25,6 @@ const anchorStyle = {
 };
 
 const GamesTable: FC<{
-  taper: string;
-  user: userI | null;
   loading: boolean;
   elements: GameStateDataI[];
   chatStyles: chatStylesI;
@@ -38,20 +36,13 @@ const GamesTable: FC<{
       onClick: Function
     }
   }[];
-  openDialog: boolean; 
-  setOpenDialog: Function;
 
 }> = ({
-  taper,
-  user,
   loading,
   elements,
   chatStyles,
-  selectedElement,
   setElement,
   buttons,
-  openDialog,
-  setOpenDialog,
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
@@ -68,11 +59,7 @@ const GamesTable: FC<{
         ...chatStyles.borderStyle,
         borderRadius: "0.5rem",
         background:
-          "linear-gradient(to top, " +
-          theme.palette.primary.main +
-          ", 15%, " +
-          theme.palette.secondary.main +
-          ")",
+          theme.palette.secondary.main
       }}
     >
       <Grid item xs={12} display="inherit" justifyContent={"inherit"}>
@@ -84,7 +71,7 @@ const GamesTable: FC<{
             ...chatStyles.textElipsis,
           }}
         >
-          {taper}
+          Ongoing games
         </Typography>
       </Grid>
       <Grid
@@ -94,6 +81,9 @@ const GamesTable: FC<{
         flexDirection={"column"}
         sx={{
           height: "90%",
+          width: "90%",
+          minWidth: "100px",
+          maxWidth: "300px",
           ...chatStyles.scrollStyle,
         }}
       >
@@ -108,7 +98,7 @@ const GamesTable: FC<{
                       setElement(data);
                     }}
                     mychildren={buttons}
-                    fullwidth={true}
+                    fullwidth={false}
                   />
                 );}
             )

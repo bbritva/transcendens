@@ -707,7 +707,7 @@ export class GatewayService {
     }
     activeGames.push({
       gameName: "Test1",
-      playerFirst: { name: "p1", score: 4, paddleY: 0 },
+      playerFirst: { name: "alice", score: 4, paddleY: 0 },
       playerSecond: { name: "p2", score: 3, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
       isPaused: false,
@@ -715,7 +715,7 @@ export class GatewayService {
     activeGames.push({
       gameName: "Test2",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
-      playerSecond: { name: "p4", score: 32, paddleY: 0 },
+      playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
       isPaused: false,
     });
