@@ -4,6 +4,7 @@ import Paddle from "./Paddle";
 class Ball {
   private static instance: Ball;
   public static count = 0;
+  public static increaseRate = .1;
   myNum: number;
   x: number;
   y: number;
@@ -50,9 +51,9 @@ class Ball {
 
   verticalCollision() {
     if (this.y + this.speedY > 1) {
-      this.speedY = -this.speedV * (1 + this.hitCounter / 10);
+      this.speedY = -this.speedV * (1 + this.hitCounter * Ball.increaseRate);
     } else if (this.y + this.speedY < 0) {
-      this.speedY = this.speedV * (1 + this.hitCounter / 10);
+      this.speedY = this.speedV * (1 + this.hitCounter * Ball.increaseRate);
     }
   }
 
@@ -65,10 +66,10 @@ class Ball {
         this.speedX =
           (isLeft ? this.speedH : -this.speedH) *
           Math.sqrt(2) *
-          (1 + this.hitCounter / 10);
+          (1 + this.hitCounter * Ball.increaseRate);
       } else {
-        this.speedY = this.speedV * -whereHit * (1 + this.hitCounter / 10);
-        this.speedX = (isLeft ? this.speedH : -this.speedH) * (1 + this.hitCounter / 10);
+        this.speedY = this.speedV * -whereHit * (1 + this.hitCounter * Ball.increaseRate);
+        this.speedX = (isLeft ? this.speedH : -this.speedH) * (1 + this.hitCounter * Ball.increaseRate);
       }
       this.hitCounter++;
       return true;

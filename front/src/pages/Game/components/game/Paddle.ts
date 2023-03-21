@@ -138,20 +138,21 @@ class Paddle {
     ctx.closePath();
   }
 
-  movePaddle(camY: number = 0) {
+  movePaddle(ballSpeed : number, camY: number = 0) {
     switch (this.control) {
       case ControlE.REMOTE: {
         this.paddleY = this.remoteY - this.paddleWidth;
         break;
       }
       case ControlE.AI: {
+        const speed = this.paddleSpeed > ballSpeed && ballSpeed ? ballSpeed * 0.95 : this.paddleSpeed;
         const now = Date.now();
         const k = (now - this.lastUpdateTime) * this.paddleSpeed;
         this.lastUpdateTime = now;
         if (this.downPressed && this.paddleY < 1 - this.paddleWidth) {
-          this.paddleY += this.paddleSpeed * k;
+          this.paddleY += speed * k;
         } else if (this.upPressed && this.paddleY > 0) {
-          this.paddleY -= this.paddleSpeed * k;
+          this.paddleY -= speed * k;
         }
         if (this.paddleY < 0) this.paddleY = 0;
         else if (this.paddleY > 1 - this.paddleWidth)

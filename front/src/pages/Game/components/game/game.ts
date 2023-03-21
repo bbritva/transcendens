@@ -459,7 +459,7 @@ class Game {
           this.rightPaddle.paddleY < 0.4 - gameBasicProps.paddleWidth / 4;
       }
     }
-    this.rightPaddle.movePaddle(Game.handY);
+    this.rightPaddle.movePaddle(Math.abs(this.ball.speedY), Game.handY);
 
     if (
       this.gameState.gameName == "single" ||
@@ -479,7 +479,7 @@ class Game {
           this.leftPaddle.paddleY < 0.4 - gameBasicProps.paddleWidth / 4;
       }
     }
-    this.leftPaddle.movePaddle();
+    this.leftPaddle.movePaddle(Math.abs(this.ball.speedY));
     this.ball.moveBall(Game.isPaused);
   }
 
