@@ -173,19 +173,22 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
       },
     ];
     if (!banned) {
+      // too hard to implement before the deadline
+      // res.push({
+      //   component: StyledMenuItem as FC,
+      //   compProps: {
+      //     onClick: () => navigate("/chat", { replace: false }),
+      //     children: "Message",
+      //     key: "Message",
+      //   },
+      // });
       res.push({
         component: StyledMenuItem as FC,
         compProps: {
-          onClick: () => navigate("/chat", { replace: false }),
-          children: "Message",
-          key: "Message",
-        },
-      });
-      res.push({
-        component: StyledMenuItem as FC,
-        compProps: {
-          onClick: () => navigate("/game", { replace: false }),
-          children: "Game",
+          onClick: () => {
+            socket.emit("inviteToGame", { recipient: friend.name});
+          },
+          children: "invite to game",
           key: "Game",
         },
       });
