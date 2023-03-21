@@ -17,7 +17,7 @@ export const StyledNavButton = styled(Button)<styledNavButtonProps>(
       backgroundColor: theme.palette.primary.light,
     },
     display: "flex",
-    [theme.breakpoints.only("xs")]: {
+    [theme.breakpoints.down("md")]: {
       display: showonxs
       ? ""
       : "none"

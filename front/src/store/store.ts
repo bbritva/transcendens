@@ -4,6 +4,7 @@ import authReducer from 'src/store/authReducer';
 import userReducer from 'src/store/userSlice'
 import chatReducer from 'src/store/chatSlice'
 import gamesReducer from 'src/store/gamesSlice'
+import colorModeReducer from 'src/store/colorModeSlice';
 
 
 //configureStore includes thunk middleware by default
@@ -13,7 +14,8 @@ export const store = configureStore({
     auth: authReducer,
     user: userReducer,
     chat: chatReducer,
-    games: gamesReducer
+    games: gamesReducer,
+    mode: colorModeReducer
   },
 });
 

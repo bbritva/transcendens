@@ -7,11 +7,19 @@ import {
   newMessageI,
   userFromBackI,
   userInChannelMovementI,
-  NameSuggestionInfoI
+  NameSuggestionInfoI,
+  UserStatusI
 } from "src/pages/Chat/ChatPage";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
 import { logout } from "src/store/authActions";
-import { deleteBanned, deleteFriend, setBanned, setFriends, UserInfoPublic } from 'src/store/chatSlice';
+import {
+  deleteBanned,
+  deleteFriend,
+  setBanned,
+  setFriends,
+  setFriendStatus,
+  UserInfoPublic,
+} from "src/store/chatSlice";
 
 const URL = process.env.REACT_APP_AUTH_URL || "";
 const socket = io(URL, { autoConnect: false });
@@ -23,10 +31,9 @@ export function initSocket(
   setNotify: Function,
   dispatch: Dispatch
 ) {
-
-  socket.on('connect_error', err => console.log(err))
-  socket.on('connect_failed', err => console.log(err))
-  socket.on('disconnect', err => console.log(err))
+  socket.on("connect_error", (err) => console.log(err));
+  socket.on("connect_failed", (err) => console.log(err));
+  socket.on("disconnect", (err) => console.log(err));
 
   socket.on("channels", (channels: channelFromBackI[]) => {
     setChannels(channels);
@@ -84,7 +91,7 @@ export function initSocket(
       const res = [...prev];
       if (ind !== -1) {
         res[ind].users = res[ind].users.filter(
-          (user) => user.name != data.userName
+          (user) => user.name != data.targetUserName
         );
       }
       return res;
@@ -97,7 +104,7 @@ export function initSocket(
       const res = [...prev];
       if (ind !== -1) {
         for (const user of res[ind].users) {
-          if (user.name == data.userName) {
+          if (user.name == data.targetUserName) {
             user.connected = false;
           }
         }
@@ -124,6 +131,14 @@ export function initSocket(
     }
   });
 
+  socket.on("userStatus", (data: UserStatusI) => {
+    setNotify({
+      message: `${data.name} changed status to ${data.status}`,
+      severity: "success",
+    });
+    dispatch(setFriendStatus(data));
+  });
+
   socket.on("connect", () => {});
 
   socket.on("disconnect", () => {});
@@ -144,45 +159,80 @@ export function initSocket(
     });
   });
 
-  socket.on("userMuted", (data: fromBackI) => {
-    setNotify({ message: `you muted ${data.name}`, severity: "success" });
-  });
-
-  socket.on("userBanned", (data: fromBackI) => {
+  socket.on("newAdmin", (data: userInChannelMovementI) => {
     setNotify({
-      message: `you banned ${data.name}`,
+      message: `${data.targetUserName} is an administrator in ${data.channelName} now`,
       severity: "success",
     });
   });
 
-  socket.on("userUnmuted", (data: fromBackI) => {
-    setNotify({ message: `you unmuted ${data.name}`, severity: "success" });
+  socket.on("userMuted", (data: userInChannelMovementI) => {
+    setNotify({ message: `you muted ${data.targetUserName}`, severity: "success" });
   });
 
-  socket.on("userUnbanned", (data: fromBackI) => {
-    setNotify({ message: `you unbanned ${data.name}`, severity: "success" });
+  socket.on("userBanned", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `you banned ${data.targetUserName}`,
+      severity: "success",
+    });
   });
 
-  socket.on("userKicked", (data: fromBackI) => {
-    setNotify({ message: `you kicked ${data.name}`, severity: "success" });
+  socket.on("youBanned", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `you're banned in ${data.channelName}`,
+      severity: "warning",
+    });
   });
+
+  socket.on("userUnmuted", (data: userInChannelMovementI) => {
+    setNotify({ message: `you unmuted ${data.targetUserName}`, severity: "success" });
+  });
+
+  socket.on("userUnbanned", (data: userInChannelMovementI) => {
+    setNotify({ message: `you unbanned ${data.targetUserName}`, severity: "success" });
+  });
+
+  socket.on("youUnbanned", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `you're unbanned in ${data.channelName}`,
+      severity: "success",
+    });
+  });
+
+  socket.on("userKicked", (data: userInChannelMovementI) => {
+    setNotify({ message: `you kicked ${data.targetUserName}`, severity: "success" });
+  });
+
+  socket.on("newChannelName", (data: { channelName: string, newName: string }) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === data.channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        res[ind].name = data.newName;
+      }
+      return res;
+    });
+    setNotify({ message: `channel ${data.channelName} became ${data.newName}`, severity: "success" });
+  });
+
+  
 
   socket.on("exFriend", (data: UserInfoPublic) => {
-    dispatch(deleteFriend(data))
+    dispatch(deleteFriend(data));
     setNotify({
       message: `${data.name} removed from your friends`,
       severity: "success",
     });
   });
 
-  socket.on("friendList",(data: UserInfoPublic[]) => {
+  socket.on("friendList", (data: UserInfoPublic[]) => {
     dispatch(setFriends(data));
-  })
+  });
 
   socket.on("newPersonnalyBanned", (data: UserInfoPublic) => {
     dispatch(setBanned([data]));
     setNotify({ message: `you banned ${data.name}`, severity: "success" });
-  })
+  });
 
   socket.on("exPersonnalyBanned", (data: UserInfoPublic) => {
     dispatch(deleteBanned(data));
@@ -204,10 +254,6 @@ export function initSocket(
 
   socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
     console.log("nameSuggestions", data);
-  });
-
-  socket.on("activeGames", (data: GameStateDataI[]) => {
-    console.log("activeGames", data);
   });
 
   socket.on("notAllowed", (data: any) => {
