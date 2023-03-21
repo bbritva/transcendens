@@ -971,6 +971,7 @@ export class GatewayService {
     return {
       name: `${names[0]} ${names[1]} pm`,
       isPrivate: true,
+      ownerId: 0,
       type: "PRIVATE_MESSAGING",
     };
   }
