@@ -10,6 +10,8 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { User as UserModel } from "@prisma/client";
@@ -24,6 +26,19 @@ import * as path from "path";
 import { ManageUserI } from "src/chat/websocket/websocket.dto";
 import { Public } from 'src/auth/constants';
 
+export const imageFileFilter = (req, file, callback) => {
+  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    return callback(
+      new HttpException(
+        'Only image files are allowed!',
+        HttpStatus.BAD_REQUEST,
+      ),
+      false,
+    );
+  }
+  callback(null, true);
+};
+
 export const storage = {
   storage: diskStorage({
     destination: "./uploads/avatars",
@@ -33,6 +48,7 @@ export const storage = {
       const extention: string = path.parse(file.originalname).ext;
       cb(null, `${filename}${extention}`);
     },
+    // fileFilter: imageFileFilter,
   }), //...
 };
 
