@@ -15,7 +15,7 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
     event: React.ChangeEvent<HTMLTextAreaElement>
   ): void {
     setPunishTime(event.currentTarget.value);
-    const regex = /^[0-9]{1,3}$/;
+    const regex = /^[1-9][0-9]{1,2}$/;
       if (regex.test(event.currentTarget.value)) {
         setPunishAvailable(true);
       } else {
