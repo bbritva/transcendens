@@ -196,6 +196,7 @@ const ChatPage: FC<ChatPageProps> = ({
       data: { name: channelName},
     };
     socket.emit(event.name, event.data);
+    setOpen(false);
   }
   // props for the oneCol table - buttons styled items
   return (
