@@ -41,12 +41,6 @@ export interface GamePageProps {
   gameData: GameStateDataI | null;
   setGameData: Function;
 }
-export enum GameTypeE {
-  DEMO,
-  SINGLE,
-  PLAY,
-  SPECTATE,
-}
 
 const GamePage: FC<GamePageProps> = ({
   gameData,
@@ -57,7 +51,6 @@ const GamePage: FC<GamePageProps> = ({
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
-  const [gameType, setGameType] = useState<GameTypeE>(GameTypeE.DEMO);
   const [isPaused, setPaused] = useState<boolean>(false);
   const [isRivalOffline, setRivalOffline] = useState<boolean>(false);
   const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
@@ -67,7 +60,6 @@ const GamePage: FC<GamePageProps> = ({
   const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
   const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
-  const [singlePlayerRival, setSinglePlayerRival] = useState<string>("AI");
   const [playerController, setPlayerController] = useState<string>("Mouse");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
@@ -115,22 +107,16 @@ const GamePage: FC<GamePageProps> = ({
       updatePauseTimeout(5);
     });
     socket.off("rivalOnline");
-    if (gameType !== GameTypeE.SPECTATE)
-      socket.on("rivalOnline", (data: { isOnline: boolean }) => {
-        let gameTypeCurr;
-        setGameType((prev) => {
-          gameTypeCurr = prev;
-          return prev;
-        });
-        if (gameTypeCurr === GameTypeE.SPECTATE) return;
-        setRivalOffline(!data.isOnline);
-        if (!data.isOnline) {
-          Game.setPause(true);
-          setPauseAvailable(false);
-          setEndGameAvailable(false);
-          updateEndGameTimeout(10);
-        }
-      });
+    socket.on("rivalOnline", (data: { isOnline: boolean }) => {
+      if (Game.isSpectator()) return;
+      setRivalOffline(!data.isOnline);
+      if (!data.isOnline) {
+        Game.setPause(true);
+        setPauseAvailable(false);
+        setEndGameAvailable(false);
+        updateEndGameTimeout(10);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -153,12 +139,6 @@ const GamePage: FC<GamePageProps> = ({
           gameData,
           webcamRef
         );
-       setGameType(gameData.gameName === "single"
-            ? GameTypeE.SINGLE
-            : gameData.playerFirst.name === (testUsername || user.user?.name) ||
-              gameData.playerSecond.name === (testUsername || user.user?.name)
-            ? GameTypeE.PLAY
-            : GameTypeE.SPECTATE)
       }
     }
   }
@@ -248,13 +228,11 @@ const GamePage: FC<GamePageProps> = ({
   function finishGame() {
     Game.finishGameManual(endGameOption);
     setRivalOffline(false);
-    setGameType(GameTypeE.DEMO);
   }
 
   function finishSingleGame() {
     Game.finishGameManual("drop");
     setRivalOffline(false);
-    setGameType(GameTypeE.DEMO);
     setPauseAvailable(true);
     setPauseTimeout(0);
     setPaused(false);
@@ -537,25 +515,23 @@ const GamePage: FC<GamePageProps> = ({
         <Button
           children={
             (isPaused ? "Continue" : "Pause") +
-            (isPauseAvailable || gameType === GameTypeE.SPECTATE
+            (isPauseAvailable || Game.isSpectator()
               ? ""
               : `(${pauseTimeout})`)
           }
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
-          disabled={!isPauseAvailable || gameType === GameTypeE.SPECTATE}
+          disabled={!isPauseAvailable || Game.isSpectator()}
           size="large"
           onClick={clickPause}
         />
         <Button
           children={
-            gameType === GameTypeE.SPECTATE ? "Leave game" : "finish game"
+            Game.isSpectator() ? "Leave game" : "finish game"
           }
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
-          disabled={
-            gameType !== GameTypeE.SINGLE && gameType !== GameTypeE.SPECTATE
-          }
+          disabled={!Game.isSingle() && !Game.isSpectator()}
           size="large"
           onClick={finishSingleGame}
         />

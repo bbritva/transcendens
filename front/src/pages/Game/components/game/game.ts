@@ -128,6 +128,14 @@ class Game {
     return Game.color;
   }
 
+  public static isSpectator() : boolean {
+    return Game.instance?.myRole === role.SPECTATOR;
+  }
+
+  public static isSingle() : boolean {
+    return Game.instance?.gameState.gameName === "Single";
+  }
+
   public static setPause(value: boolean) {
     Game.isPaused = value;
     Game.instance.gameState.isPaused = value;
