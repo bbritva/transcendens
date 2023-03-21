@@ -91,12 +91,22 @@ const ChatPage: FC<ChatPageProps> = ({
   const [openChannelsDialog, setOpenChannelsDialog] = useState(false);
   const banned = useSelector(selectBanned);
 
+  const [inputError, setInputError] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
   const [channelName, setChannelName] = useState("");
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
   } | null>(null);
+  const channelNameRegex= /^[A-Za-z0-9]+$/;
+
+  function isNameValid(name: string){
+   if(name.length < 21 && name.match(channelNameRegex))
+      return true;
+   else
+     return false;
+  }
+
   const handleClose = () => {
     setContextMenu(null);
   };
@@ -176,12 +186,24 @@ const ChatPage: FC<ChatPageProps> = ({
       }
     },
   ]
+
+  function createChannel() {
+    if (inputError){
+      return;
+    }
+    const event: EventI = {
+      name: "joinChannel",
+      data: { name: channelName},
+    };
+    socket.emit(event.name, event.data);
+  }
   // props for the oneCol table - buttons styled items
   return (
     <>
       <DialogSelect options={ {} } open={open} setOpen={(value: boolean) => {
           setOpen(value);
           setTimeout(() => setChannelName(''), 200);
+          setInputError(false);
         }}>
         <Box
           display="flex"
@@ -193,25 +215,26 @@ const ChatPage: FC<ChatPageProps> = ({
               autoFocus
               margin="dense"
               id="name"
-              label="new name"
+              label="Channel name"
               type="text"
               variant="standard"
               value={channelName}
+              error={inputError}
+              helperText={inputError ? "Wrong channel name" : ""}
               onChange={(event) => {
                 setChannelName(event.target.value);
+                if (!isNameValid(event.target.value))
+                  setInputError(true)
+                else  setInputError(false)
               }}
             />
             <Button
+              disabled={inputError}
               fullWidth
               sx={{
                 justifyContent: "flex-start",
               }}
-              onClick={() => {
-                const event: EventI = {
-                  name: "",
-                  data: { channelName: '', newName: value },
-                };
-              }}
+              onClick={createChannel}
             >
               <Typography variant="subtitle1">Submit</Typography>
             </Button>
