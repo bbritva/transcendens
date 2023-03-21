@@ -1,4 +1,4 @@
-import { ReactElement, FC, useState, useEffect } from "react";
+import { ReactElement, FC, useState, useEffect, MouseEventHandler } from "react";
 import { Button, Divider, TextField, Typography, useTheme } from "@mui/material";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import ChatTable from "src/components/OneColumnTable/ChatTable";
@@ -71,7 +71,6 @@ const ChatPage: FC<ChatPageProps> = ({
   channels,
   setChannels,
 }): ReactElement => {
-  const [page, setPage] = useState(0);
   const [value, setValue] = useState("");
   const [chosenChannel, setChosenChannel] = useState({} as channelFromBackI);
   const [loading, setLoading] = useState(false);
@@ -155,8 +154,7 @@ const ChatPage: FC<ChatPageProps> = ({
       return true;
     })
   }
-
-  function handleContextMenu (event: React.MouseEvent<HTMLDivElement>) {
+  const handleContextMenu : MouseEventHandler = (event) => {
     event.preventDefault();
     setContextMenu(
       contextMenu === null
@@ -244,7 +242,7 @@ const ChatPage: FC<ChatPageProps> = ({
           setElement={(channel: channelFromBackI) => {
             setDestination(["Channels", channel]);
           }}
-          handleRightClick={handleContextMenu}
+          createChannel={handleContextMenu}
           dialogChildren={
             <ChooseDialogChildren
               dialogName="Channels"

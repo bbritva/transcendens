@@ -1,6 +1,7 @@
 import {
   CardMedia,
   Grid,
+  IconButton,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -10,6 +11,7 @@ import {
   useRef,
   CSSProperties,
   ReactNode,
+  MouseEventHandler,
 } from "react";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import { fromBackI } from "src/pages/Chat/ChatPage";
@@ -17,6 +19,7 @@ import { chatStylesI } from "src/pages/Chat/chatStyles";
 import { userI } from "src/store/userSlice";
 import React from "react";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
+import AddIcon from '@mui/icons-material/Add';
 
 const anchorStyle = {
   overflowAnchor: "auto",
@@ -40,7 +43,7 @@ const OneColumnTable: FC<{
   }[];
   openDialog: boolean; 
   setOpenDialog: Function;
-  handleRightClick?: React.MouseEventHandler<HTMLDivElement>
+  createChannel?: MouseEventHandler<HTMLButtonElement>
 }> = ({
   taper,
   user,
@@ -53,7 +56,7 @@ const OneColumnTable: FC<{
   buttons,
   openDialog,
   setOpenDialog,
-  handleRightClick
+  createChannel
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
@@ -65,7 +68,6 @@ const OneColumnTable: FC<{
       color={theme.palette.primary.dark}
       display="flex"
       justifyContent="center"
-      onContextMenu={handleRightClick}
       sx={{
         height: "100%",
         ...chatStyles.borderStyle,
@@ -89,6 +91,16 @@ const OneColumnTable: FC<{
         >
           {taper}
         </Typography>
+        { createChannel &&
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={createChannel}
+          >
+            <AddIcon fontSize="small" />
+          </IconButton>
+        }
       </Grid>
       <Grid
         item
