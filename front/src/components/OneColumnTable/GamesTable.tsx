@@ -1,5 +1,5 @@
 import {
-  CardMedia,
+  Box,
   Grid,
   Typography,
   useTheme,
@@ -8,21 +8,11 @@ import {
   ReactElement,
   FC,
   useRef,
-  CSSProperties,
-  ReactNode,
 } from "react";
-import DialogSelect from "src/components/DialogSelect/DialogSelect";
-import { fromBackI } from "src/pages/Chat/ChatPage";
 import { chatStylesI } from "src/pages/Chat/chatStyles";
-import { userI } from "src/store/userSlice";
 import React from "react";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
-
-const anchorStyle = {
-  overflowAnchor: "auto",
-  height: "1px",
-};
 
 const GamesTable: FC<{
   loading: boolean;
@@ -40,72 +30,59 @@ const GamesTable: FC<{
 }> = ({
   loading,
   elements,
-  chatStyles,
   setElement,
   buttons,
 }): ReactElement => {
-  const theme = useTheme();
   const tableRef = useRef(null);
+  const theme = useTheme();
  
   return (
-    <Grid
-      container
-      component={CardMedia}
-      color={theme.palette.primary.dark}
+    <Box
       display="flex"
-      justifyContent="center"
-      sx={{
-        height: "100%",
-        ...chatStyles.borderStyle,
-        borderRadius: "0.5rem",
-        background:
-          theme.palette.secondary.main
-      }}
+      flexDirection="column"
+      alignItems="center"
     >
-      <Grid item xs={12} display="inherit" justifyContent={"inherit"}>
         <Typography
           marginTop={"1rem"}
           variant="body1"
-          maxHeight="3rem"
-          sx={{
-            ...chatStyles.textElipsis,
-          }}
         >
-          Ongoing games
+          ONGOING GAMES:
         </Typography>
-      </Grid>
-      <Grid
-        item
+      <Box
+        // sx={{
+        //   overflow: "scroll",
+        //   overflowX: "hidden",
+        //   "&::-webkit-scrollbar": {
+        //     display: "none",
+        //   },
+        //   [theme.breakpoints.only("md")]: {
+        //     overflowX: "scroll",
+        //   },
+        // // }}
+        // overflow={} ="scroll"
         ref={tableRef}
         display="flex"
-        flexDirection={"column"}
-        sx={{
-          height: "90%",
-          width: "90%",
-          minWidth: "100px",
-          maxWidth: "300px",
-          ...chatStyles.scrollStyle,
-        }}
+        flexDirection={"column"} // "row" = scroll to add 
       >
         {loading
           ? "LOADING"
           : elements.map((data) => { 
                 return (
                   <BasicMenu
+                    buttonVariant="outlined"
                     key={data.gameName}
                     title={data.playerFirst.name + " VS " + data.playerSecond.name}
                     onClick={() => {
                       setElement(data);
                     }}
                     mychildren={buttons}
-                    fullwidth={false}
+                    fullwidth={true}
                   />
                 );}
             )
         }
-        <div style={anchorStyle as CSSProperties} />
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 

@@ -11,6 +11,7 @@ interface basicMenuI {
   fullwidth?: boolean
   title?: string
   onClick?: Function
+  buttonVariant?: "outlined"
   mychildren: {
     component: React.FC,
     compProps: {
@@ -19,7 +20,7 @@ interface basicMenuI {
   }[]
 }
 
-export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullwidth }: basicMenuI) {
+export default function BasicMenu({ extAvatar, title, mychildren, onClick, buttonVariant, fullwidth }: basicMenuI) {
   const { getState } = useStore();
 
   const { user } = getState() as RootState;
@@ -54,13 +55,14 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullw
         showonxs={+true}
         fullWidth={fullwidth}
         id="basic-button"
+        variant={buttonVariant || 'text'}
         aria-controls={open ? "basic-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
         <>
-          <Typography variant="subtitle1" marginRight={'1rem'}
+          <Typography variant="subtitle1" marginRight={'0.5rem'}
           sx={{
             alignContent: "left",
             overflow: 'hidden',
