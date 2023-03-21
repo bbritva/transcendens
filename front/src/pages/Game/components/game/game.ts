@@ -8,13 +8,13 @@ import { Camera } from "@mediapipe/camera_utils";
 
 const gameBasicProps = {
   screenRatio: 3 / 2,
-  winScore: 200,
+  winScore: 2,
   paddleHeight: 0.015,
   paddleWidth: 0.2,
   paddleOffset: 3,
-  paddleSpeed: 0.023,
+  paddleSpeed: 0.03,
   ballRadius: 0.015,
-  ballSpeed: 0.023,
+  ballSpeed: 0.02,
 };
 
 export interface gameBasicPropsI {
@@ -340,6 +340,7 @@ class Game {
   }
 
   private initBall(initData: GameStateDataI) {
+    this.ball.hitCounter = 0;
     this.ball.remote = this.myRole != role.FIRST;
     this.ball.x = initData.ball.x ? initData.ball.x : 0.5;
     this.ball.y = initData.ball.y ? initData.ball.y : 0.5;
@@ -566,7 +567,7 @@ class Game {
     Game.hasNewData = true;
     Game.instance.gameInitState = null;
     if (Game.setGameOngoing) Game.setGameOngoing(false);
-    if (Game.setGameResult && option != "drop")
+    if (Game.setGameResult && option != "drop" && this.gameState.gameName !== "demo")
       Game.setGameResult(
         this.rightPaddle.score > this.leftPaddle.score || option == "meWinner"
           ? "You won! =)"

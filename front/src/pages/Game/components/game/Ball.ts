@@ -16,6 +16,7 @@ class Ball {
   remoteX: number = 0;
   remoteY: number = 0;
   lastUpdateTime: number;
+  hitCounter: number = 0;
 
   public static getInstance(gameProps: gameBasicPropsI, remote: boolean): Ball {
     if (!Ball.instance) {
@@ -49,23 +50,27 @@ class Ball {
 
   verticalCollision() {
     if (this.y + this.speedY > 1) {
-      this.speedY = -this.speedV;
+      this.speedY = -this.speedV * (1 + this.hitCounter / 10);
     } else if (this.y + this.speedY < 0) {
-      this.speedY = this.speedV;
+      this.speedY = this.speedV * (1 + this.hitCounter / 10);
     }
   }
 
   hitPaddle(paddle: Paddle, isLeft = false): boolean {
     const whereHit = paddle.ballCollision(this, isLeft);
+
     if (whereHit) {
       if (whereHit == 3) {
         this.speedY = 0;
-        // this.speedX = 0;
-        this.speedX = (isLeft ? this.speedH : -this.speedH) * Math.sqrt(2);
+        this.speedX =
+          (isLeft ? this.speedH : -this.speedH) *
+          Math.sqrt(2) *
+          (1 + this.hitCounter / 10);
       } else {
-        this.speedY = this.speedV * -whereHit;
-        this.speedX = isLeft ? this.speedH : -this.speedH;
+        this.speedY = this.speedV * -whereHit * (1 + this.hitCounter / 10);
+        this.speedX = (isLeft ? this.speedH : -this.speedH) * (1 + this.hitCounter / 10);
       }
+      this.hitCounter++;
       return true;
     }
     return false;
@@ -95,8 +100,6 @@ class Ball {
       this.x += isPaused ? 0 : this.speedX * k;
       this.y += isPaused ? 0 : this.speedY * k;
       this.lastUpdateTime = now;
-      // this.x += this.speedX;
-      // this.y += this.speedY;
     }
   }
 
@@ -105,6 +108,7 @@ class Ball {
     this.x = 0.5;
     this.speedX = -this.speedH * side;
     this.speedY = this.speedV * side;
+    this.hitCounter = 0;
   }
 }
 
