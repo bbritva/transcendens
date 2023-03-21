@@ -12,7 +12,7 @@ const gameBasicProps = {
   paddleHeight: 0.015,
   paddleWidth: 0.2,
   paddleOffset: 3,
-  paddleSpeed: 0.023,
+  paddleSpeed: 0.021,
   ballRadius: 0.015,
   ballSpeed: 0.023,
 };
@@ -133,7 +133,7 @@ class Game {
   }
 
   public static isSingle() : boolean {
-    return Game.instance?.gameState.gameName === "Single";
+    return Game.instance?.gameState.gameName === "single";
   }
 
   public static setPause(value: boolean) {

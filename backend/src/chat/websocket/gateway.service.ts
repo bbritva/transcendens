@@ -448,18 +448,29 @@ export class GatewayService {
   }
 
   async addFriend(socketId: string, data: DTO.ManageUserI) {
-    this.userService
-      .addFriend(this.connections.get(socketId)?.id || -1, data.targetUserName)
-      .then((newFriend) => {
-        if (newFriend) this.server.to(socketId).emit("newFriend", newFriend);
-      })
-      .catch((e: NotFoundException) =>
-        this.emitExecutionError(socketId, "addFriend", "user unknown")
-      )
-      .catch((e: ForbiddenException) =>
-        this.emitNotAllowed(socketId, "addFriend", "you're banned")
-      )
-      .catch((e) => this.emitExecutionError(socketId, "addFriend", e.cause));
+    if (this.connections.get(socketId)?.name === data.targetUserName)
+      this.emitNotAllowed(
+        socketId,
+        "addFriend",
+        data,
+        "you're already your best friend ;-)"
+      );
+    else
+      this.userService
+        .addFriend(
+          this.connections.get(socketId)?.id || -1,
+          data.targetUserName
+        )
+        .then((newFriend) => {
+          if (newFriend) this.server.to(socketId).emit("newFriend", newFriend);
+        })
+        .catch((e: NotFoundException) =>
+          this.emitExecutionError(socketId, "addFriend", "user unknown")
+        )
+        .catch((e: ForbiddenException) =>
+          this.emitNotAllowed(socketId, "addFriend", data, "you're banned")
+        )
+        .catch((e) => this.emitExecutionError(socketId, "addFriend", e.cause));
   }
 
   removeFriend(socketId: string, data: DTO.ManageUserI) {
@@ -564,6 +575,13 @@ export class GatewayService {
     const acceptorName = this.connections.get(socket.id)?.name || null;
     if (!acceptorName)
       this.emitExecutionError(socket.id, "startGame", "user unknown");
+    else if (acceptorName === data.sender)
+      this.emitNotAllowed(
+        socket.id,
+        "startGame",
+        data,
+        "go play with yourself somewhere esle :-D"
+      );
     else {
       const game: DTO.gameStateDataI = {
         gameName: data.sender + acceptorName + "Game",
@@ -589,6 +607,13 @@ export class GatewayService {
     const recipientSocket = this.connectionByName(data.recipient);
     if (!executor)
       this.emitExecutionError(socket.id, "inviteToGame", "user unknown");
+    else if (executor.name === data.recipient)
+      this.emitNotAllowed(
+        socket.id,
+        "startGame",
+        data,
+        "go play with yourself somewhere esle :-D"
+      );
     else if (!recipientSocket)
       this.server
         .to(socket.id)
@@ -733,7 +758,8 @@ export class GatewayService {
     if (gameRoom) {
       this.server.to(socketId).emit("connectToGame", gameRoom);
       this.server.in(socketId).socketsJoin(gameRoom.gameName);
-    } else this.emitNotAllowed(socketId, "spectateGame", data, "game doesn't exist");
+    } else
+      this.emitNotAllowed(socketId, "spectateGame", data, "game doesn't exist");
   }
 
   removeGame(room: string) {
