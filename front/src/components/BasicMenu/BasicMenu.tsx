@@ -60,7 +60,8 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullw
         onClick={handleClick}
       >
         <>
-          <Typography variant="subtitle1"  sx={{
+          <Typography variant="subtitle1" marginRight={'1rem'}
+          sx={{
             alignContent: "left",
             overflow: 'hidden',
             textOverflow: 'ellipsis',

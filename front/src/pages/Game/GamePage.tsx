@@ -24,7 +24,7 @@ import CanvasR from "./components/CanvasR";
 import { selectMode } from "src/store/colorModeSlice";
 import GamesTable from "src/components/OneColumnTable/GamesTable";
 import GameSpectateButtons from "src/components/BasicMenu/GamesSpectateButtons";
-import { chatStyles } from "../Chat/chatStyles";
+import { chatStyles } from "src/pages/Chat/chatStyles";
 
 export interface point {
   x: number;
