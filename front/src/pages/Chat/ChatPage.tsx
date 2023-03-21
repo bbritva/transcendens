@@ -1,5 +1,5 @@
-import { ReactElement, FC, useState, useEffect } from "react";
-import { Divider, useTheme } from "@mui/material";
+import { ReactElement, FC, useState, useEffect, MouseEventHandler } from "react";
+import { Button, Divider, TextField, Typography, useTheme } from "@mui/material";
 import OneColumnTable from "src/components/OneColumnTable/OneColumnTable";
 import ChatTable from "src/components/OneColumnTable/ChatTable";
 import { RootState } from "src/store/store";
@@ -14,6 +14,9 @@ import userMenuButtons from "src/components/BasicMenu/userMenuButtons";
 import channelMenuButtons from "src/components/BasicMenu/channelMenuButtons";
 import { useNavigate } from "react-router-dom";
 import { selectBanned } from "src/store/chatSlice";
+import DialogSelect from "src/components/DialogSelect/DialogSelect";
+import { StyledMenu, StyledMenuItem } from "src/components/BasicMenu/StyledMenu";
+import { EventI } from "src/components/DialogSelect/ChannerSettingsDialog";
 
 interface idI {
   id: string
@@ -68,7 +71,6 @@ const ChatPage: FC<ChatPageProps> = ({
   channels,
   setChannels,
 }): ReactElement => {
-  const [page, setPage] = useState(0);
   const [value, setValue] = useState("");
   const [chosenChannel, setChosenChannel] = useState({} as channelFromBackI);
   const [loading, setLoading] = useState(false);
@@ -88,6 +90,26 @@ const ChatPage: FC<ChatPageProps> = ({
   const [openUsersDialog, setOpenUsersDialog] = useState(false);
   const [openChannelsDialog, setOpenChannelsDialog] = useState(false);
   const banned = useSelector(selectBanned);
+
+  const [inputError, setInputError] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [channelName, setChannelName] = useState("");
+  const [contextMenu, setContextMenu] = useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
+  const channelNameRegex= /^[A-Za-z0-9]+$/;
+
+  function isNameValid(name: string){
+   if(name.length < 21 && name.match(channelNameRegex))
+      return true;
+   else
+     return false;
+  }
+
+  const handleClose = () => {
+    setContextMenu(null);
+  };
 
   useEffect(() => {
     const [destTaper, destObject] = destination;
@@ -142,10 +164,83 @@ const ChatPage: FC<ChatPageProps> = ({
       return true;
     })
   }
+  const handleContextMenu : MouseEventHandler = (event) => {
+    event.preventDefault();
+    setContextMenu(
+      contextMenu === null
+        ? {
+          mouseX: event.clientX + 3,
+          mouseY: event.clientY + 3,
+        }
+        : null,
+    );
+  }
 
+  const contextMenuButtons = [
+    {
+      component: StyledMenuItem as FC,
+      compProps: {
+        onClick: () => setOpen(true),
+        children: 'Create channel',
+        key: 1
+      }
+    },
+  ]
+
+  function createChannel() {
+    if (inputError){
+      return;
+    }
+    const event: EventI = {
+      name: "joinChannel",
+      data: { name: channelName},
+    };
+    socket.emit(event.name, event.data);
+    setOpen(false);
+  }
   // props for the oneCol table - buttons styled items
   return (
     <>
+      <DialogSelect options={ {} } open={open} setOpen={(value: boolean) => {
+          setOpen(value);
+          setTimeout(() => setChannelName(''), 200);
+          setInputError(false);
+        }}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          padding="0px"
+        >
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Channel name"
+              type="text"
+              variant="standard"
+              value={channelName}
+              error={inputError}
+              helperText={inputError ? "Wrong channel name" : ""}
+              onChange={(event) => {
+                setChannelName(event.target.value);
+                if (!isNameValid(event.target.value))
+                  setInputError(true)
+                else  setInputError(false)
+              }}
+            />
+            <Button
+              disabled={inputError}
+              fullWidth
+              sx={{
+                justifyContent: "flex-start",
+              }}
+              onClick={createChannel}
+            >
+              <Typography variant="subtitle1">Submit</Typography>
+            </Button>
+        </Box>
+      </DialogSelect>
       <Box
         flex={1}
         marginTop={"2rem"}
@@ -171,6 +266,7 @@ const ChatPage: FC<ChatPageProps> = ({
           setElement={(channel: channelFromBackI) => {
             setDestination(["Channels", channel]);
           }}
+          createChannel={handleContextMenu}
           dialogChildren={
             <ChooseDialogChildren
               dialogName="Channels"
@@ -182,6 +278,27 @@ const ChatPage: FC<ChatPageProps> = ({
             />
           }
         />
+        <StyledMenu
+          anchorReference="anchorPosition"
+          anchorPosition={
+            contextMenu !== null
+              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+              : undefined
+          }
+          id="basic-menu"
+          open={contextMenu !== null}
+          onClose={handleClose}
+          MenuListProps={{
+            "aria-labelledby": "basic-button",
+          }}
+        >
+          {contextMenuButtons.map((element) => {
+            const MButton = element.component;
+            //@ts-ignore
+            return (<MButton {...element.compProps} onClick={() => { element.compProps.onClick(); handleClose(); }} />
+            );
+          })}
+        </StyledMenu>
       </Box>
 
       <Box flex={4} height="70vh" marginTop={"2rem"}>

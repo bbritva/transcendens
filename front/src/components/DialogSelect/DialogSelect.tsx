@@ -6,7 +6,7 @@ import { IconButton, Box, useTheme } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface props {
-  options: {};
+  options?: {};
   open: boolean;
   setOpen: Function;
   children: React.ReactNode;
@@ -21,11 +21,6 @@ const DialogSelect: FC<props> = ({
   myRef,
 }) => {
   const theme = useTheme();
-  const [age, setAge] = React.useState<number | string>("");
-
-  const handleChange = (event: SelectChangeEvent<typeof age>) => {
-    setAge(Number(event.target.value) || "");
-  };
 
   const handleClose = (
     event: React.SyntheticEvent<unknown>,
@@ -34,6 +29,8 @@ const DialogSelect: FC<props> = ({
     if (reason !== "backdropClick") {
       setOpen(false);
     }
+    else if (options)
+      setOpen(false);
   };
   return (
     <Dialog
@@ -51,6 +48,7 @@ const DialogSelect: FC<props> = ({
         aria-label="close"
         onClick={handleClose}
         sx={{
+          zIndex: 5,
           position: "absolute",
           right: 8,
           top: 8,

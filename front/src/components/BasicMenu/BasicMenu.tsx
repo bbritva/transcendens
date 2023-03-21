@@ -37,8 +37,8 @@ export default function BasicMenu({ extAvatar, title, mychildren, onClick, fullw
     setContextMenu(
       contextMenu === null
         ? {
-          mouseX: event.clientX + 2,
-          mouseY: event.clientY - 6,
+          mouseX: event.clientX + 3,
+          mouseY: event.clientY - 3,
         }
         : null,
     );

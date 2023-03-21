@@ -396,8 +396,6 @@ export class GatewayService {
     const channel = await this.channelService.getChannel(channelIn.name);
     // check possibility
     if (!user) this.emitExecutionError(socketId, "joinChannel", "user unknown");
-    else if (!channel)
-      this.emitExecutionError(socketId, "joinChannel", "channel unknown");
     else if (await this.canJoin(socketId, user, channel, channelIn, user)) {
       await this.connectUserToChannel(
         channelIn,
@@ -942,7 +940,19 @@ export class GatewayService {
     channelIn: DTO.ChannelInfoIn,
     target: DTO.ClientInfo
   ): Promise<boolean> {
-    if (channel == null || channel.admIds.includes(executor.id)) return true;
+    if (channel === null) {
+      if (!channelIn.name.match(/^[a-z0-9]{4,20}$/i)) {
+        this.emitNotAllowed(
+          socketId,
+          "connectToChannel",
+          channelIn,
+          "bad channel name"
+        );
+        return false;
+      }
+      return true;
+    }
+    if (channel.admIds.includes(executor.id)) return true;
     if (channel.isPrivate) {
       this.emitNotAllowed(
         socketId,
