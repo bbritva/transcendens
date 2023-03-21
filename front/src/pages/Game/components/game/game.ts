@@ -120,12 +120,20 @@ class Game {
     return Game.instance.gameState.gameName != "demo";
   }
 
-  public static setColor(color : string) {
+  public static setColor(color: string) {
     Game.color = color;
   }
 
   public static getColor() {
     return Game.color;
+  }
+
+  public static isSpectator() : boolean {
+    return Game.instance?.myRole === role.SPECTATOR;
+  }
+
+  public static isSingle() : boolean {
+    return Game.instance?.gameState.gameName === "Single";
   }
 
   public static setPause(value: boolean) {
@@ -284,7 +292,11 @@ class Game {
           if (Game.setGameOngoing) Game.setGameOngoing(false);
           if (Game.setGameResult)
             Game.setGameResult(
-              result.winnerName == this.myName ? "You won! =)" : "You lost! :'("
+              this.myRole === role.SPECTATOR
+                ? `${result.winnerName} won! 8-|`
+                : result.winnerName == this.myName
+                ? "You won! =)"
+                : "You lost! :'("
             );
           socket.off("gameState");
           socket.off("gameFinished");
@@ -333,7 +345,7 @@ class Game {
     this.ball.y = initData.ball.y ? initData.ball.y : 0.5;
     this.ball.speedX = initData.ball.speedX
       ? initData.ball.speedX
-      :  - this.ball.speedH;
+      : -this.ball.speedH;
     this.ball.speedY = initData.ball.speedY
       ? initData.ball.speedY
       : -this.ball.speedV;
@@ -562,10 +574,11 @@ class Game {
           ? "Boring... =("
           : "You lost! :'("
       );
-    socket.emit("endGame", {
-      gameName: this.gameState.gameName,
-      option: option,
-    });
+    if (this.myRole == role.FIRST)
+      socket.emit("endGame", {
+        gameName: this.gameState.gameName,
+        option: option,
+      });
   }
 }
 

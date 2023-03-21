@@ -51,7 +51,6 @@ const GamePage: FC<GamePageProps> = ({
   const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
-  const [gameSingle, setGameSingle] = useState<boolean>(false);
   const [isPaused, setPaused] = useState<boolean>(false);
   const [isRivalOffline, setRivalOffline] = useState<boolean>(false);
   const [isPauseAvailable, setPauseAvailable] = useState<boolean>(true);
@@ -61,7 +60,6 @@ const GamePage: FC<GamePageProps> = ({
   const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
   const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
-  const [singlePlayerRival, setSinglePlayerRival] = useState<string>("AI");
   const [playerController, setPlayerController] = useState<string>("Mouse");
   const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
   const [openSpectatorDialog, setOpenSpectatorDialog] =
@@ -97,7 +95,6 @@ const GamePage: FC<GamePageProps> = ({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    // Game.setColor(theme.palette.primary.main)
     socket.off("gameLine");
     socket.on("gameLine", (data: gameLineI) => {
       setInLine(data.inLine);
@@ -111,6 +108,7 @@ const GamePage: FC<GamePageProps> = ({
     });
     socket.off("rivalOnline");
     socket.on("rivalOnline", (data: { isOnline: boolean }) => {
+      if (Game.isSpectator()) return;
       setRivalOffline(!data.isOnline);
       if (!data.isOnline) {
         Game.setPause(true);
@@ -141,7 +139,6 @@ const GamePage: FC<GamePageProps> = ({
           gameData,
           webcamRef
         );
-        setGameSingle(gameData.gameName == "single");
       }
     }
   }
@@ -236,7 +233,6 @@ const GamePage: FC<GamePageProps> = ({
   function finishSingleGame() {
     Game.finishGameManual("drop");
     setRivalOffline(false);
-    setGameSingle(false);
     setPauseAvailable(true);
     setPauseTimeout(0);
     setPaused(false);
@@ -519,19 +515,23 @@ const GamePage: FC<GamePageProps> = ({
         <Button
           children={
             (isPaused ? "Continue" : "Pause") +
-            (isPauseAvailable ? "" : `(${pauseTimeout})`)
+            (isPauseAvailable || Game.isSpectator()
+              ? ""
+              : `(${pauseTimeout})`)
           }
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
-          disabled={!isPauseAvailable}
+          disabled={!isPauseAvailable || Game.isSpectator()}
           size="large"
           onClick={clickPause}
         />
         <Button
-          children={"finish game"}
+          children={
+            Game.isSpectator() ? "Leave game" : "finish game"
+          }
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
-          disabled={!gameSingle}
+          disabled={!Game.isSingle() && !Game.isSpectator()}
           size="large"
           onClick={finishSingleGame}
         />

@@ -104,14 +104,14 @@ export class GatewayService {
     );
     for (const el of this.gameRooms.values()) {
       if (
-        el.playerFirst.name == this.connections.get(socket.id).name ||
-        el.playerSecond.name == this.connections.get(socket.id).name
+        el.playerFirst.name == this.connections.get(socket.id)?.name ||
+        el.playerSecond.name == this.connections.get(socket.id)?.name
       )
         this.server.to(el.gameName).emit("rivalOnline", { isOnline: false });
     }
     this.server.emit("userStatus", {
-      name: this.connections.get(socket.id).name,
-      id: this.connections.get(socket.id).id,
+      name: this.connections.get(socket.id)?.name,
+      id: this.connections.get(socket.id)?.id,
       status: "OFFLINE",
     });
     this.connections.delete(socket.id);
