@@ -705,6 +705,20 @@ export class GatewayService {
     for (const el of this.gameRooms.values()) {
       activeGames.push(el);
     }
+    activeGames.push({
+      gameName: "Test1",
+      playerFirst: { name: "alice", score: 4, paddleY: 0 },
+      playerSecond: { name: "p2", score: 3, paddleY: 0 },
+      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
+      isPaused: false,
+    });
+    activeGames.push({
+      gameName: "Test2",
+      playerFirst: { name: "p3", score: 11, paddleY: 0 },
+      playerSecond: { name: "banned", score: 32, paddleY: 0 },
+      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
+      isPaused: false,
+    });
     this.server.to(socketId).emit("activeGames", activeGames);
   }
 
@@ -719,7 +733,7 @@ export class GatewayService {
     if (gameRoom) {
       this.server.to(socketId).emit("connectToGame", gameRoom);
       this.server.in(socketId).socketsJoin(gameRoom.gameName);
-    } else this.emitNotAllowed(socketId, "spectateGame", "game unknown");
+    } else this.emitNotAllowed(socketId, "spectateGame", data, "game doesn't exist");
   }
 
   removeGame(room: string) {
@@ -801,6 +815,11 @@ export class GatewayService {
       }
     }
     this.server.to(game.gameName).emit("connectToGame", game);
+    const activeGames = [];
+    for (const el of this.gameRooms.values()) {
+      activeGames.push(el);
+    }
+    this.server.emit("activeGames", activeGames);
   }
 
   private async connectUserToGames(socketId: string) {
@@ -952,6 +971,7 @@ export class GatewayService {
     return {
       name: `${names[0]} ${names[1]} pm`,
       isPrivate: true,
+      ownerId: 0,
       type: "PRIVATE_MESSAGING",
     };
   }

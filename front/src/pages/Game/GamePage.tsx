@@ -22,6 +22,9 @@ import { RootState } from "src/store/store";
 import Webcam from "react-webcam";
 import CanvasR from "./components/CanvasR";
 import { selectMode } from "src/store/colorModeSlice";
+import GamesTable from "src/components/OneColumnTable/GamesTable";
+import GameSpectateButtons from "src/components/BasicMenu/GamesSpectateButtons";
+import { chatStyles } from "../Chat/chatStyles";
 
 export interface point {
   x: number;
@@ -47,8 +50,6 @@ const GamePage: FC<GamePageProps> = ({
   setGameData,
 }): ReactElement => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [declined, setDeclined] = useState<boolean>(false);
-  const [declinedCause, setDeclinedCause] = useState<string>("");
   const [inLine, setInLine] = useState<boolean>(false);
   const [gameOngoing, setGameOngoing] = useState<boolean>(false);
   const [isPaused, setPaused] = useState<boolean>(false);
@@ -60,16 +61,20 @@ const GamePage: FC<GamePageProps> = ({
   const [endGameTimeout, setEndGameTimeout] = useState<number>(0);
   const [endGameOption, setEndGameOption] = useState<string>("meWinner");
   const [gameResult, setGameResult] = useState<string>("");
+  const [gameList, setGameList] = useState<GameStateDataI[]>([]);
   const [playerController, setPlayerController] = useState<string>("Mouse");
-  const [openMPDialog, setOpenMPDialog] = useState<boolean>(false);
-  const [openSpectatorDialog, setOpenSpectatorDialog] =
-    useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>();
   const testUsername = sessionStorage.getItem("username");
   const { getState } = useStore();
   const { user } = getState() as RootState;
   const theme = useTheme();
   const mode = useSelector(selectMode);
+  const [loading, setLoading] = useState(false);
+  const [event, setEvent] = useState<[string, { gameName: string }]>([
+    "",
+    { gameName: "" },
+  ]);
+  const [chosenGame, setChosenGame] = useState({} as GameStateDataI);
+  const [openGamesDialog, setOpenGamesDialog] = useState(false);
 
   const webcamRef = useRef<Webcam>(null);
 
@@ -90,11 +95,17 @@ const GamePage: FC<GamePageProps> = ({
   }, [gameResult]);
 
   useEffect(() => {
+    const [eventName, data] = event;
+    socket.emit(eventName, data);
+  }, [event]);
+
+  useEffect(() => {
     Game.setColor(theme.palette.primary.main);
   }, [mode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    getActiveGames();
     socket.off("gameLine");
     socket.on("gameLine", (data: gameLineI) => {
       setInLine(data.inLine);
@@ -116,6 +127,11 @@ const GamePage: FC<GamePageProps> = ({
         setEndGameAvailable(false);
         updateEndGameTimeout(10);
       }
+    });
+    socket.off("activeGames");
+    socket.on("activeGames", (data: GameStateDataI[]) => {
+      console.log("activeGames", data);
+      setGameList(data);
     });
   }, []);
 
@@ -173,47 +189,18 @@ const GamePage: FC<GamePageProps> = ({
     }
   }
 
-  function onChange(
-    this: any,
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ): void {
-    setInputValue(event.currentTarget.value);
-  }
-
-  async function sendInvite() {
-    if (socket.connected) {
-      socket.emit("inviteToGame", { recipient: inputValue });
-      setInputValue(undefined);
-      socket.on("declineInvite", (data) => {
-        setDeclined(true);
-        // setDeclinedCause(data.cause);
-        // setOpenMPDialog(true);
-        sessionStorage.setItem("game", "false");
-      });
-    }
-    setOpenMPDialog(false);
-  }
-
   async function getInLine(inLine: boolean) {
     if (socket.connected) {
       socket.emit("gameLine", { inLine: inLine });
     }
-    setOpenMPDialog(false);
   }
 
   async function getActiveGames() {
-    if (socket.connected) {
-      socket.emit("getActiveGames", {});
-    }
-  }
-
-  async function spectateGame() {
-    if (socket.connected) {
-      socket.emit("spectateGame", {
-        gameName: inputValue,
-      });
-    }
-    setOpenSpectatorDialog(false);
+    if (socket.connected) socket.emit("getActiveGames", {});
+    else
+      setTimeout(() => {
+        getActiveGames();
+      }, 1000);
   }
 
   function closeEndGamedialog() {
@@ -251,99 +238,6 @@ const GamePage: FC<GamePageProps> = ({
         backgroundColor: theme.palette.secondary.main,
       }}
     >
-      <DialogSelect options={{}} open={openMPDialog} setOpen={setOpenMPDialog}>
-        {declined ? (
-          <Box
-            margin={"1rem"}
-            display={"flex"}
-            flexDirection={"column"}
-            alignItems={"flex-start"}
-          >
-            <DialogTitle>
-              {inputValue} declined! {declinedCause}
-            </DialogTitle>
-            <Button
-              variant="outlined"
-              sx={{
-                alignSelf: "end",
-              }}
-              onClick={() => setOpenMPDialog(false)}
-            >
-              OK
-            </Button>
-          </Box>
-        ) : (
-          <Box
-            margin={"1rem"}
-            display={"flex"}
-            flexDirection={"column"}
-            alignItems={"flex-start"}
-          >
-            <DialogTitle>Invite a 2nd player</DialogTitle>
-            <TextField
-              label={"enter player's nickname"}
-              onChange={onChange}
-              margin="dense"
-              sx={{
-                fieldset: {
-                  borderColor: theme.palette.primary.dark,
-                },
-                input: {
-                  color: theme.palette.primary.dark,
-                },
-              }}
-            />
-            <Box display={"flex"} flexDirection={"row"}>
-              <Button variant="outlined" onClick={sendInvite}>
-                Pong's invite
-              </Button>
-              {!inLine ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    getInLine(true);
-                  }}
-                >
-                  Get in line
-                </Button>
-              ) : (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    getInLine(false);
-                  }}
-                >
-                  Leave line
-                </Button>
-              )}
-            </Box>
-          </Box>
-        )}
-      </DialogSelect>
-      <DialogSelect
-        options={{}}
-        open={openSpectatorDialog}
-        setOpen={setOpenSpectatorDialog}
-      >
-        <Box
-          margin={"1rem"}
-          display={"flex"}
-          flexDirection={"column"}
-          alignItems={"flex-start"}
-        >
-          <DialogTitle>Connect to game</DialogTitle>
-          <TextField label={"Game name"} onChange={onChange} margin="dense" />
-          <Button
-            variant="outlined"
-            sx={{
-              alignSelf: "end",
-            }}
-            onClick={spectateGame}
-          >
-            Connect to game
-          </Button>
-        </Box>
-      </DialogSelect>
       <DialogSelect
         options={{}}
         open={openEndGameDialog}
@@ -444,17 +338,6 @@ const GamePage: FC<GamePageProps> = ({
             Game.setMouseControl(false);
           }}
         />
-        <Button
-          children={"Watch games"}
-          sx={{ margin: "0.5px" }}
-          variant={"outlined"}
-          disabled={gameOngoing}
-          size="large"
-          onClick={() => {
-            getActiveGames();
-            setOpenSpectatorDialog(true);
-          }}
-        />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <Button
@@ -481,17 +364,28 @@ const GamePage: FC<GamePageProps> = ({
             })
           }
         />
-        <Button
-          children={"Multi player"}
+        {!inLine ? (
+          <Button
+          children={"Get in line"}
           sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={gameOngoing}
           size="large"
-          onClick={() => {
-            setDeclined(false);
-            setOpenMPDialog(true);
-          }}
-        />
+            onClick={() => {
+              getInLine(true);
+            }}
+          />
+        ) : (
+          <Button
+          children={"Leave the line"}
+          sx={{ margin: "0.5px" }}
+          variant={"outlined"}
+          size="large"
+            onClick={() => {
+              getInLine(false);
+            }}
+          />
+        )}
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <CanvasR canvasRef={canvasRef} />
@@ -546,6 +440,14 @@ const GamePage: FC<GamePageProps> = ({
           ? "You have chosen an old-fashioned way to control with the mouse. Just move it to control the racket =("
           : "You have chosen a cool incredible innovative way to remote control. Just move your hand in front of the camera =)"}
       </Typography>
+      <GamesTable
+        loading={loading}
+        elements={gameList}
+        buttons={GameSpectateButtons(setEvent, chosenGame)}
+        chatStyles={chatStyles}
+        selectedElement={chosenGame}
+        setElement={setChosenGame}
+      />
     </Box>
   );
 };

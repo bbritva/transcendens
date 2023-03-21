@@ -105,7 +105,7 @@ export class ChannelService {
             // if channel doesn't exist
             create: {
               name: data.name,
-              ownerId: data.ownerId,
+              ownerId: data.type === "PRIVATE_MESSAGING" ? 0 : data.ownerId,
               password: data.password,
               guests: {
                 connect: {
@@ -114,7 +114,7 @@ export class ChannelService {
               },
               isPrivate: data.isPrivate,
               type: data.type,
-              admIds: [data.ownerId],
+              admIds: [data.type === "PRIVATE_MESSAGING" ? 0 : data.ownerId],
             },
           });
           return ret;
