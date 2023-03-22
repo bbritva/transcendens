@@ -39,7 +39,7 @@ export interface basicTableI extends styledBoxI {
 function drawHeader(element: string) {
   return (
     <TableCell padding="checkbox" key={element}>
-      <Typography marginLeft={"2rem"} paddingTop={"0.5rem"} variant="subtitle1">{element}</Typography>
+      <Typography marginLeft={"1rem"} paddingTop={"0.5rem"} variant="subtitle1">{element}</Typography>
     </TableCell>
   );
 }
@@ -56,7 +56,7 @@ function drawRow(row: rowI) {
             <TableCell  key={row.id + String(index)}>
               {
                 typeof(res) === "string"
-                ? <Typography marginLeft={"1.5rem"} variant="body1">
+                ? <Typography marginLeft={"0.5rem"} variant="body1">
                     { res }
                   </Typography>
                 : res 

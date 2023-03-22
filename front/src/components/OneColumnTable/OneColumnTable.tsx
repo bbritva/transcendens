@@ -127,7 +127,7 @@ const OneColumnTable: FC<{
                 let name = data.name;
                 if (data.name.endsWith(" pm")) {
                   const names = data.name.split(" ");
-                  name = names[0] === user?.name ? names[0] : names[1];
+                  name = names[0] === user?.name ? names[1] : names[0];
                 }
                 return (
                   <BasicMenu

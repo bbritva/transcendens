@@ -124,7 +124,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
     createPlayerData("Total losses: ", losesNum + "", "3"),
     createPlayerData("Total score: ", score + "", "1"),
     createPlayerData(
-      <Box display="flex" alignItems="center"  marginLeft={"1.5rem"} >
+      <Box display="flex" alignItems="center"  marginLeft={"0.5rem"} >
         <Typography variant="body1">
           Rating
         </Typography>
