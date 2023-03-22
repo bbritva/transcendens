@@ -14,9 +14,6 @@ export class CreateMessageDTO {
   authorName: string;
   
   @ApiProperty()
-  authorId: string;
-  
-  @ApiProperty()
   text: string;
 }
 
