@@ -206,7 +206,7 @@ export class GatewayService {
         if (isChanged) {
           this.server.in(data.channelName).socketsJoin(data.newName);
           this.server.socketsLeave(data.channelName);
-          this.server.to(data.newName).emit("newChannelName", data);
+          this.server.emit("newChannelName", data);
         } else this.emitNotAllowed(socketId, "newChannelName", data);
       })
       .catch((e) =>
@@ -218,7 +218,7 @@ export class GatewayService {
     this.channelService
       .setPrivacy(this.connections.get(socketId)?.id || -1, data)
       .then((isSet) => {
-        if (isSet) this.server.to(data.channelName).emit("privacySet", data);
+        if (isSet) this.server.emit("privacySet", data);
         else this.emitNotAllowed(socketId, "setPrivacy", data);
       })
       .catch((e) => this.emitExecutionError(socketId, "setPrivacy", e.cause));
@@ -228,7 +228,10 @@ export class GatewayService {
     this.channelService
       .setPassword(this.connections.get(socketId)?.id || -1, data)
       .then((isSet) => {
-        if (isSet) this.server.to(data.channelName).emit("passwordSet", data);
+        if (isSet) this.server.emit("passwordSet", {
+          channelName: data.channelName,
+          hasPassword: !!data.password
+        });
         else this.emitNotAllowed(socketId, "setPassword", data);
       })
       .catch((e) => this.emitExecutionError(socketId, "setPassword", e.cause));
@@ -472,6 +475,7 @@ export class GatewayService {
       this.emitExecutionError(socketId, "leaveChannel", "user unknown");
     this.channelService
       .leaveChannel(user.id, channelName)
+      .catch((e : NotFoundException) => {})
       .catch((e) => this.emitExecutionError(socketId, "leaveChannel", e.cause))
       .then(() => {
         const targetSocket = user?.socketId || this.connectionByName(user.name);
