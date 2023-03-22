@@ -4,6 +4,8 @@ WORKDIR /usr/src/app/
 
 RUN npm install -g @nestjs/cli
 
-CMD tail -f
-
-# CMD /usr/src/app/start.sh
+CMD npm install && \
+npx prisma migrate dev --name init && \
+npx prisma generate && \
+npx prisma db seed && \
+npm run start:debug
