@@ -13,11 +13,16 @@ import {
 } from "src/chat/websocket/websocket.dto";
 import { CreateGameDto, GameResultDto } from "src/game/dto/create-game.dto";
 import { UserEntity } from "./entities/user.entity";
-import { GameEntity } from "src/game/entities/game.entity";
+import { Server } from "socket.io";
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
+
+  server: Server;
+  setServer(server: Server) {
+    this.server = server;
+  }
 
   async users(params: {
     select?: Prisma.UserSelect;
@@ -239,7 +244,14 @@ export class UserService {
           channels: includeChannels,
         },
       })
-      .then((ret: any) => ret)
+      .then((ret: any) => {
+        if (this.server)
+          this.server.emit("newUserName", {
+            id: ret.id,
+            name: ret.name,
+          });
+        return ret;
+      })
       .catch((e: any) => {
         throw new BadRequestException(e.message);
       });

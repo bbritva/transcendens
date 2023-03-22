@@ -22,7 +22,7 @@ import { diskStorage } from "multer";
 import { randomUUID } from "crypto";
 import * as path from "path";
 import { ManageUserI } from "src/chat/websocket/websocket.dto";
-import { Public } from 'src/auth/constants';
+import { Public } from "src/auth/constants";
 
 export const storage = {
   storage: diskStorage({
@@ -148,7 +148,7 @@ export class UserController {
       data: {
         avatar: file.filename,
       },
-      });
+    });
     return { avatar: file.filename };
   }
 
