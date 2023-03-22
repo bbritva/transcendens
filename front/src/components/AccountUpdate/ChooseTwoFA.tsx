@@ -43,7 +43,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
             marginRight="1rem"
             marginTop={"7px"}
           >
-            SCAN THE CODE
+            Scan the code
           </Typography>
           <Box display={"flex"}>
             <Box
@@ -79,7 +79,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
             marginRight="1rem"
             marginTop="1rem"
           >
-            ENTER YOUR DIGIT CODE
+            Enter 6 digit code from app
           </Typography>
         </>
       )}

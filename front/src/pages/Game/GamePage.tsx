@@ -421,7 +421,7 @@ const GamePage: FC<GamePageProps> = ({
         />
         <Button
           children={
-            Game.isSpectator() ? "Leave game" : "finish game"
+            Game.isSpectator() ? "Leave game" : "Finish game"
           }
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
