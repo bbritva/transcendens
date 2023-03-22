@@ -27,7 +27,6 @@ export class ReqService {
         const res = response
             .then(data => data)
             .catch(error => {
-                console.log("Error", error);
                 return error;
             });
         return res;

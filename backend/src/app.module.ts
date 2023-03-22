@@ -18,10 +18,6 @@ import { HttpModule } from '@nestjs/axios';
 import { MulterModule } from '@nestjs/platform-express';
 
 // puts warnings to console
-process.on('warning', (warning) => {
-  console.log(warning.stack);
-});
-
 @Module({
   imports: [
     HttpModule, 

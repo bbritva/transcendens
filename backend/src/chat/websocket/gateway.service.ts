@@ -98,7 +98,7 @@ export class GatewayService {
           });
         });
       })
-      .catch((e) => console.log(e.message));
+      .catch((e) => {});
     this.readyToPlayUsers = this.readyToPlayUsers.filter(
       (user) => user.name != this.connections.get(socket.id)?.name
     );
@@ -839,9 +839,7 @@ export class GatewayService {
             }
           });
         })
-        .catch((e) => {
-          console.log("Exception", e.message);
-        });
+        .catch((e) => {});
     }
   }
 
@@ -1021,7 +1019,6 @@ export class GatewayService {
           return false;
         })
         .catch((e) => {
-          console.log(e.cause);
           return false;
         })
     );

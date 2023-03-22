@@ -26,7 +26,7 @@ export class AuthService {
       const userData = {
         id: parseInt(userResponse.data.id),
         name: userResponse.data.login,
-        image: userResponse.data.image.link,
+        image: userResponse.data.image.versions.medium,
         channels: {
           connect: {
             name: "main",

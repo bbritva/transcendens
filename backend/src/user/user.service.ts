@@ -93,13 +93,6 @@ export class UserService {
       })
       .then((ret) => ret)
       .catch((e) => {
-        if (e instanceof Prisma.PrismaClientKnownRequestError) {
-          if (e.code === "P2002") {
-            console.log(
-              "There is a unique constraint violation, a user cannot be updated"
-            );
-          }
-        }
         throw e;
       })
       .then((ret: any) => ret)
@@ -223,7 +216,6 @@ export class UserService {
     )
       .then((ret) => ret)
       .catch((e) => {
-        console.log(e.message);
         return null;
       });
   }
@@ -395,9 +387,7 @@ export class UserService {
         }
       }
       return names;
-    } catch (e) {
-      console.log("err", e.meta.cause);
-    }
+    } catch (e) {}
   }
 
   async banPersonally(userId: number, targetUserName: string): Promise<User> {

@@ -33,10 +33,6 @@ export function initSocket(
   setNotify: Function,
   dispatch: Dispatch
 ) {
-  socket.on("connect_error", (err) => console.log(err));
-  socket.on("connect_failed", (err) => console.log(err));
-  socket.on("disconnect", (err) => console.log(err));
-
   socket.on("channels", (channels: channelFromBackI[]) => {
     setChannels(channels);
   });
