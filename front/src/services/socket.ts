@@ -145,11 +145,9 @@ export function initSocket(
   socket.on("disconnect", () => {});
 
   socket.on("userStat", (data: fromBackI) => {
-    console.log("userStat", data);
   });
 
   socket.on("ladder", (data: fromBackI[]) => {
-    console.log("ladder", data);
   });
 
   socket.on("newFriend", (data: UserInfoPublic) => {
@@ -266,19 +264,15 @@ export function initSocket(
 
   socket.on("personallyBannedList", (data: UserInfoPublic[]) => {
     dispatch(setBanned(data));
-    console.log("personallyBannedList", data);
   });
 
   socket.on("nameAvailable", (data: fromBackI) => {
-    console.log("nameAvailable", data);
   });
 
   socket.on("nameTaken", (data: fromBackI) => {
-    console.log("nameTaken", data);
   });
 
   socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
-    console.log("nameSuggestions", data);
   });
 
   socket.on("notAllowed", (data: any) => {
@@ -290,7 +284,6 @@ export function initSocket(
   });
 
   socket.on("executionError", (data: any) => {
-    console.log("executionError", data);
   });
 
   socket.on("connectionError", (data: any) => {

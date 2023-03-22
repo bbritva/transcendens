@@ -80,9 +80,8 @@ const OneColumnTable: FC<{
           ")",
       }}
     >
-      <Grid item xs={12} display="inherit" justifyContent={"inherit"}>
+      <Grid item xs={12} display="inherit" justifyContent={"inherit"} alignItems={'center'} maxHeight={'10%'}>
         <Typography
-          marginTop={"1rem"}
           variant="body1"
           maxHeight="3rem"
           sx={{

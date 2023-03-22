@@ -143,7 +143,6 @@ class Game {
 
   public static setMouseControl(isMouse: boolean) {
     Game.mouseControl = isMouse;
-    console.log(Game.mouseControl);
   }
 
   public static finishGameManual(option: string) {
@@ -286,7 +285,6 @@ class Game {
           this.rightPaddle.score = data.playerSecond.score;
         });
         socket.on("gameFinished", (result: { winnerName: string }) => {
-          console.log(result);
           Game.hasNewData = true;
           Game.instance.gameInitState = null;
           if (Game.setGameOngoing) Game.setGameOngoing(false);
@@ -436,7 +434,6 @@ class Game {
         width: 640,
         height: 480,
       });
-      console.log("create cam");
       this.camera.start();
     }
   }
