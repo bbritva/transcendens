@@ -10,7 +10,6 @@ import {
   Paper,
   Radio,
   RadioGroup,
-  TextField,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -24,7 +23,7 @@ import CanvasR from "./components/CanvasR";
 import { selectMode } from "src/store/colorModeSlice";
 import GamesTable from "src/components/OneColumnTable/GamesTable";
 import GameSpectateButtons from "src/components/BasicMenu/GamesSpectateButtons";
-import { chatStyles } from "../Chat/chatStyles";
+import { chatStyles } from "src/pages/Chat/chatStyles";
 
 export interface point {
   x: number;
@@ -225,6 +224,8 @@ const GamePage: FC<GamePageProps> = ({
     setPaused(false);
   }
 
+  chatStyles.scrollStyle["&::-webkit-scrollbar-thumb"].backgroundColor =
+    theme.palette.primary.light;
   return (
     <Box
       component={Paper}
@@ -236,6 +237,7 @@ const GamePage: FC<GamePageProps> = ({
       width={"0.9"}
       sx={{
         backgroundColor: theme.palette.secondary.main,
+          ...chatStyles.scrollStyle
       }}
     >
       <DialogSelect
@@ -316,32 +318,10 @@ const GamePage: FC<GamePageProps> = ({
         </Box>
       </Dialog>
       <Grid item display={"flex"} justifyContent={"center"}>
-        <Button
-          children={"Mouse"}
-          sx={{ margin: "0.5px" }}
-          variant={"outlined"}
-          disabled={playerController == "Mouse" || gameOngoing}
-          size="large"
-          onClick={() => {
-            setPlayerController("Mouse");
-            Game.setMouseControl(true);
-          }}
-        />
-        <Button
-          children={"Hand"}
-          sx={{ margin: "0.5px" }}
-          variant={"outlined"}
-          size="large"
-          disabled={playerController == "Hand" || gameOngoing}
-          onClick={() => {
-            setPlayerController("Hand");
-            Game.setMouseControl(false);
-          }}
-        />
-      </Grid>
-      <Grid item display={"flex"} justifyContent={"center"}>
+       
         <Button
           children={"Single player"}
+          fullWidth
           sx={{ margin: "0.5px" }}
           variant={"outlined"}
           disabled={gameOngoing}
@@ -366,27 +346,30 @@ const GamePage: FC<GamePageProps> = ({
         />
         {!inLine ? (
           <Button
-          children={"Get in line"}
-          sx={{ margin: "0.5px" }}
-          variant={"outlined"}
-          disabled={gameOngoing}
-          size="large"
+            children={"Get in line"}
+            fullWidth
+            sx={{ margin: "0.5px" }}
+            variant={"outlined"}
+            disabled={gameOngoing}
+            size="large"
             onClick={() => {
               getInLine(true);
             }}
           />
         ) : (
           <Button
-          children={"Leave the line"}
-          sx={{ margin: "0.5px" }}
-          variant={"outlined"}
-          size="large"
+            children={"Leave the line"}
+            fullWidth
+            sx={{ margin: "0.5px" }}
+            variant={"outlined"}
+            size="large"
             onClick={() => {
               getInLine(false);
             }}
           />
         )}
       </Grid>
+      <Grid item display={"flex"} justifyContent={"center"}></Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
         <CanvasR canvasRef={canvasRef} />
         <Webcam
@@ -406,12 +389,32 @@ const GamePage: FC<GamePageProps> = ({
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
+      <Button
+          children={"Mouse"}
+          sx={{ margin: "0.5px" }}
+          variant={"outlined"}
+          disabled={playerController == "Mouse" || gameOngoing}
+          size="large"
+          onClick={() => {
+            setPlayerController("Mouse");
+            Game.setMouseControl(true);
+          }}
+        />
+        <Button
+          children={"Hand"}
+          sx={{ margin: "0.5px" }}
+          variant={"outlined"}
+          size="large"
+          disabled={playerController == "Hand" || gameOngoing}
+          onClick={() => {
+            setPlayerController("Hand");
+            Game.setMouseControl(false);
+          }}
+        />
         <Button
           children={
             (isPaused ? "Continue" : "Pause") +
-            (isPauseAvailable || Game.isSpectator()
-              ? ""
-              : `(${pauseTimeout})`)
+            (isPauseAvailable || Game.isSpectator() ? "" : `(${pauseTimeout})`)
           }
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
@@ -420,9 +423,7 @@ const GamePage: FC<GamePageProps> = ({
           onClick={clickPause}
         />
         <Button
-          children={
-            Game.isSpectator() ? "Leave game" : "finish game"
-          }
+          children={Game.isSpectator() ? "Leave game" : "finish game"}
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
           disabled={!Game.isSingle() && !Game.isSpectator()}
@@ -432,9 +433,8 @@ const GamePage: FC<GamePageProps> = ({
       </Grid>
       <Typography
         variant="h6"
-        marginLeft="3rem"
-        marginRight="1rem"
-        marginTop={"7px"}
+        alignSelf="center"
+        marginTop="5px"
       >
         {playerController === "Mouse"
           ? "You have chosen an old-fashioned way to control with the mouse. Just move it to control the racket =("
