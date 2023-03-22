@@ -29,7 +29,6 @@ import { selectLoggedIn } from "src/store/authReducer";
 import { logout } from "src/store/authActions";
 import DialogSelect from "./components/DialogSelect/DialogSelect";
 import socket, { initSocket } from "src/services/socket";
-import FormDialog from "src/components/FormDialog/FormDialog";
 import { channelFromBackI } from "src/pages/Chat/ChatPage";
 import { useAppDispatch } from "src/app/hooks";
 import PrivateRouteWrapper from "src/components/Authentication/PrivateRouteWrapper";
@@ -176,7 +175,6 @@ function App() {
             Login
           </Button>
         </DialogSelect>
-        <FormDialog userName={userName} setUsername={setUsername} />
         <Navbar
           loginButtonText="Login"
           onLoginClick={onLoginClick}
