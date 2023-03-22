@@ -54,6 +54,15 @@ export interface userInChannelMovementI {
   targetUserName: string;
 }
 
+export interface ManageChannelI {
+  channelName: string;
+}
+
+export interface ManageUserInChannelI extends ManageChannelI {
+  targetUserName: string;
+  punishTime?: string;
+}
+
 export interface newMessageI extends idI{
   channelName: string;
   sentAt: string | null;
@@ -220,7 +229,11 @@ const ChatPage: FC<ChatPageProps> = ({
     },
   ]
 
-  function createChannel(event: EventI) {
+  function createChannel() {
+    const event: EventI = {
+      name: "joinChannel",
+      data: { name: inputName},
+    };
     if (inputError){
       return;
     }
@@ -228,7 +241,15 @@ const ChatPage: FC<ChatPageProps> = ({
     setOpen(false);
     setTimeout(() => setInputValue(''), 200);
   }
-  function addUser(event: EventI) {
+
+  function addUser() {
+    const event = {
+      name: "addToChannel",
+      data: { 
+        channelName: chosenChannel.name,
+        targetUserName: inputName
+      } as ManageUserInChannelI,
+    };
     if (inputError){
       return;
     }
@@ -272,13 +293,11 @@ const ChatPage: FC<ChatPageProps> = ({
               sx={{
                 justifyContent: "flex-start",
               }}
-              onClick={() => {
-                const event: EventI = {
-                  name: "joinChannel",
-                  data: { name: inputName},
-                };
-                createChannel(event)
-              }}
+              onClick={
+                menuTitle === 'channel'
+                ? createChannel
+                : addUser
+              }
             >
               <Typography variant="subtitle1">Submit</Typography>
             </Button>
