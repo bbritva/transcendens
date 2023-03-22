@@ -21,6 +21,9 @@ export const getDesignTokens = (mode: PaletteMode) => ({
       },
     },
     typography: {
+      button: {
+        textTransform: undefined
+      },
       body1: {
         color: mode === 'light'
                 ? '#3c7180' // dark blue dark

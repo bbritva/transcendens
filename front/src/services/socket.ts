@@ -265,6 +265,7 @@ export function initSocket(
   });
 
   socket.on("executionError", (data: any) => {
+    setNotify({ message: data.cause, severity: "warning" });
     console.log("executionError", data);
   });
 

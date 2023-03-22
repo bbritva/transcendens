@@ -423,6 +423,26 @@ export class GatewayService {
     }
   }
 
+  async addUserToChannel(socketId: string, data: DTO.ManageUserInChannelI) {
+    const user = this.connections.get(socketId);
+    const channel = await this.channelService.getChannel(data.channelName);
+    const targetUser = await this.userService.getUserByName(data.targetUserName);
+    // check possibility
+    if (!user || !targetUser) this.emitExecutionError(socketId, "addUserToChannel", "user unknown");
+    else if (!channel) this.emitExecutionError(socketId, "addUserToChannel", "channel unknown");
+    else {
+      const channelIn = {
+        name: data.channelName
+      }
+      if (await this.canJoin(socketId, user, channel, channelIn, targetUser)) {
+      await this.connectUserToChannel(
+        channelIn,
+        targetUser
+      ).catch((e) => this.emitExecutionError(socketId, "joinChannel", e.cause));
+
+    }}
+  }
+
   async leaveChannel(
     socketId: string,
     channelName: string,
@@ -736,7 +756,7 @@ export class GatewayService {
       isPaused: false,
     });
     activeGames.push({
-      gameName: "Test2",
+      gameName: "Test3",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
       playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
@@ -750,21 +770,21 @@ export class GatewayService {
       isPaused: false,
     });
     activeGames.push({
-      gameName: "Test2",
+      gameName: "Test4",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
       playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
       isPaused: false,
     });
     activeGames.push({
-      gameName: "Test2",
+      gameName: "Test5",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
       playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
       isPaused: false,
     });
     activeGames.push({
-      gameName: "Test2",
+      gameName: "Test6",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
       playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },

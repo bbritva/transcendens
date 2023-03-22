@@ -219,7 +219,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
   });
 
   const refFriendsProps = {
-    title: "FRIENDS",
+    title: "Friends",
     tableHeadArray: null,
     mybackcolor: theme.palette.info.main,
     myalign: "start",
@@ -232,7 +232,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
   };
 
   const refBannedsProps = {
-    title: "BANNED",
+    title: "Banned",
     tableHeadArray: null,
     mybackcolor: theme.palette.info.main,
     myalign: "start",

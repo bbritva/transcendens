@@ -60,7 +60,7 @@ export default function ButtonTable(props: buttonTableI) {
         }}
       >
         <PeopleOutlineIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
-        FRIENDS
+        Friends
       </AccountButton>
       <AccountButton
         onClick={() => {
@@ -71,7 +71,7 @@ export default function ButtonTable(props: buttonTableI) {
         }}
       >
         <BlockIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
-        BANNED USERS
+        Banned users
       </AccountButton>
     </StyledBox>
   );
