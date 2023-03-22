@@ -30,6 +30,10 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
           .catch((error) => {
           })
     }
+  
+    useEffect(() => {
+      setExtUser({status: 'succeed', id: 0, user: user || {} as UserInfoPublic});
+    }, [user])
 
   useEffect(() => {
     let id = parseInt(newUser || '');

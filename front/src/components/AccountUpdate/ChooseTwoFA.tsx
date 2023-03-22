@@ -31,7 +31,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
       marginBottom={"0.5rem"}
     >
       <DialogTitle sx={{ padding: "3px" }}>
-        <Typography paddingTop={"5px"} variant="body1" marginLeft={"4rem"}>
+        <Typography paddingTop={"2px"} variant="body1" marginLeft={"4rem"}>
           {props.title + " 2FA"}
         </Typography>
       </DialogTitle>
@@ -41,15 +41,13 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
             variant="subtitle2"
             marginLeft="3rem"
             marginRight="1rem"
-            marginTop={"7px"}
           >
-            Scan the code
+            Scan the QR code
           </Typography>
           <Box display={"flex"}>
             <Box
               marginLeft={"3rem"}
-              paddingTop={"1rem"}
-              maxHeight="50px"
+              maxHeight="80px"
               maxWidth="100px"
               component={"img"}
               alt="2faQR"
@@ -77,9 +75,9 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
             variant="subtitle2"
             marginLeft="3rem"
             marginRight="1rem"
-            marginTop="1rem"
+            marginTop="0.2rem"
           >
-            Enter 6 digit code from app
+            Enter the code from the app
           </Typography>
         </>
       )}

@@ -79,12 +79,23 @@ export default function SignUp(props: AccountUpdateProps) {
     if (file){
       const formData = new FormData();
       formData.append("file", file);
-      const res = await userService.uploadAvatar(formData);
-      if (res.data?.avatar && extUser) {
-        dispatch(updateUser({ ...extUser as userI, avatar: res.data.avatar }));
-      }
-      setFile(null);
-      // setImageUrl("");
+      
+  
+      const res = await userService.uploadAvatar(formData)
+          .then((res) => res)
+          .catch(() => undefined)
+            //@ts-ignore
+            if (res?.data?.avatar && extUser) {
+              dispatch(updateUser({ ...extUser as userI, avatar: res?.data.avatar }));
+            }
+            else {
+              extUser?.avatar
+              ? setAvatarSource(
+                process.env.REACT_APP_AUTH_URL + `/user/avatar/${extUser.avatar}`
+              )
+              : setAvatarSource(extUser?.image || "");
+            }
+            setFile(null);
     }
     if (!inputError && inputValue !== extUser.name){
       let res;
