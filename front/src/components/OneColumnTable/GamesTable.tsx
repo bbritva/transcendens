@@ -47,7 +47,7 @@ const GamesTable: FC<{
           marginTop={"1rem"}
           variant="body1"
         >
-          ONGOING GAMES:
+          Ongoing games:
         </Typography>
       <Box
         ref={tableRef}
