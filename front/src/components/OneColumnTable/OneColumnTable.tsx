@@ -19,7 +19,7 @@ import { chatStylesI } from "src/pages/Chat/chatStyles";
 import { userI } from "src/store/userSlice";
 import React from "react";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 
 const anchorStyle = {
   overflowAnchor: "auto",
@@ -32,18 +32,18 @@ const OneColumnTable: FC<{
   loading: boolean;
   elements: fromBackI[];
   chatStyles: chatStylesI;
-  selectedElement: {name: string};
+  selectedElement: { name: string };
   setElement: Function;
   dialogChildren: ReactNode;
   buttons: {
-    component: React.FC,
+    component: React.FC;
     compProps: {
-      onClick: Function
-    }
+      onClick: Function;
+    };
   }[];
-  openDialog: boolean; 
+  openDialog: boolean;
   setOpenDialog: Function;
-  addActionClick?: MouseEventHandler<HTMLButtonElement>
+  addActionClick?: MouseEventHandler<HTMLButtonElement>;
 }> = ({
   taper,
   user,
@@ -56,11 +56,11 @@ const OneColumnTable: FC<{
   buttons,
   openDialog,
   setOpenDialog,
-  addActionClick
+  addActionClick,
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
- 
+
   return (
     <Grid
       container
@@ -80,7 +80,14 @@ const OneColumnTable: FC<{
           ")",
       }}
     >
-      <Grid item xs={12} display="inherit" justifyContent={"inherit"} alignItems={'center'} maxHeight={'10%'}>
+      <Grid
+        item
+        xs={12}
+        display="inherit"
+        justifyContent={"inherit"}
+        alignItems={"center"}
+        maxHeight={"10%"}
+      >
         <Typography
           variant="body1"
           sx={{
@@ -89,7 +96,7 @@ const OneColumnTable: FC<{
         >
           {taper}
         </Typography>
-        { addActionClick &&
+        {addActionClick && (
           <IconButton
             size="small"
             aria-label="close"
@@ -98,7 +105,7 @@ const OneColumnTable: FC<{
           >
             <AddIcon fontSize="small" />
           </IconButton>
-        }
+        )}
       </Grid>
       <Grid
         item
@@ -112,14 +119,15 @@ const OneColumnTable: FC<{
       >
         {loading
           ? "LOADING"
-          : elements.map((data) => { 
-              if (!(taper === "USERS" && user?.name === data.name)){
+          : elements.map((data) => {
+              if (!(taper === "USERS" && user?.name === data.name)) {
+                let ava = "";
                 //@ts-ignore
-                let ava = data?.avatar || data.image || '';
+                ava = data?.avatar ? process.env.REACT_APP_AUTH_URL + "/user/avatar/" + data?.avatar : data.image;
                 let name = data.name;
-                if(data.name.endsWith(" pm")) {
+                if (data.name.endsWith(" pm")) {
                   const names = data.name.split(" ");
-                  name = (names[0] === user?.name) ? names[0] : names[1];
+                  name = names[0] === user?.name ? names[0] : names[1];
                 }
                 return (
                   <BasicMenu
@@ -132,18 +140,18 @@ const OneColumnTable: FC<{
                     fullwidth={true}
                     extAvatar={ava}
                     buttonVariant={
-                      (taper === "CHANNELS" && data.name === selectedElement?.name)
-                      ? 'outlined'
-                      : undefined
+                      taper === "CHANNELS" &&
+                      data.name === selectedElement?.name
+                        ? "outlined"
+                        : undefined
                     }
                   />
-                );}
+                );
               }
-            )
-        }
+            })}
         <div style={anchorStyle as CSSProperties} />
       </Grid>
-      <DialogSelect 
+      <DialogSelect
         options={selectedElement}
         open={openDialog}
         setOpen={setOpenDialog}
