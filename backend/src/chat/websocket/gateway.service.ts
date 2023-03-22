@@ -31,6 +31,7 @@ export class GatewayService {
 
   setServer(server: Server) {
     this.server = server;
+    this.userService.setServer(server);
   }
 
   async connectUser(socket: Socket): Promise<boolean> {
@@ -228,10 +229,11 @@ export class GatewayService {
     this.channelService
       .setPassword(this.connections.get(socketId)?.id || -1, data)
       .then((isSet) => {
-        if (isSet) this.server.emit("passwordSet", {
-          channelName: data.channelName,
-          hasPassword: !!data.password
-        });
+        if (isSet)
+          this.server.emit("passwordSet", {
+            channelName: data.channelName,
+            hasPassword: !!data.password,
+          });
         else this.emitNotAllowed(socketId, "setPassword", data);
       })
       .catch((e) => this.emitExecutionError(socketId, "setPassword", e.cause));
@@ -477,7 +479,7 @@ export class GatewayService {
       this.emitExecutionError(socketId, "leaveChannel", "user unknown");
     this.channelService
       .leaveChannel(user.id, channelName)
-      .catch((e : NotFoundException) => {})
+      .catch((e: NotFoundException) => {})
       .catch((e) => this.emitExecutionError(socketId, "leaveChannel", e.cause))
       .then(() => {
         const targetSocket = user?.socketId || this.connectionByName(user.name);
@@ -722,7 +724,7 @@ export class GatewayService {
       this.addGameResult(data);
     }
     this.gameRooms.delete(data.gameName);
-    this.emitActiveGames()
+    this.emitActiveGames();
     this.server.socketsLeave(data.gameName);
   }
 
@@ -780,12 +782,10 @@ export class GatewayService {
     const gameRoom = this.gameRooms.get(data?.gameName);
     if (gameRoom) {
       gameRoom.isPaused = data?.isPaused || false;
-      this.server
-        .to(gameRoom.gameName)
-        .emit("setPause", {
-          gameName: gameRoom.gameName,
-          isPaused: gameRoom.isPaused,
-        });
+      this.server.to(gameRoom.gameName).emit("setPause", {
+        gameName: gameRoom.gameName,
+        isPaused: gameRoom.isPaused,
+      });
     }
   }
 

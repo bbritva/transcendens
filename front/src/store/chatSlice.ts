@@ -44,6 +44,20 @@ const chatSlice = createSlice({
         }
       }
     },
+    setFriendName(state, action: PayloadAction<UserStatusI>) {
+      for (let i = 0; i < state.friends.length; i++) {
+        if (state.friends[i].id === action.payload.id){
+          state.friends[i].name = action.payload.name;
+          break ;
+        }
+      }
+      for (let i = 0; i < state.banned.length; i++) {
+        if (state.banned[i].id === action.payload.id){
+          state.banned[i].name = action.payload.name;
+          break ;
+        }
+      }
+    },
     deleteFriend(state, action: PayloadAction<UserInfoPublic>) {
       state.friends = state.friends.filter((friend) => friend.id !== action.payload.id);
     },
@@ -60,5 +74,5 @@ const chatSlice = createSlice({
 export const selectFriends = (state: RootState) => state.chat.friends;
 export const selectBanned = (state: RootState) => state.chat.banned;
 
-export const {setFriends, deleteFriend, setBanned, deleteBanned, setFriendStatus} = chatSlice.actions;
+export const {setFriends, deleteFriend, setFriendName, setBanned, deleteBanned, setFriendStatus} = chatSlice.actions;
 export default chatSlice.reducer;
