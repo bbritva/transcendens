@@ -93,8 +93,10 @@ const ChatPage: FC<ChatPageProps> = ({
 
   const [inputError, setInputError] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-  const [channelName, setChannelName] = useState("");
+  const [inputName, setInputValue] = useState("");
+  const [menuTitle, setMenuTitle] = useState('');
   const [contextMenu, setContextMenu] = useState<{
+    event: "Add channel" | 'Add user';
     mouseX: number;
     mouseY: number;
   } | null>(null);
@@ -164,11 +166,42 @@ const ChatPage: FC<ChatPageProps> = ({
       return true;
     })
   }
-  const handleContextMenu : MouseEventHandler = (event) => {
+
+  const handleChannelMenu : MouseEventHandler = (event) => {
     event.preventDefault();
+    setMenuTitle('channel');
     setContextMenu(
       contextMenu === null
         ? {
+          event: 'Add channel',
+          mouseX: event.clientX + 3,
+          mouseY: event.clientY + 3,
+        }
+        : null,
+    );
+  }
+
+  const changeNewChannelName = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setInputValue(event.target.value);
+    if (!isNameValid(event.target.value))
+      setInputError(true)
+    else  setInputError(false)
+  }
+
+  const changeNewUserName = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setInputValue(event.target.value);
+    if (!isNameValid(event.target.value))
+      setInputError(true)
+    else  setInputError(false)
+  }
+
+  const handleUserMenu : MouseEventHandler = (event) => {
+    event.preventDefault();
+    setMenuTitle('user');
+    setContextMenu(
+      contextMenu === null
+        ? {
+          event: 'Add user',
           mouseX: event.clientX + 3,
           mouseY: event.clientY + 3,
         }
@@ -181,28 +214,34 @@ const ChatPage: FC<ChatPageProps> = ({
       component: StyledMenuItem as FC,
       compProps: {
         onClick: () => setOpen(true),
-        children: 'Create channel',
+        children: contextMenu?.event || 'Add',
         key: 1
       }
     },
   ]
 
-  function createChannel() {
+  function createChannel(event: EventI) {
     if (inputError){
       return;
     }
-    const event: EventI = {
-      name: "joinChannel",
-      data: { name: channelName},
-    };
     socket.emit(event.name, event.data);
+    setOpen(false);
+    setTimeout(() => setInputValue(''), 200);
+  }
+  function addUser(event: EventI) {
+    if (inputError){
+      return;
+    }
+    socket.emit(event.name, event.data);
+    setOpen(false);
+    setTimeout(() => setInputValue(''), 200);
   }
   // props for the oneCol table - buttons styled items
   return (
     <>
       <DialogSelect options={ {} } open={open} setOpen={(value: boolean) => {
           setOpen(value);
-          setTimeout(() => setChannelName(''), 200);
+          setTimeout(() => setInputValue(''), 200);
           setInputError(false);
         }}>
         <Box
@@ -212,21 +251,20 @@ const ChatPage: FC<ChatPageProps> = ({
           padding="0px"
         >
             <TextField
+              key={ menuTitle }
               autoFocus
               margin="dense"
               id="name"
-              label="Channel name"
+              label={ menuTitle }
               type="text"
               variant="standard"
-              value={channelName}
+              value={inputName}
               error={inputError}
-              helperText={inputError ? "Wrong channel name" : ""}
-              onChange={(event) => {
-                setChannelName(event.target.value);
-                if (!isNameValid(event.target.value))
-                  setInputError(true)
-                else  setInputError(false)
-              }}
+              helperText={inputError ? "Wrong name" : ""}
+              onChange={ menuTitle === 'channel'
+                ? changeNewChannelName
+                : changeNewUserName
+              }
             />
             <Button
               disabled={inputError}
@@ -234,7 +272,13 @@ const ChatPage: FC<ChatPageProps> = ({
               sx={{
                 justifyContent: "flex-start",
               }}
-              onClick={createChannel}
+              onClick={() => {
+                const event: EventI = {
+                  name: "joinChannel",
+                  data: { name: inputName},
+                };
+                createChannel(event)
+              }}
             >
               <Typography variant="subtitle1">Submit</Typography>
             </Button>
@@ -265,7 +309,7 @@ const ChatPage: FC<ChatPageProps> = ({
           setElement={(channel: channelFromBackI) => {
             setDestination(["Channels", channel]);
           }}
-          createChannel={handleContextMenu}
+          addActionClick={handleChannelMenu}
           dialogChildren={
             <ChooseDialogChildren
               dialogName="Channels"
@@ -299,7 +343,6 @@ const ChatPage: FC<ChatPageProps> = ({
           })}
         </StyledMenu>
       </Box>
-
       <Box flex={4} height="70vh" marginTop={"2rem"}>
         <ChatTable
           name={"Chat"}
@@ -343,6 +386,7 @@ const ChatPage: FC<ChatPageProps> = ({
           chatStyles={chatStyles}
           selectedElement={chosenUser}
           setElement={setChosenUser}
+          addActionClick={handleUserMenu}
           dialogChildren={
             <ChooseDialogChildren
               dialogName="Users"

@@ -43,7 +43,7 @@ const OneColumnTable: FC<{
   }[];
   openDialog: boolean; 
   setOpenDialog: Function;
-  createChannel?: MouseEventHandler<HTMLButtonElement>
+  addActionClick?: MouseEventHandler<HTMLButtonElement>
 }> = ({
   taper,
   user,
@@ -56,7 +56,7 @@ const OneColumnTable: FC<{
   buttons,
   openDialog,
   setOpenDialog,
-  createChannel
+  addActionClick
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
@@ -91,12 +91,12 @@ const OneColumnTable: FC<{
         >
           {taper}
         </Typography>
-        { createChannel &&
+        { addActionClick &&
           <IconButton
             size="small"
             aria-label="close"
             color="inherit"
-            onClick={createChannel}
+            onClick={addActionClick}
           >
             <AddIcon fontSize="small" />
           </IconButton>
