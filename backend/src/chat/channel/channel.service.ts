@@ -187,13 +187,13 @@ export class ChannelService {
     return this.prisma.channel
       .updateMany({
         where: {
-          name: data.channelName,
+          name: data?.channelName || "",
           admIds: {
             has: executorId,
           },
         },
         data: {
-          isPrivate: data.isPrivate,
+          isPrivate: data?.isPrivate || false,
         },
       })
       .then((ret: any) => ret.count != 0)
@@ -207,17 +207,16 @@ export class ChannelService {
     data: DTO.SetPasswordI
   ): Promise<boolean> {
     return bcrypt
-      .hash(data.password ? data.password : "", parseInt(env.HASH_SALT))
+      .hash(data?.password ? data.password : "", parseInt(env.HASH_SALT))
       .then(async (hashedPassword) => {
-        data.password = hashedPassword;
         return this.prisma.channel
           .updateMany({
             where: {
-              name: data.channelName,
+              name: data?.channelName || "",
               ownerId: executorId,
             },
             data: {
-              password: data.password,
+              password: hashedPassword,
             },
           })
           .then((ret: any) => ret.count != 0)
@@ -311,13 +310,13 @@ export class ChannelService {
     return this.prisma.channel
       .updateMany({
         where: {
-          name: data.channelName,
+          name: data?.channelName || "",
           admIds: {
             has: executorId,
           },
         },
         data: {
-          name: data.newName,
+          name: data?.newName || "",
         },
       })
       .then((ret: any) => ret.count != 0)
@@ -372,7 +371,7 @@ export class ChannelService {
                 connect: { name: data.channelName },
               },
               authorName: data.authorName,
-              authorId: parseInt(data.authorId),
+              authorId: executorId,
               text: data.text,
             })
             .then((message) => message)

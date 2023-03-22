@@ -294,9 +294,8 @@ export class Gateway implements OnModuleInit {
 
   @SubscribeMessage("getActiveGames")
   async onGetActiveGames(
-    @ConnectedSocket() socket: Socket,
   ) {
-    this.gatewayService.getActiveGames(socket.id);
+    this.gatewayService.emitActiveGames();
   }
 
 

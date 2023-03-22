@@ -1,6 +1,7 @@
 import { Dispatch } from "@reduxjs/toolkit";
 import { io } from "socket.io-client";
 import { notifyI } from "src/App";
+import { SetPrivacyI } from "src/components/DialogSelect/ChannerSettingsDialog";
 import {
   channelFromBackI,
   fromBackI,
@@ -215,6 +216,30 @@ export function initSocket(
     setNotify({ message: `channel ${data.channelName} became ${data.newName}`, severity: "success" });
   });
 
+  socket.on("privacySet", (data: SetPrivacyI) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === data.channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        res[ind].isPrivate = data.isPrivate;
+      }
+      return res;
+    });
+    setNotify({ message: `channel ${data.channelName} became ${data.isPrivate ? "private" : "public"}`, severity: "success" });
+  });
+
+  socket.on("passwordSet", (data: {channelName: string, hasPassword: boolean}) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === data.channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        res[ind].hasPasswrod = data.hasPassword;
+      }
+      return res;
+    });
+    setNotify({ message: `channel ${data.channelName} is ${data.hasPassword ? "": "not "}password protected now`, severity: "success" });
+  });
+
   
 
   socket.on("exFriend", (data: UserInfoPublic) => {
@@ -265,7 +290,6 @@ export function initSocket(
   });
 
   socket.on("executionError", (data: any) => {
-    setNotify({ message: data.cause, severity: "warning" });
     console.log("executionError", data);
   });
 

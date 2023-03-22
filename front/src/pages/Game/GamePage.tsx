@@ -423,7 +423,9 @@ const GamePage: FC<GamePageProps> = ({
           onClick={clickPause}
         />
         <Button
-          children={Game.isSpectator() ? "Leave game" : "finish game"}
+          children={
+            Game.isSpectator() ? "Leave game" : "Finish game"
+          }
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
           disabled={!Game.isSingle() && !Game.isSpectator()}
