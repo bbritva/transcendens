@@ -423,6 +423,26 @@ export class GatewayService {
     }
   }
 
+  async addUserToChannel(socketId: string, data: DTO.ManageUserInChannelI) {
+    const user = this.connections.get(socketId);
+    const channel = await this.channelService.getChannel(data.channelName);
+    const targetUser = await this.userService.getUserByName(data.targetUserName);
+    // check possibility
+    if (!user || !targetUser) this.emitExecutionError(socketId, "addUserToChannel", "user unknown");
+    else if (!channel) this.emitExecutionError(socketId, "addUserToChannel", "channel unknown");
+    else {
+      const channelIn = {
+        name: data.channelName
+      }
+      if (await this.canJoin(socketId, user, channel, channelIn, targetUser)) {
+      await this.connectUserToChannel(
+        channelIn,
+        this.connections.get(socketId)
+      ).catch((e) => this.emitExecutionError(socketId, "joinChannel", e.cause));
+
+    }}
+  }
+
   async leaveChannel(
     socketId: string,
     channelName: string,

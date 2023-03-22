@@ -49,6 +49,14 @@ export class Gateway implements OnModuleInit {
     this.gatewayService.joinChannel(socket.id, channelIn);
   }
 
+  @SubscribeMessage("addToChannel")
+  async onAddToChannel(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: DTO.ManageUserInChannelI
+  ) {
+    this.gatewayService.addUserToChannel(socket.id, data);
+  }
+
   @SubscribeMessage("leaveChannel")
   async onLeaveChannel(
     @ConnectedSocket() socket: Socket,
