@@ -454,6 +454,8 @@ export class GatewayService {
       this.emitNotAllowed(socketId, "addToChannel", data, "user unknown");
     else if (!channel)
       this.emitNotAllowed(socketId, "addToChannel", data, "channel unknown");
+    else if (targetUser.bannedIds.includes(user.id))
+      this.emitNotAllowed(socketId, "addToChannel", data, "you're banned");
     else {
       const channelIn = {
         name: data.channelName,
