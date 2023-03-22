@@ -437,7 +437,7 @@ export class GatewayService {
       if (await this.canJoin(socketId, user, channel, channelIn, targetUser)) {
       await this.connectUserToChannel(
         channelIn,
-        this.connections.get(socketId)
+        targetUser
       ).catch((e) => this.emitExecutionError(socketId, "joinChannel", e.cause));
 
     }}
