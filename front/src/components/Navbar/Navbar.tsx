@@ -103,7 +103,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
               <>
                 <Switch
                   color="secondary"
-                  sx={{ marginTop: '1rem', marginRight: '1rem'}}
+                  sx={{ alignSelf: 'center'}}
                   checked={ mode === 'dark'} 
                   onClick={() => {
                     dispatch(switchMode())
