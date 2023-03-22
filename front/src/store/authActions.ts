@@ -25,7 +25,7 @@ export const loginSuccess = createAction(
 export const loginFail = createAction('LOGIN_FAIL');
 
 export const login = createAsyncThunk(
-  'login',
+  'Login',
   async (data: {
     accessCode: string,
     accessState: string,

@@ -68,7 +68,7 @@ export default function SignUp(props: AccountUpdateProps) {
       ? setAvatarSource(imageUrl)
       : extUser?.avatar
         ? setAvatarSource(
-          process.env.REACT_APP_USERS_URL + `/avatar/${extUser.avatar}`
+          process.env.REACT_APP_AUTH_URL + `/user/avatar/${extUser.avatar}`
         )
         : setAvatarSource(extUser?.image || "");
   }, [imageUrl, extUser?.avatar]);
