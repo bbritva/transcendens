@@ -28,7 +28,6 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
             setExtUser({status: 'succeed', id: id, user: userData.data as UserInfoPublic});
           })
           .catch((error) => {
-            console.log({error});
           })
     }
 

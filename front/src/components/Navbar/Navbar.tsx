@@ -35,7 +35,7 @@ function Navbar({ loginButtonText, onLoginClick, onLogoutClick }: NavbarProps) {
 
     if (test) {
       setAvatarSource(
-        process.env.REACT_APP_USERS_URL + `/avatar/${test}`
+        process.env.REACT_APP_AUTH_URL+ `/user/avatar/${test}`
       )
     }
     else if (user)
