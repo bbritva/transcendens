@@ -1,7 +1,6 @@
 import {
   CardMedia,
   Grid,
-  IconButton,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -11,7 +10,6 @@ import {
   useRef,
   CSSProperties,
   ReactNode,
-  MouseEventHandler,
 } from "react";
 import DialogSelect from "src/components/DialogSelect/DialogSelect";
 import { fromBackI } from "src/pages/Chat/ChatPage";
@@ -19,44 +17,32 @@ import { chatStylesI } from "src/pages/Chat/chatStyles";
 import { userI } from "src/store/userSlice";
 import React from "react";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
-import AddIcon from '@mui/icons-material/Add';
+import { GameStateDataI } from "src/pages/Game/components/game/game";
 
 const anchorStyle = {
   overflowAnchor: "auto",
   height: "1px",
 };
 
-const OneColumnTable: FC<{
-  taper: string;
-  user: userI | null;
+const GamesTable: FC<{
   loading: boolean;
-  elements: fromBackI[];
+  elements: GameStateDataI[];
   chatStyles: chatStylesI;
   selectedElement: {};
   setElement: Function;
-  dialogChildren: ReactNode;
   buttons: {
     component: React.FC,
     compProps: {
       onClick: Function
     }
   }[];
-  openDialog: boolean; 
-  setOpenDialog: Function;
-  addActionClick?: MouseEventHandler<HTMLButtonElement>
+
 }> = ({
-  taper,
-  user,
   loading,
   elements,
   chatStyles,
-  selectedElement,
   setElement,
-  dialogChildren,
   buttons,
-  openDialog,
-  setOpenDialog,
-  addActionClick
 }): ReactElement => {
   const theme = useTheme();
   const tableRef = useRef(null);
@@ -73,11 +59,7 @@ const OneColumnTable: FC<{
         ...chatStyles.borderStyle,
         borderRadius: "0.5rem",
         background:
-          "linear-gradient(to top, " +
-          theme.palette.primary.main +
-          ", 15%, " +
-          theme.palette.secondary.main +
-          ")",
+          theme.palette.secondary.main
       }}
     >
       <Grid item xs={12} display="inherit" justifyContent={"inherit"}>
@@ -89,18 +71,8 @@ const OneColumnTable: FC<{
             ...chatStyles.textElipsis,
           }}
         >
-          {taper}
+          Ongoing games
         </Typography>
-        { addActionClick &&
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={addActionClick}
-          >
-            <AddIcon fontSize="small" />
-          </IconButton>
-        }
       </Grid>
       <Grid
         item
@@ -109,41 +81,32 @@ const OneColumnTable: FC<{
         flexDirection={"column"}
         sx={{
           height: "90%",
+          width: "90%",
+          minWidth: "100px",
+          maxWidth: "300px",
           ...chatStyles.scrollStyle,
         }}
       >
         {loading
           ? "LOADING"
           : elements.map((data) => { 
-              if (!(taper === "Users" && user?.name === data.name)){
-                //@ts-ignore
-                let ava = data?.avatar || data.image || '';
                 return (
                   <BasicMenu
-                    key={data.name}
-                    title={data.name}
+                    key={data.gameName}
+                    title={data.playerFirst.name + " VS " + data.playerSecond.name}
                     onClick={() => {
                       setElement(data);
                     }}
                     mychildren={buttons}
-                    fullwidth={true}
-                    extAvatar={ava}
+                    fullwidth={false}
                   />
                 );}
-              }
             )
         }
         <div style={anchorStyle as CSSProperties} />
       </Grid>
-      <DialogSelect 
-        options={selectedElement}
-        open={openDialog}
-        setOpen={setOpenDialog}
-      >
-        {dialogChildren}
-      </DialogSelect>
     </Grid>
   );
 };
 
-export default OneColumnTable;
+export default GamesTable;

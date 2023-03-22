@@ -8,13 +8,13 @@ import { Camera } from "@mediapipe/camera_utils";
 
 const gameBasicProps = {
   screenRatio: 3 / 2,
-  winScore: 200,
+  winScore: 2,
   paddleHeight: 0.015,
   paddleWidth: 0.2,
   paddleOffset: 3,
-  paddleSpeed: 0.023,
+  paddleSpeed: 0.03,
   ballRadius: 0.015,
-  ballSpeed: 0.023,
+  ballSpeed: 0.02,
 };
 
 export interface gameBasicPropsI {
@@ -120,12 +120,20 @@ class Game {
     return Game.instance.gameState.gameName != "demo";
   }
 
-  public static setColor(color : string) {
+  public static setColor(color: string) {
     Game.color = color;
   }
 
   public static getColor() {
     return Game.color;
+  }
+
+  public static isSpectator(): boolean {
+    return Game.instance?.myRole === role.SPECTATOR;
+  }
+
+  public static isSingle() : boolean {
+    return Game.instance?.gameState.gameName === "single";
   }
 
   public static setPause(value: boolean) {
@@ -284,7 +292,11 @@ class Game {
           if (Game.setGameOngoing) Game.setGameOngoing(false);
           if (Game.setGameResult)
             Game.setGameResult(
-              result.winnerName == this.myName ? "You won! =)" : "You lost! :'("
+              this.myRole === role.SPECTATOR
+                ? `${result.winnerName} won! 8-|`
+                : result.winnerName == this.myName
+                ? "You won! =)"
+                : "You lost! :'("
             );
           socket.off("gameState");
           socket.off("gameFinished");
@@ -328,12 +340,13 @@ class Game {
   }
 
   private initBall(initData: GameStateDataI) {
+    this.ball.hitCounter = 0;
     this.ball.remote = this.myRole != role.FIRST;
     this.ball.x = initData.ball.x ? initData.ball.x : 0.5;
     this.ball.y = initData.ball.y ? initData.ball.y : 0.5;
     this.ball.speedX = initData.ball.speedX
       ? initData.ball.speedX
-      :  - this.ball.speedH;
+      : -this.ball.speedH;
     this.ball.speedY = initData.ball.speedY
       ? initData.ball.speedY
       : -this.ball.speedV;
@@ -432,31 +445,41 @@ class Game {
     if (!this.canvas) return;
 
     if (this.gameState.gameName == "demo") {
-      this.rightPaddle.upPressed =
-        this.ball.speedX > 0 &&
-        this.rightPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
-      this.rightPaddle.downPressed =
-        this.ball.speedX > 0 &&
-        this.rightPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+      if (this.ball.speedX > 0) {
+        this.rightPaddle.upPressed =
+          this.rightPaddle.paddleY + gameBasicProps.paddleWidth / 4 >
           this.ball.y;
-      // } else this.rightPaddle.paddleY = this.canvas.height * this.y;
+        this.rightPaddle.downPressed =
+          this.rightPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+          this.ball.y;
+      } else {
+        this.rightPaddle.upPressed =
+          this.rightPaddle.paddleY > 0.4 + gameBasicProps.paddleWidth / 4;
+        this.rightPaddle.downPressed =
+          this.rightPaddle.paddleY < 0.4 - gameBasicProps.paddleWidth / 4;
+      }
     }
-    this.rightPaddle.movePaddle(Game.handY);
+    this.rightPaddle.movePaddle(Math.abs(this.ball.speedY), Game.handY);
 
     if (
       this.gameState.gameName == "single" ||
       this.gameState.gameName == "demo"
     ) {
-      this.leftPaddle.upPressed =
-        this.ball.speedX < 0 &&
-        this.leftPaddle.paddleY + gameBasicProps.paddleWidth / 4 > this.ball.y;
-      this.leftPaddle.downPressed =
-        this.ball.speedX < 0 &&
-        this.leftPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+      if (this.ball.speedX < 0) {
+        this.leftPaddle.upPressed =
+          this.leftPaddle.paddleY + gameBasicProps.paddleWidth / 4 >
           this.ball.y;
-      // } else this.leftPaddle.paddleY = this.canvas.height * this.y;
+        this.leftPaddle.downPressed =
+          this.leftPaddle.paddleY + (gameBasicProps.paddleWidth * 3) / 4 <
+          this.ball.y;
+      } else {
+        this.leftPaddle.upPressed =
+          this.leftPaddle.paddleY > 0.4 + gameBasicProps.paddleWidth / 4;
+        this.leftPaddle.downPressed =
+          this.leftPaddle.paddleY < 0.4 - gameBasicProps.paddleWidth / 4;
+      }
     }
-    this.leftPaddle.movePaddle();
+    this.leftPaddle.movePaddle(Math.abs(this.ball.speedY));
     this.ball.moveBall(Game.isPaused);
   }
 
@@ -554,7 +577,11 @@ class Game {
     Game.hasNewData = true;
     Game.instance.gameInitState = null;
     if (Game.setGameOngoing) Game.setGameOngoing(false);
-    if (Game.setGameResult && option != "drop")
+    if (
+      Game.setGameResult &&
+      option != "drop" &&
+      this.gameState.gameName !== "demo"
+    )
       Game.setGameResult(
         this.rightPaddle.score > this.leftPaddle.score || option == "meWinner"
           ? "You won! =)"
@@ -562,10 +589,11 @@ class Game {
           ? "Boring... =("
           : "You lost! :'("
       );
-    socket.emit("endGame", {
-      gameName: this.gameState.gameName,
-      option: option,
-    });
+    if (this.myRole == role.FIRST)
+      socket.emit("endGame", {
+        gameName: this.gameState.gameName,
+        option: option,
+      });
   }
 }
 

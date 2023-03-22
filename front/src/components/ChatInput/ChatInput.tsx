@@ -36,6 +36,7 @@ const ChatInput: FC<{
         ".MuiInputBase-input" :{
           overflow: 'hidden',
         },
+        color: theme.palette.secondary.main
       }}
       endAdornment={
         <InputAdornment position="end">

@@ -24,10 +24,12 @@ const initialState: userStateI = {
 
 export const getUser = createAsyncThunk(
   'getUser',
-  async ( _, thunkApi) => {
+  async ( navigate: Function, thunkApi) => {
       const response = await userService.getMe()
-      if (response.status == 200)
-        setTimeout(() => thunkApi.dispatch(loginSuccess()), 350);
+      if (response.status == 200){
+        await setTimeout(() => thunkApi.dispatch(loginSuccess()), 350);
+        navigate("/account")
+      }
       return response.data;
   }
 )

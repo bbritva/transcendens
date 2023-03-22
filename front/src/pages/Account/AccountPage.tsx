@@ -7,7 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { Box, CardMedia, IconButton, Slide, useTheme } from "@mui/material";
+import { Box, CardMedia, IconButton, Slide, Typography, useTheme } from "@mui/material";
 import { useSelector, useStore } from "react-redux";
 import SignUp from "src/components/AccountUpdate/AccountUpdate";
 import { userI } from "src/store/userSlice";
@@ -34,9 +34,9 @@ import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import { extUserState } from "./AccountPageWrapper";
 import socket from "src/services/socket";
 import { RootState } from "src/store/store";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import WifiIcon from '@mui/icons-material/Wifi';
+import WifiOffIcon from '@mui/icons-material/WifiOff';
 
 function createHistoryData(
   score: string,
@@ -85,7 +85,6 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
 
   useEffect(() => {
     if (status) {
-      console.log(games);
       setHistoryRows(
         games.games.map((game) =>
           createHistoryData(
@@ -125,8 +124,10 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
     createPlayerData("Total losses: ", losesNum + "", "3"),
     createPlayerData("Total score: ", score + "", "1"),
     createPlayerData(
-      <Box display="flex" alignItems="center">
-        Rating
+      <Box display="flex" alignItems="center"  marginLeft={"1.5rem"} >
+        <Typography variant="body1">
+          Rating
+        </Typography>
         <SportsCricketIcon
           fontSize='medium'
           sx={{
@@ -155,6 +156,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
             setSearchParams({ user: friend.id + "" }, { replace: false });
           },
           children: "Profile",
+          key: "Profile",
         },
       },
       {
@@ -166,22 +168,28 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
             });
           },
           children: banned ? "Unban" : "Delete",
+          key: banned ? "Unban" : "Delete",
         },
       },
     ];
     if (!banned) {
+      // too hard to implement before the deadline
+      // res.push({
+      //   component: StyledMenuItem as FC,
+      //   compProps: {
+      //     onClick: () => navigate("/chat", { replace: false }),
+      //     children: "Message",
+      //     key: "Message",
+      //   },
+      // });
       res.push({
         component: StyledMenuItem as FC,
         compProps: {
-          onClick: () => navigate("/chat", { replace: false }),
-          children: "Message",
-        },
-      });
-      res.push({
-        component: StyledMenuItem as FC,
-        compProps: {
-          onClick: () => navigate("/game", { replace: false }),
-          children: "Game",
+          onClick: () => {
+            socket.emit("inviteToGame", { recipient: friend.name});
+          },
+          children: "invite to game",
+          key: "Game",
         },
       });
     }
@@ -193,9 +201,9 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
     banned: boolean
   ): settingsRowI => {
     const FriendComponent = (
-      <Box display='flex' alignItems={'center'}>
-          { friend.status === 'ONLINE' && <CheckCircleIcon color="info" />}
-          { friend.status === 'OFFLINE' && <CancelIcon color="primary" />}
+      <Box key={friend.id} display='flex' alignItems={'center'}>
+          { friend.status === 'ONLINE' && <WifiIcon color="info" />}
+          { friend.status === 'OFFLINE' && <WifiOffIcon color="primary" />}
           { friend.status === 'ONGAME' && <SportsEsportsIcon color="info" />}
         <BasicMenu fullwidth={true} title={friend.name} extAvatar={friend.avatar || friend.image || fakeAvatar} mychildren={createButtons(friend, banned)} />
       </Box>

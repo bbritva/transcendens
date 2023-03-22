@@ -6,12 +6,13 @@ import { getUser } from 'src/store/userSlice';
 import { getSearchParams, removeAllParamsFromUrl } from 'src/utils/urlUtils';
 import { login } from 'src/store/authActions';
 import { selectIsTwoFAEnabled } from 'src/store/authReducer';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 
 export default function useAuth(): [string, string] {
   const { getState } = useStore();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const isTwoFAEnabled = useSelector(selectIsTwoFAEnabled);
   const storageToken = {
     refreshToken: localStorage.getItem('refreshToken') || ''
@@ -33,7 +34,7 @@ export default function useAuth(): [string, string] {
     if (
       storageToken.refreshToken &&
       user.status === 'idle'
-    ) dispatch(getUser());
+    ) dispatch(getUser(navigate));
   }
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function useAuth(): [string, string] {
       auth.isLoggedIn &&
       user.status === 'idle'
     )
-      dispatch(getUser());
+      dispatch(getUser(navigate));
   }, [auth.isLoggedIn]);
 
   return [accessCode, accessState];

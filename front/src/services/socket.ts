@@ -177,6 +177,13 @@ export function initSocket(
     });
   });
 
+  socket.on("youBanned", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `you're banned in ${data.channelName}`,
+      severity: "warning",
+    });
+  });
+
   socket.on("userUnmuted", (data: userInChannelMovementI) => {
     setNotify({ message: `you unmuted ${data.targetUserName}`, severity: "success" });
   });
@@ -185,9 +192,30 @@ export function initSocket(
     setNotify({ message: `you unbanned ${data.targetUserName}`, severity: "success" });
   });
 
+  socket.on("youUnbanned", (data: userInChannelMovementI) => {
+    setNotify({
+      message: `you're unbanned in ${data.channelName}`,
+      severity: "success",
+    });
+  });
+
   socket.on("userKicked", (data: userInChannelMovementI) => {
     setNotify({ message: `you kicked ${data.targetUserName}`, severity: "success" });
   });
+
+  socket.on("newChannelName", (data: { channelName: string, newName: string }) => {
+    setChannels((prev: channelFromBackI[]) => {
+      const ind = prev.findIndex((el) => el.name === data.channelName);
+      const res = [...prev];
+      if (ind !== -1) {
+        res[ind].name = data.newName;
+      }
+      return res;
+    });
+    setNotify({ message: `channel ${data.channelName} became ${data.newName}`, severity: "success" });
+  });
+
+  
 
   socket.on("exFriend", (data: UserInfoPublic) => {
     dispatch(deleteFriend(data));
@@ -226,10 +254,6 @@ export function initSocket(
 
   socket.on("nameSuggestions", (data: NameSuggestionInfoI[]) => {
     console.log("nameSuggestions", data);
-  });
-
-  socket.on("activeGames", (data: GameStateDataI[]) => {
-    console.log("activeGames", data);
   });
 
   socket.on("notAllowed", (data: any) => {
