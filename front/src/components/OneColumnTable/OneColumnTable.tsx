@@ -116,7 +116,6 @@ const OneColumnTable: FC<{
           ? "LOADING"
           : elements.map((data) => { 
               if (!(taper === "USERS" && user?.name === data.name)){
-                console.log({taper, logger: user?.name, data: data.name})
                 //@ts-ignore
                 let ava = data?.avatar || data.image || '';
                 return (
