@@ -95,7 +95,7 @@ const GamePage: FC<GamePageProps> = ({
 
   useEffect(() => {
     const [eventName, data] = event;
-    socket.emit(eventName, data);
+    if (!gameOngoing) socket.emit(eventName, data);
   }, [event]);
 
   useEffect(() => {
@@ -237,7 +237,7 @@ const GamePage: FC<GamePageProps> = ({
       width={"0.9"}
       sx={{
         backgroundColor: theme.palette.secondary.main,
-          ...chatStyles.scrollStyle
+        ...chatStyles.scrollStyle,
       }}
     >
       <DialogSelect
@@ -318,7 +318,6 @@ const GamePage: FC<GamePageProps> = ({
         </Box>
       </Dialog>
       <Grid item display={"flex"} justifyContent={"center"}>
-       
         <Button
           children={"Single player"}
           fullWidth
@@ -389,7 +388,7 @@ const GamePage: FC<GamePageProps> = ({
         />
       </Grid>
       <Grid item display={"flex"} justifyContent={"center"}>
-      <Button
+        <Button
           children={"Mouse"}
           sx={{ margin: "0.5px" }}
           variant={"outlined"}
@@ -423,9 +422,7 @@ const GamePage: FC<GamePageProps> = ({
           onClick={clickPause}
         />
         <Button
-          children={
-            Game.isSpectator() ? "Leave game" : "Finish game"
-          }
+          children={Game.isSpectator() ? "Leave game" : "Finish game"}
           variant={"outlined"}
           sx={{ margin: "0.5px" }}
           disabled={!Game.isSingle() && !Game.isSpectator()}
@@ -433,11 +430,7 @@ const GamePage: FC<GamePageProps> = ({
           onClick={finishSingleGame}
         />
       </Grid>
-      <Typography
-        variant="h6"
-        alignSelf="center"
-        marginTop="5px"
-      >
+      <Typography variant="h6" alignSelf="center" marginTop="5px">
         {playerController === "Mouse"
           ? "You have chosen an old-fashioned way to control with the mouse. Just move it to control the racket =("
           : "You have chosen a cool incredible innovative way to remote control. Just move your hand in front of the camera =)"}
