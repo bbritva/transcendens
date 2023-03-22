@@ -242,7 +242,7 @@ const ChatPage: FC<ChatPageProps> = ({
         </Box>
       </DialogSelect>
       <Box
-        flex={1}
+        flex={1.3}
         marginTop={"2rem"}
         marginLeft={"2rem"}
         marginRight={"1rem"}
@@ -301,7 +301,7 @@ const ChatPage: FC<ChatPageProps> = ({
         </StyledMenu>
       </Box>
 
-      <Box flex={4} height="70vh" marginTop={"2rem"}>
+      <Box flex={3.5} height="70vh" marginTop={"2rem"}>
         <ChatTable
           name={"Chat"}
           loading={loading}
@@ -324,7 +324,7 @@ const ChatPage: FC<ChatPageProps> = ({
       </Box>
 
       <Box
-        flex={1}
+        flex={1.3}
         marginTop={"2rem"}
         marginLeft={"1rem"}
         marginRight={"2rem"}
