@@ -28,6 +28,7 @@ setSlideShow: Function
         setTimeout(() => {
           dispatch(updateUser({ ...userEnable }));
         }, 140);
+        window.location.reload();
       }
     
       async function disableTwoFA() {
@@ -41,6 +42,7 @@ setSlideShow: Function
         setTimeout(() => {
           dispatch(updateUser({ ...userDisable }));
         }, 140);
+        window.location.reload();
       }
     
       function onChange(
