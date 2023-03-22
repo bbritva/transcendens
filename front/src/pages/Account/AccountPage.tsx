@@ -57,9 +57,10 @@ function createPlayerData(
 
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
-const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
+const AccountPage: FC<{ extUser: extUserState; variant: boolean; setChannels: Function }> = ({
   extUser,
   variant,
+  setChannels
 }): ReactElement => {
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
@@ -271,7 +272,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
         },
       }}
     >
-      <SignUp extUser={extUser.user} variant={variant} myalign="end" />
+      <SignUp extUser={extUser.user} variant={variant} myalign="end" setChannels={setChannels} />
       <BasicTable
         title="PLAYER STATISTICS"
         tableHeadArray={null}

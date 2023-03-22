@@ -49,7 +49,7 @@ const AccountPageWrapper: FC<pagePropsI> = ({
 
   }, [newUser]);
 
-  return <AccountPage key={extUser.id} extUser={extUser} variant={variant}/>;
+  return <AccountPage key={extUser.id} extUser={extUser} variant={variant} setChannels={setChannels} />;
 }
 
 export default AccountPageWrapper;

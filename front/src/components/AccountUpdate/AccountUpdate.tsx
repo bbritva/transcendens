@@ -14,12 +14,13 @@ import AccountButton from "./StyledButton";
 import CloudSyncIcon from "@mui/icons-material/CloudSync";
 import socket from "src/services/socket";
 import AddAPhotoOutlinedIcon from "@mui/icons-material/AddAPhotoOutlined";
-import { fromBackI } from "src/pages/Chat/ChatPage";
+import { channelFromBackI, fromBackI } from "src/pages/Chat/ChatPage";
 import { UserInfoPublic } from "src/store/chatSlice";
 
 export interface AccountUpdateProps extends styledBoxI {
   extUser: UserInfoPublic,
-  variant: boolean
+  variant: boolean,
+  setChannels: Function
 }
 
 export default function SignUp(props: AccountUpdateProps) {
@@ -94,6 +95,16 @@ export default function SignUp(props: AccountUpdateProps) {
         setInputError(true);
       if (res?.status === 200){
         dispatch(updateUser({ ...extUser as userI, ...res.data }));
+        props.setChannels((prev: channelFromBackI[]) => {
+          const res = [...prev];
+          res.forEach((channel) => {
+            channel.users.forEach((user) => {
+              if (user.id === extUser.id)
+                user.name = inputValue;
+            })
+          })
+          return res;
+        });
       }
     }
   };
