@@ -17,6 +17,7 @@ import {
   deleteBanned,
   deleteFriend,
   setBanned,
+  setFriendName,
   setFriends,
   setFriendStatus,
   UserInfoPublic,
@@ -293,12 +294,13 @@ export function initSocket(
     console.log("executionError", data);
   });
 
-  socket.on("newUserName", (data: {id:number, name: string}) => {
+  socket.on("newUserName", (data: {id:string, name: string}) => {
+    dispatch(setFriendName(data as UserInfoPublic));
     setChannels((prev: channelFromBackI[]) => {
       const res = [...prev];
       for (const channel of res){
         for (const i in channel.users) {
-          if (Number(channel.users[i].id) === data.id)
+          if (Number(channel.users[i].id) === parseInt(data.id))
           channel.users[i].name = data.name;
         }
       }
