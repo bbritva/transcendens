@@ -17,13 +17,22 @@ export default function useAuth(): [string, string] {
   const storageToken = {
     refreshToken: localStorage.getItem('refreshToken') || ''
   };
+  const [accessCode, setAccessCode] = useState('');
+  const [accessState, setAccessState] = useState('');
   const { user, auth } = getState() as RootState;
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const accessCode = searchParams.get("code") || '';
-  const accessState = searchParams.get("state") || '';
+  const code = searchParams.get("code") || '';
+  const state = searchParams.get("state") || '';
   searchParams.delete("code");
   searchParams.delete("state");
+
+  useEffect(() => {
+    if (code)
+      setAccessCode(code)
+    if (state)
+      setAccessState(state)
+  }, [code, state])
 
   if (
     !auth.isLoggedIn &&
