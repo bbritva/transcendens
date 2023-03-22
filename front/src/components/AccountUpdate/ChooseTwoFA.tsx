@@ -49,7 +49,7 @@ const ChooseTwoFA: FC<twoFAdialogProps> = (props: twoFAdialogProps) => {
             <Box
               marginLeft={"3rem"}
               paddingTop={"1rem"}
-              maxHeight="50px"
+              maxHeight="100px"
               maxWidth="100px"
               component={"img"}
               alt="2faQR"
