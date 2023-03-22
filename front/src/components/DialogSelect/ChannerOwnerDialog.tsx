@@ -53,7 +53,7 @@ const ChannelOwnerDialog: FC<dialogProps> = (props: dialogProps) => {
       </Button>
       <TextField
         error={!punishAvailable}
-        label={"Punish time (min)"}
+        label={"Punish time (sec)"}
         onChange={onChange}
         margin="dense"
       />

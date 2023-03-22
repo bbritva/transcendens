@@ -32,7 +32,7 @@ const OneColumnTable: FC<{
   loading: boolean;
   elements: fromBackI[];
   chatStyles: chatStylesI;
-  selectedElement: {};
+  selectedElement: {name: string};
   setElement: Function;
   dialogChildren: ReactNode;
   buttons: {
@@ -80,11 +80,9 @@ const OneColumnTable: FC<{
           ")",
       }}
     >
-      <Grid item xs={12} display="inherit" justifyContent={"inherit"}>
+      <Grid item xs={12} display="inherit" justifyContent={"inherit"} alignItems={'center'} maxHeight={'10%'}>
         <Typography
-          marginTop={"1rem"}
           variant="body1"
-          maxHeight="3rem"
           sx={{
             ...chatStyles.textElipsis,
           }}
@@ -120,8 +118,6 @@ const OneColumnTable: FC<{
                 let ava = data?.avatar || data.image || '';
                 let name = data.name;
                 if(data.name.endsWith(" pm")) {
-                  
-
                   const names = data.name.split(" ");
                   name = (names[0] === user?.name) ? names[0] : names[1];
                 }
@@ -135,6 +131,11 @@ const OneColumnTable: FC<{
                     mychildren={buttons}
                     fullwidth={true}
                     extAvatar={ava}
+                    buttonVariant={
+                      (taper === "CHANNELS" && data.name === selectedElement?.name)
+                      ? 'outlined'
+                      : undefined
+                    }
                   />
                 );}
               }

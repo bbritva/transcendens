@@ -143,7 +143,6 @@ class Game {
 
   public static setMouseControl(isMouse: boolean) {
     Game.mouseControl = isMouse;
-    console.log(Game.mouseControl);
   }
 
   public static finishGameManual(option: string) {
@@ -435,7 +434,6 @@ class Game {
         width: 640,
         height: 480,
       });
-      console.log("create cam");
       this.camera.start();
     }
   }

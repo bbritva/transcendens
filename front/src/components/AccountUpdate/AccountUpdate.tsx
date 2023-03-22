@@ -31,12 +31,12 @@ export default function SignUp(props: AccountUpdateProps) {
   const [inputValue, setInputValue] = React.useState<string>(username || extUser.name || "");
   const [avatarSource, setAvatarSource] = React.useState<string>("");
   const dispatch = useAppDispatch();
-  const nameRegex= /^[A-Za-z0-9]+$/;
+  const nameRegex= /^[A-Za-z0-9\-]+$/;
 
   const theme = useTheme();
 
   function isNameValid(name: string){
-   if(name.match(nameRegex))
+   if(name.match(nameRegex) && name.length > 3 && name.length < 20)
       return true;
    else
      return false;

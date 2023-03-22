@@ -129,7 +129,6 @@ const GamePage: FC<GamePageProps> = ({
     });
     socket.off("activeGames");
     socket.on("activeGames", (data: GameStateDataI[]) => {
-      console.log("activeGames", data);
       setGameList(data);
     });
   }, []);
