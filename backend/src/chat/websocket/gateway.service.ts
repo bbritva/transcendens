@@ -756,7 +756,7 @@ export class GatewayService {
       isPaused: false,
     });
     activeGames.push({
-      gameName: "Test2",
+      gameName: "Test3",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
       playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
@@ -770,21 +770,21 @@ export class GatewayService {
       isPaused: false,
     });
     activeGames.push({
-      gameName: "Test2",
+      gameName: "Test4",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
       playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
       isPaused: false,
     });
     activeGames.push({
-      gameName: "Test2",
+      gameName: "Test5",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
       playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
       isPaused: false,
     });
     activeGames.push({
-      gameName: "Test2",
+      gameName: "Test6",
       playerFirst: { name: "p3", score: 11, paddleY: 0 },
       playerSecond: { name: "banned", score: 32, paddleY: 0 },
       ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
