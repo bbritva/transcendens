@@ -10,7 +10,6 @@ import {
   Paper,
   Radio,
   RadioGroup,
-  TextField,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -225,6 +224,8 @@ const GamePage: FC<GamePageProps> = ({
     setPaused(false);
   }
 
+  chatStyles.scrollStyle["&::-webkit-scrollbar-thumb"].backgroundColor =
+    theme.palette.primary.light;
   return (
     <Box
       component={Paper}
@@ -236,6 +237,7 @@ const GamePage: FC<GamePageProps> = ({
       width={"0.9"}
       sx={{
         backgroundColor: theme.palette.secondary.main,
+          ...chatStyles.scrollStyle
       }}
     >
       <DialogSelect

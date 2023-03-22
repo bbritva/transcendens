@@ -1,6 +1,5 @@
 import {
   Box,
-  Grid,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -9,7 +8,7 @@ import {
   FC,
   useRef,
 } from "react";
-import { chatStylesI } from "src/pages/Chat/chatStyles";
+import {  chatStylesI } from "src/pages/Chat/chatStyles";
 import React from "react";
 import BasicMenu from "src/components/BasicMenu/BasicMenu";
 import { GameStateDataI } from "src/pages/Game/components/game/game";
@@ -35,12 +34,14 @@ const GamesTable: FC<{
 }): ReactElement => {
   const tableRef = useRef(null);
   const theme = useTheme();
+
  
   return (
     <Box
       display="flex"
       flexDirection="column"
       alignItems="center"
+      maxHeight={'14vh'}
     >
         <Typography
           marginTop={"1rem"}
@@ -49,17 +50,6 @@ const GamesTable: FC<{
           ONGOING GAMES:
         </Typography>
       <Box
-        // sx={{
-        //   overflow: "scroll",
-        //   overflowX: "hidden",
-        //   "&::-webkit-scrollbar": {
-        //     display: "none",
-        //   },
-        //   [theme.breakpoints.only("md")]: {
-        //     overflowX: "scroll",
-        //   },
-        // // }}
-        // overflow={} ="scroll"
         ref={tableRef}
         display="flex"
         flexDirection={"column"} // "row" = scroll to add 
