@@ -1,6 +1,5 @@
 import { Dispatch } from "@reduxjs/toolkit";
 import { io } from "socket.io-client";
-import { notifyI } from "src/App";
 import {
   channelFromBackI,
   fromBackI,
@@ -10,7 +9,6 @@ import {
   NameSuggestionInfoI,
   UserStatusI
 } from "src/pages/Chat/ChatPage";
-import { GameStateDataI } from "src/pages/Game/components/game/game";
 import { logout } from "src/store/authActions";
 import {
   deleteBanned,

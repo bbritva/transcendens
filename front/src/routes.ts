@@ -1,4 +1,4 @@
-import ChatPage, { ChatPageProps } from "src/pages/Chat/ChatPage";
+import ChatPage, { pagePropsI } from "src/pages/Chat/ChatPage";
 import GamePage, { GamePageProps } from "src/pages/Game/GamePage";
 import HomePage from "src/pages/Home/HomePage";
 import {FC} from "react";
@@ -11,7 +11,7 @@ export interface Route {
     title: string,
     path: string,
     enabled: boolean,
-    component: FC<{}> | FC<ChatPageProps>| FC<GamePageProps>
+    component: FC<{}> | FC< pagePropsI >| FC<GamePageProps>
 }
 
 export const routes: Array<Route> = [

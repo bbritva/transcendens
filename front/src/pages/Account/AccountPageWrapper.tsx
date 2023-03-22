@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import userService from "src/services/user.service";
 import { selectUser, userI } from "src/store/userSlice";
 import { useSelector } from "react-redux";
+import { pagePropsI } from "../Chat/ChatPage";
 
 export interface extUserState {
   status: string,
@@ -12,7 +13,9 @@ export interface extUserState {
   user: UserInfoPublic | userI
 }
 
-const AccountPageWrapper: FC<any> = (): ReactElement => {
+const AccountPageWrapper: FC<pagePropsI> = ({
+  setChannels
+}): ReactElement => {
   const { user } = useSelector(selectUser);
   const [extUser, setExtUser] = useState<extUserState>({status: 'idle', id: 0, user: user || {} as UserInfoPublic});
   let [searchParams, setSearchParams] = useSearchParams();

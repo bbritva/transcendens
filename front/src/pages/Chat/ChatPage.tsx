@@ -71,12 +71,12 @@ export interface newMessageI extends idI{
   text: string;
 }
 
-export interface ChatPageProps {
+export interface pagePropsI {
   channels: channelFromBackI[];
   setChannels: Function;
 }
 
-const ChatPage: FC<ChatPageProps> = ({
+const ChatPage: FC<pagePropsI> = ({
   channels,
   setChannels,
 }): ReactElement => {

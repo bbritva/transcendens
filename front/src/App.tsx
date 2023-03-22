@@ -14,8 +14,6 @@ import {
   PaletteMode,
   Alert,
   AlertColor,
-  Box,
-  Stack
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -47,7 +45,6 @@ export interface notifyI {
   severity: AlertColor;
 }
 function App() {
-  const { getState } = useStore();
   const dispatch = useAppDispatch();
   const [openNick, setOpenNick] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -216,10 +213,10 @@ function App() {
                 element={
                   <PrivateRouteWrapper>
                     <route.component
-                      channels={channels}
-                      setChannels={setChannels}
                       gameData={gameData}
                       setGameData={setGameData}
+                      channels={channels}
+                      setChannels={setChannels}
                     />
                   </PrivateRouteWrapper>
                 }
