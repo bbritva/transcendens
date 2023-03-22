@@ -722,6 +722,7 @@ export class GatewayService {
       this.addGameResult(data);
     }
     this.gameRooms.delete(data.gameName);
+    this.emitActiveGames()
     this.server.socketsLeave(data.gameName);
   }
 
@@ -767,54 +768,12 @@ export class GatewayService {
       );
   }
 
-  async getActiveGames(socketId: string) {
+  async emitActiveGames() {
     const activeGames: DTO.gameStateDataI[] = [];
     for (const el of this.gameRooms.values()) {
       activeGames.push(el);
     }
-    activeGames.push({
-      gameName: "Test1",
-      playerFirst: { name: "alice", score: 4, paddleY: 0 },
-      playerSecond: { name: "p2", score: 3, paddleY: 0 },
-      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
-      isPaused: false,
-    });
-    activeGames.push({
-      gameName: "Test2",
-      playerFirst: { name: "p3", score: 11, paddleY: 0 },
-      playerSecond: { name: "banned", score: 32, paddleY: 0 },
-      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
-      isPaused: false,
-    });
-    activeGames.push({
-      gameName: "Test2",
-      playerFirst: { name: "p3", score: 11, paddleY: 0 },
-      playerSecond: { name: "banned", score: 32, paddleY: 0 },
-      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
-      isPaused: false,
-    });
-    activeGames.push({
-      gameName: "Test2",
-      playerFirst: { name: "p3", score: 11, paddleY: 0 },
-      playerSecond: { name: "banned", score: 32, paddleY: 0 },
-      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
-      isPaused: false,
-    });
-    activeGames.push({
-      gameName: "Test2",
-      playerFirst: { name: "p3", score: 11, paddleY: 0 },
-      playerSecond: { name: "banned", score: 32, paddleY: 0 },
-      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
-      isPaused: false,
-    });
-    activeGames.push({
-      gameName: "Test2",
-      playerFirst: { name: "p3", score: 11, paddleY: 0 },
-      playerSecond: { name: "banned", score: 32, paddleY: 0 },
-      ball: { x: 0, y: 0, speedX: 0, speedY: 0 },
-      isPaused: false,
-    });
-    this.server.to(socketId).emit("activeGames", activeGames);
+    this.server.emit("activeGames", activeGames);
   }
 
   setPaused(data: DTO.pauseGameI) {
@@ -918,11 +877,7 @@ export class GatewayService {
       }
     }
     this.server.to(game.gameName).emit("connectToGame", game);
-    const activeGames = [];
-    for (const el of this.gameRooms.values()) {
-      activeGames.push(el);
-    }
-    this.server.emit("activeGames", activeGames);
+    this.emitActiveGames();
   }
 
   private async connectUserToGames(socketId: string) {
