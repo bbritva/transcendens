@@ -1,5 +1,4 @@
 import { AxiosResponse } from 'axios';
-import authHeader from './authHeader';
 import { userI } from 'src/store/userSlice';
 import { UserInfoPublic } from 'src/store/chatSlice';
 import { myAxios } from 'src';
