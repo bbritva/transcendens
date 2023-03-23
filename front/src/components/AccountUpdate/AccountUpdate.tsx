@@ -232,7 +232,7 @@ export default function SignUp(props: AccountUpdateProps) {
             >
               <AccountButton type="submit">
                 <CloudSyncIcon fontSize="large" sx={{ mr: 1, my: 1.5 }} />
-                Update
+                Save changes
               </AccountButton>
             </Grid>
           }

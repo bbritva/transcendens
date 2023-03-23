@@ -30,7 +30,7 @@ services:
 
   pgsql:
     container_name: pgsql
-    image: postgres:alpine3.15
+    image: postgres:alpine3.17
     env_file:
       - ./docker/.env
     networks:

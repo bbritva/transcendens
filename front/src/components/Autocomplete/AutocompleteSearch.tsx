@@ -22,7 +22,7 @@ export default function AutocompleteSearch() {
     setValue(value);
 }
   const handleSubmit = (event: React.SyntheticEvent<Element, Event>, value: any) => {
-    if (typeof(value) === 'object'){
+    if (!!value && typeof(value) === 'object'){
       navigate('/account?user=' + value.id);
     }
     setValue('');
