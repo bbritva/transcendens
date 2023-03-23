@@ -10,20 +10,52 @@ function HomePage() {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const isLogged = useSelector(selectLoggedIn);
 
+    const later = (delay: number, value: string) => {
+      let timer: NodeJS.Timeout | null;
+      timer = null;
+      let reject = null as any;
+      const promise = new Promise((resolve, _reject) => {
+        reject = _reject;
+        timer = setTimeout(resolve, delay, value);
+      });
+      return {
+        get promise() { return promise; },
+        cancel() {
+          if (timer) {
+            clearTimeout(timer);
+            timer = null;
+            reject();
+            reject = null;
+          }
+        }
+      };
+    };
+
+  const l1 = later(1300, "l1");
+
   useEffect(() => {
-    let counter = sessionStorage.getItem('counter');
-    if (!counter){
-      counter = '1';
-    } else {
-      if (counter.length > 1)
-        setLoginText("Login? Yes Login..... you know fish chips,  cup a tea .. bad food, worse weather ....Mary f%€king Poppins .... \nLogin ... ");
-      counter += '1';
-    }
-    if (!isLogged)
-      setTimeout(() => {setOpenDialog(true)}, 1200);
-    else
-      counter = '1'
-    sessionStorage.setItem('counter', counter);
+    l1.promise
+      .then(msg => {
+        let counter = sessionStorage.getItem('counter');
+        let code = sessionStorage.getItem('refreshToken');
+        if (!counter) {
+          counter = '1';
+        } else {
+          if (counter.length > 1)
+            setLoginText("Login? Yes Login..... you know fish chips,  cup a tea .. bad food, worse weather ....Mary f%€king Poppins .... \nLogin ... ");
+          counter += '1';
+        }
+        if (!code)
+          setOpenDialog(true)
+        else {
+          setOpenDialog(false);
+          counter = '1'
+        }
+        sessionStorage.setItem('counter', counter);
+      })
+      .catch(() => { console.log("l1 cancelled"); });
+    if (isLogged)
+      l1.cancel();
   }, [isLogged]);
 
   return (
@@ -42,21 +74,22 @@ function HomePage() {
       <Typography variant="h2" color={theme.palette.secondary.main}>
         Pong game
       </Typography>
-      <DialogSelect
+      { isLogged ? <></> : <DialogSelect
         options={{}}
         open={openDialog}
         setOpen={setOpenDialog}
       >        <Box
-          margin={"1rem"}
-          display={"flex"}
-          flexDirection={"column"}
-          alignItems={"center"}
-        >
-        <Typography variant="body1" maxWidth={"300px"}>
-          {loginText}
-        </Typography>
+        margin={"1rem"}
+        display={"flex"}
+        flexDirection={"column"}
+        alignItems={"center"}
+      >
+          <Typography variant="body1" maxWidth={"300px"}>
+            {loginText}
+          </Typography>
         </Box>
       </DialogSelect>
+      }
     </Box>
 
   );
