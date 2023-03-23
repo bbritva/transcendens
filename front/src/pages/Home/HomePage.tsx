@@ -53,7 +53,7 @@ function HomePage() {
         }
         sessionStorage.setItem('counter', counter);
       })
-      .catch(() => { console.log("l1 cancelled"); });
+      .catch(() => {});
     if (isLogged)
       l1.cancel();
   }, [isLogged]);
