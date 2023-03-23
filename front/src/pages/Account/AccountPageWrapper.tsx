@@ -17,17 +17,21 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
   const [extUser, setExtUser] = useState<extUserState>({status: 'idle', id: 0, user: user || {} as UserInfoPublic});
   let [searchParams, setSearchParams] = useSearchParams();
   const [variant, setVariant] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   let newUser = searchParams.get("user");
 
 
     async function getExtUser(id: number) {
+      setLoading(false);
       let response = userService.getById(id);
         await response
           .then((userData) => {
             setExtUser({status: 'succeed', id: id, user: userData.data as UserInfoPublic});
+            setLoading(true);
           })
           .catch((error) => {
+            console.log('error', error)
           })
     }
   
@@ -49,7 +53,7 @@ const AccountPageWrapper: FC<any> = (): ReactElement => {
 
   }, [newUser]);
 
-  return <AccountPage key={extUser.id} extUser={extUser} variant={variant}/>;
+  return <AccountPage key={extUser.id} extUser={extUser} variant={variant} loading={loading}/>;
 }
 
 export default AccountPageWrapper;

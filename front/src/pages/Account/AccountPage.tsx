@@ -57,9 +57,10 @@ function createPlayerData(
 
 const header = ["SCORE", "WIN/LOSE", "RIVALS"];
 
-const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
+const AccountPage: FC<{ extUser: extUserState; variant: boolean; loading: boolean}> = ({
   extUser,
   variant,
+  loading
 }): ReactElement => {
   const theme = useTheme();
   const [slideShow, setSlideShow] = useState<boolean>(false);
@@ -99,10 +100,10 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean }> = ({
   }, [status]);
 
   useEffect(() => {
-    if (extUser.user.id && extUser.status !== 'loading') {
+    if (extUser.user.id && extUser.status !== 'loading' && !loading) {
       dispatch(getGames({ userId: parseInt(extUser.user.id), set: setStatus }));
     }
-  }, [extUser.user.id]);
+  }, [loading]);
 
   useEffect(() => {
     if (status && extUser.user.id && extUser.status !== 'loading') {
