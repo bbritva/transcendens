@@ -218,6 +218,7 @@ function App() {
                       setChannels={setChannels}
                       gameData={gameData}
                       setGameData={setGameData}
+                      twoFaOpen={openTwoFa}
                     />
                   </PrivateRouteWrapper>
                 }

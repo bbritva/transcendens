@@ -11,7 +11,7 @@ export interface Route {
     title: string,
     path: string,
     enabled: boolean,
-    component: FC<{}> | FC<ChatPageProps>| FC<GamePageProps>
+    component: FC<{}> | FC<ChatPageProps>| FC<GamePageProps> | FC<{twoFaOpen: boolean}>,
 }
 
 export const routes: Array<Route> = [

@@ -1,10 +1,10 @@
 import { Box, Typography, useTheme } from '@mui/material'
-import { useEffect, useState } from 'react';
+import { FC, ReactElement, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import DialogSelect from 'src/components/DialogSelect/DialogSelect';
 import { selectLoggedIn } from 'src/store/authReducer';
 
-function HomePage() {
+const HomePage: FC<{twoFaOpen: boolean}> = ({twoFaOpen}): ReactElement => {
   const theme = useTheme();
   const [loginText, setLoginText] = useState<string>('Login?');
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -34,6 +34,10 @@ function HomePage() {
   const l1 = later(1300, "l1");
 
   useEffect(() => {
+    if (twoFaOpen)
+      return;
+    if (isLogged || twoFaOpen)
+      l1.cancel();
     l1.promise
       .then(msg => {
         let counter = sessionStorage.getItem('counter');
@@ -45,7 +49,7 @@ function HomePage() {
             setLoginText("Login? Yes Login..... you know fish and chips,  cup of tea .. bad food, worse weather ....Mary f%€king Poppins .... \nLogin ... ");
           counter += '1';
         }
-        if (!code)
+        if (!code && !twoFaOpen)
           setOpenDialog(true)
         else {
           setOpenDialog(false);
@@ -54,9 +58,9 @@ function HomePage() {
         sessionStorage.setItem('counter', counter);
       })
       .catch(() => {});
-    if (isLogged)
-      l1.cancel();
-  }, [isLogged]);
+    return () => l1.cancel();
+  }, [isLogged,twoFaOpen]);
+
 
   return (
     <Box
