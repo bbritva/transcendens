@@ -42,7 +42,7 @@ function HomePage() {
           counter = '1';
         } else {
           if (counter.length > 1)
-            setLoginText("Login? Yes Login..... you know fish chips,  cup a tea .. bad food, worse weather ....Mary f%€king Poppins .... \nLogin ... ");
+            setLoginText("Login? Yes Login..... you know fish and chips,  cup of tea .. bad food, worse weather ....Mary f%€king Poppins .... \nLogin ... ");
           counter += '1';
         }
         if (!code)

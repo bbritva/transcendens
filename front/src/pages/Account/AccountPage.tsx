@@ -189,7 +189,7 @@ const AccountPage: FC<{ extUser: extUserState; variant: boolean; loading: boolea
           onClick: () => {
             socket.emit("inviteToGame", { recipient: friend.name});
           },
-          children: "invite to game",
+          children: "Invite to game",
           key: "Game",
         },
       });
